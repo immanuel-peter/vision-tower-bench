@@ -53,3 +53,29 @@ def test_splits_are_disjoint_and_cover_everything():
     joined = torch.cat([split.train, split.val, split.test])
     assert len(joined) == 1000
     assert len(set(joined.tolist())) == 1000
+
+
+def test_shard_writer_groups_batches_into_fixed_size_files(tmp_path):
+    writer = cache.ShardWriter(tmp_path, images=4)
+    for step in range(5):
+        for layer in (3, 6):
+            writer.add(
+                FeatureBatch(
+                    tokens=torch.full((2, 16, 8), float(step), dtype=torch.bfloat16),
+                    image_ids=[f"img{step}a", f"img{step}b"],
+                    model_id="test/model",
+                    stage="tower",
+                    layer_index=layer,
+                    num_layers=12,
+                    resolution=448,
+                )
+            )
+    writer.close()
+
+    # Ten images per depth point at four per shard is three files, not ten.
+    assert len(list(tmp_path.glob("tower_L03_*.safetensors"))) == 3
+    assert writer.slices == 2
+
+    tokens, image_ids, _ = cache.load(tmp_path, "tower", 3)
+    assert tokens.shape == (10, 16, 8)
+    assert image_ids == [f"img{s}{c}" for s in range(5) for c in "ab"]

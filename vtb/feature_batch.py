@@ -8,6 +8,16 @@ from safetensors.torch import save_file
 STAGES = ("tower", "merged", "projected")
 
 
+def concat(batches: list["FeatureBatch"]) -> "FeatureBatch":
+    """Join batches that share a model, Stage, and depth point into one."""
+    head = batches[0]
+    return replace(
+        head,
+        tokens=torch.cat([b.tokens for b in batches]),
+        image_ids=[image_id for b in batches for image_id in b.image_ids],
+    )
+
+
 @dataclass(frozen=True)
 class FeatureBatch:
     """Patch tokens from one model at one Stage and one Relative Depth point.

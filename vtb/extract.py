@@ -7,6 +7,7 @@ from pathlib import Path
 
 from torch.utils.data import DataLoader
 
+from vtb.cache import ShardWriter
 from vtb.adapters.dinov2 import DINOv2Adapter
 from vtb.adapters.moonvit_v2 import MoonViTV2Adapter
 from vtb.images import ImageFolder
@@ -31,6 +32,13 @@ def main() -> None:
         help="DataLoader workers. JPEG decode limits extraction, not the Tower, so set "
         "this near the vCPU count on a burst instance. At the default of 4 an A100 ran "
         "DINOv2 at 4 percent utilization.",
+    )
+    ap.add_argument(
+        "--images-per-shard",
+        type=int,
+        default=512,
+        help="images per output file. Keeps the file count independent of --batch-size, "
+        "which for a packed-sequence Tower is forced to 1 (ADR-0009).",
     )
     ap.add_argument(
         "--pool",
@@ -59,23 +67,23 @@ def main() -> None:
     print(f"{len(dataset)} images, {adapter.num_layers} layers, depth points {adapter.depth_points()}")
     print(f"grid: {tag}")
 
-    written = images = tokens = slices = 0
+    writer = ShardWriter(run_dir, args.images_per_shard)
+    written = images = tokens = 0
     start = time.perf_counter()
-    for shard, (inputs, image_ids) in enumerate(loader):
-        slices = 0
+    for inputs, image_ids in loader:
         for batch in adapter.extract(inputs, image_ids):
             if args.pool:
                 batch = batch.pooled(args.pool)
-            batch.save(run_dir / f"{batch.stage}_L{batch.layer_index:02d}_{shard:05d}.safetensors")
+            writer.add(batch)
             written += batch.nbytes
-            slices += 1
             if batch.stage == "tower":
                 tokens = batch.tokens.shape[1]
         images += len(image_ids)
         elapsed = time.perf_counter() - start
         print(f"{images}/{len(dataset)}  {images / elapsed:5.1f} img/s  {written / 1e9:6.2f} GB", flush=True)
+    writer.close()
 
-    report(run_dir, adapter, args.pool, tokens, slices, images, written, time.perf_counter() - start)
+    report(run_dir, adapter, args.pool, tokens, writer.slices, images, written, time.perf_counter() - start)
 
 
 @dataclass(frozen=True)
