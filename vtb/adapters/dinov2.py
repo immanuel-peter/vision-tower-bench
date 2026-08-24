@@ -1,9 +1,34 @@
 from collections.abc import Iterator
+from dataclasses import dataclass
 
 import torch
+from torchvision import transforms
 from transformers import AutoModel
 
 from vtb.feature_batch import FeatureBatch
+from vtb.images import square_crop
+
+IMAGENET_MEAN = (0.485, 0.456, 0.406)
+IMAGENET_STD = (0.229, 0.224, 0.225)
+
+
+@dataclass(frozen=True)
+class Preprocess:
+    """PIL image to the (3, H, W) tensor DINOv2 expects. Runs in DataLoader workers."""
+
+    resolution: int
+
+    def __call__(self, image) -> torch.Tensor:
+        pipeline = transforms.Compose([
+            square_crop(self.resolution),
+            transforms.ToTensor(),
+            transforms.Normalize(IMAGENET_MEAN, IMAGENET_STD),
+        ])
+        return pipeline(image)
+
+
+def collate(samples: list[torch.Tensor]) -> torch.Tensor:
+    return torch.stack(samples)
 
 
 class DINOv2Adapter:
@@ -11,12 +36,16 @@ class DINOv2Adapter:
 
     model_id = "facebook/dinov2-large"
     stages = ("tower",)
+    collate = staticmethod(collate)
 
     def __init__(self, resolution: int = 448, dtype=torch.bfloat16, device: str = "mps"):
         self.model = AutoModel.from_pretrained(self.model_id, dtype=dtype).to(device).eval()
         self.resolution = resolution
         self.device = device
         self.num_layers = self.model.config.num_hidden_layers
+
+    def preprocess(self) -> Preprocess:
+        return Preprocess(self.resolution)
 
     def depth_points(self, n: int = 8) -> list[int]:
         """Layer indices at Relative Depth 1/n .. 1.0."""
@@ -30,10 +59,11 @@ class DINOv2Adapter:
             interpolate_pos_encoding=True,
         )
         for layer in self.depth_points():
-            # hidden_states[0] is the embedding output, so index i is after block i.
+            # The last point is the Tower's own output, so it carries the final norm.
+            source = out.last_hidden_state if layer == self.num_layers else out.hidden_states[layer]
             # Column 0 is the CLS token, dropped to keep every model patch-only.
             yield FeatureBatch(
-                tokens=out.hidden_states[layer][:, 1:, :].cpu(),
+                tokens=source[:, 1:, :].cpu(),
                 image_ids=image_ids,
                 model_id=self.model_id,
                 stage="tower",
