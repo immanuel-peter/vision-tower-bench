@@ -41,6 +41,7 @@ Notes:
 ## Probing protocol
 
 - Global semantic tasks share one readout: a frozen-feature attention pool of one to two million parameters, identical across models and Stages. Mean pooling appears once as an ablation column.
+- Capacity matching: head size scales with token width, so a `projected` cell at 7168 would otherwise train a head four times larger than a `tower` cell at 1024. Every cell fits and freezes a PCA reduction to a common width first, giving 1.63M trainable parameters everywhere. Headline tables also run unmatched, and the matched result is accepted only if rankings and Relative Depth curves agree (ADR-0008).
 - Semantic features are cached as a 4x4 spatially pooled grid, identical for every model and Stage, so the attention pool still reads spatial tokens and cross-model comparison holds (ADR-0005). Report the pooling in the protocol section of the writeup.
 - Pooling validation: a fixed 5000-image semantic subset is also cached at full patch tokens, about 80 GB across the roster. Run the semantic probe both ways on at least two Towers and confirm that model rankings and Relative Depth curves agree. This is a control, so the cut order never reaches it (ADR-0005).
 - Dense tasks use the Probe3D decoder family (depth, correspondence) unchanged across every cell. Geometry keeps full patch tokens, because that pillar carries the headline claim and Probe3D-scale data is small enough to afford them.
@@ -51,6 +52,7 @@ Notes:
 ## Datasets
 
 - Semantics: ImageNet-100 first, ImageNet-1K if probes run fast enough, Places365 for scenes, Stanford Cars for fine-grained. iNaturalist backs up Cars.
+- ImageNet-100 source is [ilee0022/ImageNet100](https://huggingface.co/datasets/ilee0022/ImageNet100), 117k train / 13k validation / 5k test at native resolution, 17.4 GB. The more popular `clane9/imagenet-100` is unusable here because its images are pre-resized to 160 pixels on the short side and the canonical run is 448 square.
 - Geometry: Probe3D's protocol and data. Transfer Probe: KITTI depth, one column, nothing more (ADR-0001).
 - Perturbation Study: programmatic transforms at graded levels applied to a fixed subset of real photos, one factor per image family. Factors: object scale, occlusion, motion blur. Record the transform parameters for every image. Source pool: COCO or ADE20K images; pick during week 4 based on license and download size.
 
@@ -82,7 +84,7 @@ Start Monday, August 25. Five focused weeks before autumn quarter, then a low-in
 - Week 5: statistics pass (seeds, bootstrap), Capability Profile tables and plots, HF uploads.
 - Term tail: blog editing, Space demo if it survived cuts, preprint-upgrade decision.
 
-Cut order when slipping: 896² runs, then Perturbation factors down to one, then Transfer Probe variants. Never the controls, never parity tests (ADR-0003), never the pooling validation (ADR-0005).
+Cut order when slipping: 896² runs, then Perturbation factors down to one, then Transfer Probe variants. Never the controls, never parity tests (ADR-0003), never the pooling validation (ADR-0005), never the capacity-matching validation (ADR-0008).
 
 ## Shipping order
 
