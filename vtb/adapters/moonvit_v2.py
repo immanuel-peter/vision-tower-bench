@@ -78,6 +78,10 @@ class MoonViTV2Adapter:
 
     The Tower emits one flat sequence for the whole batch. Every image has the same
     grid at a fixed resolution, so the sequence splits back into rows cleanly.
+
+    Extract at batch size 1 unless flash attention is installed. Without it the model
+    masks a dense square over the whole packed batch, so larger batches are slower and
+    eventually run out of memory (ADR-0009).
     """
 
     model_id = "AI4Industry/MoonViT-V2"

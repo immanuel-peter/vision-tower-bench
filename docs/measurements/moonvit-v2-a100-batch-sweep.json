@@ -1,0 +1,22 @@
+{
+  "checked": "2026-08-24",
+  "instance": "hyperstack_A100_80G",
+  "gpu": "NVIDIA A100 80GB PCIe",
+  "driver_cuda": "12.8",
+  "torch": "2.13.0+cu129",
+  "attention": "sdpa",
+  "model_id": "AI4Industry/MoonViT-V2",
+  "resolution": 448,
+  "images": 240,
+  "workers": 24,
+  "note": "sdpa_attention and eager_attention build a dense [1, seq, seq] mask over the whole packed batch, so packing N images costs N times the attention work and discards all but 1/N of it. Only flash_attention_2 consumes cu_seqlens. Throughput therefore falls as batch size rises.",
+  "images_per_second_by_batch": {"1": 15.5, "2": 13.4, "4": 9.6, "8": 5.3},
+  "batch_64_result": "CUDA OOM, tried to allocate 192 GiB",
+  "chosen_batch": 1,
+  "comparison": {
+    "m4_max_mps_batch_8": 3.0,
+    "a100_sdpa_batch_1": 15.5,
+    "dinov2_a100_batch_128_workers_4": 45.4,
+    "dinov2_a100_gpu_utilization_at_workers_4": "4%"
+  }
+}

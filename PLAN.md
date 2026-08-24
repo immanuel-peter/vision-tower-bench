@@ -66,6 +66,8 @@ Extraction runs on rented Brev GPUs in bounded bursts. Everything else runs loca
 - Instance choice: `hyperstack_A100_80G` at $1.62/hr, checked Aug 23. It has the same 80 GB as an H100 at half the price, and extraction is forward-pass only. The cheapest H100 is $3.00/hr and buys about twice the throughput, so the two are close on cost per image. Use `hyperstack_A6000` at $0.60/hr or `massedcompute_L40S` at $1.06/hr for the control models and pipeline work.
 - Prefer instances with bundled disk over metered volumes. Brev meters storage near $0.10/GB/month, so a 1 TB volume for a month would cost more than half the budget.
 - The M4 Max runs DINOv2 at 6.0 images per second and MoonViT-V2 at 3.0, so ImageNet-100 would take 6 to 12 hours per model locally. That is why extraction is a Brev job.
+- Measured on an A100 80GB: DINOv2 at 45 images per second, MoonViT-V2 at 15.5. Set `--workers` near the vCPU count, because DINOv2 ran the GPU at 4 percent utilization with the default 4 and was bound by JPEG decode. MoonViT-V2 runs at batch size 1: it packs sequences, and without flash attention larger batches are slower and eventually exhaust memory (ADR-0009).
+- Instance setup is `scripts/brev_setup.sh`. It pins the cu129 wheels, since PyPI serves cu130 and the 12.8 driver on these instances silently falls back to CPU, and it fails loudly if torch cannot see the GPU.
 
 ## Known risks
 
