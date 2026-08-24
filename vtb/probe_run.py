@@ -1,0 +1,158 @@
+"""Train the semantic readout on a cached run and report one Capability Profile column.
+
+Reads the shards `extract.py` wrote, trains the head on frozen features at every Stage
+and Relative Depth point, and writes accuracies to JSON. No GPU work beyond the head.
+"""
+
+import argparse
+import json
+from dataclasses import dataclass
+from pathlib import Path
+
+import torch
+from torch import nn
+
+from vtb import cache, probe
+
+
+@dataclass(frozen=True)
+class Split:
+    train: torch.Tensor
+    val: torch.Tensor
+    test: torch.Tensor
+
+
+def split_indices(count: int, seed: int = 0, val: float = 0.15, test: float = 0.15) -> Split:
+    order = torch.randperm(count, generator=torch.Generator().manual_seed(seed))
+    n_val, n_test = int(count * val), int(count * test)
+    return Split(order[n_val + n_test:], order[:n_val], order[n_val:n_val + n_test])
+
+
+def train_once(features, labels, split, num_classes, kind, lr, seed, device, epochs, batch_size):
+    torch.manual_seed(seed)
+    model = probe.build(kind, features.shape[-1], num_classes).to(device)
+    optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-4)
+    schedule = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, epochs)
+
+    for _ in range(epochs):
+        model.train()
+        order = split.train[torch.randperm(len(split.train))]
+        for start in range(0, len(order), batch_size):
+            index = order[start:start + batch_size]
+            loss = nn.functional.cross_entropy(
+                model(features[index].to(device)), labels[index].to(device)
+            )
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+        schedule.step()
+
+    return model, accuracy(model, features, labels, split.val, device), accuracy(
+        model, features, labels, split.test, device
+    )
+
+
+@torch.inference_mode()
+def accuracy(model, features, labels, index, device, batch_size=512) -> float:
+    model.eval()
+    correct = 0
+    for start in range(0, len(index), batch_size):
+        chunk = index[start:start + batch_size]
+        predicted = model(features[chunk].to(device)).argmax(dim=-1).cpu()
+        correct += (predicted == labels[chunk]).sum().item()
+    return correct / len(index)
+
+
+def run_cell(features, labels, split, num_classes, args) -> dict:
+    """Eight-point learning-rate grid, selected on validation, then repeated over seeds."""
+    best_lr, best_val = None, -1.0
+    for lr in args.learning_rates:
+        _, val, _ = train_once(
+            features, labels, split, num_classes, args.readout, lr, 0,
+            args.device, args.epochs, args.batch_size,
+        )
+        if val > best_val:
+            best_lr, best_val = lr, val
+
+    tests = []
+    for seed in range(args.seeds):
+        _, _, test = train_once(
+            features, labels, split, num_classes, args.readout, best_lr, seed,
+            args.device, args.epochs, args.batch_size,
+        )
+        tests.append(test)
+    scores = torch.tensor(tests)
+    return {
+        "learning_rate": best_lr,
+        "val_accuracy": round(best_val, 4),
+        "test_accuracy": round(scores.mean().item(), 4),
+        "test_std": round(scores.std(unbiased=False).item(), 4),
+        "seeds": args.seeds,
+    }
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser(description="Train the semantic readout on a cached run.")
+    ap.add_argument("--run", type=Path, required=True, help="cache directory written by vtb.extract")
+    ap.add_argument("--labels", type=Path, required=True, help="JSON written by scripts/export_imagenet100.py")
+    ap.add_argument("--out", type=Path, default=None)
+    ap.add_argument("--readout", default="attention", choices=("attention", "mean"))
+    ap.add_argument("--width", type=int, default=512)
+    ap.add_argument(
+        "--match-capacity",
+        action="store_true",
+        help="fit a frozen PCA reduction to --width first, so every cell trains the same "
+        "number of parameters regardless of token width",
+    )
+    ap.add_argument("--epochs", type=int, default=20)
+    ap.add_argument("--batch-size", type=int, default=256)
+    ap.add_argument("--seeds", type=int, default=3)
+    ap.add_argument("--device", default="mps")
+    ap.add_argument(
+        "--learning-rates",
+        type=float,
+        nargs="+",
+        default=[3e-4, 1e-3, 3e-3, 1e-2, 3e-2, 1e-1, 3e-1, 1.0],
+    )
+    args = ap.parse_args()
+
+    label_map = json.loads(args.labels.read_text())["labels"]
+    num_classes = len(set(label_map.values()))
+
+    cells = []
+    for stage, layer in cache.slices(args.run):
+        tokens, image_ids, meta = cache.load(args.run, stage, layer)
+        labels = torch.tensor([label_map[i] for i in image_ids])
+        split = split_indices(len(image_ids))
+
+        features = tokens.float()
+        if args.match_capacity:
+            reducer = probe.Reducer.fit(features[split.train], args.width)
+            features = reducer(features)
+
+        result = run_cell(features, labels, split, num_classes, args)
+        result |= {
+            "model_id": meta["model_id"],
+            "stage": stage,
+            "layer_index": layer,
+            "relative_depth": float(meta["relative_depth"]),
+            "token_width": tokens.shape[-1],
+            "trainable_parameters": probe.parameter_count(
+                probe.build(args.readout, features.shape[-1], num_classes)
+            ),
+        }
+        cells.append(result)
+        print(
+            f"{stage:>9} L{layer:02d}  depth {result['relative_depth']:.3f}  "
+            f"top1 {result['test_accuracy']:.4f} +- {result['test_std']:.4f}  "
+            f"lr {result['learning_rate']:g}  params {result['trainable_parameters']:,}",
+            flush=True,
+        )
+
+    out = args.out or args.run / f"probe_{args.readout}_{'matched' if args.match_capacity else 'raw'}.json"
+    out.write_text(json.dumps({"images": len(cells and image_ids or []), "cells": cells}, indent=2) + "\n")
+    print(f"\nwrote {out}")
+
+
+if __name__ == "__main__":
+    main()

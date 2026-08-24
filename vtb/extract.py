@@ -20,7 +20,7 @@ def main() -> None:
     ap.add_argument("--model", default="dinov2", choices=sorted(ADAPTERS))
     ap.add_argument("--images", type=Path, required=True)
     ap.add_argument("--out", type=Path, default=Path("cache"))
-    ap.add_argument("--limit", type=int, default=2000)
+    ap.add_argument("--limit", type=int, default=None, help="default is every image under --images")
     ap.add_argument("--batch-size", type=int, default=16)
     ap.add_argument("--resolution", type=int, default=448)
     ap.add_argument("--device", default="mps")
