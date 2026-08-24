@@ -1,0 +1,56 @@
+{
+  "checked": "2026-08-24",
+  "method": "safetensors index plus HTTP range read of each shard header; no full shard downloaded",
+  "models": {
+    "moonshotai/Kimi-K3": {
+      "repo_shards": 96,
+      "repo_gb": null,
+      "tower_prefix": "vision_tower.",
+      "projector_prefix": "mm_projector.",
+      "tower_tensors": 165,
+      "projector_tensors": 3,
+      "shards_needed": ["model-00095-of-000096.safetensors", "model-00096-of-000096.safetensors"],
+      "shard_download_gb": 0.89,
+      "status": "adapter shipped, parity bit-exact"
+    },
+    "moonshotai/Kimi-K2.6": {
+      "repo_shards": 64,
+      "repo_gb": 595.18,
+      "tower_prefix": "vision_tower.",
+      "projector_prefix": "mm_projector.",
+      "tower_tensors": 329,
+      "projector_tensors": 6,
+      "shards_needed": ["model-00063-of-000064.safetensors", "model-00064-of-000064.safetensors"],
+      "shard_download_gb": 0.94,
+      "note": "exolabs/Kimi-K2.6-vision republishes the Tower as one 0.94 GB file"
+    },
+    "Qwen/Qwen3.8-27B": {
+      "repo_shards": 18,
+      "repo_gb": 55.56,
+      "tower_prefix": "model.visual.",
+      "projector_prefix": "model.visual.merger.",
+      "tower_tensors": 333,
+      "vision_blocks": 27,
+      "shards_needed": ["model-00001-of-00018.safetensors"],
+      "shard_download_gb": 3.97,
+      "vision_weight_gb": 0.92
+    },
+    "meta-models/Muse-Glimmer-30B": {
+      "repo_shards": 2,
+      "repo_gb": 59.55,
+      "tower_prefix": "model.vision_tower.",
+      "projector_prefix": "model.vision_adapter. and model.vision_projection.",
+      "tower_tensors": 806,
+      "vision_blocks": 50,
+      "shards_needed": ["model-00001-of-00002.safetensors", "model-00002-of-00002.safetensors"],
+      "shard_download_gb": 59.55,
+      "vision_weight_gb": 3.84,
+      "note": "vision weights span both shards, so range reads matter here rather than shard selection"
+    },
+    "google/siglip2-so400m-patch14-384": {
+      "repo_shards": 1,
+      "repo_gb": 4.54,
+      "shard_download_gb": 4.54
+    }
+  }
+}

@@ -16,10 +16,10 @@ Supporting hypotheses:
 
 | Model | Source | Role | Adapter effort |
 |---|---|---|---|
-| MoonViT (Kimi K2.6) | [exolabs/Kimi-K2.6-vision](https://huggingface.co/exolabs/Kimi-K2.6-vision) weights, architecture adapted from [moonshotai/Kimi-K2.6](https://huggingface.co/moonshotai/Kimi-K2.6) vision code | Multimodal Tower | Medium |
-| MoonViT-V2 (Kimi K3) | [AI4Industry/MoonViT-V2](https://huggingface.co/AI4Industry/MoonViT-V2), standalone modeling code | Multimodal Tower | Low |
-| Qwen3.8-27B Tower | Shard surgery on [Qwen/Qwen3.8-27B](https://huggingface.co/Qwen/Qwen3.8-27B) (18 shards, ~57 GB) | Multimodal Tower | High |
-| Muse Glimmer PE | [meta-models/Muse-Glimmer-30B](https://huggingface.co/meta-models/Muse-Glimmer-30B) via transformers `MuseGlimmerVisionModel` | Multimodal Tower | Low-medium |
+| MoonViT (Kimi K2.6) | [exolabs/Kimi-K2.6-vision](https://huggingface.co/exolabs/Kimi-K2.6-vision) weights, architecture adapted from [moonshotai/Kimi-K2.6](https://huggingface.co/moonshotai/Kimi-K2.6) vision code; Tower and Projector in 2 shards, 0.94 GB | Multimodal Tower | Medium |
+| MoonViT-V2 (Kimi K3) | [AI4Industry/MoonViT-V2](https://huggingface.co/AI4Industry/MoonViT-V2), standalone modeling code; Projector from one 0.09 GB Kimi K3 shard (ADR-0007) | Multimodal Tower | Done |
+| Qwen3.8-27B Tower | [Qwen/Qwen3.8-27B](https://huggingface.co/Qwen/Qwen3.8-27B), all 333 `model.visual.*` tensors in shard 1 of 18, 0.92 GB of weights | Multimodal Tower | Low-medium |
+| Muse Glimmer PE | [meta-models/Muse-Glimmer-30B](https://huggingface.co/meta-models/Muse-Glimmer-30B) via transformers `MuseGlimmerVisionModel`; 50 blocks, 3.84 GB of vision weights spread across both shards | Multimodal Tower | Low-medium |
 | DINOv2 ViT-L/14 | [facebook/dinov2-large](https://huggingface.co/facebook/dinov2-large) | Self-supervised control | Trivial |
 | SigLIP2-SO400M | [google/siglip2-so400m-patch14-384](https://huggingface.co/google/siglip2-so400m-patch14-384) | Contrastive control | Trivial |
 
@@ -34,8 +34,9 @@ Notes:
 - Eight evenly spaced Relative Depth points per model (layer index over total layers, from 0.125 to 1.0), plus the `merged` and `projected` Stages where they exist.
 - Canonical resolution 448². Every model handles it natively; Muse PE caps at exactly 1024 patches there.
 - 896² runs exist only for the geometry pillar and only for Towers with positional headroom. Muse PE is excluded from these runs.
-- Stages are model-relative and every missing Stage prints N/A in every table. `merged` means after spatial merging and before the Projector's learned mapping, which in all four models is literally the Projector's input tensor. Expected result: `merged` tracks `tower` closely, so any `projected` drop on geometry attributes to the learned mapping rather than to merging itself.
-- Cache cost: measured at 2.00 MB per image per Relative Depth point for DINOv2 at 448 square, so 16.00 MB across the eight points. Full patch tokens for ImageNet-100 would cost 2.18 TB per model and 13.1 TB across the roster, which fits neither the M4 Max nor ADR-0002. The semantic pillar therefore caches a 4x4 pooled grid and the geometry pillar keeps full tokens (ADR-0005).
+- Stages are model-relative and every missing Stage prints N/A in every table. `merged` means after spatial merging and before the Projector's learned mapping, which in all four models is literally the Projector's input tensor. Expected result: `merged` tracks `tower` closely, so any `projected` drop on geometry attributes to the learned mapping rather than to merging itself. For MoonViT-V2 this is measured, not expected: at one frame the merge is a lossless regrouping of four Tower tokens into one, checked by `torch.equal` in `tests/test_moonvit_v2.py`.
+- Cache cost: full patch tokens for ImageNet-100 would cost 2.18 TB per model and 13.1 TB across the roster, which fits neither the M4 Max nor ADR-0002. The semantic pillar therefore caches a 4x4 pooled grid and the geometry pillar keeps full tokens (ADR-0005).
+- Pooled ImageNet-100 cost is measured per model, not extrapolated, because Stage count drives it more than token width. DINOv2 writes eight slices for 34.1 GB; MoonViT-V2 writes ten for 80.9 GB, since `merged` and `projected` add tokens four and seven times wider at the deepest point. Roster estimate is about 400 GB, replaced model by model as adapters land (ADR-0005).
 
 ## Probing protocol
 
@@ -62,11 +63,11 @@ Extraction runs on rented Brev GPUs in bounded bursts. Everything else runs loca
 - Budget ceiling is $150. If costs climb, drop 896² runs before dropping any model (ADR-0002).
 - Instance choice: `hyperstack_A100_80G` at $1.62/hr, checked Aug 23. It has the same 80 GB as an H100 at half the price, and extraction is forward-pass only. The cheapest H100 is $3.00/hr and buys about twice the throughput, so the two are close on cost per image. Use `hyperstack_A6000` at $0.60/hr or `massedcompute_L40S` at $1.06/hr for the control models and pipeline work.
 - Prefer instances with bundled disk over metered volumes. Brev meters storage near $0.10/GB/month, so a 1 TB volume for a month would cost more than half the budget.
-- The M4 Max runs DINOv2 at 6 images per second, so ImageNet-100 would take about 6 hours per model locally. That is why extraction is a Brev job.
+- The M4 Max runs DINOv2 at 6.0 images per second and MoonViT-V2 at 3.0, so ImageNet-100 would take 6 to 12 hours per model locally. That is why extraction is a Brev job.
 
 ## Known risks
 
-1. MoonViT-V2 has no published Projector. Pulling it means shard surgery on [moonshotai/Kimi-K3](https://huggingface.co/moonshotai/Kimi-K3), whose 59.8 MB tensor index implies a multi-part download comparable to K2.6's 64 shards. This sits on the critical path for the `projected` Stage of one roster row. Sketch the surgery script in week 1 even though the actual run happens later. If it fails, that row ships with `projected` marked N/A and the writeup says so plainly.
+1. Retired. No roster model needs shard surgery. Every Tower and Projector was located from shard indices and range-read headers alone, without downloading a shard (`docs/measurements/roster-shard-audit.json`). Reaching all five remaining Towers and Projectors costs about 10 GB, not the 715 GB their repositories total. MoonViT-V2 is already shipped with bit-exact parity (ADR-0007).
 2. Kimi K2.6 uses a Modified MIT license. Read the modification clause before republishing extracted weights. Qwen and Muse are Apache 2.0, so those republications are safe.
 3. Parity tests gate everything. An extracted Tower ships only after its outputs match the Tower inside the full model within BF16 tolerance on fixed images.
 
@@ -74,7 +75,7 @@ Extraction runs on rented Brev GPUs in bounded bursts. Everything else runs loca
 
 Start Monday, August 25. Five focused weeks before autumn quarter, then a low-intensity tail during term.
 
-- Week 1: repo scaffold, `FeatureBatch` interface, MoonViT-V2 adapter and parity test (easiest first), Qwen shard-surgery script written, Kimi-K3 Projector surgery sketched.
+- Week 1: repo scaffold, `FeatureBatch` interface, MoonViT-V2 adapter with all three Stages and a bit-exact parity test, Kimi-K3 Projector loaded (ADR-0007), adapter-owned preprocessing (ADR-0006), Qwen shard-surgery script written.
 - Week 2: remaining adapters and parity tests, full extraction matrix onto Brev, feature cache complete. This is the long pole; it ends here or the whole schedule slips visibly.
 - Week 3: semantic probes plus the DINOv2 control, geometry pillar starts, writeup skeleton exists and collects numbers as they land.
 - Week 4: geometry pillar finishes, Perturbation Study gets built and run, KITTI Transfer Probe column lands.
