@@ -1,6 +1,8 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
+from math import isqrt
 
 import torch
+import torch.nn.functional as F
 from safetensors.torch import save_file
 
 STAGES = ("tower", "merged", "projected")
@@ -22,6 +24,7 @@ class FeatureBatch:
     layer_index: int
     num_layers: int
     resolution: int
+    pooled_to: int | None = None
 
     def __post_init__(self) -> None:
         if self.stage not in STAGES:
@@ -35,6 +38,26 @@ class FeatureBatch:
     def relative_depth(self) -> float:
         return self.layer_index / self.num_layers
 
+    def pooled(self, side: int) -> "FeatureBatch":
+        """Average the patch grid down to side x side tokens.
+
+        The semantic pillar caches this instead of every patch token (ADR-0005).
+        It lives here so that every adapter and every Stage pools the same way,
+        which is what keeps models comparable.
+        """
+        count = self.tokens.shape[1]
+        grid = isqrt(count)
+        if grid * grid != count:
+            raise ValueError(f"{count} tokens do not form a square grid")
+        if side > grid:
+            raise ValueError(f"cannot pool a {grid}x{grid} grid up to {side}x{side}")
+
+        rows, _, dim = self.tokens.shape
+        spatial = self.tokens.transpose(1, 2).reshape(rows, dim, grid, grid)
+        # Average in fp32 so the mean does not lose precision at bf16.
+        small = F.adaptive_avg_pool2d(spatial.float(), side).to(self.tokens.dtype)
+        return replace(self, tokens=small.flatten(2).transpose(1, 2), pooled_to=side)
+
     @property
     def nbytes(self) -> int:
         return self.tokens.nbytes
@@ -47,6 +70,7 @@ class FeatureBatch:
             "num_layers": str(self.num_layers),
             "relative_depth": f"{self.relative_depth:.4f}",
             "resolution": str(self.resolution),
+            "pooled_to": str(self.pooled_to) if self.pooled_to else "none",
             "image_ids": "\n".join(self.image_ids),
         }
 
