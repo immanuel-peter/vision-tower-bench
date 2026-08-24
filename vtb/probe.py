@@ -63,12 +63,13 @@ class Reducer:
         return (tokens - self.mean) @ self.basis
 
     @classmethod
-    def fit(cls, tokens: torch.Tensor, width: int) -> "Reducer":
+    def fit(cls, tokens: torch.Tensor, width: int, oversample: int = 16) -> "Reducer":
         flat = tokens.reshape(-1, tokens.shape[-1]).float()
         mean = flat.mean(dim=0, keepdim=True)
-        # Economy SVD of the centered features; V's leading columns are the PCA basis.
-        _, _, v = torch.linalg.svd(flat - mean, full_matrices=False)
-        return cls(basis=v[:width].T.contiguous(), mean=mean)
+        # Randomized SVD for the leading components only. A full SVD of the widest cell
+        # here is 145,600 by 7168 and solves for all 7168 directions to keep 512.
+        _, _, v = torch.svd_lowrank(flat - mean, q=min(width + oversample, min(flat.shape)))
+        return cls(basis=v[:, :width].contiguous(), mean=mean)
 
 
 def build(kind: str, dim: int, num_classes: int, width: int = 512) -> nn.Module:
