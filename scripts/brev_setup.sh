@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Prepare a Brev instance for an extraction burst. Safe to run twice.
 #
-# The instance root disk is small and the bundled disk is mounted at /ephemeral, so the
-# model cache, the images, and the feature cache all live there. /ephemeral does not
-# survive the instance, which is why ADR-0002 pushes results off the box as they land.
+# The root disk is small and the bundled disk mounts at /ephemeral, so the model cache,
+# the images, and the feature cache all live there. Deleting the instance destroys
+# /ephemeral, which is why ADR-0002 pushes results to Hugging Face as they land.
 set -euo pipefail
 
 SCRATCH=${SCRATCH:-/ephemeral}
@@ -16,16 +16,17 @@ export PATH="$HOME/.local/bin:$PATH"
 
 mkdir -p "$SCRATCH/hf" "$SCRATCH/data" "$SCRATCH/features"
 
-# uv caches on /ephemeral while the venv sits on the root disk. Across filesystems its
-# hardlinks silently produce packages whose shared libraries never arrive, so torch
-# imports and then fails on libcudnn.
+# uv caches on /ephemeral and builds the venv on the root disk. Its hardlinks do not
+# cross filesystems, and the packages it writes instead are missing their shared
+# libraries, so torch imports and then dies on libcudnn.
 export UV_LINK_MODE=copy
 
 cd "$REPO"
 uv sync
 
-# PyPI serves cu130 wheels, which the CUDA 12.8 driver on these instances rejects.
-# pyproject pins the cu129 index for Linux, so this check catches a silent CPU fallback.
+# PyPI serves cu130 wheels and the CUDA 12.8 driver on these instances rejects them.
+# torch then falls back to CPU and only warns, so exit here instead of billing GPU
+# rates for CPU work. pyproject pins the cu129 index for Linux to avoid this.
 uv run python - <<'PY'
 import torch
 

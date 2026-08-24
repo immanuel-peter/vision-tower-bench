@@ -28,8 +28,9 @@ def main() -> None:
         "--workers",
         type=int,
         default=4,
-        help="DataLoader workers. Extraction is bound by JPEG decode, not by the GPU, so "
-        "on a burst instance set this near the vCPU count or the GPU idles.",
+        help="DataLoader workers. JPEG decode limits extraction, not the Tower, so set "
+        "this near the vCPU count on a burst instance. At the default of 4 an A100 ran "
+        "DINOv2 at 4 percent utilization.",
     )
     ap.add_argument(
         "--pool",
