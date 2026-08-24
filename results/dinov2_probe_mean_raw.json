@@ -1,0 +1,109 @@
+{
+  "images": 13000,
+  "cells": [
+    {
+      "learning_rate": 1.0,
+      "val_accuracy": 0.2549,
+      "test_accuracy": 0.2624,
+      "test_std": 0.0031,
+      "seeds": 3,
+      "model_id": "facebook/dinov2-large",
+      "stage": "tower",
+      "layer_index": 3,
+      "relative_depth": 0.125,
+      "token_width": 1024,
+      "trainable_parameters": 102500
+    },
+    {
+      "learning_rate": 1.0,
+      "val_accuracy": 0.3426,
+      "test_accuracy": 0.3453,
+      "test_std": 0.0024,
+      "seeds": 3,
+      "model_id": "facebook/dinov2-large",
+      "stage": "tower",
+      "layer_index": 6,
+      "relative_depth": 0.25,
+      "token_width": 1024,
+      "trainable_parameters": 102500
+    },
+    {
+      "learning_rate": 1.0,
+      "val_accuracy": 0.4097,
+      "test_accuracy": 0.4297,
+      "test_std": 0.0056,
+      "seeds": 3,
+      "model_id": "facebook/dinov2-large",
+      "stage": "tower",
+      "layer_index": 9,
+      "relative_depth": 0.375,
+      "token_width": 1024,
+      "trainable_parameters": 102500
+    },
+    {
+      "learning_rate": 0.3,
+      "val_accuracy": 0.5349,
+      "test_accuracy": 0.5573,
+      "test_std": 0.0021,
+      "seeds": 3,
+      "model_id": "facebook/dinov2-large",
+      "stage": "tower",
+      "layer_index": 12,
+      "relative_depth": 0.5,
+      "token_width": 1024,
+      "trainable_parameters": 102500
+    },
+    {
+      "learning_rate": 0.1,
+      "val_accuracy": 0.6549,
+      "test_accuracy": 0.646,
+      "test_std": 0.0021,
+      "seeds": 3,
+      "model_id": "facebook/dinov2-large",
+      "stage": "tower",
+      "layer_index": 15,
+      "relative_depth": 0.625,
+      "token_width": 1024,
+      "trainable_parameters": 102500
+    },
+    {
+      "learning_rate": 0.03,
+      "val_accuracy": 0.7503,
+      "test_accuracy": 0.7526,
+      "test_std": 0.0002,
+      "seeds": 3,
+      "model_id": "facebook/dinov2-large",
+      "stage": "tower",
+      "layer_index": 18,
+      "relative_depth": 0.75,
+      "token_width": 1024,
+      "trainable_parameters": 102500
+    },
+    {
+      "learning_rate": 0.01,
+      "val_accuracy": 0.8174,
+      "test_accuracy": 0.8294,
+      "test_std": 0.0005,
+      "seeds": 3,
+      "model_id": "facebook/dinov2-large",
+      "stage": "tower",
+      "layer_index": 21,
+      "relative_depth": 0.875,
+      "token_width": 1024,
+      "trainable_parameters": 102500
+    },
+    {
+      "learning_rate": 0.001,
+      "val_accuracy": 0.8923,
+      "test_accuracy": 0.892,
+      "test_std": 0.002,
+      "seeds": 3,
+      "model_id": "facebook/dinov2-large",
+      "stage": "tower",
+      "layer_index": 24,
+      "relative_depth": 1.0,
+      "token_width": 1024,
+      "trainable_parameters": 102500
+    }
+  ]
+}
