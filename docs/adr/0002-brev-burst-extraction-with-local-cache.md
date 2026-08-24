@@ -1,0 +1,3 @@
+# Burst GPU rental on Brev with a local feature cache
+
+All GPU work (feature extraction) runs as bounded bursts on rented Brev instances; all probe training, analysis, and iteration run locally on the developer's M4 Max against cached features. Extraction happens exactly once per (model, stage-set, resolution) pair and writes resumable shards that serve every downstream experiment, so cloud spend stays predictable (~$150 planning ceiling; drop 896² resolution before dropping models if exceeded). University clusters were rejected due to queue friction; local-only was rejected because BF16 extraction of six towers would take weeks on MPS.

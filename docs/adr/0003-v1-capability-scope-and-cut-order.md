@@ -1,0 +1,3 @@
+# v1 capability scope and cut order
+
+v1 mandates three things: semantic linear probes, Probe3D-style depth + correspondence geometry probes (these carry the headline hypothesis that the Projector preserves semantics but destroys spatial information), and the Stage sweep machinery. The robustness suite is built but pre-trimmed to three perturbation factors (object scale, occlusion, blur); the Transfer Probe is exactly one dataset (KITTI depth). When the schedule slips, cuts happen in this order: 896² resolution, then robustness factors down to one, then Transfer Probe variants — never the control models and never parity tests, since controls give the numbers meaning and parity makes the extracted checkpoints publishable.
