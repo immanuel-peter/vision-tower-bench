@@ -25,6 +25,13 @@ def main() -> None:
     ap.add_argument("--resolution", type=int, default=448)
     ap.add_argument("--device", default="mps")
     ap.add_argument(
+        "--workers",
+        type=int,
+        default=4,
+        help="DataLoader workers. Extraction is bound by JPEG decode, not by the GPU, so "
+        "on a burst instance set this near the vCPU count or the GPU idles.",
+    )
+    ap.add_argument(
         "--pool",
         type=int,
         default=None,
@@ -37,7 +44,12 @@ def main() -> None:
     adapter = ADAPTERS[args.model](resolution=args.resolution, device=args.device)
     dataset = ImageFolder(args.images, adapter.preprocess(), args.limit)
     loader = DataLoader(
-        dataset, batch_size=args.batch_size, num_workers=4, collate_fn=Collate(adapter.collate)
+        dataset,
+        batch_size=args.batch_size,
+        num_workers=args.workers,
+        collate_fn=Collate(adapter.collate),
+        prefetch_factor=4 if args.workers else None,
+        persistent_workers=bool(args.workers),
     )
 
     tag = f"pool{args.pool}" if args.pool else "full"

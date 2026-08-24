@@ -16,6 +16,11 @@ export PATH="$HOME/.local/bin:$PATH"
 
 mkdir -p "$SCRATCH/hf" "$SCRATCH/data" "$SCRATCH/features"
 
+# uv caches on /ephemeral while the venv sits on the root disk. Across filesystems its
+# hardlinks silently produce packages whose shared libraries never arrive, so torch
+# imports and then fails on libcudnn.
+export UV_LINK_MODE=copy
+
 cd "$REPO"
 uv sync
 
