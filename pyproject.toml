@@ -22,3 +22,14 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["vtb"]
+
+# The A100 instances run a CUDA 12.8 driver, which rejects the cu130 wheels PyPI
+# serves by default. cu129 carries the same torch version and runs there.
+[[tool.uv.index]]
+name = "pytorch-cu129"
+url = "https://download.pytorch.org/whl/cu129"
+explicit = true
+
+[tool.uv.sources]
+torch = [{ index = "pytorch-cu129", marker = "sys_platform == 'linux'" }]
+torchvision = [{ index = "pytorch-cu129", marker = "sys_platform == 'linux'" }]
