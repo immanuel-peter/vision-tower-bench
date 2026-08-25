@@ -179,7 +179,7 @@ def test_geometry_runner_trains_a_depth_cell_end_to_end(tmp_path):
     assert batch.pooled_to is None
     assert batch.num_layers == 12
     targets, _ = geometry_run.load_targets(tmp_path / "targets.npz", batch.image_ids, "depth")
-    assert targets.shape == (24, 16, 16)
+    assert targets.shape == (24, 1, 16, 16)
 
     features = geometry.dense_map(batch)
     assert features.shape == (24, 32, 8, 8)
@@ -189,7 +189,7 @@ def test_geometry_runner_trains_a_depth_cell_end_to_end(tmp_path):
         learning_rate=1e-3, seed=0, scale_invariant=False,
     )
     split = split_indices(24)
-    model = geometry_run.train_cell(features, targets.unsqueeze(1), None, split, "depth", args)
-    metrics = geometry_run.score(model, features, targets.unsqueeze(1), None, split.test, "depth", args)
+    model = geometry_run.train_cell(features, targets, None, split, "depth", args)
+    metrics = geometry_run.score(model, features, targets, None, split.test, "depth", args)
     assert set(metrics) == {"d1", "d2", "d3", "rmse"}
     assert 0.0 <= metrics["d1"] <= 1.0

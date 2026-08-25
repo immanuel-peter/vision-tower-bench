@@ -33,11 +33,12 @@ def load_targets(path: Path, image_ids: list[str], task: str):
     the cache and the labels cannot silently drift out of order.
     """
     store = np.load(path)
-    targets = torch.from_numpy(np.stack([store[f"{i}"] for i in image_ids])).float()
     if task == "normal":
+        targets = torch.from_numpy(np.stack([store[f"{i}_normal"] for i in image_ids])).float()
         valid = torch.from_numpy(np.stack([store[f"{i}_valid"] for i in image_ids])).float()
-        return targets, valid
-    return targets, None
+        return targets, valid.unsqueeze(1)
+    targets = torch.from_numpy(np.stack([store[f"{i}"] for i in image_ids])).float()
+    return targets.unsqueeze(1), None
 
 
 def train_cell(features, targets, valid, split, task, args):

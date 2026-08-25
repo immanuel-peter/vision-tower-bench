@@ -20,13 +20,17 @@ Tower and ten for each multimodal Tower. Replace each estimate with a measuremen
 its adapter lands.
 
 Geometry probes keep full patch tokens because depth and correspondence need the spatial
-grid. Probe3D-scale datasets are small enough to make this practical. Every model and
+grid. This is affordable only on a capped subset. GeoNet's NYU training set holds roughly
+30,000 images, which at 16.0 MB per image would cost 503 GB for one model and about 3 TB
+for the roster. ADR-0011 caps the geometry training set instead. Every model and
 Stage uses the same pooling code for semantic probes, so the attention pool still receives
 a spatial grid. An 8x8 grid over the full image set would take 818 GB and require remote
 object storage. Using 26,000 images at 8x8 would confound the separate label-budget sweep.
 
-v1 also caches full patch tokens for a fixed 5,000-image semantic subset, about 80 GB
-across the roster. Run semantic probes on pooled and full tokens for at least two Towers.
+v1 also caches full patch tokens for a fixed 1,500-image semantic subset, about 25 GB per
+model and 150 GB across the roster. An earlier version of this ADR set that subset at
+5,000 images and called it 80 GB across the roster. That was wrong by the size of the
+roster: 5,000 images at 16.0 MB is 83.9 GB for one model and over 500 GB for six. Run semantic probes on pooled and full tokens for at least two Towers.
 Accept pooling only if model rankings and Relative Depth curves agree. Report any
 disagreement. ADR-0003 does not allow cutting this check, the parity tests, or the control
 models.
