@@ -18,7 +18,7 @@ def test_standalone_tower_matches_the_tower_inside_kimi_k3():
     standalone = AutoModel.from_pretrained(
         MoonViTV2Adapter.model_id, dtype=torch.bfloat16, trust_remote_code=True
     ).state_dict()
-    # Non-persistent buffers are rebuilt at load time, so they are absent from the shard.
+    # Ignore buffers that are rebuilt at load time.
     standalone = {k: v for k, v in standalone.items() if k in inside}
 
     assert len(inside) == 165

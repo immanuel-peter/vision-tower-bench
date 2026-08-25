@@ -8,8 +8,7 @@ import torch
 
 DEPTH_THRESHOLDS = (1.25, 1.25**2, 1.25**3)
 NORMAL_THRESHOLDS = (11.25, 22.5, 30.0)
-# Rows 45 to 471 and columns 41 to 601 of a 480 by 640 image. Prior depth work
-# evaluates on this window, so the anchor run needs it to line up.
+# Standard NYU depth crop for 480x640 images.
 NYU_CROP = (slice(45, 471), slice(41, 601))
 
 

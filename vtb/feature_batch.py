@@ -53,7 +53,7 @@ class FeatureBatch:
 
         rows, _, dim = self.tokens.shape
         spatial = self.tokens.transpose(1, 2).reshape(rows, dim, grid, grid)
-        # Average in fp32 so the mean does not lose precision at bf16.
+        # Pool in fp32 to preserve precision.
         small = F.adaptive_avg_pool2d(spatial.float(), side).to(self.tokens.dtype)
         return replace(self, tokens=small.flatten(2).transpose(1, 2), pooled_to=side)
 

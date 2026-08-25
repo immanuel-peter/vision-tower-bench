@@ -64,9 +64,9 @@ class DINOv2Adapter:
             interpolate_pos_encoding=True,
         )
         for layer in self.depth_points():
-            # The last point is the Tower's own output, so it carries the final norm.
+            # Use the model output at the final layer to retain its norm.
             source = out.last_hidden_state if layer == self.num_layers else out.hidden_states[layer]
-            # Column 0 is the CLS token, dropped to keep every model patch-only.
+            # Drop the CLS token.
             yield FeatureBatch(
                 tokens=source[:, 1:, :].cpu(),
                 image_ids=image_ids,

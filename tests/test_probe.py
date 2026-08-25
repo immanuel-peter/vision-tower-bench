@@ -93,7 +93,7 @@ def test_dense_map_restores_the_patch_grid():
     )
     maps = geometry.dense_map(batch)
     assert maps.shape == (2, 64, 32, 32)
-    # Token i sits at row i // 32, column i % 32.
+    # Token 101 maps to row 3, column 5.
     assert torch.equal(maps[0, :, 3, 5], batch.tokens[0, 3 * 32 + 5, :])
 
 
@@ -128,7 +128,6 @@ def test_depth_loss_is_only_partly_scale_invariant():
 
     target = torch.rand(2, 1, 32, 32) * 9 + 1
     assert depth_si_loss(target.clone(), target).item() == 0.0
-    # lambda_scale below 1 leaves a scaled prediction with a cost, which is the point.
     assert depth_si_loss(target * 2, target).item() > 2.0
     assert depth_si_loss(target * 2, target, lambda_scale=1.0).item() < 1e-6
 

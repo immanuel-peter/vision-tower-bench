@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Prepare Brev for extraction; safe to rerun, but push results before shutdown deletes the cache.
+# Set up a Brev instance for extraction.
 set -euo pipefail
 
 SCRATCH=${SCRATCH:-/ephemeral}
@@ -18,7 +18,7 @@ export UV_LINK_MODE=copy
 cd "$REPO"
 uv sync
 
-# Stop if the CUDA 12.8 driver rejects the selected cu129 wheels and torch falls back to CPU.
+# Fail if PyTorch cannot use the GPU.
 uv run python - <<'PY'
 import torch
 

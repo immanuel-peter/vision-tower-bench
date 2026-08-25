@@ -43,7 +43,7 @@ class Reducer:
     def fit(cls, tokens: torch.Tensor, width: int, oversample: int = 16) -> "Reducer":
         flat = tokens.reshape(-1, tokens.shape[-1]).float()
         mean = flat.mean(dim=0, keepdim=True)
-        # Randomized SVD avoids solving 7,168 directions in the largest 145,600 by 7,168 cell.
+        # Randomized SVD keeps the largest reduction tractable.
         _, _, v = torch.svd_lowrank(flat - mean, q=min(width + oversample, min(flat.shape)))
         return cls(basis=v[:, :width].contiguous(), mean=mean)
 

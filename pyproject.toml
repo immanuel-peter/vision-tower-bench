@@ -23,7 +23,7 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["vtb"]
 
-# Brev's A100 driver supports cu129 but rejects PyPI's default cu130 wheels.
+# Match Brev's CUDA 12.9 driver.
 [[tool.uv.index]]
 name = "pytorch-cu129"
 url = "https://download.pytorch.org/whl/cu129"

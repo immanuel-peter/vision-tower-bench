@@ -13,7 +13,7 @@ from vtb.images import square_crop
 
 PATCH_SIZE = 14
 
-# Kimi K3 stores its projector in one 0.09 GB shard. The standalone tower omits it.
+# Kimi K3 stores the projector separately from the standalone tower.
 PROJECTOR_REPO = "moonshotai/Kimi-K3"
 PROJECTOR_SHARD = "model-00095-of-000096.safetensors"
 PROJECTOR_PREFIX = "mm_projector."
@@ -106,7 +106,7 @@ class MoonViTV2Adapter:
             return hook
 
         for layer in points:
-            # Capture the encoder output at the final point to include its final norm.
+            # Use the encoder output at the final layer to retain its norm.
             target = self.model.encoder if layer == self.num_layers else self.model.encoder.blocks[layer - 1]
             handles.append(target.register_forward_hook(capture(layer)))
 
@@ -123,7 +123,7 @@ class MoonViTV2Adapter:
         for layer in points:
             yield self._batch(captured[layer].view(rows, -1, self.model.config.hidden_size), image_ids, "tower", layer)
 
-        # Each 2x2 patch group becomes one token with four times the hidden width.
+        # Merge each 2x2 patch group.
         stacked = torch.stack(merged).flatten(2)
         yield self._batch(stacked, image_ids, "merged", self.num_layers)
         yield self._batch(self.projector.post_norm(self.projector.proj(stacked)), image_ids, "projected", self.num_layers)
