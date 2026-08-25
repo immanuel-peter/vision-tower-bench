@@ -11,7 +11,7 @@ runner rather than assumed.
 
 import argparse
 import json
-import tarfile
+import shutil
 from pathlib import Path
 
 import numpy as np
@@ -33,19 +33,31 @@ def samples(root: Path) -> dict[str, dict[str, Path]]:
                 break
     for path in root.rglob("*.png"):
         found.setdefault(path.stem, {})["image"] = path
-    return {stem: parts for stem, parts in found.items() if len(parts) == 4}
+    # Normals ship in their own archive, so a depth-only run is a valid intermediate state.
+    return {stem: parts for stem, parts in found.items() if {"image", "depth", "mask"} <= parts.keys()}
 
 
 def read(parts: dict[str, Path]):
-    image = Image.open(parts["image"]).convert("RGB")
     depth = np.load(parts["depth"]).squeeze(-1).astype(np.float32)
     mask = np.load(parts["mask"]).astype(np.float32)
-    normal = np.load(parts["normal"]).astype(np.float32)
-
     depth = depth * (mask > 0)
+    if "normal" not in parts:
+        return depth, None, None
+
+    normal = np.load(parts["normal"]).astype(np.float32)
     magnitude = np.linalg.norm(normal, axis=-1)
     normal_valid = (magnitude > NORMAL_EPSILON).astype(np.uint8)
-    return image, depth, normal.transpose(2, 0, 1), normal_valid
+    return depth, normal.transpose(2, 0, 1), normal_valid
+
+
+def copy_image(source: Path, destination: Path) -> None:
+    """Copy the PNG rather than re-encode it. DIODE already ships RGB PNGs, and
+    re-encoding 771 of them is the only part of this step that works the CPU hard."""
+    with Image.open(source) as probe:
+        if probe.mode == "RGB":
+            shutil.copyfile(source, destination)
+            return
+        probe.convert("RGB").save(destination)
 
 
 def main() -> None:
@@ -70,12 +82,13 @@ def main() -> None:
     scenes: dict[str, str] = {}
     depth_max = 0.0
     for position, stem in enumerate(stems):
-        image, depth, normal, valid = read(found[stem])
+        depth, normal, valid = read(found[stem])
         image_id = f"{args.split}_{position:06d}"
-        image.save(images / f"{image_id}.png")
+        copy_image(found[stem]["image"], images / f"{image_id}.png")
         targets[image_id] = depth
-        targets[f"{image_id}_normal"] = normal.astype(np.float16)
-        targets[f"{image_id}_valid"] = valid
+        if normal is not None:
+            targets[f"{image_id}_normal"] = normal.astype(np.float16)
+            targets[f"{image_id}_valid"] = valid
         # DIODE encodes the scene type in the file name, which gives the writeup an
         # indoor against outdoor split for free.
         scenes[image_id] = "indoors" if "_indoors_" in stem else "outdoor"
@@ -87,7 +100,9 @@ def main() -> None:
     (args.out / f"{args.split}_manifest.json").write_text(
         json.dumps({"source": "DIODE", "split": args.split, "scene": args.scene,
                     "cap": args.cap, "seed": args.seed, "images": len(stems),
-                    "max_depth_metres": round(depth_max, 2), "scenes": scenes}, indent=2) + "\n"
+                    "max_depth_metres": round(depth_max, 2),
+                    "has_normals": any(k.endswith("_normal") for k in targets),
+                    "scenes": scenes}, indent=2) + "\n"
     )
     print(f"{len(stems)} samples -> {images}, depth reaches {depth_max:.1f} m")
 
