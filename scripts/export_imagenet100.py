@@ -1,10 +1,3 @@
-"""Materialize an ImageNet-100 split as image files plus a label map.
-
-The suite reads images from a directory, so the parquet dataset gets written out once.
-Labels live beside the images rather than in the filenames, which keeps image ids stable
-if the class indexing ever changes.
-"""
-
 import argparse
 import json
 from pathlib import Path

@@ -1,5 +1,5 @@
 from collections.abc import Iterator
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import torch
 from huggingface_hub import hf_hub_download
@@ -13,8 +13,7 @@ from vtb.images import square_crop
 
 PATCH_SIZE = 14
 
-# The Projector ships inside Kimi K3, not with the standalone Tower. Its three tensors
-# sit in one 0.09 GB shard, so the `projected` Stage costs a small download, not surgery.
+# Kimi K3 stores its projector in one 0.09 GB shard. The standalone tower omits it.
 PROJECTOR_REPO = "moonshotai/Kimi-K3"
 PROJECTOR_SHARD = "model-00095-of-000096.safetensors"
 PROJECTOR_PREFIX = "mm_projector."
@@ -22,22 +21,22 @@ PROJECTOR_PREFIX = "mm_projector."
 
 @dataclass(frozen=True)
 class Preprocess:
-    """PIL image to the pre-patchified tensor MoonViT-V2 expects.
-
-    The Tower reads a packed sequence of patches, not a (3, H, W) image, so
-    patchifying belongs here. At a fixed square resolution the model's own
-    NaViT resize is a no-op, which `test_matches_processor` checks.
-    """
-
     resolution: int
+    pipeline: transforms.Compose = field(init=False, repr=False)
+
+    def __post_init__(self) -> None:
+        object.__setattr__(
+            self,
+            "pipeline",
+            transforms.Compose([
+                square_crop(self.resolution),
+                transforms.ToTensor(),
+                transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+            ]),
+        )
 
     def __call__(self, image) -> torch.Tensor:
-        pipeline = transforms.Compose([
-            square_crop(self.resolution),
-            transforms.ToTensor(),
-            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
-        ])
-        pixels = pipeline(image)
+        pixels = self.pipeline(image)
         channels, height, width = pixels.shape
         rows, cols = height // PATCH_SIZE, width // PATCH_SIZE
         patches = pixels.view(channels, rows, PATCH_SIZE, cols, PATCH_SIZE)
@@ -53,11 +52,7 @@ def collate(samples: list[torch.Tensor]) -> dict[str, torch.Tensor]:
 
 
 def load_projector(dtype: torch.dtype) -> nn.Module:
-    """Rebuild Kimi K3's `patchmergerv2` Projector from its published weights.
-
-    Shapes come from the checkpoint rather than a config, so a changed upstream
-    checkpoint fails loudly at load_state_dict instead of quietly mismatching.
-    """
+    """Build Kimi K3's patch merger from its published weights."""
     weights = load_file(hf_hub_download(PROJECTOR_REPO, PROJECTOR_SHARD))
     weights = {k.removeprefix(PROJECTOR_PREFIX): v for k, v in weights.items() if k.startswith(PROJECTOR_PREFIX)}
     width, merged_width = weights["proj.2.weight"].shape
@@ -74,15 +69,7 @@ def load_projector(dtype: torch.dtype) -> nn.Module:
 
 
 class MoonViTV2Adapter:
-    """Kimi K3 Tower. Native-resolution ViT, run here at one fixed square size.
-
-    The Tower emits one flat sequence for the whole batch. Every image has the same
-    grid at a fixed resolution, so the sequence splits back into rows cleanly.
-
-    Extract at batch size 1 unless flash attention is installed. Without it the model
-    masks a dense square over the whole packed batch, so raising the batch size lowers
-    throughput and batch 64 exhausts an 80 GB GPU (ADR-0009).
-    """
+    """Kimi K3 adapter; use batch size 1 without flash attention, as measured in ADR-0009."""
 
     model_id = "AI4Industry/MoonViT-V2"
     stages = ("tower", "merged", "projected")
@@ -119,8 +106,7 @@ class MoonViTV2Adapter:
             return hook
 
         for layer in points:
-            # The last point is the Tower's own output, so it comes off the encoder
-            # and carries the final norm. Earlier points come off block layer - 1.
+            # Capture the encoder output at the final point to include its final norm.
             target = self.model.encoder if layer == self.num_layers else self.model.encoder.blocks[layer - 1]
             handles.append(target.register_forward_hook(capture(layer)))
 
@@ -137,8 +123,7 @@ class MoonViTV2Adapter:
         for layer in points:
             yield self._batch(captured[layer].view(rows, -1, self.model.config.hidden_size), image_ids, "tower", layer)
 
-        # Merging runs once, after the last block, so `merged` and `projected` exist at
-        # that depth only. Each 2x2 patch group becomes one token of 4 x hidden_size.
+        # Each 2x2 patch group becomes one token with four times the hidden width.
         stacked = torch.stack(merged).flatten(2)
         yield self._batch(stacked, image_ids, "merged", self.num_layers)
         yield self._batch(self.projector.post_norm(self.projector.proj(stacked)), image_ids, "projected", self.num_layers)

@@ -1,9 +1,4 @@
-"""Parity gate for the MoonViT-V2 Tower (ADR-0003).
-
-The standalone repo republishes the Tower that lives inside Kimi K3. This checks the
-two are the same weights, so features extracted from the standalone Tower describe the
-model the Projector was trained against.
-"""
+"""Verify that standalone MoonViT-V2 weights match the Tower embedded in Kimi K3."""
 
 import torch
 from huggingface_hub import hf_hub_download

@@ -1,9 +1,3 @@
-"""Reads feature shards back out of the cache.
-
-`extract.py` writes one shard per Stage, Relative Depth point, and batch. Probes want
-one tensor per (Stage, depth point), so this reassembles them in shard order.
-"""
-
 import re
 from collections.abc import Iterator
 from pathlib import Path
@@ -17,7 +11,7 @@ SHARD = re.compile(r"^(?P<stage>[a-z]+)_L(?P<layer>\d+)_(?P<shard>\d+)\.safetens
 
 
 def slices(run_dir: Path) -> list[tuple[str, int]]:
-    """Every (stage, layer_index) the run wrote, in Stage then depth order."""
+    """Return each stage and layer pair in cache order."""
     found = {(m["stage"], int(m["layer"])) for p in Path(run_dir).iterdir() if (m := SHARD.match(p.name))}
     return sorted(found, key=lambda s: (s[0], s[1]))
 
@@ -28,33 +22,29 @@ def shards(run_dir: Path, stage: str, layer: int) -> Iterator[Path]:
 
 
 def load(run_dir: Path, stage: str, layer: int) -> tuple[torch.Tensor, list[str], dict[str, str]]:
-    """Concatenate one Stage at one depth point into (images, tokens, dim)."""
-    parts, image_ids, meta = [], [], {}
+    """Load one stage and layer as an ``(images, tokens, dim)`` tensor."""
+    parts: list[torch.Tensor] = []
+    image_ids: list[str] = []
+    metadata: dict[str, str] = {}
     for path in shards(run_dir, stage, layer):
         with safe_open(path, framework="pt") as handle:
-            meta = handle.metadata()
+            metadata = handle.metadata() or {}
             parts.append(handle.get_tensor("tokens"))
-            image_ids.extend(meta["image_ids"].split("\n"))
+            image_ids.extend(metadata["image_ids"].split("\n"))
     if not parts:
         raise FileNotFoundError(f"no shards for {stage} L{layer:02d} under {run_dir}")
-    return torch.cat(parts), image_ids, meta
+    return torch.cat(parts), image_ids, metadata
 
 
 class ShardWriter:
-    """Buffers batches per Stage and depth point, writing a shard every `images` images.
-
-    Extraction batch size answers to GPU memory, and for a packed-sequence Tower to
-    attention cost, which forces batch 1 (ADR-0009). Writing one file per batch would tie
-    the file count to that choice: at batch 1 a 13,000 image run wrote 130,001 files, and
-    the ImageNet-100 train split would write over a million for one model.
-    """
+    """Buffer batches until a stage and layer pair reaches ``images`` rows."""
 
     def __init__(self, run_dir: Path, images: int = 512):
         self.run_dir = Path(run_dir)
         self.images = images
         self.buffers: dict[tuple[str, int], list[FeatureBatch]] = {}
         self.counts: dict[tuple[str, int], int] = {}
-        self.shards: dict[tuple[str, int], int] = {}
+        self.shard_counts: dict[tuple[str, int], int] = {}
 
     def add(self, batch: FeatureBatch) -> None:
         key = (batch.stage, batch.layer_index)
@@ -68,9 +58,9 @@ class ShardWriter:
         if not batches:
             return
         stage, layer = key
-        index = self.shards.get(key, 0)
+        index = self.shard_counts.get(key, 0)
         concat(batches).save(self.run_dir / f"{stage}_L{layer:02d}_{index:05d}.safetensors")
-        self.shards[key] = index + 1
+        self.shard_counts[key] = index + 1
         self.counts[key] = 0
 
     def close(self) -> None:
@@ -78,5 +68,5 @@ class ShardWriter:
             self.flush(key)
 
     @property
-    def slices(self) -> int:
-        return len(self.shards)
+    def slice_count(self) -> int:
+        return len(self.shard_counts)

@@ -9,7 +9,6 @@ STAGES = ("tower", "merged", "projected")
 
 
 def concat(batches: list["FeatureBatch"]) -> "FeatureBatch":
-    """Join batches that share a model, Stage, and depth point into one."""
     head = batches[0]
     return replace(
         head,
@@ -20,12 +19,7 @@ def concat(batches: list["FeatureBatch"]) -> "FeatureBatch":
 
 @dataclass(frozen=True)
 class FeatureBatch:
-    """Patch tokens from one model at one Stage and one Relative Depth point.
-
-    Every adapter returns these and every probe consumes them, so the field set
-    is the contract that keeps models comparable. No CLS token: none of the four
-    multimodal Towers has one, so tokens is patch-only everywhere.
-    """
+    """Patch-only adapter output shared by the cache and probes."""
 
     tokens: torch.Tensor
     image_ids: list[str]
@@ -49,12 +43,7 @@ class FeatureBatch:
         return self.layer_index / self.num_layers
 
     def pooled(self, side: int) -> "FeatureBatch":
-        """Average the patch grid down to side x side tokens.
-
-        The semantic pillar caches this instead of every patch token (ADR-0005).
-        It lives here so that every adapter and every Stage pools the same way,
-        which is what keeps models comparable.
-        """
+        """Average a square patch grid down to ``side`` by ``side`` tokens."""
         count = self.tokens.shape[1]
         grid = isqrt(count)
         if grid * grid != count:

@@ -17,38 +17,37 @@ IMAGENET_100 = 130_000
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description="Extract frozen Tower features and measure cache growth.")
-    ap.add_argument("--model", default="dinov2", choices=sorted(ADAPTERS))
-    ap.add_argument("--images", type=Path, required=True)
-    ap.add_argument("--out", type=Path, default=Path("cache"))
-    ap.add_argument("--limit", type=int, default=None, help="default is every image under --images")
-    ap.add_argument("--batch-size", type=int, default=16)
-    ap.add_argument("--resolution", type=int, default=448)
-    ap.add_argument("--device", default="mps")
-    ap.add_argument(
+    parser = argparse.ArgumentParser(description="Extract frozen vision features and measure cache growth.")
+    parser.add_argument("--model", default="dinov2", choices=sorted(ADAPTERS))
+    parser.add_argument("--images", type=Path, required=True)
+    parser.add_argument("--out", type=Path, default=Path("cache"))
+    parser.add_argument("--limit", type=int, default=None, help="default is every image under --images")
+    parser.add_argument("--batch-size", type=int, default=16)
+    parser.add_argument("--resolution", type=int, default=448)
+    parser.add_argument("--device", default="mps")
+    parser.add_argument(
         "--workers",
         type=int,
         default=4,
-        help="DataLoader workers. JPEG decode limits extraction, not the Tower, so set "
+        help="DataLoader workers. JPEG decode limits extraction, so set "
         "this near the vCPU count on a burst instance. At the default of 4 an A100 ran "
         "DINOv2 at 4 percent utilization.",
     )
-    ap.add_argument(
+    parser.add_argument(
         "--images-per-shard",
         type=int,
         default=512,
-        help="images per output file. Keeps the file count independent of --batch-size, "
-        "which for a packed-sequence Tower is forced to 1 (ADR-0009).",
+        help="images per output file. This keeps file count independent of --batch-size",
     )
-    ap.add_argument(
+    parser.add_argument(
         "--pool",
         type=int,
         default=None,
         metavar="SIDE",
-        help="average the patch grid to SIDE x SIDE tokens; 4 for the semantic pillar, "
+        help="average the patch grid to SIDE x SIDE tokens; use 4 for semantic probes, "
         "omit for the geometry pillar and the pooling validation subset (ADR-0005)",
     )
-    args = ap.parse_args()
+    args = parser.parse_args()
 
     adapter = ADAPTERS[args.model](resolution=args.resolution, device=args.device)
     dataset = ImageFolder(args.images, adapter.preprocess(), args.limit)
@@ -61,37 +60,47 @@ def main() -> None:
         persistent_workers=bool(args.workers),
     )
 
-    tag = f"pool{args.pool}" if args.pool else "full"
+    tag = f"pool{args.pool}" if args.pool is not None else "full"
     run_dir = args.out / f"{args.model}_{args.resolution}_{tag}"
     run_dir.mkdir(parents=True, exist_ok=True)
     print(f"{len(dataset)} images, {adapter.num_layers} layers, depth points {adapter.depth_points()}")
     print(f"grid: {tag}")
 
     writer = ShardWriter(run_dir, args.images_per_shard)
-    written = images = tokens = 0
+    written_bytes = image_count = token_count = 0
     start = time.perf_counter()
     for inputs, image_ids in loader:
         for batch in adapter.extract(inputs, image_ids):
-            if args.pool:
+            if args.pool is not None:
                 batch = batch.pooled(args.pool)
             writer.add(batch)
-            written += batch.nbytes
+            written_bytes += batch.nbytes
             if batch.stage == "tower":
-                tokens = batch.tokens.shape[1]
-        images += len(image_ids)
+                token_count = batch.tokens.shape[1]
+        image_count += len(image_ids)
         elapsed = time.perf_counter() - start
-        print(f"{images}/{len(dataset)}  {images / elapsed:5.1f} img/s  {written / 1e9:6.2f} GB", flush=True)
+        print(
+            f"{image_count}/{len(dataset)}  {image_count / elapsed:5.1f} img/s  "
+            f"{written_bytes / 1e9:6.2f} GB",
+            flush=True,
+        )
     writer.close()
 
-    report(run_dir, adapter, args.pool, tokens, writer.slices, images, written, time.perf_counter() - start)
+    report(
+        run_dir,
+        adapter,
+        args.pool,
+        token_count,
+        writer.slice_count,
+        image_count,
+        written_bytes,
+        time.perf_counter() - start,
+    )
 
 
 @dataclass(frozen=True)
 class Collate:
-    """Splits the dataset samples from their image ids and lets the adapter batch them.
-
-    A module-level class rather than a closure, because DataLoader workers pickle it.
-    """
+    """Picklable adapter collator that separates image ids from model inputs."""
 
     batch: Callable
 
@@ -100,8 +109,8 @@ class Collate:
         return self.batch(list(values)), list(image_ids)
 
 
-def report(run_dir, adapter, pool, tokens, slices, images, written, elapsed) -> None:
-    per_image = written / images
+def report(run_dir, adapter, pool, tokens, slice_count, images, written_bytes, elapsed) -> None:
+    per_image = written_bytes / images
     on_disk = sum(p.stat().st_size for p in run_dir.glob("*.safetensors"))
 
     summary = {
@@ -112,18 +121,18 @@ def report(run_dir, adapter, pool, tokens, slices, images, written, elapsed) -> 
         "images": images,
         "stages": list(adapter.stages),
         "depth_points": len(adapter.depth_points()),
-        "slices_per_image": slices,
-        "bytes_per_image_per_slice": round(per_image / slices),
+        "slices_per_image": slice_count,
+        "bytes_per_image_per_slice": round(per_image / slice_count),
         "bytes_per_image_all_points": round(per_image),
-        "shard_overhead": round(on_disk / written, 4),
+        "shard_overhead": round(on_disk / written_bytes, 4),
         "images_per_second": round(images / elapsed, 2),
     }
     (run_dir / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
     print("\n" + json.dumps(summary, indent=2))
 
     total = per_image * IMAGENET_100
-    print(f"\nImageNet-100 at {tokens} Tower tokens per image: {scale(total)} for this model.")
-    print("  Roster totals need this run per model. Token width and Stage count both vary.")
+    print(f"\nImageNet-100 at {tokens} tower tokens per image: {scale(total)} for this model.")
+    print("  Measure each model. Token width and stage count both vary.")
 
     if pool is None:
         print("\nIf the semantic pillar pools the grid instead:")

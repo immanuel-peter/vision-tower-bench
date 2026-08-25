@@ -1,9 +1,3 @@
-"""Checks that moving image preparation into the adapters kept it correct.
-
-DINOv2 must produce exactly what the old shared pipeline produced. MoonViT-V2 must
-produce exactly what its own published processor produces.
-"""
-
 from pathlib import Path
 
 import torch

@@ -1,5 +1,3 @@
-"""Checks the readout and the cache reader on data with a known answer."""
-
 import json
 import torch
 
@@ -30,7 +28,6 @@ def test_cache_round_trips_tokens_and_image_ids(tmp_path):
 
 def test_reducer_keeps_a_linearly_separable_signal():
     torch.manual_seed(0)
-    # Two classes separated along one direction, buried in a wide noisy space.
     signal = torch.cat([torch.ones(64, 16, 1), -torch.ones(64, 16, 1)])
     tokens = torch.cat([signal, torch.randn(128, 16, 255) * 0.1], dim=-1)
 
@@ -72,9 +69,8 @@ def test_shard_writer_groups_batches_into_fixed_size_files(tmp_path):
             )
     writer.close()
 
-    # Ten images per depth point at four per shard is three files, not ten.
     assert len(list(tmp_path.glob("tower_L03_*.safetensors"))) == 3
-    assert writer.slices == 2
+    assert writer.slice_count == 2
 
     tokens, image_ids, _ = cache.load(tmp_path, "tower", 3)
     assert tokens.shape == (10, 16, 8)

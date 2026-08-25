@@ -1,4 +1,4 @@
-# The Kimi K3 Projector comes from two shards, not from surgery
+# The Kimi K3 Projector needs one small shard
 
 PLAN.md listed MoonViT-V2's missing Projector as the top risk, on the assumption that
 reaching it meant downloading and reassembling a checkpoint comparable to Kimi K2.6's
@@ -6,19 +6,16 @@ reaching it meant downloading and reassembling a checkpoint comparable to Kimi K
 otherwise. Of 497,220 tensors across 96 shards, three carry the `mm_projector` prefix and
 all three sit in `model-00095-of-000096.safetensors`, 0.09 GB. The 165 `vision_tower`
 tensors sit entirely in `model-00096-of-000096.safetensors`, 0.80 GB. Both are ordinary
-`hf_hub_download` calls, 0.89 GB in total, so the risk is retired rather than mitigated.
+`hf_hub_download` calls totaling 0.89 GB. A full checkpoint reconstruction is unnecessary.
 
 The Projector is Kimi K3's `patchmergerv2`: `Linear(4096, 4096)` without bias, GELU,
 `Linear(4096, 7168)` without bias, then `RMSNorm(7168)`. Its input is the `merged` Stage
-tensor the adapter already produces, so `projected` is one call on a tensor the pipeline
-holds. The adapter rebuilds it from the checkpoint shapes rather than from a config, so a
-changed upstream checkpoint fails at `load_state_dict` instead of mismatching quietly.
+tensor the adapter already produces. The adapter builds the module from checkpoint shapes
+rather than a separate config. If the upstream shapes change, `load_state_dict` fails.
 
-The parity gate in ADR-0003 is satisfied at a stronger bar than it asks for. All 165
-standalone Tower tensors are bit-identical to the `vision_tower` tensors inside Kimi K3,
-not merely equal within BF16 tolerance, so features extracted from the standalone Tower
-describe the model this Projector was trained against.
+All 165 standalone Tower tensors are bit-identical to the `vision_tower` tensors inside
+Kimi K3. This exceeds ADR-0003's BF16 tolerance requirement and confirms that the
+standalone Tower matches the one used to train the Projector.
 
-The same shard-index-first check should run before every remaining shard-surgery estimate
-on the roster, in particular Qwen3.8-27B, where PLAN.md currently assumes an 18-shard,
-57 GB download.
+Check shard indices before estimating any remaining extraction. PLAN.md currently assumes
+that Qwen3.8-27B requires an 18-shard, 57 GB download, which this method may avoid.

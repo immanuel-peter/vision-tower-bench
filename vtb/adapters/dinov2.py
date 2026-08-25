@@ -1,5 +1,5 @@
 from collections.abc import Iterator
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import torch
 from torchvision import transforms
@@ -14,17 +14,22 @@ IMAGENET_STD = (0.229, 0.224, 0.225)
 
 @dataclass(frozen=True)
 class Preprocess:
-    """PIL image to the (3, H, W) tensor DINOv2 expects. Runs in DataLoader workers."""
-
     resolution: int
+    pipeline: transforms.Compose = field(init=False, repr=False)
+
+    def __post_init__(self) -> None:
+        object.__setattr__(
+            self,
+            "pipeline",
+            transforms.Compose([
+                square_crop(self.resolution),
+                transforms.ToTensor(),
+                transforms.Normalize(IMAGENET_MEAN, IMAGENET_STD),
+            ]),
+        )
 
     def __call__(self, image) -> torch.Tensor:
-        pipeline = transforms.Compose([
-            square_crop(self.resolution),
-            transforms.ToTensor(),
-            transforms.Normalize(IMAGENET_MEAN, IMAGENET_STD),
-        ])
-        return pipeline(image)
+        return self.pipeline(image)
 
 
 def collate(samples: list[torch.Tensor]) -> torch.Tensor:
@@ -32,7 +37,7 @@ def collate(samples: list[torch.Tensor]) -> torch.Tensor:
 
 
 class DINOv2Adapter:
-    """Self-supervised control Tower. No Projector, so `tower` is its only Stage."""
+    """Expose DINOv2 as the self-supervised control tower."""
 
     model_id = "facebook/dinov2-large"
     stages = ("tower",)
@@ -48,7 +53,7 @@ class DINOv2Adapter:
         return Preprocess(self.resolution)
 
     def depth_points(self, n: int = 8) -> list[int]:
-        """Layer indices at Relative Depth 1/n .. 1.0."""
+        """Return ``n`` evenly spaced layer indices, including the final layer."""
         return [round(self.num_layers * (k + 1) / n) for k in range(n)]
 
     @torch.inference_mode()

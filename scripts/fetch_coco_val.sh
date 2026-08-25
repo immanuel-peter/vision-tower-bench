@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-# COCO val2017: 5000 real photos, no auth. Also a candidate source pool for the
-# Perturbation Study (PLAN.md, week 4).
 set -euo pipefail
 dest="${1:-data}"
 mkdir -p "$dest"

@@ -1,9 +1,3 @@
-"""Checks the MoonViT-V2 adapter against the model it wraps.
-
-The Tower emits one flat packed sequence, so the test that matters is whether the
-adapter splits it back into the right images and Stages.
-"""
-
 from pathlib import Path
 
 import torch
