@@ -16,12 +16,11 @@ import numpy as np
 import scipy.io
 from PIL import Image
 
-# The archives store img with the channel means removed and doubled.
+# GeoNet stores doubled mean-centered images.
 CHANNEL_MEANS = (122.175, 116.169, 103.508)
 MAX_DEPTH = 10.0
-# Probe3D drops these two samples by position in the sorted listing, highest first.
+# Match Probe3D's two dropped samples.
 BAD_INDICES = (21181, 6919)
-# Probe3D holds out every twentieth sample.
 VALID_STRIDE = 20
 
 
