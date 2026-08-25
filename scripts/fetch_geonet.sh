@@ -21,8 +21,7 @@ download "$1" data1.zip
 download "$2" data2.zip
 
 df -h "$OUT" | tail -1
-echo "extracting, needs about 300 GB free"
-for archive in data1 data2; do
-    unzip -q -o "$OUT/$archive.zip" -d "$OUT/raw"
-done
-du -sh "$OUT/raw"
+echo
+echo "Do not unzip these. prep_geonet.py reads samples straight out of the archives:"
+echo "  uv run python scripts/prep_geonet.py --zips $OUT/data1.zip $OUT/data2.zip \\"
+echo "      --out $OUT/prepared --split train --cap 4000"

@@ -23,7 +23,13 @@ against itself.
 The label budgets in PLAN.md apply on top of the cap. One hundred percent means 4,000
 images, not 30,000, and every table says so.
 
-Downloading 131.4 GB to keep 4,000 images is wasteful, and there is no way to read part of
-a zip archive over a share link. The download and the conversion therefore run on a burst
-instance with a large bundled disk, and only the converted subset is kept. ADR-0002 already
-requires pushing results off the instance as they land, which covers this.
+Downloading 131.4 GB to keep 4,000 images is wasteful, and a share link cannot serve part
+of an archive. The download and the conversion therefore run on a burst instance and only
+the converted subset comes back.
+
+Nothing unzips the archives. Extracting them would take about 300 GB to keep 4,000
+samples, and scipy reads a file object, so the prep step opens each sample inside the zip.
+That drops the instance requirement from roughly 430 GB to about 150 GB, which is the
+difference between needing a 512 GB machine and fitting a 256 GB one. Pick an instance
+with bundled disk rather than a metered volume: the cheap CPU types either cap at 128 GB
+or meter storage near $0.11 per GB per month, which ADR-0002 already warns about.

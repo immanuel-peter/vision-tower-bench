@@ -9,7 +9,9 @@ images across every model, Stage, and depth point.
 """
 
 import argparse
+import io
 import json
+import zipfile
 from pathlib import Path
 
 import numpy as np
@@ -24,16 +26,42 @@ BAD_INDICES = (21181, 6919)
 VALID_STRIDE = 20
 
 
-def instances(root: Path) -> list[str]:
-    names = sorted(p.name for p in root.iterdir() if p.suffix == ".mat")
-    for index in BAD_INDICES:
-        if index < len(names):
-            del names[index]
-    return names
+class Archives:
+    """Reads GeoNet samples straight out of the zip archives.
+
+    Extracting everything would need about 300 GB to keep 4,000 samples (ADR-0011).
+    scipy reads a file object, so the archives stay closed and only the zips take disk.
+    """
+
+    def __init__(self, paths: list[Path]):
+        self.zips = {path: zipfile.ZipFile(path) for path in paths}
+        self.source = {
+            Path(name).name: (path, name)
+            for path, handle in self.zips.items()
+            for name in handle.namelist()
+            if name.endswith(".mat")
+        }
+
+    def names(self) -> list[str]:
+        """Every sample across both archives, sorted, with Probe3D's two drops applied."""
+        names = sorted(self.source)
+        for index in BAD_INDICES:
+            if index < len(names):
+                del names[index]
+        return names
+
+    def open(self, name: str) -> bytes:
+        path, member = self.source[name]
+        with self.zips[path].open(member) as handle:
+            return handle.read()
+
+    def close(self) -> None:
+        for handle in self.zips.values():
+            handle.close()
 
 
-def read(path: Path) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    sample = scipy.io.loadmat(str(path))
+def read(raw: bytes) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    sample = scipy.io.loadmat(io.BytesIO(raw))
     image = sample["img"][:480, :640].astype(np.float32)
     for channel, mean in enumerate(CHANNEL_MEANS):
         image[:, :, channel] += 2 * mean
@@ -46,14 +74,15 @@ def read(path: Path) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--raw", type=Path, required=True, help="directory of GeoNet .mat files")
+    ap.add_argument("--zips", type=Path, nargs="+", required=True, help="data1.zip and data2.zip")
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--split", default="train", choices=("train", "valid"))
     ap.add_argument("--cap", type=int, default=4000, help="0 keeps every sample (ADR-0011)")
     ap.add_argument("--seed", type=int, default=0)
     args = ap.parse_args()
 
-    names = instances(args.raw)
+    archives = Archives(args.zips)
+    names = archives.names()
     keep = [n for i, n in enumerate(names) if (i % VALID_STRIDE == 0) == (args.split == "valid")]
     if args.cap and args.cap < len(keep):
         chosen = np.random.default_rng(args.seed).choice(len(keep), args.cap, replace=False)
@@ -63,7 +92,7 @@ def main() -> None:
     images.mkdir(parents=True, exist_ok=True)
     targets: dict[str, np.ndarray] = {}
     for position, name in enumerate(keep):
-        image, depth, normal, mask = read(args.raw / name)
+        image, depth, normal, mask = read(archives.open(name))
         image_id = f"{args.split}_{position:06d}"
         Image.fromarray(image).save(images / f"{image_id}.png")
         targets[image_id] = depth
@@ -72,9 +101,10 @@ def main() -> None:
         if position % 500 == 0:
             print(f"{position}/{len(keep)}", flush=True)
 
+    archives.close()
     np.savez(args.out / f"{args.split}_targets.npz", **targets)
     (args.out / f"{args.split}_manifest.json").write_text(
-        json.dumps({"source": str(args.raw), "split": args.split, "cap": args.cap,
+        json.dumps({"source": [str(z) for z in args.zips], "split": args.split, "cap": args.cap,
                     "seed": args.seed, "images": len(keep), "files": keep}, indent=2) + "\n"
     )
     print(f"{len(keep)} samples -> {images}")
