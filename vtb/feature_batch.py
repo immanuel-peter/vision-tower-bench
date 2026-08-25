@@ -57,6 +57,10 @@ class FeatureBatch:
         small = F.adaptive_avg_pool2d(spatial.float(), side).to(self.tokens.dtype)
         return replace(self, tokens=small.flatten(2).transpose(1, 2), pooled_to=side)
 
+    def with_tokens(self, tokens: torch.Tensor) -> "FeatureBatch":
+        """Same slice, different token values. Used when a probe reduces token width."""
+        return replace(self, tokens=tokens)
+
     @property
     def nbytes(self) -> int:
         return self.tokens.nbytes

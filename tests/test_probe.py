@@ -1,4 +1,6 @@
+import argparse
 import json
+
 import torch
 
 from vtb import cache, probe, probe_run
@@ -119,3 +121,76 @@ def test_geometry_head_capacity_tracks_token_width():
     narrow = geometry.parameter_count(geometry.DepthHead([1024]))
     wide = geometry.parameter_count(geometry.DepthHead([7168]))
     assert wide > 2.5 * narrow
+
+
+def test_depth_loss_is_only_partly_scale_invariant():
+    from vtb.geometry_metrics import depth_si_loss
+
+    target = torch.rand(2, 1, 32, 32) * 9 + 1
+    assert depth_si_loss(target.clone(), target).item() == 0.0
+    # lambda_scale below 1 leaves a scaled prediction with a cost, which is the point.
+    assert depth_si_loss(target * 2, target).item() > 2.0
+    assert depth_si_loss(target * 2, target, lambda_scale=1.0).item() < 1e-6
+
+
+def test_depth_metrics_reward_a_perfect_prediction():
+    from vtb.geometry_metrics import evaluate_depth
+
+    target = torch.rand(4, 64, 64) * 9 + 1
+    metrics = evaluate_depth(target.clone(), target)
+    assert metrics["rmse"].max().item() < 1e-6
+    assert metrics["d1"].min().item() == 1.0
+
+
+def test_scale_invariant_depth_recovers_a_scaled_prediction():
+    from vtb.geometry_metrics import evaluate_depth
+
+    target = torch.rand(4, 64, 64) * 9 + 1
+    metrics = evaluate_depth(target * 3.0 + 2.0, target, scale_invariant=True)
+    assert metrics["rmse"].max().item() < 1e-3
+
+
+def test_geometry_runner_trains_a_depth_cell_end_to_end(tmp_path):
+    """Runs the full path on synthetic data: shards in, trained head out, metrics back."""
+    import numpy as np
+
+    from vtb import cache, geometry, geometry_run
+    from vtb.probe_run import split_indices
+
+    torch.manual_seed(0)
+    ids = [f"img{i:03d}" for i in range(24)]
+    writer = cache.ShardWriter(tmp_path, images=8)
+    writer.add(
+        FeatureBatch(
+            tokens=torch.randn(24, 64, 32),
+            image_ids=ids,
+            model_id="test/model",
+            stage="tower",
+            layer_index=6,
+            num_layers=12,
+            resolution=112,
+        )
+    )
+    writer.close()
+
+    store = {i: np.random.rand(16, 16).astype("float32") * 5 + 1 for i in ids}
+    np.savez(tmp_path / "targets.npz", **store)
+
+    batch = cache.load_batch(tmp_path, "tower", 6)
+    assert batch.pooled_to is None
+    assert batch.num_layers == 12
+    targets, _ = geometry_run.load_targets(tmp_path / "targets.npz", batch.image_ids, "depth")
+    assert targets.shape == (24, 16, 16)
+
+    features = geometry.dense_map(batch)
+    assert features.shape == (24, 32, 8, 8)
+
+    args = argparse.Namespace(
+        head="linear", device="cpu", epochs=1, batch_size=4,
+        learning_rate=1e-3, seed=0, scale_invariant=False,
+    )
+    split = split_indices(24)
+    model = geometry_run.train_cell(features, targets.unsqueeze(1), None, split, "depth", args)
+    metrics = geometry_run.score(model, features, targets.unsqueeze(1), None, split.test, "depth", args)
+    assert set(metrics) == {"d1", "d2", "d3", "rmse"}
+    assert 0.0 <= metrics["d1"] <= 1.0

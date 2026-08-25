@@ -36,6 +36,22 @@ def load(run_dir: Path, stage: str, layer: int) -> tuple[torch.Tensor, list[str]
     return torch.cat(parts), image_ids, metadata
 
 
+def load_batch(run_dir: Path, stage: str, layer: int) -> FeatureBatch:
+    """Load one Stage at one depth point back into the batch the adapters produced."""
+    tokens, image_ids, meta = load(run_dir, stage, layer)
+    pooled = meta.get("pooled_to", "none")
+    return FeatureBatch(
+        tokens=tokens,
+        image_ids=image_ids,
+        model_id=meta["model_id"],
+        stage=stage,
+        layer_index=layer,
+        num_layers=int(meta["num_layers"]),
+        resolution=int(meta["resolution"]),
+        pooled_to=None if pooled == "none" else int(pooled),
+    )
+
+
 class ShardWriter:
     """Buffer batches until a stage and layer pair reaches ``images`` rows."""
 
