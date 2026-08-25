@@ -75,3 +75,47 @@ def test_shard_writer_groups_batches_into_fixed_size_files(tmp_path):
     tokens, image_ids, _ = cache.load(tmp_path, "tower", 3)
     assert tokens.shape == (10, 16, 8)
     assert image_ids == [f"img{s}{c}" for s in range(5) for c in "ab"]
+
+
+def test_dense_map_restores_the_patch_grid():
+    from vtb import geometry
+
+    batch = FeatureBatch(
+        tokens=torch.randn(2, 1024, 64),
+        image_ids=["a", "b"],
+        model_id="test/model",
+        stage="tower",
+        layer_index=12,
+        num_layers=24,
+        resolution=448,
+    )
+    maps = geometry.dense_map(batch)
+    assert maps.shape == (2, 64, 32, 32)
+    # Token i sits at row i // 32, column i % 32.
+    assert torch.equal(maps[0, :, 3, 5], batch.tokens[0, 3 * 32 + 5, :])
+
+
+def test_dense_map_refuses_a_pooled_batch():
+    import pytest
+
+    from vtb import geometry
+
+    batch = FeatureBatch(
+        tokens=torch.randn(1, 1024, 8),
+        image_ids=["a"],
+        model_id="test/model",
+        stage="tower",
+        layer_index=12,
+        num_layers=24,
+        resolution=448,
+    )
+    with pytest.raises(ValueError, match="full patch tokens"):
+        geometry.dense_map(batch.pooled(4))
+
+
+def test_geometry_head_capacity_tracks_token_width():
+    from vtb import geometry
+
+    narrow = geometry.parameter_count(geometry.DepthHead([1024]))
+    wide = geometry.parameter_count(geometry.DepthHead([7168]))
+    assert wide > 2.5 * narrow
