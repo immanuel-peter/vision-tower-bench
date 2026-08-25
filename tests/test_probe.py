@@ -186,10 +186,36 @@ def test_geometry_runner_trains_a_depth_cell_end_to_end(tmp_path):
 
     args = argparse.Namespace(
         head="linear", device="cpu", epochs=1, batch_size=4,
-        learning_rate=1e-3, seed=0, scale_invariant=False,
+        learning_rate=1e-3, seed=0, scale_invariant=False, max_depth=10.0,
     )
     split = split_indices(24)
     model = geometry_run.train_cell(features, targets, None, split, "depth", args)
     metrics = geometry_run.score(model, features, targets, None, split.test, "depth", args)
     assert set(metrics) == {"d1", "d2", "d3", "rmse"}
     assert 0.0 <= metrics["d1"] <= 1.0
+
+
+def test_depth_range_comes_from_the_manifest(tmp_path):
+    import numpy as np
+
+    from vtb.geometry_run import depth_range
+
+    targets = tmp_path / "val_targets.npz"
+    np.savez(targets, a=np.zeros((2, 2)))
+    assert depth_range(targets, None) == 10.0
+
+    (tmp_path / "val_manifest.json").write_text(json.dumps({"max_depth_metres": 230.64}))
+    assert depth_range(targets, None) == 230.64
+    assert depth_range(targets, 80.0) == 80.0
+
+
+def test_depth_head_bins_span_the_requested_range():
+    from vtb import geometry
+
+    head = geometry.DepthHead([32], head="linear", max_depth=230.64)
+    far = head([torch.randn(1, 32, 8, 8) * 50])
+    assert head.predict.max_depth == 230.64
+    # A head capped at NYU's 10 m cannot produce a DIODE-scale depth at all.
+    near = geometry.DepthHead([32], head="linear", max_depth=10.0)
+    assert near([torch.randn(1, 32, 8, 8) * 50]).max().item() <= 10.0
+    assert far.shape == near([torch.randn(1, 32, 8, 8)]).shape

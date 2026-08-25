@@ -25,6 +25,18 @@ from vtb.probe_run import split_indices
 TASKS = ("depth", "normal")
 
 
+def depth_range(targets: Path, override: float | None) -> float:
+    """Depth bin ceiling, from the flag, else the manifest the prep step wrote."""
+    if override:
+        return override
+    manifest = targets.with_name(targets.name.replace("_targets.npz", "_manifest.json"))
+    if manifest.exists():
+        recorded = json.loads(manifest.read_text()).get("max_depth_metres")
+        if recorded:
+            return float(recorded)
+    return 10.0
+
+
 def load_targets(path: Path, image_ids: list[str], task: str):
     """Read targets written by the dataset prep step, ordered to match the cache.
 
@@ -43,8 +55,11 @@ def load_targets(path: Path, image_ids: list[str], task: str):
 
 def train_cell(features, targets, valid, split, task, args):
     torch.manual_seed(args.seed)
-    head_class = geometry.DepthHead if task == "depth" else geometry.SurfaceNormalHead
-    model = head_class([features.shape[1]], head=args.head).to(args.device)
+    if task == "depth":
+        model = geometry.DepthHead([features.shape[1]], head=args.head, max_depth=args.max_depth)
+    else:
+        model = geometry.SurfaceNormalHead([features.shape[1]], head=args.head)
+    model = model.to(args.device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.learning_rate, weight_decay=1e-4)
     schedule = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, args.epochs)
 
@@ -111,8 +126,17 @@ def main() -> None:
     ap.add_argument("--learning-rate", type=float, default=1e-3)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--scale-invariant", action="store_true")
+    ap.add_argument(
+        "--max-depth",
+        type=float,
+        default=None,
+        help="depth bin ceiling in metres. Read from the prep manifest when omitted, "
+        "because DIODE reaches 230 m outdoors against NYU's 10 m indoors.",
+    )
     ap.add_argument("--device", default="cuda")
     args = ap.parse_args()
+    args.max_depth = depth_range(args.targets, args.max_depth)
+    print(f"depth bins span 0 to {args.max_depth:.1f} m")
 
     cells = []
     for stage, layer in cache.slices(args.run):
@@ -128,6 +152,7 @@ def main() -> None:
         model = train_cell(features, targets, valid, split, args.task, args)
         result = score(model, features, targets, valid, split.test, args.task, args)
         result |= {
+            "max_depth": args.max_depth,
             "model_id": batch.model_id,
             "stage": stage,
             "layer_index": layer,

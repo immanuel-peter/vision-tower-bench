@@ -96,9 +96,17 @@ class DepthBins(nn.Module):
 
 
 class DepthHead(nn.Module):
-    def __init__(self, input_dims: list[int], head: str = "multiscale", hidden_dim: int = 512):
+    def __init__(
+        self,
+        input_dims: list[int],
+        head: str = "multiscale",
+        hidden_dim: int = 512,
+        max_depth: float = 10.0,
+    ):
         super().__init__()
-        self.predict = DepthBins()
+        # NYU tops out near 10 m indoors. DIODE is metric and reaches 230 m outdoors, so
+        # a wrong range here silently clamps every far pixel to the last bin.
+        self.predict = DepthBins(max_depth=max_depth)
         self.head = _build(head, input_dims, self.predict.n_bins, hidden_dim)
 
     def forward(self, feats: list[torch.Tensor]) -> torch.Tensor:
