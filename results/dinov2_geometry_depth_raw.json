@@ -1,0 +1,291 @@
+{
+  "task": "depth",
+  "images": 771,
+  "train_images": 541,
+  "capacity_matched": false,
+  "head": "multiscale",
+  "epochs": 10,
+  "seed": 0,
+  "cells": [
+    {
+      "d1": 0.3239,
+      "d2": 0.5826,
+      "d3": 0.7539,
+      "rmse": 6.1289,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.3601,
+          "d2": 0.6277,
+          "d3": 0.7954,
+          "rmse": 1.7104,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.295,
+          "d2": 0.5466,
+          "d3": 0.7208,
+          "rmse": 9.6499,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "max_depth": 299.83,
+      "model_id": "facebook/dinov2-large",
+      "stage": "tower",
+      "layer_index": 3,
+      "relative_depth": 0.125,
+      "token_width": 1024,
+      "grid": 32,
+      "trainable_parameters": 1706752,
+      "seconds": 133.1
+    },
+    {
+      "d1": 0.354,
+      "d2": 0.6304,
+      "d3": 0.804,
+      "rmse": 5.7307,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.3539,
+          "d2": 0.6385,
+          "d3": 0.8258,
+          "rmse": 1.635,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.3541,
+          "d2": 0.6239,
+          "d3": 0.7866,
+          "rmse": 8.9944,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "max_depth": 299.83,
+      "model_id": "facebook/dinov2-large",
+      "stage": "tower",
+      "layer_index": 6,
+      "relative_depth": 0.25,
+      "token_width": 1024,
+      "grid": 32,
+      "trainable_parameters": 1706752,
+      "seconds": 177.4
+    },
+    {
+      "d1": 0.383,
+      "d2": 0.6728,
+      "d3": 0.838,
+      "rmse": 5.2865,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.3697,
+          "d2": 0.6687,
+          "d3": 0.8617,
+          "rmse": 1.481,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.3936,
+          "d2": 0.676,
+          "d3": 0.8191,
+          "rmse": 8.319,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "max_depth": 299.83,
+      "model_id": "facebook/dinov2-large",
+      "stage": "tower",
+      "layer_index": 9,
+      "relative_depth": 0.375,
+      "token_width": 1024,
+      "grid": 32,
+      "trainable_parameters": 1706752,
+      "seconds": 217.7
+    },
+    {
+      "d1": 0.5247,
+      "d2": 0.8023,
+      "d3": 0.9105,
+      "rmse": 4.3312,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.5204,
+          "d2": 0.8222,
+          "d3": 0.9362,
+          "rmse": 1.0418,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.528,
+          "d2": 0.7865,
+          "d3": 0.8901,
+          "rmse": 6.9525,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "max_depth": 299.83,
+      "model_id": "facebook/dinov2-large",
+      "stage": "tower",
+      "layer_index": 12,
+      "relative_depth": 0.5,
+      "token_width": 1024,
+      "grid": 32,
+      "trainable_parameters": 1706752,
+      "seconds": 217.2
+    },
+    {
+      "d1": 0.62,
+      "d2": 0.8517,
+      "d3": 0.9338,
+      "rmse": 3.7982,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.6296,
+          "d2": 0.8733,
+          "d3": 0.9576,
+          "rmse": 0.802,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.6123,
+          "d2": 0.8346,
+          "d3": 0.9149,
+          "rmse": 6.1859,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "max_depth": 299.83,
+      "model_id": "facebook/dinov2-large",
+      "stage": "tower",
+      "layer_index": 15,
+      "relative_depth": 0.625,
+      "token_width": 1024,
+      "grid": 32,
+      "trainable_parameters": 1706752,
+      "seconds": 216.4
+    },
+    {
+      "d1": 0.6536,
+      "d2": 0.8751,
+      "d3": 0.9435,
+      "rmse": 3.5478,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.6364,
+          "d2": 0.8967,
+          "d3": 0.9697,
+          "rmse": 0.7269,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.6674,
+          "d2": 0.8578,
+          "d3": 0.9227,
+          "rmse": 5.7958,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "max_depth": 299.83,
+      "model_id": "facebook/dinov2-large",
+      "stage": "tower",
+      "layer_index": 18,
+      "relative_depth": 0.75,
+      "token_width": 1024,
+      "grid": 32,
+      "trainable_parameters": 1706752,
+      "seconds": 220.1
+    },
+    {
+      "d1": 0.6733,
+      "d2": 0.8796,
+      "d3": 0.9454,
+      "rmse": 3.6166,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.6668,
+          "d2": 0.9049,
+          "d3": 0.9747,
+          "rmse": 0.6996,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.6785,
+          "d2": 0.8595,
+          "d3": 0.922,
+          "rmse": 5.941,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "max_depth": 299.83,
+      "model_id": "facebook/dinov2-large",
+      "stage": "tower",
+      "layer_index": 21,
+      "relative_depth": 0.875,
+      "token_width": 1024,
+      "grid": 32,
+      "trainable_parameters": 1706752,
+      "seconds": 217.6
+    },
+    {
+      "d1": 0.6733,
+      "d2": 0.8786,
+      "d3": 0.9461,
+      "rmse": 3.6766,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.6777,
+          "d2": 0.9088,
+          "d3": 0.9783,
+          "rmse": 0.7138,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.6698,
+          "d2": 0.8546,
+          "d3": 0.9205,
+          "rmse": 6.0376,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "max_depth": 299.83,
+      "model_id": "facebook/dinov2-large",
+      "stage": "tower",
+      "layer_index": 24,
+      "relative_depth": 1.0,
+      "token_width": 1024,
+      "grid": 32,
+      "trainable_parameters": 1706752,
+      "seconds": 132.4
+    }
+  ]
+}
