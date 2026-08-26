@@ -177,14 +177,29 @@ def main() -> None:
         "because DIODE reaches 230 m outdoors against NYU's 10 m indoors.",
     )
     ap.add_argument("--device", default="cuda")
+    ap.add_argument(
+        "--only",
+        nargs="+",
+        default=None,
+        metavar="STAGE:LAYER",
+        help="run just these cells, as in tower:24 projected:27. Used for seed repeats "
+        "on the pair the headline claim compares, not for changing the protocol.",
+    )
     args = ap.parse_args()
     args.max_depth = depth_range(args.targets, args.max_depth)
     scenes = manifest(args.targets).get("scenes", {})
     print(f"depth bins span 0 to {args.max_depth:.1f} m")
 
+    chosen = cache.slices(args.run)
+    if args.only:
+        wanted = {(s.split(":")[0], int(s.split(":")[1])) for s in args.only}
+        chosen = [cell for cell in chosen if cell in wanted]
+        if len(chosen) != len(wanted):
+            raise SystemExit(f"{args.only} does not match slices in {args.run}")
+
     cells = []
     order, targets, valid, coverage = None, None, None, None
-    for stage, layer in cache.slices(args.run):
+    for stage, layer in chosen:
         started = time.perf_counter()
         batch = cache.load_batch(args.run, stage, layer)
         # Every slice of a run holds the same images in the same order, so the 6.3 GB of
@@ -226,6 +241,7 @@ def main() -> None:
 
     tag = "matched" if args.match_capacity else "raw"
     out = args.out or args.run / f"geometry_{args.task}_{args.head}_{tag}.json"
+
     out.write_text(
         json.dumps(
             {"task": args.task, "images": len(order), "train_images": len(split.train),
