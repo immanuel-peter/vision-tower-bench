@@ -187,10 +187,10 @@ def test_geometry_runner_trains_a_depth_cell_end_to_end(tmp_path):
 
     args = argparse.Namespace(
         head="linear", device="cpu", epochs=1, batch_size=4,
-        learning_rate=1e-3, seed=0, scale_invariant=False, max_depth=10.0,
+        learning_rates=[1e-3, 3e-3], seeds=2, scale_invariant=False, max_depth=10.0,
     )
     split = split_indices(24)
-    model = geometry_run.train_cell(features, targets, None, split, "depth", args)
+    model = geometry_run.train_cell(features, targets, None, split, "depth", args, 1e-3, 0)
     metrics = geometry_run.score(model, features, targets, None, split.test, "depth", args)
     assert set(metrics) == {"d1", "d2", "d3", "rmse"}
     assert metrics["d1"].shape == (len(split.test),)
@@ -201,6 +201,65 @@ def test_geometry_runner_trains_a_depth_cell_end_to_end(tmp_path):
     assert 0.0 <= summary["d1"] <= 1.0
     assert summary["images"] == len(split.test)
     assert sum(b["images"] for b in summary["by_scene"].values()) == len(split.test)
+
+    cell = geometry_run.run_cell(
+        features, targets, None, split, "depth", coverage, ids, scenes, args
+    )
+    assert cell["learning_rate"] in args.learning_rates
+    assert cell["seeds"] == 2 and len(cell["per_seed"]) == 2
+    assert set(cell["learning_rate_search"]) == {"0.001", "0.003"}
+    assert "d1_std" in cell and "d1_std" in cell["by_scene"]["indoors"]
+    # Coverage describes the split, so it must not grow a deviation across seeds.
+    assert "coverage_std" not in cell
+
+
+def test_learning_rate_selection_runs_the_right_way_per_task():
+    """Depth selects on d1 upward and normals on mean_deg downward. Reversing either is
+    silent: the grid still returns a rate, just the worst one in it."""
+    from vtb import geometry_run
+
+    assert geometry_run.SELECTION["depth"] == ("d1", True)
+    assert geometry_run.SELECTION["normal"] == ("mean_deg", False)
+
+    scored = {}
+
+    def fake_score(model, features, targets, valid, index, task, args):
+        rate = model
+        return {geometry_run.SELECTION[task][0]: torch.tensor([scored[rate]])}
+
+    def fake_train(features, targets, valid, split, task, args, learning_rate, seed):
+        return learning_rate
+
+    args = argparse.Namespace(learning_rates=[1e-4, 1e-3, 1e-2])
+    split = argparse.Namespace(val=torch.arange(2))
+    original = geometry_run.score, geometry_run.train_cell
+    geometry_run.score, geometry_run.train_cell = fake_score, fake_train
+    try:
+        # Best depth d1 is the largest, best normal mean_deg is the smallest, and both
+        # sit at a different rate so a flipped comparison cannot pass by luck.
+        scored = {1e-4: 0.10, 1e-3: 0.90, 1e-2: 0.50}
+        rate, report = geometry_run.select_learning_rate(None, None, None, split, "depth", args)
+        assert rate == 1e-3 and report["val_score"] == 0.9
+
+        scored = {1e-4: 30.0, 1e-3: 25.0, 1e-2: 40.0}
+        rate, report = geometry_run.select_learning_rate(None, None, None, split, "normal", args)
+        assert rate == 1e-3 and report["val_score"] == 25.0
+        assert report["val_metric"] == "mean_deg"
+    finally:
+        geometry_run.score, geometry_run.train_cell = original
+
+
+def test_aggregate_reports_mean_and_population_deviation():
+    from vtb import geometry_run
+
+    runs = [
+        {"d1": 0.2, "images": 4, "coverage": 0.5, "by_scene": {"indoors": {"d1": 0.1, "images": 2, "coverage": 0.5}}},
+        {"d1": 0.4, "images": 4, "coverage": 0.5, "by_scene": {"indoors": {"d1": 0.3, "images": 2, "coverage": 0.5}}},
+    ]
+    out = geometry_run.aggregate(runs)
+    assert out["d1"] == 0.3 and out["d1_std"] == 0.1
+    assert out["images"] == 4 and out["coverage"] == 0.5
+    assert out["by_scene"]["indoors"]["d1"] == 0.2
 
 
 def test_scene_summary_reads_coverage_for_the_images_it_scored():

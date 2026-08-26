@@ -25,6 +25,15 @@ from vtb.probe_run import split_indices
 
 TASKS = ("depth", "normal")
 
+# Which metric selects the learning rate, and whether a larger value is better. Getting
+# the direction wrong here silently selects the worst rate in the grid.
+SELECTION = {"depth": ("d1", True), "normal": ("mean_deg", False)}
+
+# The semantic grid in probe_run.py reaches 1.0, which suits a small attention pool and
+# diverges on a convolutional decoder. This grid keeps the same eight points and the same
+# half-decade spacing, shifted down to straddle the 1e-3 the first geometry run fixed.
+LEARNING_RATES = (1e-5, 3e-5, 1e-4, 3e-4, 1e-3, 3e-3, 1e-2, 3e-2)
+
 
 def manifest(targets: Path) -> dict:
     """The prep step's manifest, which sits beside the targets it describes."""
@@ -79,14 +88,10 @@ def coverage_of(targets: torch.Tensor, valid: torch.Tensor | None) -> torch.Tens
     return mask.flatten(1).mean(dim=1)
 
 
-def train_cell(features, targets, valid, split, task, args):
-    torch.manual_seed(args.seed)
-    if task == "depth":
-        model = geometry.DepthHead([features.shape[1]], head=args.head, max_depth=args.max_depth)
-    else:
-        model = geometry.SurfaceNormalHead([features.shape[1]], head=args.head)
-    model = model.to(args.device)
-    optimizer = torch.optim.AdamW(model.parameters(), lr=args.learning_rate, weight_decay=1e-4)
+def train_cell(features, targets, valid, split, task, args, learning_rate, seed):
+    torch.manual_seed(seed)
+    model = build_head(features.shape[1], task, args).to(args.device)
+    optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=1e-4)
     schedule = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, args.epochs)
 
     for _ in range(args.epochs):
@@ -153,6 +158,63 @@ def summarise(metrics, coverage, image_ids, index, scenes) -> dict:
     }
 
 
+def select_learning_rate(features, targets, valid, split, task, args) -> tuple[float, dict]:
+    """Train once per rate and keep the one that scores best on the validation split."""
+    metric, higher_is_better = SELECTION[task]
+    searched: dict[str, float] = {}
+    best_rate, best_score = None, None
+    for rate in args.learning_rates:
+        model = train_cell(features, targets, valid, split, task, args, rate, seed=0)
+        value = score(model, features, targets, valid, split.val, task, args)[metric].mean().item()
+        searched[f"{rate:g}"] = round(value, 4)
+        if best_score is None or (value > best_score if higher_is_better else value < best_score):
+            best_rate, best_score = rate, value
+    return best_rate, {
+        "learning_rate": best_rate,
+        "val_metric": metric,
+        "val_score": round(best_score, 4),
+        "learning_rate_search": searched,
+    }
+
+
+def _mean_std(values: list[float]) -> tuple[float, float]:
+    stacked = torch.tensor(values, dtype=torch.float64)
+    return round(stacked.mean().item(), 4), round(stacked.std(unbiased=False).item(), 4)
+
+
+def aggregate(runs: list[dict]) -> dict:
+    """Collapse per-seed summaries into a mean and a population standard deviation.
+
+    `images` and `coverage` are properties of the split rather than of a fitted head, so
+    they carry through unchanged instead of picking up a deviation of zero.
+    """
+    out: dict = {}
+    for key, value in runs[0].items():
+        if key == "by_scene":
+            out[key] = {name: aggregate([r["by_scene"][name] for r in runs]) for name in value}
+        elif key in ("images", "coverage"):
+            out[key] = value
+        else:
+            out[key], out[f"{key}_std"] = _mean_std([r[key] for r in runs])
+    return out
+
+
+def build_head(width: int, task: str, args) -> torch.nn.Module:
+    if task == "depth":
+        return geometry.DepthHead([width], head=args.head, max_depth=args.max_depth)
+    return geometry.SurfaceNormalHead([width], head=args.head)
+
+
+def run_cell(features, targets, valid, split, task, coverage, image_ids, scenes, args) -> dict:
+    best_rate, selection = select_learning_rate(features, targets, valid, split, task, args)
+    per_seed = []
+    for seed in range(args.seeds):
+        model = train_cell(features, targets, valid, split, task, args, best_rate, seed)
+        metrics = score(model, features, targets, valid, split.test, task, args)
+        per_seed.append(summarise(metrics, coverage, image_ids, split.test, scenes))
+    return aggregate(per_seed) | selection | {"seeds": args.seeds, "per_seed": per_seed}
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="Train the dense readouts on a cached run.")
     ap.add_argument("--run", type=Path, required=True, help="full-token cache from vtb.extract")
@@ -169,8 +231,14 @@ def main() -> None:
     )
     ap.add_argument("--epochs", type=int, default=10)
     ap.add_argument("--batch-size", type=int, default=8)
-    ap.add_argument("--learning-rate", type=float, default=1e-3)
-    ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument(
+        "--learning-rates",
+        type=float,
+        nargs="+",
+        default=list(LEARNING_RATES),
+        help="grid searched on the validation split, identical in every cell",
+    )
+    ap.add_argument("--seeds", type=int, default=3)
     ap.add_argument("--scale-invariant", action="store_true")
     ap.add_argument(
         "--max-depth",
@@ -185,8 +253,8 @@ def main() -> None:
         nargs="+",
         default=None,
         metavar="STAGE:LAYER",
-        help="run just these cells, as in tower:24 projected:27. Used for seed repeats "
-        "on the pair the headline claim compares, not for changing the protocol.",
+        help="run just these cells, as in tower:24 projected:27. For timing probes and "
+        "reruns of one Stage, not for changing the protocol.",
     )
     args = ap.parse_args()
     args.max_depth = depth_range(args.targets, args.max_depth)
@@ -219,9 +287,10 @@ def main() -> None:
         # The cache holds bfloat16; the heads are float32.
         features = geometry.dense_map(batch).float()
 
-        model = train_cell(features, targets, valid, split, args.task, args)
-        metrics = score(model, features, targets, valid, split.test, args.task, args)
-        result = summarise(metrics, coverage, order, split.test, scenes)
+        parameters = geometry.parameter_count(build_head(features.shape[1], args.task, args))
+        result = run_cell(
+            features, targets, valid, split, args.task, coverage, order, scenes, args
+        )
         result |= {
             "max_depth": args.max_depth,
             "model_id": batch.model_id,
@@ -230,15 +299,16 @@ def main() -> None:
             "relative_depth": batch.relative_depth,
             "token_width": features.shape[1],
             "grid": features.shape[-1],
-            "trainable_parameters": geometry.parameter_count(model),
+            "trainable_parameters": parameters,
             "seconds": round(time.perf_counter() - started, 1),
         }
         cells.append(result)
-        headline = "d1" if args.task == "depth" else "mean_deg"
+        headline = SELECTION[args.task][0]
         print(
             f"{stage:>9} L{layer:02d}  depth {result['relative_depth']:.3f}  "
-            f"{headline} {result[headline]:.4f}  rmse {result['rmse']:.4f}  "
-            f"params {result['trainable_parameters']:,}  {result['seconds']:.0f}s",
+            f"{headline} {result[headline]:.4f} +- {result[headline + '_std']:.4f}  "
+            f"lr {result['learning_rate']:g}  params {parameters:,}  "
+            f"{result['seconds']:.0f}s",
             flush=True,
         )
 
@@ -249,7 +319,8 @@ def main() -> None:
         json.dumps(
             {"task": args.task, "images": len(order), "train_images": len(split.train),
              "capacity_matched": args.match_capacity, "head": args.head,
-             "epochs": args.epochs, "seed": args.seed, "cells": cells},
+             "epochs": args.epochs, "seeds": args.seeds,
+             "learning_rates": args.learning_rates, "cells": cells},
             indent=2,
         )
         + "\n"
