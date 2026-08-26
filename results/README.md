@@ -1,5 +1,13 @@
 # Geometry pillar, first run
 
+> **Status, 2026-08-26.** Every number in this file comes from the first geometry run,
+> which trained one seed per cell at a fixed 1e-3 and ran no learning-rate search. The
+> runner has since been rewritten to search a validation-selected grid and report three
+> seeds (ADR-0014). The re-run of all 72 cells was launched and stopped after 3 cells
+> when the instance was torn down, so nothing here has been restated at the new
+> protocol yet. Treat the levels below as provisional and the ranking claims as
+> untested against seed noise outside the deepest Stage triple.
+
 This run answers the spatial half of the claim in PLAN.md. The semantic half was measured
 first and held flat: MoonViT-V2 reads 0.8345 top-1 at `tower`, 0.8417 at `merged`, and
 0.8412 at `projected` on ImageNet-100. PLAN.md predicted that the same Projector destroys
@@ -10,8 +18,9 @@ spatial information. It does not.
 DIODE validation, 771 images, 325 indoors and 446 outdoor, prepared at native 768 by 1024
 and evaluated on the centre 768 by 768 square that `square_crop` actually feeds each Stage
 (ADR-0012). The split is 541 train, 115 val, 115 test, drawn once with a fixed seed and
-reused in every cell. The geometry runner trains on `train` and reports `test`; it runs no
-learning-rate search, so the val subset goes unused and every cell sees identical data.
+reused in every cell. The geometry runner trains on `train` and reports `test`. At the time
+of this run it ran no learning-rate search, so the val subset went unused and every cell saw
+identical data. The runner no longer works that way; see the status note above.
 
 Heads are the Probe3D multiscale decoder, one probe per Stage and Relative Depth point
 (ADR-0010), trained for 10 epochs with AdamW at 1e-3 and batch 8. Depth bins span 0 to

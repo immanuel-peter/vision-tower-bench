@@ -1,0 +1,110 @@
+{
+  "task": "depth",
+  "images": 771,
+  "train_images": 541,
+  "capacity_matched": false,
+  "head": "multiscale",
+  "epochs": 10,
+  "seeds": 1,
+  "learning_rates": [
+    1e-05,
+    3e-05,
+    0.0001,
+    0.0003,
+    0.001,
+    0.003,
+    0.01,
+    0.03
+  ],
+  "cells": [
+    {
+      "d1": 0.6383,
+      "d1_std": 0.0,
+      "d2": 0.8671,
+      "d2_std": 0.0,
+      "d3": 0.9428,
+      "d3_std": 0.0,
+      "rmse": 3.7817,
+      "rmse_std": 0.0,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.6676,
+          "d1_std": 0.0,
+          "d2": 0.9023,
+          "d2_std": 0.0,
+          "d3": 0.9746,
+          "d3_std": 0.0,
+          "rmse": 0.7417,
+          "rmse_std": 0.0,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.6149,
+          "d1_std": 0.0,
+          "d2": 0.8391,
+          "d2_std": 0.0,
+          "d3": 0.9174,
+          "d3_std": 0.0,
+          "rmse": 6.2041,
+          "rmse_std": 0.0,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.6029,
+      "learning_rate_search": {
+        "1e-05": 0.0533,
+        "3e-05": 0.1756,
+        "0.0001": 0.2749,
+        "0.0003": 0.4727,
+        "0.001": 0.5983,
+        "0.003": 0.5995,
+        "0.01": 0.6029,
+        "0.03": 0.1245
+      },
+      "seeds": 1,
+      "per_seed": [
+        {
+          "d1": 0.6383,
+          "d2": 0.8671,
+          "d3": 0.9428,
+          "rmse": 3.7817,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6676,
+              "d2": 0.9023,
+              "d3": 0.9746,
+              "rmse": 0.7417,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6149,
+              "d2": 0.8391,
+              "d3": 0.9174,
+              "rmse": 6.2041,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "facebook/dinov2-large",
+      "stage": "tower",
+      "layer_index": 15,
+      "relative_depth": 0.625,
+      "token_width": 1024,
+      "grid": 32,
+      "trainable_parameters": 1706752,
+      "seconds": 1073.3
+    }
+  ]
+}
