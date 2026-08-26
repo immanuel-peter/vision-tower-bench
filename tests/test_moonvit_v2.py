@@ -1,16 +1,30 @@
+import os
 from pathlib import Path
 
+import pytest
 import torch
 from PIL import Image
 
 from vtb.adapters.moonvit_v2 import MoonViTV2Adapter, collate
+from vtb.images import SUFFIXES
 
 RESOLUTION = 448
-IMAGES = sorted(Path("data/val2017").glob("*.jpg"))[:3]
+# The suite runs on an M4 Max and on rented CUDA instances, and the image set on hand
+# differs between them, so neither is baked in.
+IMAGE_DIR = Path(os.environ.get("VTB_TEST_IMAGES", "data/val2017"))
+IMAGES = sorted(p for p in IMAGE_DIR.glob("*") if p.suffix.lower() in SUFFIXES)[:3]
+if len(IMAGES) < 3:
+    pytest.skip(f"needs three images under {IMAGE_DIR}", allow_module_level=True)
+
+
+def device() -> str:
+    if torch.cuda.is_available():
+        return "cuda"
+    return "mps" if torch.backends.mps.is_available() else "cpu"
 
 
 def run():
-    adapter = MoonViTV2Adapter(resolution=RESOLUTION, device="mps")
+    adapter = MoonViTV2Adapter(resolution=RESOLUTION, device=device())
     prep = adapter.preprocess()
     samples = []
     for path in IMAGES:
