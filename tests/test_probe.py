@@ -1,6 +1,7 @@
 import argparse
 import json
 
+import pytest
 import torch
 
 from vtb import cache, probe, probe_run
@@ -192,7 +193,66 @@ def test_geometry_runner_trains_a_depth_cell_end_to_end(tmp_path):
     model = geometry_run.train_cell(features, targets, None, split, "depth", args)
     metrics = geometry_run.score(model, features, targets, None, split.test, "depth", args)
     assert set(metrics) == {"d1", "d2", "d3", "rmse"}
-    assert 0.0 <= metrics["d1"] <= 1.0
+    assert metrics["d1"].shape == (len(split.test),)
+
+    coverage = geometry_run.coverage_of(targets, None)
+    scenes = {i: "indoors" if n % 2 else "outdoor" for n, i in enumerate(ids)}
+    summary = geometry_run.summarise(metrics, coverage, ids, split.test, scenes)
+    assert 0.0 <= summary["d1"] <= 1.0
+    assert summary["images"] == len(split.test)
+    assert sum(b["images"] for b in summary["by_scene"].values()) == len(split.test)
+
+
+def test_bfloat16_cache_reaches_a_float32_head(tmp_path):
+    """The cache holds bfloat16 and the heads are float32, so a cell must convert."""
+    from vtb import cache, geometry
+
+    writer = cache.ShardWriter(tmp_path, images=2)
+    writer.add(
+        FeatureBatch(
+            tokens=torch.randn(2, 64, 32).bfloat16(),
+            image_ids=["a", "b"],
+            model_id="test/model",
+            stage="tower",
+            layer_index=6,
+            num_layers=12,
+            resolution=112,
+        )
+    )
+    writer.close()
+
+    raw = geometry.dense_map(cache.load_batch(tmp_path, "tower", 6))
+    assert raw.dtype == torch.bfloat16
+    head = geometry.SurfaceNormalHead([32], head="linear")
+    with pytest.raises(RuntimeError):
+        head([raw])
+    assert head([raw.float()]).shape == (2, 3, 32, 32)
+
+
+def test_targets_are_cropped_to_the_square_the_tower_saw(tmp_path):
+    """square_crop feeds every Stage the middle square, so the target follows it."""
+    import numpy as np
+
+    from vtb import geometry_run
+
+    depth = np.zeros((768, 1024), dtype="float32")
+    depth[:, 128:896] = 1.0
+    normal = np.tile(depth, (3, 1, 1)).astype("float16")
+    np.savez(
+        tmp_path / "val_targets.npz",
+        a=depth, a_normal=normal, a_valid=depth.astype("uint8"),
+    )
+
+    cropped, valid = geometry_run.load_targets(tmp_path / "val_targets.npz", ["a"], "depth")
+    assert cropped.shape == (1, 1, 768, 768)
+    assert valid is None
+    # The crop lands exactly on the columns the Tower was shown, so nothing is zero.
+    assert cropped.min().item() == 1.0
+
+    normals, valid = geometry_run.load_targets(tmp_path / "val_targets.npz", ["a"], "normal")
+    assert normals.shape == (1, 3, 768, 768)
+    assert valid.shape == (1, 1, 768, 768)
+    assert geometry_run.coverage_of(normals, valid).item() == 1.0
 
 
 def test_depth_range_comes_from_the_manifest(tmp_path):
