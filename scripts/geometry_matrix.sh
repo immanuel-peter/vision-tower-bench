@@ -10,7 +10,8 @@
 #   model is a cache subdirectory, optionally with a shorter output name:
 #   moonvit_v2_448_full:moonvit
 #
-# Environment: LANES (default: visible GPUs), GPUS, GRID, SEEDS, TASKS, ARMS, EPOCHS.
+# Environment: LANES (default: visible GPUs), GPUS, GRID, SEEDS, TASKS, ARMS, EPOCHS,
+# THREADS (default: vCPUs split evenly across the lanes).
 set -euo pipefail
 
 FEATURES="${1:?features dir}"; shift
@@ -26,6 +27,12 @@ SEEDS="${SEEDS:-3}"
 TASKS="${TASKS:-depth normal}"
 ARMS="${ARMS:-raw matched}"
 EPOCHS="${EPOCHS:-10}"
+
+# Torch gives every process as many intra-op threads as there are cores, so four lanes
+# on 46 vCPUs put about 150 runnable threads on 46 cores. Measured there: 97 percent user
+# CPU, no idle, and the GPUs between 9 and 40 percent. Split the cores instead.
+THREADS="${THREADS:-$(( $(nproc) / LANES ))}"
+[ "$THREADS" -ge 1 ] || THREADS=1
 
 mkdir -p "$OUT"
 ALERTS="$OUT/alerts.log"
@@ -84,7 +91,9 @@ lane() {
         echo "[$(date +%T)] start $out_name on gpu $gpu, $cells cells" >> "$log"
         local started rc=0
         started=$SECONDS
-        CUDA_VISIBLE_DEVICES="$gpu" uv run python -m vtb.geometry_run \
+        CUDA_VISIBLE_DEVICES="$gpu" \
+        OMP_NUM_THREADS="$THREADS" MKL_NUM_THREADS="$THREADS" \
+        uv run python -m vtb.geometry_run \
             --targets "$TARGETS" --device cuda \
             --run "$FEATURES/$dir" --task "$task" "${extra[@]}" \
             --learning-rates $GRID --seeds "$SEEDS" --epochs "$EPOCHS" \
@@ -101,7 +110,7 @@ lane() {
     touch "$OUT/$name.DONE"
 }
 
-echo "$LANES lanes over gpus $GPUS, ${#work[@]} invocations, grid [$GRID], $SEEDS seeds"
+echo "$LANES lanes over gpus $GPUS, $THREADS threads each, ${#work[@]} invocations, grid [$GRID], $SEEDS seeds"
 pids=()
 for ((i = 0; i < LANES; i++)); do
     [ -n "${queue[i]}" ] || continue
