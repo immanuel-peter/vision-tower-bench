@@ -139,6 +139,9 @@ def summarise(metrics, coverage, image_ids, index, scenes) -> dict:
     rows: dict[str, list[int]] = {}
     for position, image_id in enumerate(index.tolist()):
         rows.setdefault(scenes.get(image_ids[image_id], "unknown"), []).append(position)
+    # Metrics arrive in test-split order; coverage is still keyed by image, so it has to
+    # be reordered before either can be indexed by the same positions.
+    coverage = coverage[index]
 
     def block(chosen: torch.Tensor) -> dict:
         out = {key: round(value[chosen].mean().item(), 4) for key, value in metrics.items()}

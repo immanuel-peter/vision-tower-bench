@@ -203,6 +203,25 @@ def test_geometry_runner_trains_a_depth_cell_end_to_end(tmp_path):
     assert sum(b["images"] for b in summary["by_scene"].values()) == len(split.test)
 
 
+def test_scene_summary_reads_coverage_for_the_images_it_scored():
+    """Coverage is keyed by image, metrics by test-split position. Mixing them up is
+    silent: every scene then reports the same number."""
+    from vtb import geometry_run
+
+    ids = [f"img{i:02d}" for i in range(10)]
+    scenes = {i: "indoors" if n < 5 else "outdoor" for n, i in enumerate(ids)}
+    # Coverage is one per image, and the two scenes are far apart on purpose.
+    coverage = torch.tensor([1.0] * 5 + [0.2] * 5)
+    index = torch.tensor([7, 1, 9])
+    metrics = {"d1": torch.tensor([0.3, 0.9, 0.5])}
+
+    summary = geometry_run.summarise(metrics, coverage, ids, index, scenes)
+    assert summary["by_scene"]["indoors"]["coverage"] == 1.0
+    assert summary["by_scene"]["outdoor"]["coverage"] == 0.2
+    assert summary["by_scene"]["indoors"]["d1"] == 0.9
+    assert round(summary["coverage"], 4) == round((0.2 + 1.0 + 0.2) / 3, 4)
+
+
 def test_bfloat16_cache_reaches_a_float32_head(tmp_path):
     """The cache holds bfloat16 and the heads are float32, so a cell must convert."""
     from vtb import cache, geometry
