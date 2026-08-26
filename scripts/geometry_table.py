@@ -13,15 +13,23 @@ def rows(cells: list[dict]) -> list[dict]:
     return sorted(cells, key=lambda c: (order[c["stage"]], c["relative_depth"]))
 
 
+def spread(cell: dict, metric: str) -> str:
+    """The selection metric carries its seed spread; the rest stay plain to keep the table narrow."""
+    if f"{metric}_std" in cell:
+        return f"{cell[metric]:.4f} ± {cell[metric + '_std']:.4f}"
+    return f"{cell[metric]:.4f}"
+
+
 def table(cells: list[dict], task: str) -> str:
     metrics = HEADLINE[task]
-    head = ["Stage", "Rel. Depth", "Width", "Grid", "Params", *metrics]
+    head = ["Stage", "Rel. Depth", "Width", "Grid", "Params", "LR", *metrics]
     lines = ["| " + " | ".join(head) + " |", "|" + "---|" * len(head)]
     for cell in rows(cells):
-        values = [f"{cell[m]:.4f}" for m in metrics]
+        values = [spread(cell, metrics[0])] + [f"{cell[m]:.4f}" for m in metrics[1:]]
         lines.append(
             f"| `{cell['stage']}` | {cell['relative_depth']:.3f} | {cell['token_width']} | "
             f"{cell['grid']}x{cell['grid']} | {cell['trainable_parameters']:,} | "
+            f"{cell.get('learning_rate', float('nan')):g} | "
             + " | ".join(values)
             + " |"
         )
@@ -37,7 +45,7 @@ def scene_table(cells: list[dict], task: str) -> str:
         scenes = cell["by_scene"]
         lines.append(
             f"| `{cell['stage']}` | {cell['relative_depth']:.3f} | "
-            f"{scenes['indoors'][metric]:.4f} | {scenes['outdoor'][metric]:.4f} | "
+            f"{spread(scenes['indoors'], metric)} | {spread(scenes['outdoor'], metric)} | "
             f"{scenes['indoors']['coverage']:.4f} | {scenes['outdoor']['coverage']:.4f} |"
         )
     return "\n".join(lines)
