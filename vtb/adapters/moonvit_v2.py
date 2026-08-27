@@ -13,10 +13,15 @@ from vtb.images import square_crop
 
 PATCH_SIZE = 14
 
-# Kimi K3 stores the projector separately from the standalone tower.
-PROJECTOR_REPO = "moonshotai/Kimi-K3"
+MODEL_ID = "immanuelpeter/MoonViT-V2"
+PROJECTOR_FILE = "projector.safetensors"
+
+# Kimi K3 is where scripts/export_moonvit_v2.py reads both halves from.
+SOURCE_REPO = "moonshotai/Kimi-K3"
 PROJECTOR_SHARD = "model-00095-of-000096.safetensors"
 PROJECTOR_PREFIX = "mm_projector."
+TOWER_SHARD = "model-00096-of-000096.safetensors"
+TOWER_PREFIX = "vision_tower."
 
 
 @dataclass(frozen=True)
@@ -53,8 +58,7 @@ def collate(samples: list[torch.Tensor]) -> dict[str, torch.Tensor]:
 
 def load_projector(dtype: torch.dtype) -> nn.Module:
     """Build Kimi K3's patch merger from its published weights."""
-    weights = load_file(hf_hub_download(PROJECTOR_REPO, PROJECTOR_SHARD))
-    weights = {k.removeprefix(PROJECTOR_PREFIX): v for k, v in weights.items() if k.startswith(PROJECTOR_PREFIX)}
+    weights = load_file(hf_hub_download(MODEL_ID, PROJECTOR_FILE))
     width, merged_width = weights["proj.2.weight"].shape
 
     projector = nn.Module()
@@ -71,7 +75,7 @@ def load_projector(dtype: torch.dtype) -> nn.Module:
 class MoonViTV2Adapter:
     """Kimi K3 adapter; use batch size 1 without flash attention, as measured in ADR-0009."""
 
-    model_id = "AI4Industry/MoonViT-V2"
+    model_id = MODEL_ID
     stages = ("tower", "merged", "projected")
     collate = staticmethod(collate)
 

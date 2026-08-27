@@ -1,0 +1,35 @@
+{
+  "architectures": [
+    "MoonViTV2PretrainedModel"
+  ],
+  "auto_map": {
+    "AutoConfig": "configuration_moonvit_v2.MoonViTV2Config",
+    "AutoModel": "modeling_moonvit_v2.MoonViTV2PretrainedModel",
+    "AutoImageProcessor": "image_processing_moonvit_v2.MoonViTV2ImageProcessor"
+  },
+  "model_type": "moonvit_v2",
+  "patch_size": 14,
+  "num_attention_heads": 12,
+  "num_hidden_layers": 27,
+  "hidden_size": 1024,
+  "intermediate_size": 4096,
+  "qkv_hidden_size": 1536,
+  "init_pos_emb_height": 64,
+  "init_pos_emb_width": 64,
+  "init_pos_emb_time": 4,
+  "pos_emb_type": "divided_fixed",
+  "pos_emb_interpolation_mode": "bilinear",
+  "merge_kernel_size": [
+    2,
+    2
+  ],
+  "merge_type": "sd2_tpool",
+  "norm_type": "rmsnorm",
+  "mlp_type": "mlp2",
+  "attn_bias": false,
+  "linear_bias": false,
+  "patch_embed_proj_bias": false,
+  "activation_func": "gelu_pytorch_tanh",
+  "torch_dtype": "bfloat16",
+  "transformers_version": "4.50.3"
+}
