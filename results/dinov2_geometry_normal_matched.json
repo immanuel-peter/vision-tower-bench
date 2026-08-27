@@ -5,36 +5,156 @@
   "capacity_matched": true,
   "head": "multiscale",
   "epochs": 10,
-  "seed": 0,
+  "seeds": 3,
+  "learning_rates": [
+    0.0003,
+    0.001,
+    0.003,
+    0.01
+  ],
   "cells": [
     {
-      "d1": 0.2316,
-      "d2": 0.4472,
-      "d3": 0.5703,
-      "rmse": 37.7121,
-      "mean_deg": 30.7975,
+      "d1": 0.2288,
+      "d1_std": 0.0054,
+      "d2": 0.4438,
+      "d2_std": 0.0091,
+      "d3": 0.5682,
+      "d3_std": 0.0082,
+      "rmse": 37.6737,
+      "rmse_std": 0.1041,
+      "mean_deg": 30.8365,
+      "mean_deg_std": 0.2288,
       "images": 115,
       "coverage": 0.7751,
       "by_scene": {
         "indoors": {
-          "d1": 0.161,
-          "d2": 0.4136,
-          "d3": 0.5641,
-          "rmse": 37.3033,
-          "mean_deg": 31.5078,
+          "d1": 0.1568,
+          "d1_std": 0.0088,
+          "d2": 0.4075,
+          "d2_std": 0.0177,
+          "d3": 0.5611,
+          "d3_std": 0.0156,
+          "rmse": 37.2754,
+          "rmse_std": 0.2178,
+          "mean_deg": 31.5905,
+          "mean_deg_std": 0.4123,
           "images": 51,
           "coverage": 0.9803
         },
         "outdoor": {
-          "d1": 0.2879,
-          "d2": 0.474,
-          "d3": 0.5752,
-          "rmse": 38.0378,
-          "mean_deg": 30.2315,
+          "d1": 0.2862,
+          "d1_std": 0.0028,
+          "d2": 0.4728,
+          "d2_std": 0.0033,
+          "d3": 0.5738,
+          "d3_std": 0.0033,
+          "rmse": 37.9911,
+          "rmse_std": 0.0141,
+          "mean_deg": 30.2356,
+          "mean_deg_std": 0.0844,
           "images": 64,
           "coverage": 0.6116
         }
       },
+      "learning_rate": 0.001,
+      "val_metric": "mean_deg",
+      "val_score": 31.4293,
+      "learning_rate_search": {
+        "0.0003": 33.1231,
+        "0.001": 31.4293,
+        "0.003": 32.3363,
+        "0.01": 31.7866
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.232,
+          "d2": 0.4486,
+          "d3": 0.5721,
+          "rmse": 37.5832,
+          "mean_deg": 30.6945,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.1609,
+              "d2": 0.4131,
+              "d3": 0.5649,
+              "rmse": 37.0914,
+              "mean_deg": 31.3601,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.2886,
+              "d2": 0.4769,
+              "d3": 0.5779,
+              "rmse": 37.9751,
+              "mean_deg": 30.1641,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.2332,
+          "d2": 0.4518,
+          "d3": 0.5757,
+          "rmse": 37.6184,
+          "mean_deg": 30.6557,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.1649,
+              "d2": 0.4258,
+              "d3": 0.578,
+              "rmse": 37.1536,
+              "mean_deg": 31.2418,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.2877,
+              "d2": 0.4726,
+              "d3": 0.5739,
+              "rmse": 37.9888,
+              "mean_deg": 30.1886,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.2212,
+          "d2": 0.431,
+          "d3": 0.5567,
+          "rmse": 37.8195,
+          "mean_deg": 31.1593,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.1446,
+              "d2": 0.3835,
+              "d3": 0.5404,
+              "rmse": 37.5813,
+              "mean_deg": 32.1696,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.2822,
+              "d2": 0.4688,
+              "d3": 0.5697,
+              "rmse": 38.0093,
+              "mean_deg": 30.3542,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        }
+      ],
       "max_depth": 299.83,
       "model_id": "facebook/dinov2-large",
       "stage": "tower",
@@ -43,36 +163,150 @@
       "token_width": 512,
       "grid": 32,
       "trainable_parameters": 1314819,
-      "seconds": 201.6
+      "seconds": 337.4
     },
     {
-      "d1": 0.2675,
-      "d2": 0.5058,
-      "d3": 0.626,
-      "rmse": 35.3126,
-      "mean_deg": 28.225,
+      "d1": 0.2465,
+      "d1_std": 0.0162,
+      "d2": 0.4766,
+      "d2_std": 0.0284,
+      "d3": 0.6054,
+      "d3_std": 0.0242,
+      "rmse": 36.3978,
+      "rmse_std": 0.9867,
+      "mean_deg": 29.3149,
+      "mean_deg_std": 1.0814,
       "images": 115,
       "coverage": 0.7751,
       "by_scene": {
         "indoors": {
-          "d1": 0.2054,
-          "d2": 0.4852,
-          "d3": 0.6332,
-          "rmse": 34.3048,
-          "mean_deg": 28.3129,
+          "d1": 0.1779,
+          "d1_std": 0.0206,
+          "d2": 0.4538,
+          "d2_std": 0.0296,
+          "d3": 0.6119,
+          "d3_std": 0.0273,
+          "rmse": 35.4597,
+          "rmse_std": 1.0535,
+          "mean_deg": 29.5397,
+          "mean_deg_std": 1.197,
           "images": 51,
           "coverage": 0.9803
         },
         "outdoor": {
-          "d1": 0.3169,
-          "d2": 0.5222,
-          "d3": 0.6202,
-          "rmse": 36.1158,
-          "mean_deg": 28.155,
+          "d1": 0.3012,
+          "d1_std": 0.0135,
+          "d2": 0.4947,
+          "d2_std": 0.0274,
+          "d3": 0.6002,
+          "d3_std": 0.022,
+          "rmse": 37.1453,
+          "rmse_std": 0.938,
+          "mean_deg": 29.1358,
+          "mean_deg_std": 0.9957,
           "images": 64,
           "coverage": 0.6116
         }
       },
+      "learning_rate": 0.003,
+      "val_metric": "mean_deg",
+      "val_score": 28.0406,
+      "learning_rate_search": {
+        "0.0003": 31.1803,
+        "0.001": 28.3784,
+        "0.003": 28.0406,
+        "0.01": 28.6481
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.2694,
+          "d2": 0.5166,
+          "d3": 0.6392,
+          "rmse": 35.0026,
+          "mean_deg": 27.7904,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.206,
+              "d2": 0.4956,
+              "d3": 0.6492,
+              "rmse": 33.9762,
+              "mean_deg": 27.8691,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.32,
+              "d2": 0.5334,
+              "d3": 0.6312,
+              "rmse": 35.8204,
+              "mean_deg": 27.7277,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.2361,
+          "d2": 0.4593,
+          "d3": 0.5937,
+          "rmse": 37.0744,
+          "mean_deg": 29.9725,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.1702,
+              "d2": 0.4361,
+              "d3": 0.6019,
+              "rmse": 36.0828,
+              "mean_deg": 30.1388,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.2887,
+              "d2": 0.4778,
+              "d3": 0.5871,
+              "rmse": 37.8645,
+              "mean_deg": 29.84,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.2339,
+          "d2": 0.4538,
+          "d3": 0.5834,
+          "rmse": 37.1165,
+          "mean_deg": 30.1819,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.1574,
+              "d2": 0.4298,
+              "d3": 0.5847,
+              "rmse": 36.3202,
+              "mean_deg": 30.6113,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.2948,
+              "d2": 0.4729,
+              "d3": 0.5824,
+              "rmse": 37.7511,
+              "mean_deg": 29.8398,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        }
+      ],
       "max_depth": 299.83,
       "model_id": "facebook/dinov2-large",
       "stage": "tower",
@@ -81,36 +315,150 @@
       "token_width": 512,
       "grid": 32,
       "trainable_parameters": 1314819,
-      "seconds": 158.2
+      "seconds": 330.6
     },
     {
-      "d1": 0.3218,
-      "d2": 0.5667,
-      "d3": 0.673,
-      "rmse": 33.1464,
-      "mean_deg": 25.7934,
+      "d1": 0.3251,
+      "d1_std": 0.0218,
+      "d2": 0.5787,
+      "d2_std": 0.0203,
+      "d3": 0.6829,
+      "d3_std": 0.016,
+      "rmse": 32.8569,
+      "rmse_std": 0.7052,
+      "mean_deg": 25.4561,
+      "mean_deg_std": 0.8159,
       "images": 115,
       "coverage": 0.7751,
       "by_scene": {
         "indoors": {
-          "d1": 0.2737,
-          "d2": 0.5673,
-          "d3": 0.6936,
-          "rmse": 31.4479,
-          "mean_deg": 25.1891,
+          "d1": 0.2855,
+          "d1_std": 0.0292,
+          "d2": 0.5891,
+          "d2_std": 0.029,
+          "d3": 0.7076,
+          "d3_std": 0.0222,
+          "rmse": 31.1084,
+          "rmse_std": 1.0086,
+          "mean_deg": 24.7116,
+          "mean_deg_std": 1.0924,
           "images": 51,
           "coverage": 0.9803
         },
         "outdoor": {
-          "d1": 0.3601,
-          "d2": 0.5662,
-          "d3": 0.6565,
-          "rmse": 34.4999,
-          "mean_deg": 26.275,
+          "d1": 0.3567,
+          "d1_std": 0.017,
+          "d2": 0.5704,
+          "d2_std": 0.0136,
+          "d3": 0.6633,
+          "d3_std": 0.0111,
+          "rmse": 34.2502,
+          "rmse_std": 0.4634,
+          "mean_deg": 26.0493,
+          "mean_deg_std": 0.5995,
           "images": 64,
           "coverage": 0.6116
         }
       },
+      "learning_rate": 0.003,
+      "val_metric": "mean_deg",
+      "val_score": 24.8099,
+      "learning_rate_search": {
+        "0.0003": 28.6953,
+        "0.001": 26.0472,
+        "0.003": 24.8099,
+        "0.01": 26.2405
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.3548,
+          "d2": 0.6055,
+          "d3": 0.7042,
+          "rmse": 31.9025,
+          "mean_deg": 24.3605,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.3266,
+              "d2": 0.6286,
+              "d3": 0.7374,
+              "rmse": 29.7441,
+              "mean_deg": 23.2178,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.3773,
+              "d2": 0.5872,
+              "d3": 0.6777,
+              "rmse": 33.6224,
+              "mean_deg": 25.271,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.3173,
+          "d2": 0.5741,
+          "d3": 0.6791,
+          "rmse": 33.0835,
+          "mean_deg": 25.6904,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.2673,
+              "d2": 0.579,
+              "d3": 0.7013,
+              "rmse": 31.4301,
+              "mean_deg": 25.1171,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.3571,
+              "d2": 0.5702,
+              "d3": 0.6614,
+              "rmse": 34.401,
+              "mean_deg": 26.1472,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.3032,
+          "d2": 0.5564,
+          "d3": 0.6655,
+          "rmse": 33.5847,
+          "mean_deg": 26.3173,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.2625,
+              "d2": 0.5597,
+              "d3": 0.684,
+              "rmse": 32.1511,
+              "mean_deg": 25.7999,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.3357,
+              "d2": 0.5538,
+              "d3": 0.6508,
+              "rmse": 34.7271,
+              "mean_deg": 26.7296,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        }
+      ],
       "max_depth": 299.83,
       "model_id": "facebook/dinov2-large",
       "stage": "tower",
@@ -119,36 +467,150 @@
       "token_width": 512,
       "grid": 32,
       "trainable_parameters": 1314819,
-      "seconds": 161.1
+      "seconds": 332.4
     },
     {
-      "d1": 0.3976,
-      "d2": 0.6382,
-      "d3": 0.7316,
-      "rmse": 30.2719,
-      "mean_deg": 22.7168,
+      "d1": 0.3945,
+      "d1_std": 0.0225,
+      "d2": 0.6405,
+      "d2_std": 0.0175,
+      "d3": 0.7332,
+      "d3_std": 0.0136,
+      "rmse": 30.2941,
+      "rmse_std": 0.5671,
+      "mean_deg": 22.7559,
+      "mean_deg_std": 0.6928,
       "images": 115,
       "coverage": 0.7751,
       "by_scene": {
         "indoors": {
-          "d1": 0.383,
-          "d2": 0.67,
-          "d3": 0.7738,
-          "rmse": 27.9385,
-          "mean_deg": 21.3158,
+          "d1": 0.3796,
+          "d1_std": 0.032,
+          "d2": 0.673,
+          "d2_std": 0.0256,
+          "d3": 0.7744,
+          "d3_std": 0.0192,
+          "rmse": 28.0611,
+          "rmse_std": 0.8006,
+          "mean_deg": 21.3494,
+          "mean_deg_std": 0.9238,
           "images": 51,
           "coverage": 0.9803
         },
         "outdoor": {
-          "d1": 0.4092,
-          "d2": 0.6128,
-          "d3": 0.6979,
-          "rmse": 32.1314,
-          "mean_deg": 23.8333,
+          "d1": 0.4064,
+          "d1_std": 0.0152,
+          "d2": 0.6145,
+          "d2_std": 0.0111,
+          "d3": 0.7004,
+          "d3_std": 0.0092,
+          "rmse": 32.0736,
+          "rmse_std": 0.3834,
+          "mean_deg": 23.8767,
+          "mean_deg_std": 0.5108,
           "images": 64,
           "coverage": 0.6116
         }
       },
+      "learning_rate": 0.003,
+      "val_metric": "mean_deg",
+      "val_score": 22.3224,
+      "learning_rate_search": {
+        "0.0003": 25.2332,
+        "0.001": 23.083,
+        "0.003": 22.3224,
+        "0.01": 23.5288
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.4231,
+          "d2": 0.6605,
+          "d3": 0.7483,
+          "rmse": 29.6256,
+          "mean_deg": 21.9265,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.4215,
+              "d2": 0.7015,
+              "d3": 0.7947,
+              "rmse": 27.1513,
+              "mean_deg": 20.2778,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.4244,
+              "d2": 0.6278,
+              "d3": 0.7113,
+              "rmse": 31.5973,
+              "mean_deg": 23.2403,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.3924,
+          "d2": 0.643,
+          "d3": 0.736,
+          "rmse": 30.2447,
+          "mean_deg": 22.7189,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.3734,
+              "d2": 0.6779,
+              "d3": 0.7799,
+              "rmse": 27.9325,
+              "mean_deg": 21.2379,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.4076,
+              "d2": 0.6151,
+              "d3": 0.7011,
+              "rmse": 32.0873,
+              "mean_deg": 23.8991,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.3681,
+          "d2": 0.6179,
+          "d3": 0.7153,
+          "rmse": 31.0121,
+          "mean_deg": 23.6223,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.3439,
+              "d2": 0.6395,
+              "d3": 0.7487,
+              "rmse": 29.0996,
+              "mean_deg": 22.5325,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.3873,
+              "d2": 0.6007,
+              "d3": 0.6887,
+              "rmse": 32.5362,
+              "mean_deg": 24.4908,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        }
+      ],
       "max_depth": 299.83,
       "model_id": "facebook/dinov2-large",
       "stage": "tower",
@@ -157,36 +619,150 @@
       "token_width": 512,
       "grid": 32,
       "trainable_parameters": 1314819,
-      "seconds": 177.7
+      "seconds": 325.7
     },
     {
-      "d1": 0.4798,
-      "d2": 0.6971,
-      "d3": 0.7742,
-      "rmse": 28.0153,
-      "mean_deg": 20.1392,
+      "d1": 0.474,
+      "d1_std": 0.0062,
+      "d2": 0.6951,
+      "d2_std": 0.0049,
+      "d3": 0.773,
+      "d3_std": 0.0033,
+      "rmse": 28.1122,
+      "rmse_std": 0.1342,
+      "mean_deg": 20.2734,
+      "mean_deg_std": 0.1735,
       "images": 115,
       "coverage": 0.7751,
       "by_scene": {
         "indoors": {
-          "d1": 0.5042,
-          "d2": 0.7542,
-          "d3": 0.83,
-          "rmse": 24.8377,
-          "mean_deg": 17.8036,
+          "d1": 0.4979,
+          "d1_std": 0.0121,
+          "d2": 0.7523,
+          "d2_std": 0.0084,
+          "d3": 0.829,
+          "d3_std": 0.0045,
+          "rmse": 24.9493,
+          "rmse_std": 0.2091,
+          "mean_deg": 17.9439,
+          "mean_deg_std": 0.2944,
           "images": 51,
           "coverage": 0.9803
         },
         "outdoor": {
-          "d1": 0.4604,
-          "d2": 0.6516,
-          "d3": 0.7298,
-          "rmse": 30.5474,
-          "mean_deg": 22.0004,
+          "d1": 0.4551,
+          "d1_std": 0.0016,
+          "d2": 0.6495,
+          "d2_std": 0.0022,
+          "d3": 0.7284,
+          "d3_std": 0.0023,
+          "rmse": 30.6326,
+          "rmse_std": 0.0751,
+          "mean_deg": 22.1298,
+          "mean_deg_std": 0.0775,
           "images": 64,
           "coverage": 0.6116
         }
       },
+      "learning_rate": 0.001,
+      "val_metric": "mean_deg",
+      "val_score": 20.1008,
+      "learning_rate_search": {
+        "0.0003": 21.3563,
+        "0.001": 20.1008,
+        "0.003": 20.2305,
+        "0.01": 21.309
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.4787,
+          "d2": 0.6987,
+          "d3": 0.775,
+          "rmse": 28.0772,
+          "mean_deg": 20.1766,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5077,
+              "d2": 0.7578,
+              "d3": 0.8312,
+              "rmse": 24.8825,
+              "mean_deg": 17.7712,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.4557,
+              "d2": 0.6515,
+              "d3": 0.7301,
+              "rmse": 30.6229,
+              "mean_deg": 22.0934,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.4781,
+          "d2": 0.6984,
+          "d3": 0.7757,
+          "rmse": 27.9681,
+          "mean_deg": 20.1265,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5052,
+              "d2": 0.7586,
+              "d3": 0.8331,
+              "rmse": 24.7333,
+              "mean_deg": 17.7022,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.4566,
+              "d2": 0.6505,
+              "d3": 0.73,
+              "rmse": 30.5459,
+              "mean_deg": 22.0584,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.4653,
+          "d2": 0.6882,
+          "d3": 0.7683,
+          "rmse": 28.2913,
+          "mean_deg": 20.5171,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.4809,
+              "d2": 0.7405,
+              "d3": 0.8227,
+              "rmse": 25.2322,
+              "mean_deg": 18.3583,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.4529,
+              "d2": 0.6465,
+              "d3": 0.7251,
+              "rmse": 30.729,
+              "mean_deg": 22.2375,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        }
+      ],
       "max_depth": 299.83,
       "model_id": "facebook/dinov2-large",
       "stage": "tower",
@@ -195,36 +771,150 @@
       "token_width": 512,
       "grid": 32,
       "trainable_parameters": 1314819,
-      "seconds": 202.5
+      "seconds": 332.3
     },
     {
-      "d1": 0.5444,
-      "d2": 0.7316,
-      "d3": 0.7946,
-      "rmse": 26.7982,
-      "mean_deg": 18.6189,
+      "d1": 0.5341,
+      "d1_std": 0.0109,
+      "d2": 0.727,
+      "d2_std": 0.0041,
+      "d3": 0.7915,
+      "d3_std": 0.0029,
+      "rmse": 26.9738,
+      "rmse_std": 0.1521,
+      "mean_deg": 18.85,
+      "mean_deg_std": 0.2525,
       "images": 115,
       "coverage": 0.7751,
       "by_scene": {
         "indoors": {
-          "d1": 0.6181,
-          "d2": 0.811,
-          "d3": 0.8609,
-          "rmse": 22.7662,
-          "mean_deg": 15.2565,
+          "d1": 0.6043,
+          "d1_std": 0.0118,
+          "d2": 0.8072,
+          "d2_std": 0.0049,
+          "d3": 0.8593,
+          "d3_std": 0.003,
+          "rmse": 22.9335,
+          "rmse_std": 0.2139,
+          "mean_deg": 15.521,
+          "mean_deg_std": 0.283,
           "images": 51,
           "coverage": 0.9803
         },
         "outdoor": {
-          "d1": 0.4857,
-          "d2": 0.6684,
-          "d3": 0.7418,
-          "rmse": 30.0113,
-          "mean_deg": 21.2982,
+          "d1": 0.4781,
+          "d1_std": 0.0102,
+          "d2": 0.6631,
+          "d2_std": 0.0036,
+          "d3": 0.7374,
+          "d3_std": 0.0029,
+          "rmse": 30.1935,
+          "rmse_std": 0.1053,
+          "mean_deg": 21.5029,
+          "mean_deg_std": 0.2286,
           "images": 64,
           "coverage": 0.6116
         }
       },
+      "learning_rate": 0.001,
+      "val_metric": "mean_deg",
+      "val_score": 18.5447,
+      "learning_rate_search": {
+        "0.0003": 19.7109,
+        "0.001": 18.5447,
+        "0.003": 19.1156,
+        "0.01": 22.031
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.5475,
+          "d2": 0.7324,
+          "d3": 0.7953,
+          "rmse": 26.803,
+          "mean_deg": 18.5335,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6197,
+              "d2": 0.8132,
+              "d3": 0.8628,
+              "rmse": 22.7133,
+              "mean_deg": 15.1739,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.49,
+              "d2": 0.668,
+              "d3": 0.7414,
+              "rmse": 30.062,
+              "mean_deg": 21.2106,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.5338,
+          "d2": 0.7261,
+          "d3": 0.7909,
+          "rmse": 26.9459,
+          "mean_deg": 18.8651,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6021,
+              "d2": 0.807,
+              "d3": 0.8596,
+              "rmse": 22.8639,
+              "mean_deg": 15.5218,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.4793,
+              "d2": 0.6617,
+              "d3": 0.7362,
+              "rmse": 30.1989,
+              "mean_deg": 21.5293,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.5209,
+          "d2": 0.7224,
+          "d3": 0.7882,
+          "rmse": 27.1725,
+          "mean_deg": 19.1515,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5911,
+              "d2": 0.8013,
+              "d3": 0.8554,
+              "rmse": 23.2232,
+              "mean_deg": 15.8672,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.465,
+              "d2": 0.6595,
+              "d3": 0.7346,
+              "rmse": 30.3197,
+              "mean_deg": 21.7687,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        }
+      ],
       "max_depth": 299.83,
       "model_id": "facebook/dinov2-large",
       "stage": "tower",
@@ -233,36 +923,150 @@
       "token_width": 512,
       "grid": 32,
       "trainable_parameters": 1314819,
-      "seconds": 156.6
+      "seconds": 328.0
     },
     {
-      "d1": 0.4981,
-      "d2": 0.7054,
-      "d3": 0.7753,
-      "rmse": 28.116,
-      "mean_deg": 20.057,
+      "d1": 0.4806,
+      "d1_std": 0.0169,
+      "d2": 0.6994,
+      "d2_std": 0.0076,
+      "d3": 0.7716,
+      "d3_std": 0.0047,
+      "rmse": 28.3238,
+      "rmse_std": 0.2725,
+      "mean_deg": 20.3733,
+      "mean_deg_std": 0.3741,
       "images": 115,
       "coverage": 0.7751,
       "by_scene": {
         "indoors": {
-          "d1": 0.5691,
-          "d2": 0.7811,
-          "d3": 0.8407,
-          "rmse": 24.2718,
-          "mean_deg": 16.722,
+          "d1": 0.5455,
+          "d1_std": 0.0257,
+          "d2": 0.7767,
+          "d2_std": 0.0087,
+          "d3": 0.8384,
+          "d3_std": 0.005,
+          "rmse": 24.4507,
+          "rmse_std": 0.3533,
+          "mean_deg": 17.0204,
+          "mean_deg_std": 0.4787,
           "images": 51,
           "coverage": 0.9803
         },
         "outdoor": {
-          "d1": 0.4414,
-          "d2": 0.6451,
-          "d3": 0.7231,
-          "rmse": 31.1793,
-          "mean_deg": 22.7145,
+          "d1": 0.4288,
+          "d1_std": 0.0099,
+          "d2": 0.6378,
+          "d2_std": 0.0066,
+          "d3": 0.7183,
+          "d3_std": 0.0044,
+          "rmse": 31.4101,
+          "rmse_std": 0.2084,
+          "mean_deg": 23.0453,
+          "mean_deg_std": 0.2914,
           "images": 64,
           "coverage": 0.6116
         }
       },
+      "learning_rate": 0.001,
+      "val_metric": "mean_deg",
+      "val_score": 20.27,
+      "learning_rate_search": {
+        "0.0003": 20.5416,
+        "0.001": 20.27,
+        "0.003": 23.1201,
+        "0.01": 45.4054
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.4945,
+          "d2": 0.7064,
+          "d3": 0.7758,
+          "rmse": 28.1446,
+          "mean_deg": 20.0769,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5652,
+              "d2": 0.7839,
+              "d3": 0.8426,
+              "rmse": 24.2335,
+              "mean_deg": 16.6651,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.4381,
+              "d2": 0.6446,
+              "d3": 0.7225,
+              "rmse": 31.2612,
+              "mean_deg": 22.7958,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.4904,
+          "d2": 0.7029,
+          "d3": 0.7739,
+          "rmse": 28.1179,
+          "mean_deg": 20.1421,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5621,
+              "d2": 0.7817,
+              "d3": 0.8413,
+              "rmse": 24.1695,
+              "mean_deg": 16.699,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.4333,
+              "d2": 0.6401,
+              "d3": 0.7201,
+              "rmse": 31.2643,
+              "mean_deg": 22.8859,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.4568,
+          "d2": 0.6889,
+          "d3": 0.7651,
+          "rmse": 28.7088,
+          "mean_deg": 20.901,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5092,
+              "d2": 0.7644,
+              "d3": 0.8313,
+              "rmse": 24.949,
+              "mean_deg": 17.6972,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.4151,
+              "d2": 0.6288,
+              "d3": 0.7123,
+              "rmse": 31.7049,
+              "mean_deg": 23.4541,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        }
+      ],
       "max_depth": 299.83,
       "model_id": "facebook/dinov2-large",
       "stage": "tower",
@@ -271,36 +1075,150 @@
       "token_width": 512,
       "grid": 32,
       "trainable_parameters": 1314819,
-      "seconds": 160.3
+      "seconds": 328.8
     },
     {
-      "d1": 0.3964,
-      "d2": 0.6369,
-      "d3": 0.7266,
-      "rmse": 31.0744,
-      "mean_deg": 23.1905,
+      "d1": 0.4028,
+      "d1_std": 0.0065,
+      "d2": 0.6315,
+      "d2_std": 0.004,
+      "d3": 0.7212,
+      "d3_std": 0.0032,
+      "rmse": 31.2007,
+      "rmse_std": 0.1369,
+      "mean_deg": 23.1962,
+      "mean_deg_std": 0.1988,
       "images": 115,
       "coverage": 0.7751,
       "by_scene": {
         "indoors": {
-          "d1": 0.4246,
-          "d2": 0.7034,
-          "d3": 0.7875,
-          "rmse": 27.9631,
-          "mean_deg": 20.5467,
+          "d1": 0.4335,
+          "d1_std": 0.0082,
+          "d2": 0.7006,
+          "d2_std": 0.0039,
+          "d3": 0.7842,
+          "d3_std": 0.0029,
+          "rmse": 28.0386,
+          "rmse_std": 0.1353,
+          "mean_deg": 20.5807,
+          "mean_deg_std": 0.1848,
           "images": 51,
           "coverage": 0.9803
         },
         "outdoor": {
-          "d1": 0.374,
-          "d2": 0.5839,
-          "d3": 0.6781,
-          "rmse": 33.5536,
-          "mean_deg": 25.2973,
+          "d1": 0.3782,
+          "d1_std": 0.0058,
+          "d2": 0.5764,
+          "d2_std": 0.0049,
+          "d3": 0.671,
+          "d3_std": 0.004,
+          "rmse": 33.7204,
+          "rmse_std": 0.1648,
+          "mean_deg": 25.2805,
+          "mean_deg_std": 0.2325,
           "images": 64,
           "coverage": 0.6116
         }
       },
+      "learning_rate": 0.0003,
+      "val_metric": "mean_deg",
+      "val_score": 23.7551,
+      "learning_rate_search": {
+        "0.0003": 23.7551,
+        "0.001": 23.973,
+        "0.003": 31.8674,
+        "0.01": 45.4057
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.4051,
+          "d2": 0.633,
+          "d3": 0.7229,
+          "rmse": 31.1446,
+          "mean_deg": 23.1086,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.4329,
+              "d2": 0.6989,
+              "d3": 0.7834,
+              "rmse": 28.0886,
+              "mean_deg": 20.613,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.3829,
+              "d2": 0.5804,
+              "d3": 0.6747,
+              "rmse": 33.5798,
+              "mean_deg": 25.0974,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.4093,
+          "d2": 0.6355,
+          "d3": 0.724,
+          "rmse": 31.0682,
+          "mean_deg": 23.0087,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.4438,
+              "d2": 0.7059,
+              "d3": 0.7881,
+              "rmse": 27.8536,
+              "mean_deg": 20.3399,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.3818,
+              "d2": 0.5793,
+              "d3": 0.673,
+              "rmse": 33.6298,
+              "mean_deg": 25.1354,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.3939,
+          "d2": 0.626,
+          "d3": 0.7167,
+          "rmse": 31.3892,
+          "mean_deg": 23.4713,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.4238,
+              "d2": 0.6969,
+              "d3": 0.7811,
+              "rmse": 28.1736,
+              "mean_deg": 20.7892,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.37,
+              "d2": 0.5695,
+              "d3": 0.6654,
+              "rmse": 33.9516,
+              "mean_deg": 25.6086,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        }
+      ],
       "max_depth": 299.83,
       "model_id": "facebook/dinov2-large",
       "stage": "tower",
@@ -309,7 +1227,7 @@
       "token_width": 512,
       "grid": 32,
       "trainable_parameters": 1314819,
-      "seconds": 174.7
+      "seconds": 337.5
     }
   ]
 }

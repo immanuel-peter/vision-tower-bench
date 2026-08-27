@@ -9,16 +9,18 @@ The Projector preserves semantics useful to the language model but destroys spat
 information. If projected features match raw Tower features on depth and correspondence,
 the claim fails. That null result is still publishable.
 
-The first geometry run collected that null result. On DIODE validation, MoonViT-V2's
-`projected` Stage matches or beats `tower` on both depth and surface normals in both
-capacity arms, while the lossless `tower` to `merged` regrouping moves the metric further
-than the Projector does. Depth and normals are two of the three tasks named above;
-correspondence is still unscoped. See `results/README.md` and ADR-0013.
+The geometry pillar collected that null result over 72 cells at a validation-selected
+learning rate and three seeds. On DIODE validation, MoonViT-V2's `projected` Stage beats
+`tower` on both depth and surface normals in both capacity arms, while the lossless
+`tower` to `merged` regrouping moves the metric further than the Projector does. Depth and
+normals are two of the three tasks named above; correspondence is still unscoped. See
+`results/README.md` and ADR-0013.
 
 Supporting hypotheses:
 
 1. Semantic decodability improves toward the last layers; geometry peaks earlier.
-   Confirmed by the same run, in every model, task and capacity arm.
+   Confirmed by the same run on depth in every model and arm, and on normals in three arms
+   of four. Capacity-matched MoonViT-V2 normals are too noisy across seeds to place a peak.
 2. Rankings change by task. No Tower wins everywhere, which is why results ship as Capability Profiles instead of one score.
 3. Scale stops dominating once token count, latency, and label efficiency enter the comparison.
 

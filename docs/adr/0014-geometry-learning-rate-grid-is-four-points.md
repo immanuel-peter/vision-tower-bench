@@ -43,3 +43,30 @@ under the seed spread, so truncating there changes no conclusion.
 This departs from PLAN.md on point count while keeping what the plan is actually for:
 one grid, chosen once, applied identically to every cell, so cells stay comparable. A
 per-Stage or per-model grid would buy the same time and destroy that.
+
+## What the full matrix said, and what it corrects
+
+The four points stand. The reason recorded above for keeping the top one does not.
+
+That reason read the split as 32 by 32 against 16 by 16, from three cells at one seed. All
+three were unmatched. Over the full 72 cells at three seeds the split is by token width and
+the grid size does not enter it. Every capacity-matched depth cell selects 1e-2, at 32 by 32
+and at 16 by 16 alike, and every cell at 1024 wide and above collapses to the degenerate
+0.1245 there. The 32-by-32 cell that carried the argument, unmatched DINOv2 `tower` at
+Relative Depth 0.625, now selects 3e-3: it reads 0.6012 there against 0.5903 at 1e-2, where
+the single-seed eight-point run had them 0.0034 apart the other way. That was noise.
+
+So 1e-2 earns its place because the 512-wide reduction needs it, not because full spatial
+resolution does. Sixteen cells select it, which is a stronger case than the one cell above,
+and it arrives for a different reason.
+
+The claim that nothing selects the bottom of the range is also wrong. 13 cells select 3e-4,
+12 of them unmatched normals, and their validation curves fall monotonically toward it, so
+their optimum sits at or below the grid floor. Both edges truncate, on different
+(task, arm) combinations: 29 of 72 cells select an edge.
+
+The grid stays identical in every cell, which is the property PLAN.md is actually asking
+for and the only one that keeps cells comparable. Truncation costs absolute level in the
+cells that hit an edge and moves no comparison between cells. Extending the range in both
+directions is a change to make once, for every cell, and it needs a costed re-run rather
+than a per-arm patch.
