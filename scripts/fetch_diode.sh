@@ -22,8 +22,7 @@ local_size() {
     [ -f "$1" ] && stat -c %s "$1" || echo 0
 }
 
-# The bucket resets the connection partway through the multi-gigabyte files, so each
-# attempt resumes from the bytes already on disk instead of restarting.
+# Resume partial downloads because the bucket drops long connections.
 fetch() {
     local url=$1 dest=$2 want attempt=1 have
     want=$(remote_size "$url")

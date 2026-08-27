@@ -25,18 +25,14 @@ from vtb.probe_run import split_indices
 
 TASKS = ("depth", "normal")
 
-# Which metric selects the learning rate, and whether a larger value is better. Getting
-# the direction wrong here silently selects the worst rate in the grid.
+# Validation metric and direction for each task.
 SELECTION = {"depth": ("d1", True), "normal": ("mean_deg", False)}
 
-# The semantic grid in probe_run.py reaches 1.0, which suits a small attention pool and
-# diverges on a convolutional decoder. This grid keeps the same eight points and the same
-# half-decade spacing, shifted down to straddle the 1e-3 the first geometry run fixed.
 LEARNING_RATES = (1e-5, 3e-5, 1e-4, 3e-4, 1e-3, 3e-3, 1e-2, 3e-2)
 
 
 def manifest(targets: Path) -> dict:
-    """The prep step's manifest, which sits beside the targets it describes."""
+    """Read the prep manifest beside the target archive."""
     path = targets.with_name(targets.name.replace("_targets.npz", "_manifest.json"))
     return json.loads(path.read_text()) if path.exists() else {}
 
@@ -49,12 +45,7 @@ def depth_range(targets: Path, override: float | None) -> float:
 
 
 def centre_square(target):
-    """Crop a target to the square the Tower was actually shown.
-
-    vtb.images.square_crop resizes the short side and centre-crops, so a 768 by 1024
-    DIODE frame reaches every Stage as its middle 768 by 768. Scoring the full frame
-    would charge each cell for a quarter of the pixels no Stage ever saw.
-    """
+    """Crop a target to the field of view passed through square_crop."""
     height, width = target.shape[-2:]
     side = min(height, width)
     top, left = (height - side) // 2, (width - side) // 2
@@ -79,11 +70,7 @@ def load_targets(path: Path, image_ids: list[str], task: str):
 
 
 def coverage_of(targets: torch.Tensor, valid: torch.Tensor | None) -> torch.Tensor:
-    """Fraction of each target the metric can score, which the writeup reports by scene.
-
-    DIODE ships no validity mask for normals, so an unannotated pixel is a zero vector
-    and coverage runs far lower outdoors than indoors.
-    """
+    """Treat zero vectors as unannotated when no validity mask exists."""
     mask = valid if valid is not None else (targets > 0).float()
     return mask.flatten(1).mean(dim=1)
 
@@ -144,8 +131,7 @@ def summarise(metrics, coverage, image_ids, index, scenes) -> dict:
     rows: dict[str, list[int]] = {}
     for position, image_id in enumerate(index.tolist()):
         rows.setdefault(scenes.get(image_ids[image_id], "unknown"), []).append(position)
-    # Metrics arrive in test-split order; coverage is still keyed by image, so it has to
-    # be reordered before either can be indexed by the same positions.
+    # Reorder image-keyed coverage to match test-split metrics.
     coverage = coverage[index]
 
     def block(chosen: torch.Tensor) -> dict:
@@ -183,11 +169,7 @@ def _mean_std(values: list[float]) -> tuple[float, float]:
 
 
 def aggregate(runs: list[dict]) -> dict:
-    """Collapse per-seed summaries into a mean and a population standard deviation.
-
-    `images` and `coverage` are properties of the split rather than of a fitted head, so
-    they carry through unchanged instead of picking up a deviation of zero.
-    """
+    """Leave split metadata unchanged while aggregating fitted metrics over seeds."""
     out: dict = {}
     for key, value in runs[0].items():
         if key == "by_scene":
@@ -226,8 +208,7 @@ def main() -> None:
     ap.add_argument(
         "--match-capacity",
         action="store_true",
-        help="fit a frozen PCA reduction to --width first. A multiscale depth head reads "
-        "1.71M parameters at a 1024-wide Stage and 4.85M at 7168 (ADR-0008, ADR-0010)",
+        help="reduce each Stage to --width before training the head",
     )
     ap.add_argument("--epochs", type=int, default=10)
     ap.add_argument("--batch-size", type=int, default=8)
@@ -236,7 +217,7 @@ def main() -> None:
         type=float,
         nargs="+",
         default=list(LEARNING_RATES),
-        help="grid searched on the validation split, identical in every cell",
+        help="search these rates on validation for every cell",
     )
     ap.add_argument("--seeds", type=int, default=3)
     ap.add_argument("--scale-invariant", action="store_true")
@@ -244,8 +225,7 @@ def main() -> None:
         "--max-depth",
         type=float,
         default=None,
-        help="depth bin ceiling in metres. Read from the prep manifest when omitted, "
-        "because DIODE reaches 230 m outdoors against NYU's 10 m indoors.",
+        help="depth ceiling in metres; defaults to the prep manifest",
     )
     ap.add_argument("--device", default="cuda")
     ap.add_argument(
@@ -253,8 +233,7 @@ def main() -> None:
         nargs="+",
         default=None,
         metavar="STAGE:LAYER",
-        help="run just these cells, as in tower:24 projected:27. For timing probes and "
-        "reruns of one Stage, not for changing the protocol.",
+        help="run only the given STAGE:LAYER cells",
     )
     args = ap.parse_args()
     args.max_depth = depth_range(args.targets, args.max_depth)
@@ -273,8 +252,7 @@ def main() -> None:
     for stage, layer in chosen:
         started = time.perf_counter()
         batch = cache.load_batch(args.run, stage, layer)
-        # Every slice of a run holds the same images in the same order, so the 6.3 GB of
-        # targets are read once rather than once per cell.
+        # Reuse the 6.3 GB target array while image order stays unchanged.
         if batch.image_ids != order:
             order = batch.image_ids
             targets, valid = load_targets(args.targets, order, args.task)

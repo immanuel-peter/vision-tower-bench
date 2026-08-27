@@ -1,15 +1,10 @@
-"""Read geometry result JSONs and print the comparisons the writeup argues from.
-
-Every gap is quoted against the seed spread of the cells it compares, because the
-readout noise floor, not the gap itself, decides whether a Stage difference means
-anything (ADR-0013).
-"""
+"""Compare geometry results against seed spread as specified by ADR-0013."""
 
 import argparse
 import json
 from pathlib import Path
 
-# The metric each task is judged on, and whether a larger value is better.
+# Selection metric and direction for each task.
 HEADLINE = {"depth": ("d1", True), "normal": ("mean_deg", False)}
 
 

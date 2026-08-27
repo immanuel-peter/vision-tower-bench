@@ -1,17 +1,5 @@
 #!/usr/bin/env bash
-# Run a geometry matrix across GPU lanes, one lane pinned to one GPU.
-#
-# The matrix is one invocation per (model, task, arm). Lane count is a parameter and the
-# models are arguments, so the same script covers the two-model probe and the six-model
-# roster run. Cell counts come from the feature cache rather than a table here, because
-# they are what balances the lanes and what the completeness check verifies against.
-#
-# Usage: scripts/geometry_matrix.sh <features_dir> <targets_npz> <out_dir> <model...>
-#   model is a cache subdirectory, optionally with a shorter output name:
-#   moonvit_v2_448_full:moonvit
-#
-# Environment: LANES (default: visible GPUs), GPUS, GRID, SEEDS, TASKS, ARMS, EPOCHS,
-# THREADS (default: vCPUs split evenly across the lanes).
+# Usage: scripts/geometry_matrix.sh <features_dir> <targets_npz> <out_dir> <model[:output_name]...>
 set -euo pipefail
 
 FEATURES="${1:?features dir}"; shift
@@ -28,9 +16,7 @@ TASKS="${TASKS:-depth normal}"
 ARMS="${ARMS:-raw matched}"
 EPOCHS="${EPOCHS:-10}"
 
-# Torch gives every process as many intra-op threads as there are cores, so four lanes
-# on 46 vCPUs put about 150 runnable threads on 46 cores. Measured there: 97 percent user
-# CPU, no idle, and the GPUs between 9 and 40 percent. Split the cores instead.
+# Split CPU cores across lanes to avoid Torch oversubscription.
 THREADS="${THREADS:-$(( $(nproc) / LANES ))}"
 [ "$THREADS" -ge 1 ] || THREADS=1
 
@@ -38,8 +24,6 @@ mkdir -p "$OUT"
 ALERTS="$OUT/alerts.log"
 : > "$ALERTS"
 
-# Anything in a per-invocation log that means the cell did not really run. A lane keeps
-# going after one bad cell, so these are collected and reported at the end instead.
 FAILURE_PATTERNS='Traceback|CUDA out of memory|RuntimeError|Killed'
 
 cells_in() {
@@ -50,8 +34,6 @@ print(len(cache.slices(sys.argv[1])))
 " "$1"
 }
 
-# One work item per line, as cells, cache directory, output name, task, arm. Cell count
-# leads so the balancer can sort on it.
 work=()
 for spec in "$@"; do
     dir="${spec%%:*}"
@@ -66,9 +48,7 @@ for spec in "$@"; do
     done
 done
 
-# Longest-processing-time-first: hand each invocation to the lane holding the fewest
-# cells. With four lanes and eight invocations this puts one wide model and one narrow
-# one on every lane, so no lane carries both of the ten-cell models.
+# Assign the next largest job to the least-loaded lane.
 for ((i = 0; i < LANES; i++)); do load[i]=0; queue[i]=""; done
 while IFS= read -r item; do
     best=0
@@ -99,8 +79,7 @@ lane() {
             --learning-rates $GRID --seeds "$SEEDS" --epochs "$EPOCHS" \
             --out "$OUT/$out_name.json" \
             > "$OUT/$out_name.log" 2>&1 || rc=$?
-        # Read $? into rc above before anything else runs. Reporting it after a command
-        # substitution such as $(date) prints that command's status instead.
+        # Capture the exit code before another command changes $?.
         local elapsed=$((SECONDS - started))
         echo "[$(date +%T)] done $out_name rc=$rc in ${elapsed}s" >> "$log"
         [ "$rc" -eq 0 ] || echo "$out_name exited rc=$rc" >> "$ALERTS"
@@ -122,8 +101,7 @@ done
 for i in "${!pids[@]}"; do
     rc=0
     wait "${pids[i]}" || rc=$?
-    # A lane that dies before its marker was killed mid-invocation, so its remaining
-    # cells never ran and no per-invocation log records the gap.
+    # A missing marker means the lane died before finishing its queue.
     if [ ! -f "$OUT/lane$i.DONE" ]; then
         echo "lane$i vanished rc=$rc without writing its DONE marker" >> "$ALERTS"
     fi

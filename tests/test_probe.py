@@ -209,13 +209,10 @@ def test_geometry_runner_trains_a_depth_cell_end_to_end(tmp_path):
     assert cell["seeds"] == 2 and len(cell["per_seed"]) == 2
     assert set(cell["learning_rate_search"]) == {"0.001", "0.003"}
     assert "d1_std" in cell and "d1_std" in cell["by_scene"]["indoors"]
-    # Coverage describes the split, so it must not grow a deviation across seeds.
     assert "coverage_std" not in cell
 
 
 def test_learning_rate_selection_runs_the_right_way_per_task():
-    """Depth selects on d1 upward and normals on mean_deg downward. Reversing either is
-    silent: the grid still returns a rate, just the worst one in it."""
     from vtb import geometry_run
 
     assert geometry_run.SELECTION["depth"] == ("d1", True)
@@ -235,8 +232,6 @@ def test_learning_rate_selection_runs_the_right_way_per_task():
     original = geometry_run.score, geometry_run.train_cell
     geometry_run.score, geometry_run.train_cell = fake_score, fake_train
     try:
-        # Best depth d1 is the largest, best normal mean_deg is the smallest, and both
-        # sit at a different rate so a flipped comparison cannot pass by luck.
         scored = {1e-4: 0.10, 1e-3: 0.90, 1e-2: 0.50}
         rate, report = geometry_run.select_learning_rate(None, None, None, split, "depth", args)
         assert rate == 1e-3 and report["val_score"] == 0.9
@@ -263,13 +258,10 @@ def test_aggregate_reports_mean_and_population_deviation():
 
 
 def test_scene_summary_reads_coverage_for_the_images_it_scored():
-    """Coverage is keyed by image, metrics by test-split position. Mixing them up is
-    silent: every scene then reports the same number."""
     from vtb import geometry_run
 
     ids = [f"img{i:02d}" for i in range(10)]
     scenes = {i: "indoors" if n < 5 else "outdoor" for n, i in enumerate(ids)}
-    # Coverage is one per image, and the two scenes are far apart on purpose.
     coverage = torch.tensor([1.0] * 5 + [0.2] * 5)
     index = torch.tensor([7, 1, 9])
     metrics = {"d1": torch.tensor([0.3, 0.9, 0.5])}
@@ -282,7 +274,6 @@ def test_scene_summary_reads_coverage_for_the_images_it_scored():
 
 
 def test_bfloat16_cache_reaches_a_float32_head(tmp_path):
-    """The cache holds bfloat16 and the heads are float32, so a cell must convert."""
     from vtb import cache, geometry
 
     writer = cache.ShardWriter(tmp_path, images=2)
@@ -308,7 +299,6 @@ def test_bfloat16_cache_reaches_a_float32_head(tmp_path):
 
 
 def test_targets_are_cropped_to_the_square_the_tower_saw(tmp_path):
-    """square_crop feeds every Stage the middle square, so the target follows it."""
     import numpy as np
 
     from vtb import geometry_run
@@ -324,7 +314,6 @@ def test_targets_are_cropped_to_the_square_the_tower_saw(tmp_path):
     cropped, valid = geometry_run.load_targets(tmp_path / "val_targets.npz", ["a"], "depth")
     assert cropped.shape == (1, 1, 768, 768)
     assert valid is None
-    # The crop lands exactly on the columns the Tower was shown, so nothing is zero.
     assert cropped.min().item() == 1.0
 
     normals, valid = geometry_run.load_targets(tmp_path / "val_targets.npz", ["a"], "normal")
@@ -353,7 +342,6 @@ def test_depth_head_bins_span_the_requested_range():
     head = geometry.DepthHead([32], head="linear", max_depth=230.64)
     far = head([torch.randn(1, 32, 8, 8) * 50])
     assert head.predict.max_depth == 230.64
-    # A head capped at NYU's 10 m cannot produce a DIODE-scale depth at all.
     near = geometry.DepthHead([32], head="linear", max_depth=10.0)
     assert near([torch.randn(1, 32, 8, 8) * 50]).max().item() <= 10.0
     assert far.shape == near([torch.randn(1, 32, 8, 8)]).shape
