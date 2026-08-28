@@ -70,3 +70,13 @@ for and the only one that keeps cells comparable. Truncation costs absolute leve
 cells that hit an edge and moves no comparison between cells. Extending the range in both
 directions is a change to make once, for every cell, and it needs a costed re-run rather
 than a per-arm patch.
+
+## The roster run uses six points
+
+The roster run extends the grid to `[1e-4, 3e-4, 1e-3, 3e-3, 1e-2, 3e-2]`. With six
+searched rates and three seeds at the selected rate, each cell takes nine runs instead of
+seven. On four GPUs, the estimate rises from 5.6 to 7.2 hours.
+
+The runner and lane script had separate defaults. The runner kept the original eight
+points while the lane script passed four, and only the lane value reached a cell. A test
+now requires both defaults to match.

@@ -28,7 +28,8 @@ TASKS = ("depth", "normal")
 # Validation metric and direction for each task.
 SELECTION = {"depth": ("d1", True), "normal": ("mean_deg", False)}
 
-LEARNING_RATES = (1e-5, 3e-5, 1e-4, 3e-4, 1e-3, 3e-3, 1e-2, 3e-2)
+# Six points spanning both edges the four-point matrix truncated at (ADR-0014).
+LEARNING_RATES = (1e-4, 3e-4, 1e-3, 3e-3, 1e-2, 3e-2)
 
 
 def manifest(targets: Path) -> dict:
