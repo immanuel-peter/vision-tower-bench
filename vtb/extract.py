@@ -9,10 +9,21 @@ from torch.utils.data import DataLoader
 
 from vtb.cache import ShardWriter
 from vtb.adapters.dinov2 import DINOv2Adapter
+from vtb.adapters.kimi_k26 import KimiK26Adapter
 from vtb.adapters.moonvit_v2 import MoonViTV2Adapter
+from vtb.adapters.muse_glimmer import MuseGlimmerAdapter
+from vtb.adapters.qwen3_5 import Qwen3_5Adapter
+from vtb.adapters.siglip2 import SigLIP2Adapter
 from vtb.images import ImageFolder
 
-ADAPTERS = {"dinov2": DINOv2Adapter, "moonvit_v2": MoonViTV2Adapter}
+ADAPTERS = {
+    "dinov2": DINOv2Adapter,
+    "kimi_k26": KimiK26Adapter,
+    "moonvit_v2": MoonViTV2Adapter,
+    "muse_glimmer": MuseGlimmerAdapter,
+    "qwen3_5": Qwen3_5Adapter,
+    "siglip2": SigLIP2Adapter,
+}
 IMAGENET_100 = 130_000
 
 

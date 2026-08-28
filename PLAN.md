@@ -28,12 +28,12 @@ Supporting hypotheses:
 
 | Model | Source | Role | Adapter effort |
 |---|---|---|---|
-| MoonViT (Kimi K2.6) | [exolabs/Kimi-K2.6-vision](https://huggingface.co/exolabs/Kimi-K2.6-vision) weights, architecture adapted from [moonshotai/Kimi-K2.6](https://huggingface.co/moonshotai/Kimi-K2.6) vision code; Tower and Projector in 2 shards, 0.94 GB | Multimodal Tower | Medium |
-| MoonViT-V2 (Kimi K3) | [AI4Industry/MoonViT-V2](https://huggingface.co/AI4Industry/MoonViT-V2), standalone modeling code; Projector from one 0.09 GB Kimi K3 shard (ADR-0007) | Multimodal Tower | Done |
-| Qwen3.8-27B Tower | [Qwen/Qwen3.8-27B](https://huggingface.co/Qwen/Qwen3.8-27B), all 333 `model.visual.*` tensors in shard 1 of 18, 0.92 GB of weights | Multimodal Tower | Low-medium |
-| Muse Glimmer PE | [meta-models/Muse-Glimmer-30B](https://huggingface.co/meta-models/Muse-Glimmer-30B) via transformers `MuseGlimmerVisionModel`; 50 blocks, 3.84 GB of vision weights spread across both shards | Multimodal Tower | Low-medium |
-| DINOv2 ViT-L/14 | [facebook/dinov2-large](https://huggingface.co/facebook/dinov2-large) | Self-supervised control | Trivial |
-| SigLIP2-SO400M | [google/siglip2-so400m-patch14-384](https://huggingface.co/google/siglip2-so400m-patch14-384) | Contrastive control | Trivial |
+| MoonViT (Kimi K2.6) | [exolabs/Kimi-K2.6-vision](https://huggingface.co/exolabs/Kimi-K2.6-vision) republishes Tower and Projector as one 0.94 GB file; architecture loads from [moonshotai/Kimi-K2.6](https://huggingface.co/moonshotai/Kimi-K2.6) | Multimodal Tower | Done |
+| MoonViT-V2 (Kimi K3) | [immanuelpeter/MoonViT-V2](https://huggingface.co/immanuelpeter/MoonViT-V2), Tower and Projector extracted from Kimi K3 shards 95 and 96 and republished together (ADR-0015) | Multimodal Tower | Done |
+| Qwen3.8-27B Tower | [Qwen/Qwen3.8-27B](https://huggingface.co/Qwen/Qwen3.8-27B), all 333 `model.visual.*` tensors in shard 1 of 18, 0.92 GB read by range request | Multimodal Tower | Done |
+| Muse Glimmer PE | [meta-models/Muse-Glimmer-30B](https://huggingface.co/meta-models/Muse-Glimmer-30B) via transformers `MuseGlimmerVisionModel`; 50 blocks, 3.84 GB of vision weights read by range request from both shards | Multimodal Tower | Done |
+| DINOv2 ViT-L/14 | [facebook/dinov2-large](https://huggingface.co/facebook/dinov2-large) | Self-supervised control | Done |
+| SigLIP2-SO400M | [google/siglip2-so400m-patch14-384](https://huggingface.co/google/siglip2-so400m-patch14-384) | Contrastive control | Done |
 
 Notes:
 
@@ -46,7 +46,8 @@ Notes:
 - Eight evenly spaced Relative Depth points per model (layer index over total layers, from 0.125 to 1.0), plus the `merged` and `projected` Stages where they exist.
 - Canonical resolution 448². Every model handles it natively; Muse PE caps at exactly 1024 patches there.
 - 896² runs exist only for the geometry pillar and only for Towers with positional headroom. Muse PE is excluded from these runs.
-- Stages are model-relative and every missing Stage prints N/A in every table. `merged` means after spatial merging and before the Projector's learned mapping. It is the Projector's input tensor in all four models. The expected result is that `merged` tracks `tower`, which would attribute any geometry loss in `projected` to the learned mapping. MoonViT-V2's one-frame merge is a lossless regrouping of four Tower tokens, checked by `torch.equal` in `tests/test_moonvit_v2.py`.
+- Stages are model-relative and every missing Stage prints N/A in every table. `merged` is the Projector input after spatial merging. It should preserve `tower` geometry until the learned mapping. Tests verify the lossless one-frame regrouping for MoonViT-V2 and Kimi K2.6.
+- Adapters return every cached Stage in raster order. Qwen groups patches by 2x2 merge block, while Muse uses window order inside intermediate blocks. Both adapters undo those permutations before caching (ADR-0017).
 - Full patch tokens for ImageNet-100 would cost 2.18 TB per model and 13.1 TB across the roster. That fits neither the M4 Max nor the budget in ADR-0002. Semantic probes therefore cache a 4x4 pooled grid, while geometry probes keep full tokens (ADR-0005).
 - Pooled ImageNet-100 cost is measured per model, not extrapolated, because Stage count drives it more than token width. DINOv2 writes eight slices for 34.1 GB; MoonViT-V2 writes ten for 80.9 GB, since `merged` and `projected` add tokens four and seven times wider at the deepest point. Roster estimate is about 400 GB, replaced model by model as adapters land (ADR-0005).
 
@@ -85,8 +86,8 @@ Extraction runs on rented Brev GPUs in bounded bursts. Everything else runs loca
 
 ## Known risks
 
-1. The shard-surgery risk is retired. Shard indices and range-read headers located every Tower and Projector without downloading a shard (`docs/measurements/roster-shard-audit.json`). Reaching the five remaining Towers and Projectors costs about 10 GB, not the 715 GB in their parent repositories. MoonViT-V2 already has bit-exact weight parity (ADR-0007).
-2. Kimi K2.6 uses a Modified MIT license. Read the modification clause before republishing extracted weights. Qwen and Muse are Apache 2.0, so those republications are safe.
+1. The shard-surgery risk is retired. Range requests fetch Qwen's 0.92 GB Tower and Muse's 3.84 GB Tower without downloading their 63.52 GB of source shards. The whole roster costs about 10 GB, not the 715 GB in the parent repositories (ADR-0016). MoonViT-V2 has bit-exact weight parity (ADR-0007).
+2. The Kimi licenses permit republication. The Kimi K3 License grants publication and derivative works over model weights and configuration files; its only binding condition for research is shipping the copyright and permission notice, and its revenue gates start at 20 million dollars (ADR-0015). Qwen and Muse are Apache 2.0.
 3. Parity tests gate everything. An extracted Tower ships only after its outputs match the Tower inside the full model within BF16 tolerance on fixed images.
 
 ## Schedule
