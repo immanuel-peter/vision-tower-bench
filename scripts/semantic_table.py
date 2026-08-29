@@ -1,8 +1,4 @@
-"""Render the semantic result JSONs as the markdown tables the writeup carries.
-
-The geometry twin of this script is scripts/geometry_table.py. Both take the JSON a lane
-script wrote and print one table per file, so the writeup never retypes a number.
-"""
+"""Render semantic result JSONs as Markdown tables."""
 
 import argparse
 import json

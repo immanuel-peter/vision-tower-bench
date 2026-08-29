@@ -10,10 +10,10 @@ information. If projected features match raw Tower features on depth and corresp
 the claim fails. That null result is still publishable.
 
 The roster run collected that null result over 448 cells, six Towers and four Projectors,
-at a validation-selected rate and three seeds. `projected` beats `tower` on depth and on
-surface normals in every Projector and both capacity arms, so the Projector destroys
-nothing spatial anywhere in this roster. Depth and normals are two of the three tasks named
-above; correspondence is still unscoped.
+at a validation-selected rate and three seeds. `projected` beats `tower` on depth and
+surface normals in every Projector and both capacity arms. These probes found no loss on
+either measured geometry task. Correspondence, the third task named above, is still
+unscoped.
 
 The narrower claim, that the Projector's effect hides under the readout noise floor set by
 the lossless `tower` to `merged` step, held on MoonViT-V2 and fails on the other three. The

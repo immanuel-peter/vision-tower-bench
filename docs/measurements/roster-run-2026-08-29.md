@@ -55,7 +55,7 @@ throughput fell from 15.5 at batch 1 to 5.3 at batch 8. Both climb with batch si
 qwen3_5 runs at 8, muse_glimmer at 4. Read the muse batch-8 point with care: it overlapped
 the start of extraction on the other three GPUs, while batch 4 was measured clean.
 
-## The thread cap is the whole ballgame for extraction
+## Thread limits determine extraction throughput
 
 The first extraction attempt ran MoonViT-V2 at 1.5 img/s against the 15.5 ADR-0009 measured
 on an A100. `geometry_matrix.sh` caps `OMP_NUM_THREADS` and `MKL_NUM_THREADS` per lane and
@@ -70,9 +70,9 @@ With 10 workers and 2 threads per lane, on four lanes:
 | kimi_k26 | 1.3 | 16.4 img/s |
 | siglip2 | 14.1 | 21.5 img/s |
 
-Load average settles near 13 and the GPUs run 33 to 70 percent, so the run is GPU-bound,
-which is the right side to be on. The brief says to set `--workers` high; on this box the
-thread cap matters more, and the two compete for the same 46 cores.
+Load average settles near 13 and GPU utilization reaches 33 to 70 percent. The brief says to
+set `--workers` high, but workers and Torch threads compete for the same 46 cores. On this
+box, limiting Torch threads improves throughput more than adding workers does.
 
 ## Validation done before the long runs
 
@@ -105,8 +105,8 @@ Both timing cells reproduce the published two-model results, so the widened grid
 moved them: dinov2 `tower` at Relative Depth 0.125 reads d1 0.3191 against 0.3199, and
 moonvit `merged` reads 0.5204 against 0.5205.
 
-Semantic runs first. It is under an hour, so it banks a whole pillar before the eight-hour
-geometry run rather than sitting behind it.
+Run semantics first. It takes under an hour and produces a complete result before the
+eight-hour geometry run starts.
 
 ## Lane balancing is by cell count, and cost is not uniform per cell
 

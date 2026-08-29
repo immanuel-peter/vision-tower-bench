@@ -16,8 +16,7 @@ READOUTS="${READOUTS:-attention mean}"
 ARMS="${ARMS:-raw matched}"
 EPOCHS="${EPOCHS:-20}"
 
-# Split CPU cores across lanes. Torch hands each process one intra-op thread per core, and
-# four unbounded lanes on 46 cores cost 3.3x.
+# Divide CPU cores among lanes to prevent Torch oversubscription.
 THREADS="${THREADS:-$(( $(nproc) / LANES ))}"
 [ "$THREADS" -ge 1 ] || THREADS=1
 

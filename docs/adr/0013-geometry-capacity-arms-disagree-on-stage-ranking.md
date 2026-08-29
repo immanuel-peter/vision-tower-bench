@@ -84,25 +84,19 @@ on two tasks, six of eight combinations swap the two middle Stages between arms:
 | Kimi K2.6 | depth | projected > merged > tower | projected > merged > tower | agree |
 | Qwen3.5 | normal | projected > tower > merged | projected > tower > merged | agree |
 
-The MoonViT-V2 depth swap recorded above reproduces exactly. So this ADR does not owe an
-explanation of why one model differs. It owes the plainer statement that capacity matching
-reorders the middle two Stages across most of the roster, and that the ordering of `merged`
-against `projected` is not a property of the Stages on this readout.
+The MoonViT-V2 depth swap recorded above reproduces exactly. Capacity matching reorders the
+middle two Stages across most of the roster. The ordering of `merged` against `projected`
+therefore depends on the readout capacity, not only on the Stages.
 
-One thing about MoonViT-V2 is still particular, and it is the thing that mattered. Read the
-table by which Stage ranks first rather than by whether any pair swaps. MoonViT-V2 is the
-only model where the arms disagree about the top of the ranking, and it disagrees on both
-tasks: `merged` leads unmatched depth while `projected` leads it matched, and the reverse on
-normals. In the other three Projectors `projected` ranks first in both arms every time, and
-the swap sits underneath it between `tower` and `merged`.
+MoonViT-V2 is the only model where the arms disagree about the top-ranked Stage, and they
+disagree on both tasks. `merged` leads unmatched depth while `projected` leads matched depth;
+the reverse holds for normals. In the other three Projectors, `projected` ranks first in both
+arms every time. Their swaps occur between `tower` and `merged` below the top rank.
 
-That is the difference between a disagreement that changes the verdict and one that does not.
-For Kimi K2.6, Muse Glimmer and Qwen3.5 the Projector comes top whichever arm is read, so the
-Stage conclusion is arm-independent and the ADR-0008 acceptance test costs nothing. For
-MoonViT-V2 the choice of arm decides whether the Projector or the lossless regrouping looks
-better, which is exactly the ambiguity this ADR was opened for. The general finding is that
-the arms reorder Stages; the narrow finding is that only on MoonViT-V2 does that reordering
-reach the top, and only there does it change what the run concludes.
+For Kimi K2.6, Muse Glimmer and Qwen3.5, the Projector ranks first in both arms. Their Stage
+conclusion does not depend on capacity matching. For MoonViT-V2, the choice of arm decides
+whether the Projector or the lossless regrouping ranks first. Capacity matching reorders
+Stages across the roster, but only the MoonViT-V2 reorder changes the top-ranked Stage.
 
 The mechanism generalises too. In the matched arm `merged` drops below `tower` in four of
 the eight combinations, on a pair where the merge provably loses nothing. A 512-dimensional

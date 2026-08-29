@@ -63,9 +63,9 @@ Weighting a job by cells times an arm factor would fix it.
 Every cache landed within 1 percent of the predicted size, so no Stage is the wrong shape.
 Geometry totalled 102.6 GB against 102.7 GB predicted, semantics 42.4 GB against 42.3 GB.
 
-## 1. The Stage conclusion does not survive the roster
+## 1. The Stage conclusion changes with the larger roster
 
-This is the headline claim and the roster breaks it.
+The four-Projector result differs from the earlier MoonViT-V2 result.
 
 The argument runs through a control. Merging four Tower tokens into one is a lossless
 regrouping, verified bit-exact against the cache on disk with `torch.equal`, so any movement
@@ -99,17 +99,17 @@ and disagrees on which models: there kimi_k26 depth reads 14.0 and MoonViT-V2 re
 The direction matters as much as the size. Across all sixteen model-task-arm combinations
 the `merged` to `projected` step improves the metric in fourteen. Both exceptions are
 MoonViT-V2: unmatched depth at -0.0413, and matched normals at +0.1135, which is 0.2 seed
-deviations and therefore nothing. The largest single move in the matrix is qwen3_5 unmatched
-depth, where `projected` beats `merged` by 0.1945 `d1` at 21.2 deviations.
+deviations and is not resolved by this run. The largest single move in the matrix is qwen3_5
+unmatched depth, where `projected` beats `merged` by 0.1945 `d1` at 21.2 deviations.
 
-So PLAN.md's claim fails twice over. The Projector does not destroy spatial information; it
-usually improves what a probe can read. And the yardstick argument that made MoonViT-V2 look
-like a clean null result does not generalise, because in three Projectors the learned step is
-the larger of the two.
+The results contradict PLAN.md's prediction on both measured geometry tasks. The probes
+usually read more task-relevant information after the Projector. The MoonViT-V2 control does
+not generalise: in the other three Projectors, the learned step moves the metric farther than
+the lossless regrouping does.
 
-What survives is narrower and worth keeping. No Projector in the roster scores below its own
-`tower` on either task in either arm. The claim that the Connector throws geometry away is
-dead across six Towers rather than one.
+No Projector in the roster scores below its own `tower` on depth or surface normals in either
+capacity arm. This run therefore finds no loss detectable by those probes. It does not test
+all spatial information or the still-unscoped correspondence task.
 
 ## 2. Geometry peaks early, semantics climb to the end
 

@@ -112,14 +112,14 @@ remaining truncation is a depth-and-`projected` phenomenon, not a general one. T
 three edge cells, all at the 1e-4 floor, are plateaus where the edge and its neighbour differ
 by less than the seed spread, so nothing is lost there.
 
-One thing worth recording for anyone extending the grid again: two of the top-edge curves
-are not monotone in rate. SigLIP2 depth `tower` at Relative Depth 0.519 reads 0.6127 at
-1e-3, dips to 0.5590 at 3e-3, recovers to 0.6078 at 1e-2 and peaks at 0.6261 at 3e-2.
+Two top-edge curves are not monotone in rate. SigLIP2 depth `tower` at Relative Depth 0.519
+reads 0.6127 at 1e-3, dips to 0.5590 at 3e-3, recovers to 0.6078 at 1e-2 and peaks at
+0.6261 at 3e-2.
 Qwen3.5 depth `projected` does the same: 0.4736, 0.4077, 0.4293, 0.5211. A search that
 stops at the first turn picks the wrong side of these.
 
-Six points stay. Extending to 1e-1 would settle the four ceiling cells for one more run per
-cell, which is a small bill against 224 cells and worth taking next time.
+Keep the six-point grid. Extending it to 1e-1 would test the four ceiling cells for one
+additional run per cell. Add that point to the next run.
 
 ## The semantic grid is now the one that truncates
 
