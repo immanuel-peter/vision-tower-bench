@@ -8,6 +8,9 @@ from torch import nn
 
 from vtb import cache, probe
 
+# The eight points PLAN.md specifies, sized for the small attention pool.
+LEARNING_RATES = (3e-4, 1e-3, 3e-3, 1e-2, 3e-2, 1e-1, 3e-1, 1.0)
+
 
 @dataclass(frozen=True)
 class Split:
@@ -105,7 +108,7 @@ def main() -> None:
         "--learning-rates",
         type=float,
         nargs="+",
-        default=[3e-4, 1e-3, 3e-3, 1e-2, 3e-2, 1e-1, 3e-1, 1.0],
+        default=list(LEARNING_RATES),
     )
     args = parser.parse_args()
 

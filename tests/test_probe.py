@@ -6,16 +6,20 @@ from pathlib import Path
 import pytest
 import torch
 
-from vtb import cache, probe, probe_run
+from vtb import cache, geometry_run, probe, probe_run
 from vtb.feature_batch import FeatureBatch
 from vtb.geometry_run import LEARNING_RATES
 
 
-def test_the_lane_script_searches_the_grid_the_runner_defines():
+@pytest.mark.parametrize(
+    ("script_name", "runner"),
+    [("geometry_matrix.sh", geometry_run), ("semantic_matrix.sh", probe_run)],
+)
+def test_the_lane_script_searches_the_grid_the_runner_defines(script_name, runner):
     """One grid, defined once. A silent split between the two would truncate cells."""
-    script = Path(__file__).parents[1] / "scripts" / "geometry_matrix.sh"
+    script = Path(__file__).parents[1] / "scripts" / script_name
     default = re.search(r'GRID="\$\{GRID:-([^}]*)\}"', script.read_text()).group(1)
-    assert [float(rate) for rate in default.split()] == list(LEARNING_RATES)
+    assert [float(rate) for rate in default.split()] == list(runner.LEARNING_RATES)
 
 
 def test_cache_round_trips_tokens_and_image_ids(tmp_path):
