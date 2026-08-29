@@ -62,11 +62,16 @@ def accuracy(model, features, labels, index, device, batch_size=512) -> float:
 
 def run_cell(features, labels, split, num_classes, args) -> dict:
     best_lr, best_val = None, -1.0
+    # Keep every rate's validation score, the way geometry_run does. Without it a cell that
+    # selects an edge of the grid cannot be told apart from one that selects a plateau, and
+    # the roster run found 107 of 112 attention cells sitting on the 3e-4 floor.
+    searched: dict[str, float] = {}
     for lr in args.learning_rates:
         _, val, _ = train_once(
             features, labels, split, num_classes, args.readout, lr, 0,
             args.device, args.epochs, args.batch_size,
         )
+        searched[f"{lr:g}"] = round(val, 4)
         if val > best_val:
             best_lr, best_val = lr, val
 
@@ -80,6 +85,7 @@ def run_cell(features, labels, split, num_classes, args) -> dict:
     scores = torch.tensor(tests)
     return {
         "learning_rate": best_lr,
+        "learning_rate_search": searched,
         "val_accuracy": round(best_val, 4),
         "test_accuracy": round(scores.mean().item(), 4),
         "test_std": round(scores.std(unbiased=False).item(), 4),
