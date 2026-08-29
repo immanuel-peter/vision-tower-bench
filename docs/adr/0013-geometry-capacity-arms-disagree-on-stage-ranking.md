@@ -67,3 +67,52 @@ What no arm can settle at 541 training images is the smaller question of whether
 Projector costs anything at all relative to `merged`. Rate selection was the cheap way to
 find out and it did not answer it. Answering it needs the DIODE training split, which is
 the decision ADR-0011 parked pending this run.
+
+## The roster run: MoonViT-V2 is not special
+
+This ADR asked whether the swap is a MoonViT-V2 property. It is not. Over four Projectors
+on two tasks, six of eight combinations swap the two middle Stages between arms:
+
+| model | task | unmatched | matched | |
+|---|---|---|---|---|
+| MoonViT-V2 | depth | merged > projected > tower | projected > merged > tower | swap |
+| MoonViT-V2 | normal | projected > merged > tower | merged > projected > tower | swap |
+| Kimi K2.6 | normal | projected > merged > tower | projected > tower > merged | swap |
+| Muse Glimmer | depth | projected > merged > tower | projected > tower > merged | swap |
+| Muse Glimmer | normal | projected > merged > tower | projected > tower > merged | swap |
+| Qwen3.5 | depth | projected > merged > tower | projected > tower > merged | swap |
+| Kimi K2.6 | depth | projected > merged > tower | projected > merged > tower | agree |
+| Qwen3.5 | normal | projected > tower > merged | projected > tower > merged | agree |
+
+The MoonViT-V2 depth swap recorded above reproduces exactly. So this ADR does not owe an
+explanation of why one model differs. It owes the plainer statement that capacity matching
+reorders the middle two Stages across most of the roster, and that the ordering of `merged`
+against `projected` is not a property of the Stages on this readout.
+
+One thing about MoonViT-V2 is still particular, and it is the thing that mattered. Read the
+table by which Stage ranks first rather than by whether any pair swaps. MoonViT-V2 is the
+only model where the arms disagree about the top of the ranking, and it disagrees on both
+tasks: `merged` leads unmatched depth while `projected` leads it matched, and the reverse on
+normals. In the other three Projectors `projected` ranks first in both arms every time, and
+the swap sits underneath it between `tower` and `merged`.
+
+That is the difference between a disagreement that changes the verdict and one that does not.
+For Kimi K2.6, Muse Glimmer and Qwen3.5 the Projector comes top whichever arm is read, so the
+Stage conclusion is arm-independent and the ADR-0008 acceptance test costs nothing. For
+MoonViT-V2 the choice of arm decides whether the Projector or the lossless regrouping looks
+better, which is exactly the ambiguity this ADR was opened for. The general finding is that
+the arms reorder Stages; the narrow finding is that only on MoonViT-V2 does that reordering
+reach the top, and only there does it change what the run concludes.
+
+The mechanism generalises too. In the matched arm `merged` drops below `tower` in four of
+the eight combinations, on a pair where the merge provably loses nothing. A 512-dimensional
+reduction of a 4096 to 6144 wide `merged` Stage keeps less of what the head needs than the
+same reduction of a 1024 to 1536 wide `tower` Stage. The reduction sets the ordering.
+
+What the roster run does change is the conclusion this ADR draws from the yardstick. On
+MoonViT-V2 the lossless step is 8 to 23 times the Projector step, so the Projector effect
+sits under the noise floor. On the other three Projectors it does not: the ratios are 0.0
+to 0.4, meaning the Projector moves the metric further than a step that loses nothing.
+Muse Glimmer on depth moves +0.0691 at 34.4 seed deviations against a lossless step of
+-0.0151 at 0.9. The noise-floor argument holds for one model out of four. See
+`results/README.md` section 1.

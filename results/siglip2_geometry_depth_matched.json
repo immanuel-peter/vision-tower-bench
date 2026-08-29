@@ -1,0 +1,1131 @@
+{
+  "task": "depth",
+  "images": 771,
+  "train_images": 541,
+  "capacity_matched": true,
+  "head": "multiscale",
+  "epochs": 10,
+  "seeds": 3,
+  "learning_rates": [
+    0.0001,
+    0.0003,
+    0.001,
+    0.003,
+    0.01,
+    0.03
+  ],
+  "cells": [
+    {
+      "d1": 0.4819,
+      "d1_std": 0.0126,
+      "d2": 0.7609,
+      "d2_std": 0.0117,
+      "d3": 0.8826,
+      "d3_std": 0.0076,
+      "rmse": 4.793,
+      "rmse_std": 0.0568,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.4618,
+          "d1_std": 0.0232,
+          "d2": 0.7738,
+          "d2_std": 0.0226,
+          "d3": 0.9096,
+          "d3_std": 0.0122,
+          "rmse": 1.2701,
+          "rmse_std": 0.058,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.498,
+          "d1_std": 0.0051,
+          "d2": 0.7506,
+          "d2_std": 0.0033,
+          "d3": 0.8611,
+          "d3_std": 0.0042,
+          "rmse": 7.6002,
+          "rmse_std": 0.0611,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.478,
+      "learning_rate_search": {
+        "0.0001": 0.1864,
+        "0.0003": 0.3102,
+        "0.001": 0.4242,
+        "0.003": 0.4668,
+        "0.01": 0.478,
+        "0.03": 0.3291
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.4928,
+          "d2": 0.7717,
+          "d3": 0.8896,
+          "rmse": 4.7687,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.4854,
+              "d2": 0.7959,
+              "d3": 0.9218,
+              "rmse": 1.2191,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.4988,
+              "d2": 0.7524,
+              "d3": 0.8639,
+              "rmse": 7.5973,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.4643,
+          "d2": 0.7446,
+          "d3": 0.872,
+          "rmse": 4.8714,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.4302,
+              "d2": 0.7427,
+              "d3": 0.893,
+              "rmse": 1.3513,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.4914,
+              "d2": 0.746,
+              "d3": 0.8552,
+              "rmse": 7.6765,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.4887,
+          "d2": 0.7664,
+          "d3": 0.8863,
+          "rmse": 4.7388,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.4698,
+              "d2": 0.7827,
+              "d3": 0.914,
+              "rmse": 1.2399,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5038,
+              "d2": 0.7534,
+              "d3": 0.8643,
+              "rmse": 7.5269,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "google/siglip2-so400m-patch14-384",
+      "stage": "tower",
+      "layer_index": 3,
+      "relative_depth": 0.1111111111111111,
+      "token_width": 512,
+      "grid": 32,
+      "trainable_parameters": 1444608,
+      "seconds": 513.2
+    },
+    {
+      "d1": 0.6094,
+      "d1_std": 0.0033,
+      "d2": 0.8498,
+      "d2_std": 0.0008,
+      "d3": 0.9317,
+      "d3_std": 0.0004,
+      "rmse": 3.9696,
+      "rmse_std": 0.015,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.6201,
+          "d1_std": 0.005,
+          "d2": 0.8735,
+          "d2_std": 0.0009,
+          "d3": 0.9603,
+          "d3_std": 0.0002,
+          "rmse": 0.8769,
+          "rmse_std": 0.002,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.601,
+          "d1_std": 0.0048,
+          "d2": 0.831,
+          "d2_std": 0.0008,
+          "d3": 0.9089,
+          "d3_std": 0.0008,
+          "rmse": 6.4342,
+          "rmse_std": 0.026,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.5736,
+      "learning_rate_search": {
+        "0.0001": 0.2206,
+        "0.0003": 0.4028,
+        "0.001": 0.5118,
+        "0.003": 0.5565,
+        "0.01": 0.5736,
+        "0.03": 0.4664
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.6088,
+          "d2": 0.8508,
+          "d3": 0.9322,
+          "rmse": 3.9908,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6139,
+              "d2": 0.8743,
+              "d3": 0.9605,
+              "rmse": 0.8786,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6048,
+              "d2": 0.8321,
+              "d3": 0.9096,
+              "rmse": 6.4709,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6057,
+          "d2": 0.8489,
+          "d3": 0.9317,
+          "rmse": 3.9599,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6202,
+              "d2": 0.8722,
+              "d3": 0.96,
+              "rmse": 0.8779,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5942,
+              "d2": 0.8304,
+              "d3": 0.9092,
+              "rmse": 6.4159,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6138,
+          "d2": 0.8498,
+          "d3": 0.9311,
+          "rmse": 3.9582,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6261,
+              "d2": 0.874,
+              "d3": 0.9603,
+              "rmse": 0.8741,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.604,
+              "d2": 0.8304,
+              "d3": 0.9078,
+              "rmse": 6.4158,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "google/siglip2-so400m-patch14-384",
+      "stage": "tower",
+      "layer_index": 7,
+      "relative_depth": 0.25925925925925924,
+      "token_width": 512,
+      "grid": 32,
+      "trainable_parameters": 1444608,
+      "seconds": 509.8
+    },
+    {
+      "d1": 0.6489,
+      "d1_std": 0.0022,
+      "d2": 0.8601,
+      "d2_std": 0.0023,
+      "d3": 0.9353,
+      "d3_std": 0.0013,
+      "rmse": 3.9627,
+      "rmse_std": 0.004,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.684,
+          "d1_std": 0.0033,
+          "d2": 0.8898,
+          "d2_std": 0.0031,
+          "d3": 0.9648,
+          "d3_std": 0.0016,
+          "rmse": 0.8073,
+          "rmse_std": 0.014,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.6209,
+          "d1_std": 0.0015,
+          "d2": 0.8364,
+          "d2_std": 0.0016,
+          "d3": 0.9117,
+          "d3_std": 0.0013,
+          "rmse": 6.4772,
+          "rmse_std": 0.004,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.6149,
+      "learning_rate_search": {
+        "0.0001": 0.2449,
+        "0.0003": 0.4507,
+        "0.001": 0.5584,
+        "0.003": 0.6005,
+        "0.01": 0.6149,
+        "0.03": 0.5962
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.647,
+          "d2": 0.8626,
+          "d3": 0.9369,
+          "rmse": 3.9641,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6821,
+              "d2": 0.8932,
+              "d3": 0.9661,
+              "rmse": 0.8139,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.619,
+              "d2": 0.8381,
+              "d3": 0.9135,
+              "rmse": 6.4744,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6477,
+          "d2": 0.8571,
+          "d3": 0.9336,
+          "rmse": 3.9668,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6812,
+              "d2": 0.8858,
+              "d3": 0.9625,
+              "rmse": 0.8202,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.621,
+              "d2": 0.8343,
+              "d3": 0.9105,
+              "rmse": 6.4743,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.652,
+          "d2": 0.8605,
+          "d3": 0.9354,
+          "rmse": 3.9572,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6887,
+              "d2": 0.8904,
+              "d3": 0.9658,
+              "rmse": 0.7878,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6227,
+              "d2": 0.8367,
+              "d3": 0.9112,
+              "rmse": 6.4829,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "google/siglip2-so400m-patch14-384",
+      "stage": "tower",
+      "layer_index": 10,
+      "relative_depth": 0.37037037037037035,
+      "token_width": 512,
+      "grid": 32,
+      "trainable_parameters": 1444608,
+      "seconds": 509.1
+    },
+    {
+      "d1": 0.6671,
+      "d1_std": 0.0035,
+      "d2": 0.8673,
+      "d2_std": 0.0017,
+      "d3": 0.94,
+      "d3_std": 0.0007,
+      "rmse": 3.8251,
+      "rmse_std": 0.0133,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.6959,
+          "d1_std": 0.0054,
+          "d2": 0.894,
+          "d2_std": 0.0029,
+          "d3": 0.9724,
+          "d3_std": 0.0014,
+          "rmse": 0.7565,
+          "rmse_std": 0.0113,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.6441,
+          "d1_std": 0.002,
+          "d2": 0.846,
+          "d2_std": 0.001,
+          "d3": 0.9142,
+          "d3_std": 0.0006,
+          "rmse": 6.2704,
+          "rmse_std": 0.0196,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.6496,
+      "learning_rate_search": {
+        "0.0001": 0.2718,
+        "0.0003": 0.4417,
+        "0.001": 0.6029,
+        "0.003": 0.64,
+        "0.01": 0.6496,
+        "0.03": 0.6433
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.6712,
+          "d2": 0.8693,
+          "d3": 0.9407,
+          "rmse": 3.8212,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.7021,
+              "d2": 0.8979,
+              "d3": 0.9743,
+              "rmse": 0.7421,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6465,
+              "d2": 0.8466,
+              "d3": 0.914,
+              "rmse": 6.2748,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6626,
+          "d2": 0.8652,
+          "d3": 0.9391,
+          "rmse": 3.843,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.689,
+              "d2": 0.8911,
+              "d3": 0.9711,
+              "rmse": 0.7698,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6415,
+              "d2": 0.8445,
+              "d3": 0.9136,
+              "rmse": 6.2919,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6675,
+          "d2": 0.8673,
+          "d3": 0.9402,
+          "rmse": 3.8112,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6965,
+              "d2": 0.8931,
+              "d3": 0.9719,
+              "rmse": 0.7576,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6444,
+              "d2": 0.8468,
+              "d3": 0.915,
+              "rmse": 6.2445,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "google/siglip2-so400m-patch14-384",
+      "stage": "tower",
+      "layer_index": 14,
+      "relative_depth": 0.5185185185185185,
+      "token_width": 512,
+      "grid": 32,
+      "trainable_parameters": 1444608,
+      "seconds": 508.7
+    },
+    {
+      "d1": 0.6702,
+      "d1_std": 0.0026,
+      "d2": 0.8669,
+      "d2_std": 0.0015,
+      "d3": 0.9391,
+      "d3_std": 0.0007,
+      "rmse": 3.7654,
+      "rmse_std": 0.0287,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.6872,
+          "d1_std": 0.0025,
+          "d2": 0.889,
+          "d2_std": 0.0031,
+          "d3": 0.9672,
+          "d3_std": 0.0012,
+          "rmse": 0.7926,
+          "rmse_std": 0.0127,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.6567,
+          "d1_std": 0.0028,
+          "d2": 0.8493,
+          "d2_std": 0.0014,
+          "d3": 0.9167,
+          "d3_std": 0.0008,
+          "rmse": 6.1344,
+          "rmse_std": 0.044,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.6756,
+      "learning_rate_search": {
+        "0.0001": 0.2824,
+        "0.0003": 0.5403,
+        "0.001": 0.628,
+        "0.003": 0.6526,
+        "0.01": 0.6756,
+        "0.03": 0.5978
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.6699,
+          "d2": 0.8679,
+          "d3": 0.9392,
+          "rmse": 3.7702,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6878,
+              "d2": 0.8927,
+              "d3": 0.9685,
+              "rmse": 0.8054,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6557,
+              "d2": 0.848,
+              "d3": 0.9158,
+              "rmse": 6.1327,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6672,
+          "d2": 0.8648,
+          "d3": 0.9382,
+          "rmse": 3.7979,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6839,
+              "d2": 0.8852,
+              "d3": 0.9656,
+              "rmse": 0.7971,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6538,
+              "d2": 0.8486,
+              "d3": 0.9164,
+              "rmse": 6.1891,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6736,
+          "d2": 0.8679,
+          "d3": 0.9398,
+          "rmse": 3.7282,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.69,
+              "d2": 0.889,
+              "d3": 0.9674,
+              "rmse": 0.7753,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6605,
+              "d2": 0.8512,
+              "d3": 0.9178,
+              "rmse": 6.0813,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "google/siglip2-so400m-patch14-384",
+      "stage": "tower",
+      "layer_index": 17,
+      "relative_depth": 0.6296296296296297,
+      "token_width": 512,
+      "grid": 32,
+      "trainable_parameters": 1444608,
+      "seconds": 508.5
+    },
+    {
+      "d1": 0.6589,
+      "d1_std": 0.0035,
+      "d2": 0.8651,
+      "d2_std": 0.0007,
+      "d3": 0.9375,
+      "d3_std": 0.0009,
+      "rmse": 3.8168,
+      "rmse_std": 0.0118,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.6707,
+          "d1_std": 0.0045,
+          "d2": 0.8895,
+          "d2_std": 0.001,
+          "d3": 0.9662,
+          "d3_std": 0.0019,
+          "rmse": 0.788,
+          "rmse_std": 0.0109,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.6496,
+          "d1_std": 0.0031,
+          "d2": 0.8458,
+          "d2_std": 0.0004,
+          "d3": 0.9146,
+          "d3_std": 0.0001,
+          "rmse": 6.2303,
+          "rmse_std": 0.0125,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.6642,
+      "learning_rate_search": {
+        "0.0001": 0.2862,
+        "0.0003": 0.5646,
+        "0.001": 0.6321,
+        "0.003": 0.6541,
+        "0.01": 0.6642,
+        "0.03": 0.6193
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.654,
+          "d2": 0.8642,
+          "d3": 0.9364,
+          "rmse": 3.8318,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6644,
+              "d2": 0.888,
+              "d3": 0.9638,
+              "rmse": 0.8015,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6457,
+              "d2": 0.8452,
+              "d3": 0.9146,
+              "rmse": 6.2465,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6621,
+          "d2": 0.8656,
+          "d3": 0.9386,
+          "rmse": 3.8031,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6733,
+              "d2": 0.8902,
+              "d3": 0.9685,
+              "rmse": 0.7749,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6532,
+              "d2": 0.8461,
+              "d3": 0.9147,
+              "rmse": 6.2162,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6607,
+          "d2": 0.8656,
+          "d3": 0.9375,
+          "rmse": 3.8154,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6744,
+              "d2": 0.8902,
+              "d3": 0.9663,
+              "rmse": 0.7876,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6499,
+              "d2": 0.8461,
+              "d3": 0.9145,
+              "rmse": 6.2281,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "google/siglip2-so400m-patch14-384",
+      "stage": "tower",
+      "layer_index": 20,
+      "relative_depth": 0.7407407407407407,
+      "token_width": 512,
+      "grid": 32,
+      "trainable_parameters": 1444608,
+      "seconds": 507.3
+    },
+    {
+      "d1": 0.6346,
+      "d1_std": 0.0032,
+      "d2": 0.8476,
+      "d2_std": 0.0035,
+      "d3": 0.9315,
+      "d3_std": 0.0018,
+      "rmse": 3.9103,
+      "rmse_std": 0.01,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.6463,
+          "d1_std": 0.0061,
+          "d2": 0.8642,
+          "d2_std": 0.0063,
+          "d3": 0.9603,
+          "d3_std": 0.0032,
+          "rmse": 0.818,
+          "rmse_std": 0.0027,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.6253,
+          "d1_std": 0.0008,
+          "d2": 0.8344,
+          "d2_std": 0.0017,
+          "d3": 0.9085,
+          "d3_std": 0.0011,
+          "rmse": 6.3745,
+          "rmse_std": 0.0181,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.003,
+      "val_metric": "d1",
+      "val_score": 0.6454,
+      "learning_rate_search": {
+        "0.0001": 0.2814,
+        "0.0003": 0.5633,
+        "0.001": 0.6197,
+        "0.003": 0.6454,
+        "0.01": 0.6439,
+        "0.03": 0.5522
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.6391,
+          "d2": 0.8525,
+          "d3": 0.9339,
+          "rmse": 3.9017,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.655,
+              "d2": 0.8724,
+              "d3": 0.964,
+              "rmse": 0.821,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6264,
+              "d2": 0.8366,
+              "d3": 0.9099,
+              "rmse": 6.3567,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6327,
+          "d2": 0.8459,
+          "d3": 0.9309,
+          "rmse": 3.9243,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6424,
+              "d2": 0.863,
+              "d3": 0.9608,
+              "rmse": 0.8184,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.625,
+              "d2": 0.8324,
+              "d3": 0.9071,
+              "rmse": 6.3994,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6321,
+          "d2": 0.8444,
+          "d3": 0.9297,
+          "rmse": 3.9049,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6416,
+              "d2": 0.8572,
+              "d3": 0.9561,
+              "rmse": 0.8145,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6245,
+              "d2": 0.8342,
+              "d3": 0.9086,
+              "rmse": 6.3675,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "google/siglip2-so400m-patch14-384",
+      "stage": "tower",
+      "layer_index": 24,
+      "relative_depth": 0.8888888888888888,
+      "token_width": 512,
+      "grid": 32,
+      "trainable_parameters": 1444608,
+      "seconds": 509.9
+    },
+    {
+      "d1": 0.5938,
+      "d1_std": 0.005,
+      "d2": 0.8359,
+      "d2_std": 0.0015,
+      "d3": 0.9251,
+      "d3_std": 0.0005,
+      "rmse": 4.0305,
+      "rmse_std": 0.0268,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.5964,
+          "d1_std": 0.009,
+          "d2": 0.852,
+          "d2_std": 0.0033,
+          "d3": 0.9513,
+          "d3_std": 0.0018,
+          "rmse": 0.8586,
+          "rmse_std": 0.008,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.5917,
+          "d1_std": 0.0025,
+          "d2": 0.823,
+          "d2_std": 0.0015,
+          "d3": 0.9043,
+          "d3_std": 0.0011,
+          "rmse": 6.5581,
+          "rmse_std": 0.0491,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.6181,
+      "learning_rate_search": {
+        "0.0001": 0.2813,
+        "0.0003": 0.5303,
+        "0.001": 0.5885,
+        "0.003": 0.6046,
+        "0.01": 0.6181,
+        "0.03": 0.1244
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.5954,
+          "d2": 0.8356,
+          "d3": 0.9249,
+          "rmse": 3.9928,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5965,
+              "d2": 0.8489,
+              "d3": 0.9489,
+              "rmse": 0.8608,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5945,
+              "d2": 0.825,
+              "d3": 0.9058,
+              "rmse": 6.4887,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.587,
+          "d2": 0.8342,
+          "d3": 0.9247,
+          "rmse": 4.0531,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5853,
+              "d2": 0.8504,
+              "d3": 0.9519,
+              "rmse": 0.8672,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5884,
+              "d2": 0.8213,
+              "d3": 0.9031,
+              "rmse": 6.5919,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.599,
+          "d2": 0.8378,
+          "d3": 0.9258,
+          "rmse": 4.0455,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6074,
+              "d2": 0.8566,
+              "d3": 0.9531,
+              "rmse": 0.8479,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5923,
+              "d2": 0.8228,
+              "d3": 0.904,
+              "rmse": 6.5936,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "google/siglip2-so400m-patch14-384",
+      "stage": "tower",
+      "layer_index": 27,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "grid": 32,
+      "trainable_parameters": 1444608,
+      "seconds": 513.0
+    }
+  ]
+}

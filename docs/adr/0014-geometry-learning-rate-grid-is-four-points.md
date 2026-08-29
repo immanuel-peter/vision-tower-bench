@@ -80,3 +80,58 @@ seven. On four GPUs, the estimate rises from 5.6 to 7.2 hours.
 The runner and lane script had separate defaults. The runner kept the original eight
 points while the lane script passed four, and only the lane value reached a cell. A test
 now requires both defaults to match.
+
+## The roster run measured the six points, and they hold
+
+9 of 224 cells select an edge, against 29 of 72 on the four points. Four percent against
+forty. Selected rates over the matrix:
+
+| rate | 1e-4 | 3e-4 | 1e-3 | 3e-3 | 1e-2 | 3e-2 |
+|---|---|---|---|---|---|---|
+| cells | 5 | 63 | 92 | 20 | 40 | 4 |
+
+Both extensions earned their place. Adding 1e-4 brackets the unmatched normals cells that
+used to pin at the 3e-4 floor with a curve still falling: MoonViT-V2 normals `tower` at
+Relative Depth 0.111 now reads 36.14 at 1e-4, 35.27 at 3e-4 and 38.24 at 1e-3, so the
+optimum sits inside the grid. Adding 3e-2 brackets most of the matched depth cells that
+used to pin at the 1e-2 ceiling; they still select 1e-2 with 3e-2 available and losing.
+
+Six cells still bound their own level, and they cluster:
+
+| model | task | arm | stage | picked | edge over neighbour | seed spread |
+|---|---|---|---|---|---|---|
+| Muse Glimmer | normal | unmatched | projected | 1e-4 | 0.5453 | 0.1447 |
+| Qwen3.5 | normal | unmatched | tower | 1e-4 | 0.2828 | 0.2487 |
+| Qwen3.5 | depth | unmatched | projected | 3e-2 | 0.0918 | 0.0032 |
+| Qwen3.5 | depth | matched | projected | 3e-2 | 0.0122 | 0.0059 |
+| Kimi K2.6 | depth | matched | projected | 3e-2 | 0.0066 | 0.0049 |
+| SigLIP2 | depth | unmatched | tower | 3e-2 | 0.0183 | 0.0070 |
+
+Four of the six sit at the 3e-2 ceiling, three of those on a `projected` Stage. The
+remaining truncation is a depth-and-`projected` phenomenon, not a general one. The other
+three edge cells, all at the 1e-4 floor, are plateaus where the edge and its neighbour differ
+by less than the seed spread, so nothing is lost there.
+
+One thing worth recording for anyone extending the grid again: two of the top-edge curves
+are not monotone in rate. SigLIP2 depth `tower` at Relative Depth 0.519 reads 0.6127 at
+1e-3, dips to 0.5590 at 3e-3, recovers to 0.6078 at 1e-2 and peaks at 0.6261 at 3e-2.
+Qwen3.5 depth `projected` does the same: 0.4736, 0.4077, 0.4293, 0.5211. A search that
+stops at the first turn picks the wrong side of these.
+
+Six points stay. Extending to 1e-1 would settle the four ceiling cells for one more run per
+cell, which is a small bill against 224 cells and worth taking next time.
+
+## The semantic grid is now the one that truncates
+
+The same check on the semantic pillar is worse than anything this ADR recorded for
+geometry. 107 of the 112 attention cells select 3e-4, the floor of the eight-point grid
+PLAN.md specifies, and none of the 112 mean cells do. The split is by readout, not by arm:
+53 of 56 attention matched, 54 of 56 attention raw, 0 of 56 in each mean arm.
+
+PLAN.md chose `[3e-4 ... 1.0]` to suit the small attention pool. It suits mean pooling
+instead, and the attention readout is the headline one. Its absolute levels are reported
+below their optimum almost everywhere.
+
+How far below could not be measured from that run, because `probe_run` recorded only the
+selected rate while `geometry_run` records a `learning_rate_search` dict per cell. That gap
+is now closed. Cost the extension after the next semantic run has curves to read.

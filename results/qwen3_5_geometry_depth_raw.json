@@ -1,0 +1,1409 @@
+{
+  "task": "depth",
+  "images": 771,
+  "train_images": 541,
+  "capacity_matched": false,
+  "head": "multiscale",
+  "epochs": 10,
+  "seeds": 3,
+  "learning_rates": [
+    0.0001,
+    0.0003,
+    0.001,
+    0.003,
+    0.01,
+    0.03
+  ],
+  "cells": [
+    {
+      "d1": 0.3455,
+      "d1_std": 0.0126,
+      "d2": 0.6222,
+      "d2_std": 0.0169,
+      "d3": 0.8025,
+      "d3_std": 0.0089,
+      "rmse": 5.4337,
+      "rmse_std": 0.0902,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.3106,
+          "d1_std": 0.0211,
+          "d2": 0.6013,
+          "d2_std": 0.0261,
+          "d3": 0.7913,
+          "d3_std": 0.011,
+          "rmse": 1.6507,
+          "rmse_std": 0.0528,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.3732,
+          "d1_std": 0.0091,
+          "d2": 0.6388,
+          "d2_std": 0.0137,
+          "d3": 0.8114,
+          "d3_std": 0.009,
+          "rmse": 8.4484,
+          "rmse_std": 0.1318,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.0003,
+      "val_metric": "d1",
+      "val_score": 0.3221,
+      "learning_rate_search": {
+        "0.0001": 0.2255,
+        "0.0003": 0.3221,
+        "0.001": 0.1246,
+        "0.003": 0.1246,
+        "0.01": 0.1245,
+        "0.03": 0.1245
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.363,
+          "d2": 0.6458,
+          "d3": 0.815,
+          "rmse": 5.3095,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.3363,
+              "d2": 0.6331,
+              "d3": 0.8048,
+              "rmse": 1.5832,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.3842,
+              "d2": 0.6559,
+              "d3": 0.8232,
+              "rmse": 8.279,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.3393,
+          "d2": 0.6132,
+          "d3": 0.7969,
+          "rmse": 5.5211,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.3109,
+              "d2": 0.6017,
+              "d3": 0.7912,
+              "rmse": 1.657,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.3619,
+              "d2": 0.6223,
+              "d3": 0.8013,
+              "rmse": 8.6004,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.3341,
+          "d2": 0.6075,
+          "d3": 0.7956,
+          "rmse": 5.4706,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.2847,
+              "d2": 0.5692,
+              "d3": 0.7779,
+              "rmse": 1.712,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.3734,
+              "d2": 0.6381,
+              "d3": 0.8097,
+              "rmse": 8.4657,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "Qwen/Qwen3.8-27B",
+      "stage": "merged",
+      "layer_index": 27,
+      "relative_depth": 1.0,
+      "token_width": 4608,
+      "grid": 14,
+      "trainable_parameters": 3541760,
+      "seconds": 157.7
+    },
+    {
+      "d1": 0.54,
+      "d1_std": 0.0032,
+      "d2": 0.7954,
+      "d2_std": 0.0028,
+      "d3": 0.9022,
+      "d3_std": 0.003,
+      "rmse": 4.5444,
+      "rmse_std": 0.0091,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.5777,
+          "d1_std": 0.0054,
+          "d2": 0.8308,
+          "d2_std": 0.0056,
+          "d3": 0.9325,
+          "d3_std": 0.0063,
+          "rmse": 0.9928,
+          "rmse_std": 0.0143,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.51,
+          "d1_std": 0.0017,
+          "d2": 0.7671,
+          "d2_std": 0.0008,
+          "d3": 0.8781,
+          "d3_std": 0.0006,
+          "rmse": 7.3747,
+          "rmse_std": 0.0094,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.03,
+      "val_metric": "d1",
+      "val_score": 0.5211,
+      "learning_rate_search": {
+        "0.0001": 0.2627,
+        "0.0003": 0.4183,
+        "0.001": 0.4736,
+        "0.003": 0.4077,
+        "0.01": 0.4293,
+        "0.03": 0.5211
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.5373,
+          "d2": 0.7918,
+          "d3": 0.898,
+          "rmse": 4.5521,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5721,
+              "d2": 0.8232,
+              "d3": 0.9236,
+              "rmse": 1.0118,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5096,
+              "d2": 0.7668,
+              "d3": 0.8776,
+              "rmse": 7.3733,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5445,
+          "d2": 0.7985,
+          "d3": 0.9043,
+          "rmse": 4.5316,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5849,
+              "d2": 0.8364,
+              "d3": 0.9374,
+              "rmse": 0.9774,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5123,
+              "d2": 0.7682,
+              "d3": 0.8778,
+              "rmse": 7.3639,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5382,
+          "d2": 0.7959,
+          "d3": 0.9044,
+          "rmse": 4.5496,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.576,
+              "d2": 0.8329,
+              "d3": 0.9364,
+              "rmse": 0.9892,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5081,
+              "d2": 0.7664,
+              "d3": 0.8789,
+              "rmse": 7.3868,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "Qwen/Qwen3.8-27B",
+      "stage": "projected",
+      "layer_index": 27,
+      "relative_depth": 1.0,
+      "token_width": 5120,
+      "grid": 14,
+      "trainable_parameters": 3803904,
+      "seconds": 160.2
+    },
+    {
+      "d1": 0.3202,
+      "d1_std": 0.0086,
+      "d2": 0.6063,
+      "d2_std": 0.0044,
+      "d3": 0.7796,
+      "d3_std": 0.0036,
+      "rmse": 5.7524,
+      "rmse_std": 0.0321,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.279,
+          "d1_std": 0.0268,
+          "d2": 0.5861,
+          "d2_std": 0.0206,
+          "d3": 0.7713,
+          "d3_std": 0.0159,
+          "rmse": 1.8699,
+          "rmse_std": 0.0652,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.3531,
+          "d1_std": 0.0065,
+          "d2": 0.6223,
+          "d2_std": 0.0097,
+          "d3": 0.7862,
+          "d3_std": 0.0066,
+          "rmse": 8.8462,
+          "rmse_std": 0.1065,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.001,
+      "val_metric": "d1",
+      "val_score": 0.324,
+      "learning_rate_search": {
+        "0.0001": 0.1691,
+        "0.0003": 0.2754,
+        "0.001": 0.324,
+        "0.003": 0.1246,
+        "0.01": 0.1246,
+        "0.03": 0.1246
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.3122,
+          "d2": 0.6012,
+          "d3": 0.7758,
+          "rmse": 5.7496,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.2591,
+              "d2": 0.5716,
+              "d3": 0.7589,
+              "rmse": 1.918,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.3545,
+              "d2": 0.6247,
+              "d3": 0.7893,
+              "rmse": 8.8028,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.3162,
+          "d2": 0.6056,
+          "d3": 0.7785,
+          "rmse": 5.7145,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.261,
+              "d2": 0.5716,
+              "d3": 0.7613,
+              "rmse": 1.9141,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.3602,
+              "d2": 0.6328,
+              "d3": 0.7922,
+              "rmse": 8.743,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.3322,
+          "d2": 0.612,
+          "d3": 0.7844,
+          "rmse": 5.793,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.3168,
+              "d2": 0.6152,
+              "d3": 0.7938,
+              "rmse": 1.7777,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.3445,
+              "d2": 0.6095,
+              "d3": 0.777,
+              "rmse": 8.9927,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "Qwen/Qwen3.8-27B",
+      "stage": "tower",
+      "layer_index": 3,
+      "relative_depth": 0.1111111111111111,
+      "token_width": 1152,
+      "grid": 28,
+      "trainable_parameters": 1772288,
+      "seconds": 388.0
+    },
+    {
+      "d1": 0.4758,
+      "d1_std": 0.0122,
+      "d2": 0.7532,
+      "d2_std": 0.0087,
+      "d3": 0.8747,
+      "d3_std": 0.0089,
+      "rmse": 4.7118,
+      "rmse_std": 0.0278,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.4693,
+          "d1_std": 0.0205,
+          "d2": 0.7501,
+          "d2_std": 0.0154,
+          "d3": 0.8742,
+          "d3_std": 0.0192,
+          "rmse": 1.2452,
+          "rmse_std": 0.0451,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.4809,
+          "d1_std": 0.0068,
+          "d2": 0.7557,
+          "d2_std": 0.0046,
+          "d3": 0.875,
+          "d3_std": 0.0018,
+          "rmse": 7.4743,
+          "rmse_std": 0.0156,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.001,
+      "val_metric": "d1",
+      "val_score": 0.4306,
+      "learning_rate_search": {
+        "0.0001": 0.2287,
+        "0.0003": 0.3446,
+        "0.001": 0.4306,
+        "0.003": 0.365,
+        "0.01": 0.1246,
+        "0.03": 0.1246
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.4585,
+          "d2": 0.7415,
+          "d3": 0.8657,
+          "rmse": 4.7507,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.4414,
+              "d2": 0.7315,
+              "d3": 0.857,
+              "rmse": 1.306,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.4721,
+              "d2": 0.7495,
+              "d3": 0.8726,
+              "rmse": 7.4958,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.4832,
+          "d2": 0.7556,
+          "d3": 0.8716,
+          "rmse": 4.6975,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.4765,
+              "d2": 0.7495,
+              "d3": 0.8647,
+              "rmse": 1.2318,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.4886,
+              "d2": 0.7605,
+              "d3": 0.877,
+              "rmse": 7.4593,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.4856,
+          "d2": 0.7625,
+          "d3": 0.8868,
+          "rmse": 4.6873,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.4901,
+              "d2": 0.7692,
+              "d3": 0.901,
+              "rmse": 1.1979,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.4819,
+              "d2": 0.7572,
+              "d3": 0.8754,
+              "rmse": 7.4679,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "Qwen/Qwen3.8-27B",
+      "stage": "tower",
+      "layer_index": 7,
+      "relative_depth": 0.25925925925925924,
+      "token_width": 1152,
+      "grid": 28,
+      "trainable_parameters": 1772288,
+      "seconds": 384.5
+    },
+    {
+      "d1": 0.5795,
+      "d1_std": 0.0052,
+      "d2": 0.8137,
+      "d2_std": 0.006,
+      "d3": 0.9089,
+      "d3_std": 0.0056,
+      "rmse": 4.1574,
+      "rmse_std": 0.0278,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.5885,
+          "d1_std": 0.0062,
+          "d2": 0.8259,
+          "d2_std": 0.0108,
+          "d3": 0.9283,
+          "d3_std": 0.0119,
+          "rmse": 0.9158,
+          "rmse_std": 0.025,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.5724,
+          "d1_std": 0.0044,
+          "d2": 0.804,
+          "d2_std": 0.0023,
+          "d3": 0.8935,
+          "d3_std": 0.0007,
+          "rmse": 6.7405,
+          "rmse_std": 0.0327,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.001,
+      "val_metric": "d1",
+      "val_score": 0.516,
+      "learning_rate_search": {
+        "0.0001": 0.2622,
+        "0.0003": 0.4131,
+        "0.001": 0.516,
+        "0.003": 0.4162,
+        "0.01": 0.1246,
+        "0.03": 0.1246
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.5764,
+          "d2": 0.8107,
+          "d3": 0.9066,
+          "rmse": 4.1536,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5847,
+              "d2": 0.8212,
+              "d3": 0.924,
+              "rmse": 0.9268,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5698,
+              "d2": 0.8023,
+              "d3": 0.8926,
+              "rmse": 6.7249,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5753,
+          "d2": 0.8083,
+          "d3": 0.9036,
+          "rmse": 4.1932,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5836,
+              "d2": 0.8156,
+              "d3": 0.9164,
+              "rmse": 0.9394,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5687,
+              "d2": 0.8024,
+              "d3": 0.8935,
+              "rmse": 6.7861,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5869,
+          "d2": 0.8221,
+          "d3": 0.9166,
+          "rmse": 4.1254,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5973,
+              "d2": 0.8408,
+              "d3": 0.9445,
+              "rmse": 0.8812,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5786,
+              "d2": 0.8072,
+              "d3": 0.8943,
+              "rmse": 6.7106,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "Qwen/Qwen3.8-27B",
+      "stage": "tower",
+      "layer_index": 10,
+      "relative_depth": 0.37037037037037035,
+      "token_width": 1152,
+      "grid": 28,
+      "trainable_parameters": 1772288,
+      "seconds": 384.3
+    },
+    {
+      "d1": 0.6274,
+      "d1_std": 0.0004,
+      "d2": 0.8507,
+      "d2_std": 0.0055,
+      "d3": 0.937,
+      "d3_std": 0.0028,
+      "rmse": 3.8631,
+      "rmse_std": 0.0132,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.6305,
+          "d1_std": 0.0055,
+          "d2": 0.87,
+          "d2_std": 0.0144,
+          "d3": 0.9663,
+          "d3_std": 0.007,
+          "rmse": 0.7866,
+          "rmse_std": 0.0126,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.6249,
+          "d1_std": 0.0037,
+          "d2": 0.8352,
+          "d2_std": 0.0018,
+          "d3": 0.9137,
+          "d3_std": 0.0006,
+          "rmse": 6.3147,
+          "rmse_std": 0.0336,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.001,
+      "val_metric": "d1",
+      "val_score": 0.6128,
+      "learning_rate_search": {
+        "0.0001": 0.3417,
+        "0.0003": 0.5313,
+        "0.001": 0.6128,
+        "0.003": 0.5508,
+        "0.01": 0.1246,
+        "0.03": 0.1245
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.627,
+          "d2": 0.8429,
+          "d3": 0.9332,
+          "rmse": 3.8501,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6243,
+              "d2": 0.8499,
+              "d3": 0.9567,
+              "rmse": 0.8014,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6291,
+              "d2": 0.8373,
+              "d3": 0.9145,
+              "rmse": 6.2795,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6273,
+          "d2": 0.8539,
+          "d3": 0.9382,
+          "rmse": 3.858,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6296,
+              "d2": 0.877,
+              "d3": 0.9689,
+              "rmse": 0.7877,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6255,
+              "d2": 0.8355,
+              "d3": 0.9137,
+              "rmse": 6.3047,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6279,
+          "d2": 0.8552,
+          "d3": 0.9397,
+          "rmse": 3.8812,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6377,
+              "d2": 0.8831,
+              "d3": 0.9732,
+              "rmse": 0.7706,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6201,
+              "d2": 0.8329,
+              "d3": 0.913,
+              "rmse": 6.3599,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "Qwen/Qwen3.8-27B",
+      "stage": "tower",
+      "layer_index": 14,
+      "relative_depth": 0.5185185185185185,
+      "token_width": 1152,
+      "grid": 28,
+      "trainable_parameters": 1772288,
+      "seconds": 384.6
+    },
+    {
+      "d1": 0.6439,
+      "d1_std": 0.0031,
+      "d2": 0.8558,
+      "d2_std": 0.0048,
+      "d3": 0.9341,
+      "d3_std": 0.0041,
+      "rmse": 3.7988,
+      "rmse_std": 0.0028,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.6425,
+          "d1_std": 0.0074,
+          "d2": 0.8651,
+          "d2_std": 0.0108,
+          "d3": 0.955,
+          "d3_std": 0.0088,
+          "rmse": 0.7827,
+          "rmse_std": 0.0114,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.645,
+          "d1_std": 0.0007,
+          "d2": 0.8483,
+          "d2_std": 0.0005,
+          "d3": 0.9175,
+          "d3_std": 0.0007,
+          "rmse": 6.2023,
+          "rmse_std": 0.014,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.001,
+      "val_metric": "d1",
+      "val_score": 0.6413,
+      "learning_rate_search": {
+        "0.0001": 0.3557,
+        "0.0003": 0.5538,
+        "0.001": 0.6413,
+        "0.003": 0.5776,
+        "0.01": 0.4916,
+        "0.03": 0.1246
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.6436,
+          "d2": 0.8528,
+          "d3": 0.9314,
+          "rmse": 3.7971,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6406,
+              "d2": 0.8577,
+              "d3": 0.9481,
+              "rmse": 0.7848,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.646,
+              "d2": 0.8489,
+              "d3": 0.9181,
+              "rmse": 6.1975,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6403,
+          "d2": 0.8519,
+          "d3": 0.9311,
+          "rmse": 3.7966,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6345,
+              "d2": 0.8572,
+              "d3": 0.9495,
+              "rmse": 0.7955,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6448,
+              "d2": 0.8477,
+              "d3": 0.9165,
+              "rmse": 6.1881,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6478,
+          "d2": 0.8626,
+          "d3": 0.9399,
+          "rmse": 3.8028,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6523,
+              "d2": 0.8804,
+              "d3": 0.9675,
+              "rmse": 0.7678,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6443,
+              "d2": 0.8484,
+              "d3": 0.918,
+              "rmse": 6.2213,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "Qwen/Qwen3.8-27B",
+      "stage": "tower",
+      "layer_index": 17,
+      "relative_depth": 0.6296296296296297,
+      "token_width": 1152,
+      "grid": 28,
+      "trainable_parameters": 1772288,
+      "seconds": 385.6
+    },
+    {
+      "d1": 0.579,
+      "d1_std": 0.0052,
+      "d2": 0.8248,
+      "d2_std": 0.0059,
+      "d3": 0.9172,
+      "d3_std": 0.0046,
+      "rmse": 4.1324,
+      "rmse_std": 0.0101,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.5831,
+          "d1_std": 0.0096,
+          "d2": 0.8374,
+          "d2_std": 0.0106,
+          "d3": 0.9349,
+          "d3_std": 0.0097,
+          "rmse": 0.9337,
+          "rmse_std": 0.0255,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.5757,
+          "d1_std": 0.0035,
+          "d2": 0.8147,
+          "d2_std": 0.0027,
+          "d3": 0.9031,
+          "d3_std": 0.0007,
+          "rmse": 6.6814,
+          "rmse_std": 0.0115,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.001,
+      "val_metric": "d1",
+      "val_score": 0.5636,
+      "learning_rate_search": {
+        "0.0001": 0.327,
+        "0.0003": 0.4952,
+        "0.001": 0.5636,
+        "0.003": 0.48,
+        "0.01": 0.542,
+        "0.03": 0.1246
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.572,
+          "d2": 0.8164,
+          "d3": 0.9108,
+          "rmse": 4.1461,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5696,
+              "d2": 0.8228,
+              "d3": 0.9215,
+              "rmse": 0.968,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5739,
+              "d2": 0.8114,
+              "d3": 0.9023,
+              "rmse": 6.6786,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5844,
+          "d2": 0.8287,
+          "d3": 0.9191,
+          "rmse": 4.1221,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5892,
+              "d2": 0.8421,
+              "d3": 0.9393,
+              "rmse": 0.9262,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5806,
+              "d2": 0.8181,
+              "d3": 0.9031,
+              "rmse": 6.6689,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5806,
+          "d2": 0.8292,
+          "d3": 0.9217,
+          "rmse": 4.129,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5906,
+              "d2": 0.8474,
+              "d3": 0.944,
+              "rmse": 0.9068,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5726,
+              "d2": 0.8146,
+              "d3": 0.904,
+              "rmse": 6.6967,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "Qwen/Qwen3.8-27B",
+      "stage": "tower",
+      "layer_index": 20,
+      "relative_depth": 0.7407407407407407,
+      "token_width": 1152,
+      "grid": 28,
+      "trainable_parameters": 1772288,
+      "seconds": 385.6
+    },
+    {
+      "d1": 0.5343,
+      "d1_std": 0.0109,
+      "d2": 0.792,
+      "d2_std": 0.0073,
+      "d3": 0.8968,
+      "d3_std": 0.0054,
+      "rmse": 4.3964,
+      "rmse_std": 0.0444,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.5519,
+          "d1_std": 0.0174,
+          "d2": 0.8112,
+          "d2_std": 0.0104,
+          "d3": 0.9123,
+          "d3_std": 0.0105,
+          "rmse": 1.0503,
+          "rmse_std": 0.0329,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.5203,
+          "d1_std": 0.0057,
+          "d2": 0.7767,
+          "d2_std": 0.0048,
+          "d3": 0.8844,
+          "d3_std": 0.0016,
+          "rmse": 7.0629,
+          "rmse_std": 0.0545,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.001,
+      "val_metric": "d1",
+      "val_score": 0.5002,
+      "learning_rate_search": {
+        "0.0001": 0.3026,
+        "0.0003": 0.4511,
+        "0.001": 0.5002,
+        "0.003": 0.455,
+        "0.01": 0.4737,
+        "0.03": 0.4397
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.5199,
+          "d2": 0.7831,
+          "d3": 0.8895,
+          "rmse": 4.4566,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5286,
+              "d2": 0.7988,
+              "d3": 0.8987,
+              "rmse": 1.091,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5129,
+              "d2": 0.7707,
+              "d3": 0.8822,
+              "rmse": 7.1386,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5463,
+          "d2": 0.8009,
+          "d3": 0.9025,
+          "rmse": 4.3506,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5706,
+              "d2": 0.8242,
+              "d3": 0.9241,
+              "rmse": 1.0105,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5269,
+              "d2": 0.7824,
+              "d3": 0.8854,
+              "rmse": 7.0123,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5367,
+          "d2": 0.792,
+          "d3": 0.8983,
+          "rmse": 4.3821,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5564,
+              "d2": 0.8107,
+              "d3": 0.9142,
+              "rmse": 1.0495,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.521,
+              "d2": 0.7771,
+              "d3": 0.8857,
+              "rmse": 7.0377,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "Qwen/Qwen3.8-27B",
+      "stage": "tower",
+      "layer_index": 24,
+      "relative_depth": 0.8888888888888888,
+      "token_width": 1152,
+      "grid": 28,
+      "trainable_parameters": 1772288,
+      "seconds": 384.8
+    },
+    {
+      "d1": 0.3438,
+      "d1_std": 0.0287,
+      "d2": 0.6196,
+      "d2_std": 0.0323,
+      "d3": 0.7991,
+      "d3_std": 0.0179,
+      "rmse": 5.5974,
+      "rmse_std": 0.1757,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.3338,
+          "d1_std": 0.0473,
+          "d2": 0.6219,
+          "d2_std": 0.0465,
+          "d3": 0.799,
+          "d3_std": 0.0225,
+          "rmse": 1.6763,
+          "rmse_std": 0.1319,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.3517,
+          "d1_std": 0.0146,
+          "d2": 0.6178,
+          "d2_std": 0.0219,
+          "d3": 0.7992,
+          "d3_std": 0.0146,
+          "rmse": 8.722,
+          "rmse_std": 0.2203,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.003,
+      "val_metric": "d1",
+      "val_score": 0.3442,
+      "learning_rate_search": {
+        "0.0001": 0.1984,
+        "0.0003": 0.2912,
+        "0.001": 0.3137,
+        "0.003": 0.3442,
+        "0.01": 0.1246,
+        "0.03": 0.3436
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.3097,
+          "d2": 0.5793,
+          "d3": 0.7765,
+          "rmse": 5.8295,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.2816,
+              "d2": 0.5685,
+              "d3": 0.7727,
+              "rmse": 1.8164,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.332,
+              "d2": 0.5879,
+              "d3": 0.7794,
+              "rmse": 9.0274,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.3798,
+          "d2": 0.6584,
+          "d3": 0.8202,
+          "rmse": 5.4045,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.3962,
+              "d2": 0.6819,
+              "d3": 0.8276,
+              "rmse": 1.4997,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.3667,
+              "d2": 0.6396,
+              "d3": 0.8143,
+              "rmse": 8.5162,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.3418,
+          "d2": 0.6212,
+          "d3": 0.8007,
+          "rmse": 5.5581,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.3235,
+              "d2": 0.6152,
+              "d3": 0.7966,
+              "rmse": 1.7129,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.3565,
+              "d2": 0.626,
+              "d3": 0.8039,
+              "rmse": 8.6223,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "Qwen/Qwen3.8-27B",
+      "stage": "tower",
+      "layer_index": 27,
+      "relative_depth": 1.0,
+      "token_width": 1152,
+      "grid": 28,
+      "trainable_parameters": 1772288,
+      "seconds": 385.1
+    }
+  ]
+}

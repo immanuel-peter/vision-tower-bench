@@ -1,412 +1,1242 @@
-# Geometry pillar, second run
+# Roster run: six Towers, four Projectors
 
-Every number here comes from the full 72-cell matrix run at the protocol in ADR-0014: a
-four-point learning-rate grid searched on the validation split, selected per cell, and
-reported as the mean over three seeds with the population standard deviation across those
-seeds. The first geometry run trained one seed per cell at a fixed 1e-3 and searched
-nothing. Nothing from it survives here unrestated. Levels moved a long way under rate
-selection, so read this file rather than the first-run numbers quoted anywhere else.
+Every number here is new. The previous file reported two Towers, one of them a control with
+no Projector, so every claim about the Projector rested on MoonViT-V2 alone. This run has
+six Towers and four Projectors, 224 geometry cells and 224 semantic cells, and it does not
+reproduce the headline claim.
 
-This run answers the spatial half of the claim in PLAN.md. The semantic half was measured
-first and held flat: MoonViT-V2 reads 0.8345 top-1 at `tower`, 0.8417 at `merged`, and
-0.8412 at `projected` on ImageNet-100. PLAN.md predicted that the same Projector destroys
-spatial information. It does not.
+The short version: on MoonViT-V2 the Projector moves depth eight times less than a step
+that provably loses nothing, and that was read as evidence the Projector is harmless. Three
+of the other Projectors do the opposite. They move the metric further than the lossless step
+does, and they move it in the direction of better geometry. The case study was not
+representative of the roster.
 
 ## Protocol
 
-DIODE validation, 771 images, 325 indoors and 446 outdoor, prepared at native 768 by 1024
-and evaluated on the centre 768 by 768 square that `square_crop` actually feeds each Stage
-(ADR-0012). The split is 541 train, 115 val, 115 test, drawn once with a fixed seed and
-reused in every cell. Each cell trains a head at every rate in the grid, picks the rate
-that scores best on `val`, retrains at that rate under three seeds, and reports `test`.
-Every cell sees identical data and searches an identical grid, so cells stay comparable.
+Both pillars run every cell on identical data with an identical head and an identical rate
+grid, so cell-to-cell comparisons hold even where absolute levels do not.
 
-Heads are the Probe3D multiscale decoder, one probe per Stage and Relative Depth point
-(ADR-0010), trained for 10 epochs with AdamW and batch 8. The grid is
-`[3e-4, 1e-3, 3e-3, 1e-2]` (ADR-0014). Depth bins span 0 to 299.83 m, read from the prep
-manifest rather than assumed, because DIODE is metric and reaches 299.83 m outdoors
-against NYU's 10 m indoors (ADR-0011).
+Geometry uses DIODE validation, 771 images, 325 indoors and 446 outdoor, prepared at native
+768 by 1024 and scored on the centre 768 square that `square_crop` feeds each Stage
+(ADR-0012). The split is 541 train, 115 val, 115 test, drawn once with a fixed seed. Depth
+bins span 0 to 299.83 m, read from the prep manifest (ADR-0011). Heads are the Probe3D
+multiscale decoder, 10 epochs, AdamW, batch 8. The grid is the six points ADR-0014 specifies,
+`[1e-4, 3e-4, 1e-3, 3e-3, 1e-2, 3e-2]`, searched on validation per cell, then retrained under
+three seeds at the selected rate.
 
-Both capacity arms run. `raw` trains 1,706,752 parameters at a 1024-wide Stage and
-4,852,480 at 7168, which is the `tower` against `projected` pair the claim compares.
-`matched` fits a frozen PCA reduction to 512 on each cell's training split and trains
-1,444,608 parameters everywhere for depth and 1,314,819 for normals (ADR-0008).
+Semantics use ImageNet-100 validation, 13,000 images and 100 classes, cached at 448 square
+and pooled to a 4x4 grid (ADR-0005). Each cell searches the eight points in
+`vtb.probe_run.LEARNING_RATES`, `[3e-4 ... 1.0]`, over 20 epochs, and reports mean test
+accuracy over three seeds. Attention and mean readouts both run.
 
-Two models times two tasks times two arms is 8 invocations over 72 cells, run as four
-lanes on four L40S GPUs in 1 hour 58 minutes.
+Both pillars run both capacity arms. `raw` trains the head at full token width, from
+1,706,752 parameters at a 1024-wide geometry Stage up to 4,852,480 at 7168, and 2,152,036 up
+to 8,443,492 on the semantic side. `matched` fits a frozen PCA reduction to 512 on each
+cell's training split and trains 1,444,608 parameters everywhere for depth, 1,314,819 for
+normals, and 1,627,748 for semantics (ADR-0008).
 
-## What the run shows
+Cells: eight Relative Depth points each for DINOv2 and SigLIP2, which have no Projector, and
+ten for the four Towers that do, adding `merged` and `projected` at the deepest point. That
+is 56 cells per task-arm pair and 224 per pillar.
 
-Geometry does not collapse at the Projector. In both capacity arms and on both tasks the
-`projected` Stage scores better than `tower`. The claim in PLAN.md, that the Projector
-preserves language-useful semantics while destroying spatial information, is not
-supported. The semantic half of the claim stands and the spatial half is dead as stated.
+### What it cost
 
-The run does produce a positive result, from the other axis. Both Towers reach their
-geometry peak before their last layer while their semantic accuracy is still climbing,
-so the two capabilities live at different Relative Depths in the same Tower. That result
-is solid on depth in every arm and on DINOv2 normals, and weak on MoonViT-V2 normals,
-where the seed spread swallows most of the curve.
+| pillar | invocations | lane-hours | wall on four lanes |
+|---|---|---|---|
+| semantic | 24 | 4.41 | 1.63 h |
+| geometry, `raw` arm | 12 | 13.97 | 3.93 h |
+| geometry, `matched` arm | 12 | 13.21 | 3.60 h |
+| geometry total | 24 | 27.18 | 7.53 h |
 
-### 1. Geometry does not drop from `tower` to `projected`
+The estimate in the brief was 28 to 33 lane-hours and 7 to 8 hours wall for geometry. It
+holds, coming in just under the bottom of the range. There was no prior number for the
+semantic pillar; 4.41 lane-hours is the first one.
 
-It improves, in all four model-arm combinations that have a Projector. Capacity-matched
-MoonViT-V2 depth `d1` rises from 0.5378 at `tower` to 0.6145 at `projected`, a gain of
-0.0767 against a pooled seed spread of 0.0065, so about twelve standard deviations.
-Matched normals improve from 31.7420 to 29.3454 mean degrees, a gain of 2.3966 against a
-pooled spread of 1.0416, which is 2.3. The unmatched arm agrees on both tasks, 0.4537 to
-0.4775 on depth at 2.4 standard deviations and 33.2673 to 30.3852 on normals at 7.6.
+Geometry ran as two four-lane phases, `raw` then `matched`, rather than one phase over both
+arms. Both lane scripts weigh a job by cell count alone, and a `raw` cell costs about three
+times a `matched` one, so a single phase puts one arm on each lane and the matched lanes
+finish early and idle. Splitting by arm makes each phase uniform. The semantic pillar ran
+before that was understood and shows the cost: its lanes came in at 0.62, 0.79, 1.37 and
+1.63 lane-hours, so the run took 1.63 hours of wall time to do 4.41 lane-hours of work.
+Weighting a job by cells times an arm factor would fix it.
 
-Set that beside the semantic result on the same Stages, 0.8345 to 0.8412. Semantics held
-flat and geometry improved. PLAN.md predicted semantics flat and geometry collapsing. The
-first half is right and the second half is wrong, so this run publishes a null result on
-the headline claim.
+Every cache landed within 1 percent of the predicted size, so no Stage is the wrong shape.
+Geometry totalled 102.6 GB against 102.7 GB predicted, semantics 42.4 GB against 42.3 GB.
 
-### 2. `merged` does not track `tower`, and that is the finding
+## 1. The Stage conclusion does not survive the roster
 
-This is the control the run turns on, and it fails in a way that reframes everything else.
-The merge is a lossless regrouping of four Tower tokens into one, verified against the
-cache on disk rather than only in a fresh forward pass: reshaping the cached `tower` L27
-tokens into the `merged` layout reproduces the cached `merged` tensor exactly under
-`torch.equal`, over all 771 images. The two Stages hold identical information. The probe
-does not agree. Matched `merged` beats matched `tower` by 0.0684 `d1` on depth, 47 standard
-deviations, and by 2.5188 degrees on normals.
+This is the headline claim and the roster breaks it.
 
-That is the size of a readout artifact, measured on a pair known to carry the same
-information, and it is the yardstick every other Stage comparison has to clear. The
-Projector step does not come close. Matched `merged` to `projected` moves depth by 0.0083,
-1.3 standard deviations, and normals by 0.1222 degrees, a fifth of one. A step that
-provably loses nothing moves depth eight times further than the Projector does, and
-normals twenty times further. No claim of spatial information loss survives that
-comparison.
+The argument runs through a control. Merging four Tower tokens into one is a lossless
+regrouping, verified bit-exact against the cache on disk with `torch.equal`, so any movement
+in the metric from `tower` to `merged` is readout artifact rather than information change.
+That movement is the yardstick. The question is whether the learned `merged` to `projected`
+step stays under it.
 
-The unmatched arm is where a collapse story would come from. There `merged` to `projected`
-reads -0.0430 on depth, 8.3 standard deviations, and -1.0608 degrees on normals, 0.9 and
-not real. The depth figure is still smaller than the lossless yardstick in the same arm,
-where `tower` to `merged` reads +0.0668, but only by a factor of 1.6. That is the tightest
-this argument gets, and ADR-0013 covers what the unmatched depth gap is.
+On MoonViT-V2 it does, and this run reproduces that. In the capacity-matched arm `tower` to
+`merged` moves depth `d1` by 0.0710 at 17.1 seed deviations while `merged` to `projected`
+moves it by 0.0090 at 1.4, a ratio of 7.9 against the 8.2 reported from the two-model run.
+Matched normals give 22.6.
 
-### 3. Geometry peaks earlier on Relative Depth than semantics
+No other Projector behaves that way.
 
-Supporting hypothesis 1 holds on depth everywhere and on normals in three of four arms.
-MoonViT-V2 peaks at Relative Depth 0.630 on depth in both arms and on unmatched normals,
-then declines to the final layer: matched depth falls from 0.6543 to 0.5378, a drop of
-0.1165 at 75 standard deviations, and unmatched normals from 27.9623 to 33.2673 at 16.
-DINOv2 peaks at 0.750 on normals in both arms, falling from 18.8500 to 23.1962 degrees on
-the matched arm at 19 standard deviations, and at 0.875 on matched depth.
+| model | task | arm | `tower` to `merged` | `merged` to `projected` | ratio |
+|---|---|---|---|---|---|
+| moonvit_v2 | depth | matched | +0.0710 (17.1 sd) | +0.0090 (1.4 sd) | 7.9 |
+| moonvit_v2 | normal | matched | -2.5689 (2.3 sd) | +0.1135 (0.2 sd) | 22.6 |
+| kimi_k26 | depth | matched | +0.0113 (2.2 sd) | +0.0392 (6.6 sd) | 0.3 |
+| kimi_k26 | normal | matched | +0.1730 (0.4 sd) | -2.3443 (4.4 sd) | 0.1 |
+| muse_glimmer | depth | matched | -0.0151 (0.9 sd) | +0.0691 (34.4 sd) | 0.2 |
+| muse_glimmer | normal | matched | +0.7109 (1.8 sd) | -1.6363 (3.9 sd) | 0.4 |
+| qwen3_5 | depth | matched | -0.0017 (0.2 sd) | +0.0737 (13.5 sd) | 0.0 |
+| qwen3_5 | normal | matched | +1.7134 (4.3 sd) | -6.2445 (22.2 sd) | 0.3 |
 
-Two cells qualify that. Matched MoonViT-V2 normals nominally peak at 0.370 rather than
-0.630, but 0.370 leads 0.630 by 0.1008 degrees against seed spreads of 1.1777 and 2.7421,
-so the two are tied and neither is a measured peak; the fall from either to the last layer
-is only 3.8 standard deviations. Unmatched DINOv2 depth nominally peaks at the last layer,
-0.6778 against 0.6673 at 0.875, a lead of 1.1 standard deviations, so that curve is flat
-over its last quarter rather than falling. Every other arm falls away from a peak by at
-least 7.9.
+ADR-0010 nominates the matched arm for the headline. In it, one Projector of four sits below
+its own lossless yardstick. The other three move the metric three to twenty times further
+than the step that provably changes no information. The unmatched arm agrees on the shape
+and disagrees on which models: there kimi_k26 depth reads 14.0 and MoonViT-V2 reads 1.6.
 
-The semantic probe on the same Towers rose monotonically to the last layer, 0.3644 at
-Relative Depth 0.125 to 0.9026 at 1.0 for DINOv2 and 0.3793 to 0.8345 for MoonViT-V2. The
-two capabilities peak in different places on the same Tower: its last quarter keeps adding
-semantics while it sheds geometry. That is a sharper result than the Stage comparison
-produced, and it is where the spatial information actually goes. It is also the one finding
-here that a reviewer can act on, because it says which layer to read for a spatial task.
+The direction matters as much as the size. Across all sixteen model-task-arm combinations
+the `merged` to `projected` step improves the metric in fourteen. Both exceptions are
+MoonViT-V2: unmatched depth at -0.0413, and matched normals at +0.1135, which is 0.2 seed
+deviations and therefore nothing. The largest single move in the matrix is qwen3_5 unmatched
+depth, where `projected` beats `merged` by 0.1945 `d1` at 21.2 deviations.
 
-### 4. The answer is the same indoors and outdoors
+So PLAN.md's claim fails twice over. The Projector does not destroy spatial information; it
+usually improves what a probe can read. And the yardstick argument that made MoonViT-V2 look
+like a clean null result does not generalise, because in three Projectors the learned step is
+the larger of the two.
 
-Both scene types give the same three answers. Neither drops from `tower` to `projected`:
-capacity-matched MoonViT-V2 depth gains 0.1179 `d1` indoors and 0.0438 outdoors, and
-matched normals improve by 3.2816 degrees indoors and 1.6914 outdoors. Neither shows a
-Projector step anywhere near the lossless `merged` step, indoors or out: `merged` to
-`projected` moves 0.0153 and 0.0026 on depth against a `tower` to `merged` step of 0.1026
-and 0.0412. And both peak early on depth, at Relative Depth 0.630 for either scene type on
-MoonViT-V2 and 0.875 on DINOv2.
+What survives is narrower and worth keeping. No Projector in the roster scores below its own
+`tower` on either task in either arm. The claim that the Connector throws geometry away is
+dead across six Towers rather than one.
 
-What differs is the level, not the conclusion. DINOv2 reads normals far better indoors
-than outdoors at every depth point past 0.375, 15.5210 degrees against 21.5029 at the
-shared peak of 0.750. MoonViT-V2 shows a smaller and noisier gap that changes sign along
-the Tower: indoors trails at the first depth point and at the last, and leads in the
-middle, with seed spreads above 3 degrees through the middle that cover the difference.
-Outdoor depth runs slightly ahead of indoor depth in the shallow half of MoonViT-V2 and
-behind it everywhere else, which is worth holding against the coverage difference below
-rather than reading as a scene effect.
+## 2. Geometry peaks early, semantics climb to the end
 
-## The two capacity arms disagree on Stage ranking
+Supporting hypothesis 1 holds, and it holds better than the Stage result did.
 
-ADR-0008 accepts capacity matching only if model rankings and Relative Depth curves agree
-between the matched and unmatched runs, and requires any disagreement to be reported. The
-Relative Depth curves agree on depth, where every model and arm peaks at the same point,
-and disagree on normals only where the seed spread already covers the difference. The
-Stage ranking on depth does not agree. The unmatched arm orders `merged` 0.5205,
-`projected` 0.4775, `tower` 0.4537, while the matched arm orders `projected` 0.6145,
-`merged` 0.6062, `tower` 0.5378. The middle two swap.
+Geometry declines from a peak before the final layer in 23 of the 24 model-task-arm
+combinations. The single exception is DINOv2 depth in the unmatched arm, which peaks at
+Relative Depth 1.000 and therefore has nothing to fall to; its lead over the runner-up is
+0.9 seed deviations, so that curve is flat over its last quarter rather than rising. The
+capacity-matched arm of the same cell does peak early, at 0.875, and falls 0.0256 at 3.8
+deviations.
 
-On the semantic side the arms agreed to within 0.0283 and changed no conclusion. Here the
-swap is 0.0513 wide and is the difference between a Projector that appears to lose spatial
-information and one that does not. ADR-0013 carries the mechanism and what this run
-settled about it. Both arms are published below and neither is dropped.
+Capacity-matched peaks, with the fall from peak to final layer:
 
-## What the grid does not cover
+| model | depth peak | falls | normal peak | falls |
+|---|---|---|---|---|
+| dinov2 | 0.875 | 0.0256 (3.8 sd) | 0.750 | 4.3426 (18.8 sd) |
+| siglip2 | 0.630 | 0.0764 (19.2 sd) | 0.370 | 7.1108 (20.1 sd) |
+| moonvit_v2 | 0.630 | 0.1167 (53.8 sd) | 0.370 | 4.7317 (3.7 sd) |
+| kimi_k26 | 0.519 | 0.0593 (13.5 sd) | 0.370 | 5.1786 (7.8 sd) |
+| qwen3_5 | 0.630 | 0.1422 (14.6 sd) | 0.370 | 10.2153 (13.6 sd) |
+| muse_glimmer | 0.760 | 0.1227 (7.5 sd) | 0.620 | 7.2328 (16.1 sd) |
 
-29 of the 72 cells select a rate at the edge of the four-point grid, so their optimum lies
-at or past that edge. All 16 capacity-matched depth cells select the 1e-2 top edge, and
-their validation curves are still rising there. 13 normals cells select the 3e-4 bottom
-edge, 12 of them unmatched, and their curves fall monotonically toward it.
+Where the spread swallows the peak, it swallows its position and not its existence. Six
+combinations have a peak within one seed deviation of the runner-up: MoonViT-V2 matched
+normals leads by 0.1 deviations, qwen3_5 matched normals by 0.3, qwen3_5 unmatched normals by
+0.6, and both kimi_k26 unmatched cells by 0.0. In every one of those the fall to the final
+layer is still 3.0 deviations or more, so the curve is measurably falling even though the
+argmax is not resolved. Read those rows as "peaks somewhere in this region" rather than as a
+located layer.
 
-That splits by token width, not by task or grid. A 512-wide cell tolerates 1e-2; every
-cell at 1024 and above collapses to the degenerate 0.1245 there, so the unmatched arm
-never reaches the top of the grid and the matched arm never leaves it. ADR-0014 chose the
-four points from three cells and read the split as 32 by 32 against 16 by 16. The full
-matrix says otherwise; that ADR is corrected.
+Semantics run the other way. Tower accuracy rises monotonically to the final layer in 20 of
+24 arms, and three of the four exceptions are qwen3_5: it peaks at Relative Depth 0.741 on
+both attention arms and at 0.889 on unmatched mean pooling, falling 0.0111 at 2.8 deviations,
+0.0026 at 1.4, and 0.0181 at 6.0. The fourth exception is kimi_k26 unmatched attention, which
+falls 0.0008 at 0.3 deviations from a peak at 0.889 and is noise. So one Tower of six trades
+a little late-layer semantics, and the rest are still gaining at the layer where their
+geometry has been declining for a quarter of the depth.
 
-The grid stays identical in every cell, which is what makes cells comparable, so the
-truncation costs absolute level in the cells that hit an edge and does not move any
-comparison between cells. It does bound the levels: matched depth in particular is
-reported below its optimum.
+That is the result a reader can act on. It says which layer to tap for a spatial task, and
+it says the answer is not the last one.
+
+## 3. Semantics across Stages
+
+MoonViT-V2 held flat across `tower`, `merged` and `projected`, and the roster mostly agrees,
+but the steps are no longer all inside the noise.
+
+| model | readout | arm | `tower` | `merged` | `projected` | `merged` to `projected` |
+|---|---|---|---|---|---|---|
+| moonvit_v2 | attention | matched | 0.8338 | 0.8395 | 0.8422 | +0.0027 (1.3 sd) |
+| kimi_k26 | attention | matched | 0.8815 | 0.8756 | 0.8745 | -0.0011 (0.4 sd) |
+| qwen3_5 | attention | matched | 0.8750 | 0.8769 | 0.8783 | +0.0014 (1.3 sd) |
+| muse_glimmer | attention | matched | 0.9178 | 0.9154 | 0.9079 | -0.0075 (6.6 sd) |
+
+On the headline attention-matched arm three of four Projectors hold flat, moving the metric
+by 0.0027 or less against their own seed spread. Muse Glimmer does not: it loses 0.0075 at
+6.6 deviations, and 0.0099 in total from `tower` to `projected`. That is a small number in
+absolute terms and a solid one statistically.
+
+The mean-pooling arm is noisier and moves further. qwen3_5 matched mean drops 0.0194 from
+`tower` to `merged` at 11.5 deviations then recovers 0.0174 at `projected`, and muse_glimmer
+unmatched mean loses 0.0147 at 17.2 deviations across the Projector. The `tower` to `merged`
+step is the lossless one, so a move of 0.0194 there is the same readout artifact the geometry
+pillar measures, and it bounds how much of the neighbouring Projector step to believe.
+
+Semantics survive the Connector in every model. The strong form of the original reading,
+that the numbers are identical, holds for three Projectors out of four.
+
+## 4. Rankings change by task, and no Tower wins everywhere
+
+Supporting hypothesis 2 is supported. Best Tower cell per task and arm:
+
+| task | arm | ranking |
+|---|---|---|
+| depth | matched | dinov2 0.7015 > qwen3_5 0.6736 > siglip2 0.6702 > kimi_k26 0.6595 > muse_glimmer 0.6588 > moonvit_v2 0.6546 |
+| depth | unmatched | dinov2 0.6746 > qwen3_5 0.6439 > siglip2 0.6366 > muse_glimmer 0.6035 > moonvit_v2 0.5440 > kimi_k26 0.5089 |
+| normal | matched | dinov2 18.85 > siglip2 23.90 > qwen3_5 24.24 > muse_glimmer 24.30 > kimi_k26 25.51 > moonvit_v2 27.03 |
+| normal | unmatched | dinov2 19.46 > muse_glimmer 22.78 > qwen3_5 24.68 > siglip2 25.16 > moonvit_v2 27.97 > kimi_k26 30.34 |
+| semantic, attention | matched | muse_glimmer 0.9178 > siglip2 0.9091 > dinov2 0.8988 > kimi_k26 0.8815 > qwen3_5 0.8776 > moonvit_v2 0.8338 |
+| semantic, attention | unmatched | muse_glimmer 0.9145 > siglip2 0.9101 > dinov2 0.9055 > qwen3_5 0.8853 > kimi_k26 0.8786 > moonvit_v2 0.8373 |
+| semantic, mean | matched | siglip2 0.9135 > muse_glimmer 0.9104 > dinov2 0.8916 > kimi_k26 0.8802 > qwen3_5 0.8709 > moonvit_v2 0.8415 |
+| semantic, mean | unmatched | siglip2 0.9121 > muse_glimmer 0.9106 > dinov2 0.8916 > kimi_k26 0.8682 > qwen3_5 0.8593 > moonvit_v2 0.8147 |
+
+Three Towers take a first place: DINOv2 four times, Muse Glimmer twice, SigLIP2 twice. No
+Tower wins everywhere, so nothing here undercuts the Capability Profile framing.
+
+The split is cleaner than "no single winner" suggests. DINOv2 wins every geometry column and
+no semantic column. Muse Glimmer and SigLIP2 split the semantic columns between them and win
+no geometry column. The self-supervised control is the best geometry Tower in the roster and
+third-best at classification; the two contrastive-trained Towers invert that exactly.
+
+The margins are wide. DINOv2 leads matched normals by 5.05 degrees over SigLIP2 and unmatched
+normals by 3.32 over Muse Glimmer, and it is third on both semantic readouts. kimi_k26 is
+last on unmatched depth at 0.5089 and fourth on matched depth at 0.6595, which says more
+about the capacity arms than about the Tower and is covered in section 5. MoonViT-V2 is last
+on six of the eight columns and second to last on the other two, which is worth knowing given
+that it carried every previous conclusion in this repo.
+
+One caveat: DINOv2 trained on ImageNet, so its semantic column is not a clean comparison. It
+still does not win there.
+
+## 5. ADR-0013: the arms disagree in six pairs of eight, and MoonViT-V2 is still special
+
+The capacity arms disagree about Stage ranking in six of the eight model-task pairs that
+have a Projector, so the disagreement ADR-0013 recorded is general rather than a MoonViT-V2
+quirk. That is not the whole answer though, and the detail is what the ADR needs.
+
+| model | task | unmatched | matched | |
+|---|---|---|---|---|
+| kimi_k26 | depth | `projected` > `merged` > `tower` | `projected` > `merged` > `tower` | agree |
+| kimi_k26 | normal | `projected` > `merged` > `tower` | `projected` > `tower` > `merged` | swap below the top |
+| moonvit_v2 | depth | `merged` > `projected` > `tower` | `projected` > `merged` > `tower` | top changes |
+| moonvit_v2 | normal | `projected` > `merged` > `tower` | `merged` > `projected` > `tower` | top changes |
+| muse_glimmer | depth | `projected` > `merged` > `tower` | `projected` > `tower` > `merged` | swap below the top |
+| muse_glimmer | normal | `projected` > `merged` > `tower` | `projected` > `tower` > `merged` | swap below the top |
+| qwen3_5 | depth | `projected` > `merged` > `tower` | `projected` > `tower` > `merged` | swap below the top |
+| qwen3_5 | normal | `projected` > `tower` > `merged` | `projected` > `tower` > `merged` | agree |
+
+MoonViT-V2 is the only model where the arms disagree about which Stage ranks first, and it
+does so on both tasks. In the other three Projectors `projected` ranks first in both arms
+every time, and the swap is between `tower` and `merged` underneath it. That distinction is
+the whole point, because the top of the ranking is what decides whether the Projector looks
+harmful. Read against the roster, the disputed MoonViT-V2 gap is a property of MoonViT-V2
+and not of the readout in general.
+
+Rate selection still does not dissolve it, and the mechanism ADR-0013 proposed still shows.
+Both unmatched MoonViT-V2 depth cells select 1e-3 while both matched ones select 1e-2, which
+reproduces the earlier finding that rate headroom shrinks as the head widens. The wider
+roster sharpens it: unmatched qwen3_5 `projected` selects 3e-2, the top of the widened grid,
+and beats its own `merged` cell by 0.1945 there, while unmatched qwen3_5 `merged` selects
+3e-4. Two Stages of one model, searched over the same grid, landing two orders of magnitude
+apart. Comparing them at any single rate would be meaningless, which is the argument for
+per-cell selection and against reading the unmatched arm as a like-for-like Stage comparison.
+
+ADR-0013 needs updating in two places. The disagreement is not unique to MoonViT-V2, so the
+ADR should stop implying it is. But the specific swap that changes the top-ranked Stage, and
+therefore changes the Projector's verdict, is unique to MoonViT-V2 across four Projectors,
+and the ADR should say so and stop treating that swap as the general case.
+
+## 6. Grid edges: the six-point grid brackets nearly every optimum
+
+9 of the 224 geometry cells select an edge, against 29 of 72 on the four-point grid. As a
+share that is 4 percent against 40 percent. Widening the grid worked.
+
+Selected rates across the matrix: 1e-4 five times, 3e-4 sixty-three, 1e-3 ninety-two, 3e-3
+twenty, 1e-2 forty, 3e-2 four.
+
+The nine edge cells, with whether the validation curve is still moving at the edge:
+
+| model | task | arm | Stage | edge | still moving |
+|---|---|---|---|---|---|
+| kimi_k26 | normal | unmatched | `merged` | 1e-4 | no, plateau, 0.1013 over its neighbour |
+| muse_glimmer | normal | unmatched | `projected` | 1e-4 | yes, by 0.5453 against spread 0.1447 |
+| qwen3_5 | normal | unmatched | `merged` | 1e-4 | no, plateau, 0.3995 over its neighbour |
+| qwen3_5 | normal | unmatched | `tower` | 1e-4 | yes, by 0.2828 against spread 0.2487 |
+| qwen3_5 | normal | matched | `tower` | 1e-4 | no, plateau, 0.1071 over its neighbour |
+| qwen3_5 | depth | unmatched | `projected` | 3e-2 | yes, by 0.0918 against spread 0.0032 |
+| siglip2 | depth | unmatched | `tower` | 3e-2 | yes, by 0.0183 against spread 0.0070 |
+| kimi_k26 | depth | matched | `projected` | 3e-2 | yes, by 0.0066 against spread 0.0049 |
+| qwen3_5 | depth | matched | `projected` | 3e-2 | yes, by 0.0122 against spread 0.0059 |
+
+Six of the nine are still climbing at the edge, so their optimum sits past it and their level
+is reported below it. Three are plateaus where the edge beats its neighbour by less than the
+run-to-run noise, and nothing is lost there.
+
+The six live ones cluster. Five are `projected` or `tower` at the deepest point of qwen3_5,
+kimi_k26 and siglip2, and four of those sit at the 3e-2 ceiling on depth. qwen3_5 `projected`
+is the worst case: its validation curve reads 0.4736 at 1e-3, dips to 0.4077 at 3e-3, and
+then climbs to 0.5211 at 3e-2, so that curve is not even unimodal and the grid stops while it
+is rising. The 1e-4 floor is selected five times and only twice with a live curve, so the
+bottom of the range is close to adequate and the top is not.
+
+ADR-0014 should record that six points fixed the problem it was written about, and that the
+remaining truncation is one-sided. Extending the ceiling to 1e-1 for the geometry pillar is
+the cheap next change; extending the floor is not worth the cells.
+
+### The semantic grid has the same problem, worse, and untested
+
+107 of the 224 semantic cells select 3e-4, the floor of the eight-point semantic grid. The
+split is entirely by readout and not by capacity arm:
+
+| readout | arm | cells at the 3e-4 floor |
+|---|---|---|
+| attention | matched | 53 of 56 |
+| attention | raw | 54 of 56 |
+| mean | matched | 0 of 56 |
+| mean | raw | 0 of 56 |
+
+PLAN.md chose `[3e-4 ... 1.0]` to suit the small attention pool. It suits mean pooling
+instead. Attention is the headline readout, so its absolute levels are reported below their
+optimum throughout this file.
+
+How far below is not knowable from these JSONs. `geometry_run` records a
+`learning_rate_search` dict per cell and `probe_run` did not when this matrix ran, so there is
+no way to check whether an attention cell's validation curve was still climbing at the floor.
+`probe_run` now records it. Any re-run of this pillar should extend the grid downward and will
+then be able to answer the question this one cannot.
+
+## What this run does not establish
+
+541 training images for a head of 1.3 to 4.9 million parameters is thin. Absolute geometry
+levels are noisy and should not be compared against published Probe3D numbers, and nobody has
+published Probe3D numbers on DIODE anyway (ADR-0011). Every comparison above is between cells
+that saw identical data, an identical head and an identical grid.
+
+The lossless yardstick is verified bit-exact for MoonViT-V2 and Kimi K2.6 only. The
+`tower` to `merged` step for qwen3_5 and Muse Glimmer is assumed lossless from the same
+architectural argument but is not verified against the cache, and section 1 leans on it for
+those two models. Writing that test is cheap and should happen before this result is
+published.
+
+The attention arm's absolute levels sit below their optimum everywhere, per section 6, and
+the amount is unmeasured. Rankings within a task are unaffected because every cell searched
+the same grid.
+
+Three seeds size the seed spread; they do not shrink it. Six of 24 geometry peak positions
+are unresolved within that spread, and normals carry most of it.
+
+Correspondence is still unscoped, the multilayer consistency run in ADR-0010 has not been
+done, and the pooling validation ADR-0005 requires is still outstanding. The DIODE training
+split was not downloaded. At 222 GB it waited on this run's answer, and the answer is that
+the Stage question is now more interesting than it was, not less: three Projectors move
+geometry further than a lossless step does, and 541 training images cannot say why.
 
 ## Depth
 
-### AI4Industry/MoonViT-V2, depth, unmatched
+`d1`, `d2` and `d3` are the fraction of pixels within 1.25, 1.25^2 and 1.25^3 of the target
+depth ratio, so higher is better. The seed spread on the selection metric is the population
+standard deviation over three seeds.
 
-| Stage | Rel. Depth | Width | Grid | Params | LR | d1 | d2 | d3 | rmse |
-|---|---|---|---|---|---|---|---|---|---|
-| `tower` | 0.111 | 1024 | 32x32 | 1,706,752 | 0.001 | 0.2861 ± 0.0050 | 0.5503 | 0.7310 | 6.3135 |
-| `tower` | 0.259 | 1024 | 32x32 | 1,706,752 | 0.001 | 0.3388 ± 0.0107 | 0.6112 | 0.7798 | 5.7947 |
-| `tower` | 0.370 | 1024 | 32x32 | 1,706,752 | 0.001 | 0.3317 ± 0.0177 | 0.6115 | 0.7897 | 5.5940 |
-| `tower` | 0.519 | 1024 | 32x32 | 1,706,752 | 0.001 | 0.4342 ± 0.0114 | 0.7130 | 0.8532 | 4.9131 |
-| `tower` | 0.630 | 1024 | 32x32 | 1,706,752 | 0.001 | 0.5441 ± 0.0098 | 0.7895 | 0.8935 | 4.2964 |
-| `tower` | 0.741 | 1024 | 32x32 | 1,706,752 | 0.001 | 0.5058 ± 0.0064 | 0.7745 | 0.8870 | 4.3872 |
-| `tower` | 0.889 | 1024 | 32x32 | 1,706,752 | 0.001 | 0.4453 ± 0.0067 | 0.7281 | 0.8592 | 4.7484 |
-| `tower` | 1.000 | 1024 | 32x32 | 1,706,752 | 0.001 | 0.4537 ± 0.0127 | 0.7335 | 0.8601 | 4.7270 |
-| `merged` | 1.000 | 4096 | 16x16 | 3,279,616 | 0.001 | 0.5205 ± 0.0039 | 0.7807 | 0.8894 | 4.4923 |
-| `projected` | 1.000 | 7168 | 16x16 | 4,852,480 | 0.001 | 0.4775 ± 0.0062 | 0.7463 | 0.8674 | 4.7222 |
-
-### AI4Industry/MoonViT-V2, depth, capacity-matched
-
-| Stage | Rel. Depth | Width | Grid | Params | LR | d1 | d2 | d3 | rmse |
-|---|---|---|---|---|---|---|---|---|---|
-| `tower` | 0.111 | 512 | 32x32 | 1,444,608 | 0.01 | 0.4061 ± 0.0109 | 0.6851 | 0.8429 | 5.4080 |
-| `tower` | 0.259 | 512 | 32x32 | 1,444,608 | 0.01 | 0.5273 ± 0.0019 | 0.7899 | 0.8970 | 4.5006 |
-| `tower` | 0.370 | 512 | 32x32 | 1,444,608 | 0.01 | 0.5759 ± 0.0075 | 0.8206 | 0.9134 | 4.2161 |
-| `tower` | 0.519 | 512 | 32x32 | 1,444,608 | 0.01 | 0.6217 ± 0.0062 | 0.8430 | 0.9304 | 3.9480 |
-| `tower` | 0.630 | 512 | 32x32 | 1,444,608 | 0.01 | 0.6543 ± 0.0016 | 0.8575 | 0.9369 | 3.7900 |
-| `tower` | 0.741 | 512 | 32x32 | 1,444,608 | 0.01 | 0.6314 ± 0.0029 | 0.8581 | 0.9371 | 3.8028 |
-| `tower` | 0.889 | 512 | 32x32 | 1,444,608 | 0.01 | 0.5956 ± 0.0102 | 0.8319 | 0.9257 | 3.9928 |
-| `tower` | 1.000 | 512 | 32x32 | 1,444,608 | 0.003 | 0.5378 ± 0.0015 | 0.7916 | 0.8956 | 4.3697 |
-| `merged` | 1.000 | 512 | 16x16 | 1,444,608 | 0.01 | 0.6062 ± 0.0014 | 0.8375 | 0.9209 | 4.2212 |
-| `projected` | 1.000 | 512 | 16x16 | 1,444,608 | 0.01 | 0.6145 ± 0.0090 | 0.8389 | 0.9221 | 4.2414 |
+### Unmatched arm
 
 ### facebook/dinov2-large, depth, unmatched
 
 | Stage | Rel. Depth | Width | Grid | Params | LR | d1 | d2 | d3 | rmse |
 |---|---|---|---|---|---|---|---|---|---|
-| `tower` | 0.125 | 1024 | 32x32 | 1,706,752 | 0.001 | 0.3199 ± 0.0047 | 0.5841 | 0.7534 | 6.1063 |
-| `tower` | 0.250 | 1024 | 32x32 | 1,706,752 | 0.001 | 0.3471 ± 0.0088 | 0.6258 | 0.7968 | 5.7611 |
-| `tower` | 0.375 | 1024 | 32x32 | 1,706,752 | 0.001 | 0.3736 ± 0.0074 | 0.6615 | 0.8286 | 5.3638 |
-| `tower` | 0.500 | 1024 | 32x32 | 1,706,752 | 0.001 | 0.5162 ± 0.0069 | 0.7952 | 0.9069 | 4.3569 |
-| `tower` | 0.625 | 1024 | 32x32 | 1,706,752 | 0.003 | 0.6210 ± 0.0035 | 0.8521 | 0.9369 | 3.8066 |
-| `tower` | 0.750 | 1024 | 32x32 | 1,706,752 | 0.001 | 0.6519 ± 0.0109 | 0.8717 | 0.9420 | 3.5438 |
-| `tower` | 0.875 | 1024 | 32x32 | 1,706,752 | 0.001 | 0.6673 ± 0.0116 | 0.8755 | 0.9429 | 3.6080 |
-| `tower` | 1.000 | 1024 | 32x32 | 1,706,752 | 0.003 | 0.6778 ± 0.0069 | 0.8808 | 0.9469 | 3.7088 |
+| `tower` | 0.125 | 1024 | 32x32 | 1,706,752 | 0.001 | 0.3212 ± 0.0054 | 0.5850 | 0.7545 | 6.0997 |
+| `tower` | 0.250 | 1024 | 32x32 | 1,706,752 | 0.001 | 0.3474 ± 0.0058 | 0.6272 | 0.7984 | 5.7509 |
+| `tower` | 0.375 | 1024 | 32x32 | 1,706,752 | 0.001 | 0.3741 ± 0.0088 | 0.6625 | 0.8294 | 5.3665 |
+| `tower` | 0.500 | 1024 | 32x32 | 1,706,752 | 0.001 | 0.5148 ± 0.0058 | 0.7943 | 0.9066 | 4.3680 |
+| `tower` | 0.625 | 1024 | 32x32 | 1,706,752 | 0.01 | 0.6341 ± 0.0078 | 0.8608 | 0.9406 | 3.7988 |
+| `tower` | 0.750 | 1024 | 32x32 | 1,706,752 | 0.001 | 0.6504 ± 0.0108 | 0.8713 | 0.9418 | 3.5472 |
+| `tower` | 0.875 | 1024 | 32x32 | 1,706,752 | 0.001 | 0.6674 ± 0.0095 | 0.8754 | 0.9429 | 3.6059 |
+| `tower` | 1.000 | 1024 | 32x32 | 1,706,752 | 0.003 | 0.6746 ± 0.0063 | 0.8801 | 0.9461 | 3.7051 |
+
+### exolabs/Kimi-K2.6-vision, depth, unmatched
+
+| Stage | Rel. Depth | Width | Grid | Params | LR | d1 | d2 | d3 | rmse |
+|---|---|---|---|---|---|---|---|---|---|
+| `tower` | 0.111 | 1152 | 32x32 | 1,772,288 | 0.001 | 0.1619 ± 0.0122 | 0.3049 | 0.4523 | 8.1958 |
+| `tower` | 0.259 | 1152 | 32x32 | 1,772,288 | 0.001 | 0.1844 ± 0.0148 | 0.3644 | 0.5402 | 7.5768 |
+| `tower` | 0.370 | 1152 | 32x32 | 1,772,288 | 0.001 | 0.2254 ± 0.0331 | 0.4586 | 0.6582 | 6.5966 |
+| `tower` | 0.519 | 1152 | 32x32 | 1,772,288 | 0.001 | 0.4316 ± 0.0230 | 0.7131 | 0.8509 | 4.8488 |
+| `tower` | 0.630 | 1152 | 32x32 | 1,772,288 | 0.001 | 0.4704 ± 0.0082 | 0.7408 | 0.8692 | 4.6780 |
+| `tower` | 0.741 | 1152 | 32x32 | 1,772,288 | 0.001 | 0.5089 ± 0.0043 | 0.7781 | 0.8926 | 4.4644 |
+| `tower` | 0.889 | 1152 | 32x32 | 1,772,288 | 0.001 | 0.5087 ± 0.0060 | 0.7749 | 0.8906 | 4.5195 |
+| `tower` | 1.000 | 1152 | 32x32 | 1,772,288 | 0.001 | 0.4643 ± 0.0118 | 0.7399 | 0.8681 | 4.7129 |
+| `merged` | 1.000 | 4608 | 16x16 | 3,541,760 | 0.003 | 0.4965 ± 0.0246 | 0.7646 | 0.8864 | 4.6680 |
+| `projected` | 1.000 | 7168 | 16x16 | 4,852,480 | 0.003 | 0.4988 ± 0.0512 | 0.7667 | 0.8900 | 4.6819 |
+
+### immanuelpeter/MoonViT-V2, depth, unmatched
+
+| Stage | Rel. Depth | Width | Grid | Params | LR | d1 | d2 | d3 | rmse |
+|---|---|---|---|---|---|---|---|---|---|
+| `tower` | 0.111 | 1024 | 32x32 | 1,706,752 | 0.001 | 0.2899 ± 0.0046 | 0.5562 | 0.7355 | 6.2861 |
+| `tower` | 0.259 | 1024 | 32x32 | 1,706,752 | 0.001 | 0.3295 ± 0.0081 | 0.6017 | 0.7712 | 5.8914 |
+| `tower` | 0.370 | 1024 | 32x32 | 1,706,752 | 0.001 | 0.3281 ± 0.0129 | 0.6099 | 0.7894 | 5.5898 |
+| `tower` | 0.519 | 1024 | 32x32 | 1,706,752 | 0.001 | 0.4404 ± 0.0098 | 0.7176 | 0.8566 | 4.8904 |
+| `tower` | 0.630 | 1024 | 32x32 | 1,706,752 | 0.001 | 0.5440 ± 0.0047 | 0.7896 | 0.8938 | 4.2970 |
+| `tower` | 0.741 | 1024 | 32x32 | 1,706,752 | 0.001 | 0.5071 ± 0.0067 | 0.7761 | 0.8879 | 4.3734 |
+| `tower` | 0.889 | 1024 | 32x32 | 1,706,752 | 0.001 | 0.4437 ± 0.0100 | 0.7274 | 0.8592 | 4.7450 |
+| `tower` | 1.000 | 1024 | 32x32 | 1,706,752 | 0.001 | 0.4562 ± 0.0154 | 0.7354 | 0.8613 | 4.7223 |
+| `merged` | 1.000 | 4096 | 16x16 | 3,279,616 | 0.001 | 0.5217 ± 0.0060 | 0.7813 | 0.8901 | 4.4920 |
+| `projected` | 1.000 | 7168 | 16x16 | 4,852,480 | 0.001 | 0.4804 ± 0.0076 | 0.7488 | 0.8687 | 4.7125 |
+
+### meta-models/Muse-Glimmer-30B, depth, unmatched
+
+| Stage | Rel. Depth | Width | Grid | Params | LR | d1 | d2 | d3 | rmse |
+|---|---|---|---|---|---|---|---|---|---|
+| `tower` | 0.120 | 1536 | 32x32 | 1,968,896 | 0.001 | 0.3485 ± 0.0065 | 0.6289 | 0.8040 | 5.6721 |
+| `tower` | 0.240 | 1536 | 32x32 | 1,968,896 | 0.001 | 0.3787 ± 0.0045 | 0.6638 | 0.8254 | 5.4088 |
+| `tower` | 0.380 | 1536 | 32x32 | 1,968,896 | 0.001 | 0.4462 ± 0.0085 | 0.7402 | 0.8778 | 4.8086 |
+| `tower` | 0.500 | 1536 | 32x32 | 1,968,896 | 0.001 | 0.5870 ± 0.0046 | 0.8429 | 0.9279 | 4.1067 |
+| `tower` | 0.620 | 1536 | 32x32 | 1,968,896 | 0.001 | 0.6035 ± 0.0076 | 0.8360 | 0.9283 | 3.8798 |
+| `tower` | 0.760 | 1536 | 32x32 | 1,968,896 | 0.001 | 0.5925 ± 0.0024 | 0.8327 | 0.9237 | 3.9777 |
+| `tower` | 0.880 | 1536 | 32x32 | 1,968,896 | 0.0003 | 0.4909 ± 0.0064 | 0.7683 | 0.8835 | 4.4339 |
+| `tower` | 1.000 | 1536 | 32x32 | 1,968,896 | 0.001 | 0.4089 ± 0.0057 | 0.7022 | 0.8465 | 4.9569 |
+| `merged` | 1.000 | 6144 | 16x16 | 4,328,192 | 0.001 | 0.4462 ± 0.0075 | 0.7291 | 0.8619 | 4.8987 |
+| `projected` | 1.000 | 6656 | 16x16 | 4,590,336 | 0.001 | 0.4973 ± 0.0015 | 0.7660 | 0.8870 | 4.6870 |
+
+### Qwen/Qwen3.8-27B, depth, unmatched
+
+| Stage | Rel. Depth | Width | Grid | Params | LR | d1 | d2 | d3 | rmse |
+|---|---|---|---|---|---|---|---|---|---|
+| `tower` | 0.111 | 1152 | 28x28 | 1,772,288 | 0.001 | 0.3202 ± 0.0086 | 0.6063 | 0.7796 | 5.7524 |
+| `tower` | 0.259 | 1152 | 28x28 | 1,772,288 | 0.001 | 0.4758 ± 0.0122 | 0.7532 | 0.8747 | 4.7118 |
+| `tower` | 0.370 | 1152 | 28x28 | 1,772,288 | 0.001 | 0.5795 ± 0.0052 | 0.8137 | 0.9089 | 4.1574 |
+| `tower` | 0.519 | 1152 | 28x28 | 1,772,288 | 0.001 | 0.6274 ± 0.0004 | 0.8507 | 0.9370 | 3.8631 |
+| `tower` | 0.630 | 1152 | 28x28 | 1,772,288 | 0.001 | 0.6439 ± 0.0031 | 0.8558 | 0.9341 | 3.7988 |
+| `tower` | 0.741 | 1152 | 28x28 | 1,772,288 | 0.001 | 0.5790 ± 0.0052 | 0.8248 | 0.9172 | 4.1324 |
+| `tower` | 0.889 | 1152 | 28x28 | 1,772,288 | 0.001 | 0.5343 ± 0.0109 | 0.7920 | 0.8968 | 4.3964 |
+| `tower` | 1.000 | 1152 | 28x28 | 1,772,288 | 0.003 | 0.3438 ± 0.0287 | 0.6196 | 0.7991 | 5.5974 |
+| `merged` | 1.000 | 4608 | 14x14 | 3,541,760 | 0.0003 | 0.3455 ± 0.0126 | 0.6222 | 0.8025 | 5.4337 |
+| `projected` | 1.000 | 5120 | 14x14 | 3,803,904 | 0.03 | 0.5400 ± 0.0032 | 0.7954 | 0.9022 | 4.5444 |
+
+### google/siglip2-so400m-patch14-384, depth, unmatched
+
+| Stage | Rel. Depth | Width | Grid | Params | LR | d1 | d2 | d3 | rmse |
+|---|---|---|---|---|---|---|---|---|---|
+| `tower` | 0.111 | 1152 | 32x32 | 1,772,288 | 0.001 | 0.3783 ± 0.0094 | 0.6630 | 0.8151 | 5.4106 |
+| `tower` | 0.259 | 1152 | 32x32 | 1,772,288 | 0.001 | 0.5326 ± 0.0056 | 0.7952 | 0.9029 | 4.3421 |
+| `tower` | 0.370 | 1152 | 32x32 | 1,772,288 | 0.001 | 0.5955 ± 0.0026 | 0.8271 | 0.9197 | 4.0041 |
+| `tower` | 0.519 | 1152 | 32x32 | 1,772,288 | 0.03 | 0.6366 ± 0.0070 | 0.8516 | 0.9341 | 3.8029 |
+| `tower` | 0.630 | 1152 | 32x32 | 1,772,288 | 0.001 | 0.6226 ± 0.0061 | 0.8374 | 0.9238 | 3.8483 |
+| `tower` | 0.741 | 1152 | 32x32 | 1,772,288 | 0.001 | 0.6181 ± 0.0028 | 0.8392 | 0.9251 | 3.9004 |
+| `tower` | 0.889 | 1152 | 32x32 | 1,772,288 | 0.001 | 0.5926 ± 0.0079 | 0.8303 | 0.9181 | 4.0557 |
+| `tower` | 1.000 | 1152 | 32x32 | 1,772,288 | 0.001 | 0.5820 ± 0.0011 | 0.8263 | 0.9185 | 4.1100 |
+
+### Capacity-matched arm
 
 ### facebook/dinov2-large, depth, capacity-matched
 
 | Stage | Rel. Depth | Width | Grid | Params | LR | d1 | d2 | d3 | rmse |
 |---|---|---|---|---|---|---|---|---|---|
-| `tower` | 0.125 | 512 | 32x32 | 1,444,608 | 0.003 | 0.4564 ± 0.0103 | 0.7128 | 0.8460 | 5.2648 |
-| `tower` | 0.250 | 512 | 32x32 | 1,444,608 | 0.01 | 0.5185 ± 0.0114 | 0.7890 | 0.8970 | 4.7577 |
-| `tower` | 0.375 | 512 | 32x32 | 1,444,608 | 0.01 | 0.5261 ± 0.0326 | 0.8000 | 0.9051 | 4.5067 |
-| `tower` | 0.500 | 512 | 32x32 | 1,444,608 | 0.01 | 0.6413 ± 0.0056 | 0.8659 | 0.9376 | 3.8949 |
-| `tower` | 0.625 | 512 | 32x32 | 1,444,608 | 0.01 | 0.6696 ± 0.0062 | 0.8763 | 0.9443 | 3.6127 |
-| `tower` | 0.750 | 512 | 32x32 | 1,444,608 | 0.01 | 0.7009 ± 0.0048 | 0.8922 | 0.9510 | 3.4108 |
-| `tower` | 0.875 | 512 | 32x32 | 1,444,608 | 0.01 | 0.7061 ± 0.0016 | 0.8969 | 0.9509 | 3.5011 |
-| `tower` | 1.000 | 512 | 32x32 | 1,444,608 | 0.01 | 0.6774 ± 0.0049 | 0.8782 | 0.9466 | 3.6969 |
+| `tower` | 0.125 | 512 | 32x32 | 1,444,608 | 0.01 | 0.4566 ± 0.0100 | 0.7203 | 0.8430 | 5.3309 |
+| `tower` | 0.250 | 512 | 32x32 | 1,444,608 | 0.003 | 0.4798 ± 0.0080 | 0.7576 | 0.8856 | 4.8621 |
+| `tower` | 0.375 | 512 | 32x32 | 1,444,608 | 0.01 | 0.5371 ± 0.0306 | 0.8059 | 0.9074 | 4.4959 |
+| `tower` | 0.500 | 512 | 32x32 | 1,444,608 | 0.01 | 0.6410 ± 0.0040 | 0.8639 | 0.9372 | 3.9311 |
+| `tower` | 0.625 | 512 | 32x32 | 1,444,608 | 0.01 | 0.6691 ± 0.0073 | 0.8743 | 0.9442 | 3.5981 |
+| `tower` | 0.750 | 512 | 32x32 | 1,444,608 | 0.01 | 0.6957 ± 0.0025 | 0.8898 | 0.9499 | 3.4116 |
+| `tower` | 0.875 | 512 | 32x32 | 1,444,608 | 0.01 | 0.7015 ± 0.0061 | 0.8942 | 0.9503 | 3.4973 |
+| `tower` | 1.000 | 512 | 32x32 | 1,444,608 | 0.01 | 0.6759 ± 0.0072 | 0.8777 | 0.9465 | 3.6944 |
 
+### exolabs/Kimi-K2.6-vision, depth, capacity-matched
+
+| Stage | Rel. Depth | Width | Grid | Params | LR | d1 | d2 | d3 | rmse |
+|---|---|---|---|---|---|---|---|---|---|
+| `tower` | 0.111 | 512 | 32x32 | 1,444,608 | 0.003 | 0.3840 ± 0.0073 | 0.6518 | 0.8215 | 5.4866 |
+| `tower` | 0.259 | 512 | 32x32 | 1,444,608 | 0.01 | 0.5553 ± 0.0144 | 0.8172 | 0.9154 | 4.2740 |
+| `tower` | 0.370 | 512 | 32x32 | 1,444,608 | 0.01 | 0.6157 ± 0.0093 | 0.8432 | 0.9301 | 3.9731 |
+| `tower` | 0.519 | 512 | 32x32 | 1,444,608 | 0.01 | 0.6595 ± 0.0057 | 0.8645 | 0.9392 | 3.7666 |
+| `tower` | 0.630 | 512 | 32x32 | 1,444,608 | 0.01 | 0.6470 ± 0.0022 | 0.8557 | 0.9346 | 3.7515 |
+| `tower` | 0.741 | 512 | 32x32 | 1,444,608 | 0.01 | 0.6489 ± 0.0002 | 0.8579 | 0.9338 | 3.7279 |
+| `tower` | 0.889 | 512 | 32x32 | 1,444,608 | 0.01 | 0.6482 ± 0.0032 | 0.8578 | 0.9360 | 3.7896 |
+| `tower` | 1.000 | 512 | 32x32 | 1,444,608 | 0.01 | 0.6002 ± 0.0025 | 0.8326 | 0.9238 | 3.9968 |
+| `merged` | 1.000 | 512 | 16x16 | 1,444,608 | 0.01 | 0.6115 ± 0.0068 | 0.8404 | 0.9280 | 4.1214 |
+| `projected` | 1.000 | 512 | 16x16 | 1,444,608 | 0.03 | 0.6507 ± 0.0049 | 0.8557 | 0.9341 | 4.0188 |
+
+### immanuelpeter/MoonViT-V2, depth, capacity-matched
+
+| Stage | Rel. Depth | Width | Grid | Params | LR | d1 | d2 | d3 | rmse |
+|---|---|---|---|---|---|---|---|---|---|
+| `tower` | 0.111 | 512 | 32x32 | 1,444,608 | 0.01 | 0.4106 ± 0.0105 | 0.6935 | 0.8479 | 5.3333 |
+| `tower` | 0.259 | 512 | 32x32 | 1,444,608 | 0.01 | 0.5253 ± 0.0070 | 0.7896 | 0.8978 | 4.5011 |
+| `tower` | 0.370 | 512 | 32x32 | 1,444,608 | 0.01 | 0.5817 ± 0.0040 | 0.8216 | 0.9144 | 4.2111 |
+| `tower` | 0.519 | 512 | 32x32 | 1,444,608 | 0.01 | 0.6188 ± 0.0031 | 0.8420 | 0.9293 | 3.9695 |
+| `tower` | 0.630 | 512 | 32x32 | 1,444,608 | 0.01 | 0.6546 ± 0.0029 | 0.8574 | 0.9370 | 3.7831 |
+| `tower` | 0.741 | 512 | 32x32 | 1,444,608 | 0.01 | 0.6307 ± 0.0004 | 0.8565 | 0.9366 | 3.8183 |
+| `tower` | 0.889 | 512 | 32x32 | 1,444,608 | 0.01 | 0.6003 ± 0.0029 | 0.8340 | 0.9271 | 3.9775 |
+| `tower` | 1.000 | 512 | 32x32 | 1,444,608 | 0.003 | 0.5379 ± 0.0010 | 0.7927 | 0.8968 | 4.3841 |
+| `merged` | 1.000 | 512 | 16x16 | 1,444,608 | 0.01 | 0.6089 ± 0.0058 | 0.8358 | 0.9213 | 4.2521 |
+| `projected` | 1.000 | 512 | 16x16 | 1,444,608 | 0.01 | 0.6179 ± 0.0066 | 0.8399 | 0.9227 | 4.2287 |
+
+### meta-models/Muse-Glimmer-30B, depth, capacity-matched
+
+| Stage | Rel. Depth | Width | Grid | Params | LR | d1 | d2 | d3 | rmse |
+|---|---|---|---|---|---|---|---|---|---|
+| `tower` | 0.120 | 512 | 32x32 | 1,444,608 | 0.003 | 0.4239 ± 0.0025 | 0.7200 | 0.8682 | 5.0048 |
+| `tower` | 0.240 | 512 | 32x32 | 1,444,608 | 0.003 | 0.4525 ± 0.0067 | 0.7420 | 0.8797 | 4.7852 |
+| `tower` | 0.380 | 512 | 32x32 | 1,444,608 | 0.003 | 0.5224 ± 0.0036 | 0.8018 | 0.9112 | 4.3362 |
+| `tower` | 0.500 | 512 | 32x32 | 1,444,608 | 0.003 | 0.5972 ± 0.0005 | 0.8489 | 0.9330 | 3.9369 |
+| `tower` | 0.620 | 512 | 32x32 | 1,444,608 | 0.003 | 0.6440 ± 0.0023 | 0.8629 | 0.9402 | 3.6510 |
+| `tower` | 0.760 | 512 | 32x32 | 1,444,608 | 0.003 | 0.6588 ± 0.0010 | 0.8666 | 0.9407 | 3.6696 |
+| `tower` | 0.880 | 512 | 32x32 | 1,444,608 | 0.003 | 0.6344 ± 0.0011 | 0.8542 | 0.9348 | 3.7381 |
+| `tower` | 1.000 | 512 | 32x32 | 1,444,608 | 0.01 | 0.5361 ± 0.0232 | 0.7957 | 0.9032 | 4.3441 |
+| `merged` | 1.000 | 512 | 16x16 | 1,444,608 | 0.003 | 0.5210 ± 0.0022 | 0.7883 | 0.9013 | 4.5225 |
+| `projected` | 1.000 | 512 | 16x16 | 1,444,608 | 0.003 | 0.5901 ± 0.0018 | 0.8247 | 0.9173 | 4.1964 |
+
+### Qwen/Qwen3.8-27B, depth, capacity-matched
+
+| Stage | Rel. Depth | Width | Grid | Params | LR | d1 | d2 | d3 | rmse |
+|---|---|---|---|---|---|---|---|---|---|
+| `tower` | 0.111 | 512 | 28x28 | 1,444,608 | 0.01 | 0.4913 ± 0.0056 | 0.7639 | 0.8824 | 4.7828 |
+| `tower` | 0.259 | 512 | 28x28 | 1,444,608 | 0.01 | 0.6042 ± 0.0026 | 0.8396 | 0.9279 | 4.0964 |
+| `tower` | 0.370 | 512 | 28x28 | 1,444,608 | 0.01 | 0.6404 ± 0.0039 | 0.8622 | 0.9388 | 3.8311 |
+| `tower` | 0.519 | 512 | 28x28 | 1,444,608 | 0.01 | 0.6597 ± 0.0057 | 0.8733 | 0.9436 | 3.7109 |
+| `tower` | 0.630 | 512 | 28x28 | 1,444,608 | 0.01 | 0.6736 ± 0.0094 | 0.8753 | 0.9450 | 3.6788 |
+| `tower` | 0.741 | 512 | 28x28 | 1,444,608 | 0.01 | 0.6644 ± 0.0050 | 0.8721 | 0.9433 | 3.7642 |
+| `tower` | 0.889 | 512 | 28x28 | 1,444,608 | 0.01 | 0.6383 ± 0.0077 | 0.8601 | 0.9387 | 3.8930 |
+| `tower` | 1.000 | 512 | 28x28 | 1,444,608 | 0.001 | 0.5314 ± 0.0101 | 0.7879 | 0.8949 | 4.4340 |
+| `merged` | 1.000 | 512 | 14x14 | 1,444,608 | 0.001 | 0.5297 ± 0.0050 | 0.7886 | 0.8933 | 4.5699 |
+| `projected` | 1.000 | 512 | 14x14 | 1,444,608 | 0.03 | 0.6034 ± 0.0059 | 0.8363 | 0.9226 | 4.2719 |
+
+### google/siglip2-so400m-patch14-384, depth, capacity-matched
+
+| Stage | Rel. Depth | Width | Grid | Params | LR | d1 | d2 | d3 | rmse |
+|---|---|---|---|---|---|---|---|---|---|
+| `tower` | 0.111 | 512 | 32x32 | 1,444,608 | 0.01 | 0.4819 ± 0.0126 | 0.7609 | 0.8826 | 4.7930 |
+| `tower` | 0.259 | 512 | 32x32 | 1,444,608 | 0.01 | 0.6094 ± 0.0033 | 0.8498 | 0.9317 | 3.9696 |
+| `tower` | 0.370 | 512 | 32x32 | 1,444,608 | 0.01 | 0.6489 ± 0.0022 | 0.8601 | 0.9353 | 3.9627 |
+| `tower` | 0.519 | 512 | 32x32 | 1,444,608 | 0.01 | 0.6671 ± 0.0035 | 0.8673 | 0.9400 | 3.8251 |
+| `tower` | 0.630 | 512 | 32x32 | 1,444,608 | 0.01 | 0.6702 ± 0.0026 | 0.8669 | 0.9391 | 3.7654 |
+| `tower` | 0.741 | 512 | 32x32 | 1,444,608 | 0.01 | 0.6589 ± 0.0035 | 0.8651 | 0.9375 | 3.8168 |
+| `tower` | 0.889 | 512 | 32x32 | 1,444,608 | 0.003 | 0.6346 ± 0.0032 | 0.8476 | 0.9315 | 3.9103 |
+| `tower` | 1.000 | 512 | 32x32 | 1,444,608 | 0.01 | 0.5938 ± 0.0050 | 0.8359 | 0.9251 | 4.0305 |
 
 ## Surface normals
 
-`mean_deg` and `rmse` are angular error in degrees, so lower is better. `d1`,
-`d2` and `d3` are the fraction of annotated pixels within 11.25, 22.5 and 30 degrees.
+`mean_deg` and `rmse` are angular error in degrees, so lower is better. `d1`, `d2` and `d3`
+are the fraction of annotated pixels within 11.25, 22.5 and 30 degrees.
 
-### AI4Industry/MoonViT-V2, normal, unmatched
-
-| Stage | Rel. Depth | Width | Grid | Params | LR | mean_deg | d1 | d2 | d3 | rmse |
-|---|---|---|---|---|---|---|---|---|---|---|
-| `tower` | 0.111 | 1024 | 32x32 | 1,576,963 | 0.0003 | 35.2320 ± 0.1437 | 0.1677 | 0.3518 | 0.4762 | 41.5606 |
-| `tower` | 0.259 | 1024 | 32x32 | 1,576,963 | 0.0003 | 31.9213 ± 0.2158 | 0.2058 | 0.4140 | 0.5397 | 38.4179 |
-| `tower` | 0.370 | 1024 | 32x32 | 1,576,963 | 0.0003 | 30.5820 ± 0.2772 | 0.2269 | 0.4416 | 0.5659 | 37.2039 |
-| `tower` | 0.519 | 1024 | 32x32 | 1,576,963 | 0.0003 | 29.4622 ± 0.4699 | 0.2535 | 0.4704 | 0.5901 | 36.3053 |
-| `tower` | 0.630 | 1024 | 32x32 | 1,576,963 | 0.0003 | 27.9623 ± 0.3673 | 0.2811 | 0.5095 | 0.6238 | 35.0385 |
-| `tower` | 0.741 | 1024 | 32x32 | 1,576,963 | 0.0003 | 30.0688 ± 0.5721 | 0.2449 | 0.4538 | 0.5721 | 36.8122 |
-| `tower` | 0.889 | 1024 | 32x32 | 1,576,963 | 0.0003 | 31.0752 ± 0.2573 | 0.2262 | 0.4304 | 0.5487 | 37.6182 |
-| `tower` | 1.000 | 1024 | 32x32 | 1,576,963 | 0.0003 | 33.2673 ± 0.2962 | 0.2045 | 0.3909 | 0.5085 | 39.8079 |
-| `merged` | 1.000 | 4096 | 16x16 | 3,149,827 | 0.0003 | 31.4460 ± 1.5599 | 0.2320 | 0.4366 | 0.5519 | 38.3886 |
-| `projected` | 1.000 | 7168 | 16x16 | 4,722,691 | 0.0003 | 30.3852 ± 0.4486 | 0.2515 | 0.4669 | 0.5798 | 37.7636 |
-
-### AI4Industry/MoonViT-V2, normal, capacity-matched
-
-| Stage | Rel. Depth | Width | Grid | Params | LR | mean_deg | d1 | d2 | d3 | rmse |
-|---|---|---|---|---|---|---|---|---|---|---|
-| `tower` | 0.111 | 512 | 32x32 | 1,314,819 | 0.001 | 31.4571 ± 0.7571 | 0.2302 | 0.4357 | 0.5540 | 38.4173 |
-| `tower` | 0.259 | 512 | 32x32 | 1,314,819 | 0.001 | 28.0562 ± 1.1356 | 0.2788 | 0.5146 | 0.6278 | 35.2341 |
-| `tower` | 0.370 | 512 | 32x32 | 1,314,819 | 0.001 | 27.0576 ± 1.1777 | 0.2971 | 0.5337 | 0.6458 | 34.2678 |
-| `tower` | 0.519 | 512 | 32x32 | 1,314,819 | 0.001 | 27.4909 ± 3.1550 | 0.3052 | 0.5370 | 0.6369 | 34.8219 |
-| `tower` | 0.630 | 512 | 32x32 | 1,314,819 | 0.001 | 27.1584 ± 2.7421 | 0.3070 | 0.5336 | 0.6394 | 34.4539 |
-| `tower` | 0.741 | 512 | 32x32 | 1,314,819 | 0.001 | 28.3740 ± 2.9346 | 0.2879 | 0.5035 | 0.6166 | 35.5771 |
-| `tower` | 0.889 | 512 | 32x32 | 1,314,819 | 0.001 | 29.6905 ± 2.3797 | 0.2633 | 0.4772 | 0.5898 | 36.7955 |
-| `tower` | 1.000 | 512 | 32x32 | 1,314,819 | 0.001 | 31.7420 ± 1.3131 | 0.2373 | 0.4370 | 0.5481 | 38.8972 |
-| `merged` | 1.000 | 512 | 16x16 | 1,314,819 | 0.001 | 29.2232 ± 0.6953 | 0.2764 | 0.5014 | 0.6103 | 36.9184 |
-| `projected` | 1.000 | 512 | 16x16 | 1,314,819 | 0.001 | 29.3454 ± 0.6675 | 0.2721 | 0.4958 | 0.6067 | 36.9464 |
+### Unmatched arm
 
 ### facebook/dinov2-large, normal, unmatched
 
 | Stage | Rel. Depth | Width | Grid | Params | LR | mean_deg | d1 | d2 | d3 | rmse |
 |---|---|---|---|---|---|---|---|---|---|---|
-| `tower` | 0.125 | 1024 | 32x32 | 1,576,963 | 0.001 | 33.5269 ± 0.1331 | 0.1878 | 0.3779 | 0.5026 | 39.8670 |
-| `tower` | 0.250 | 1024 | 32x32 | 1,576,963 | 0.001 | 31.1396 ± 0.1478 | 0.2188 | 0.4264 | 0.5529 | 37.7243 |
-| `tower` | 0.375 | 1024 | 32x32 | 1,576,963 | 0.001 | 28.1179 ± 0.0862 | 0.2690 | 0.5018 | 0.6206 | 35.1142 |
-| `tower` | 0.500 | 1024 | 32x32 | 1,576,963 | 0.001 | 23.5504 ± 0.2720 | 0.3721 | 0.6146 | 0.7145 | 30.9373 |
-| `tower` | 0.625 | 1024 | 32x32 | 1,576,963 | 0.001 | 20.2918 ± 0.4124 | 0.4689 | 0.6938 | 0.7731 | 28.0644 |
-| `tower` | 0.750 | 1024 | 32x32 | 1,576,963 | 0.0003 | 19.4548 ± 0.0934 | 0.5119 | 0.7156 | 0.7833 | 27.4695 |
-| `tower` | 0.875 | 1024 | 32x32 | 1,576,963 | 0.0003 | 20.2910 ± 0.1639 | 0.4876 | 0.6987 | 0.7711 | 28.3627 |
-| `tower` | 1.000 | 1024 | 32x32 | 1,576,963 | 0.001 | 22.2100 ± 0.2557 | 0.4209 | 0.6574 | 0.7420 | 30.1235 |
+| `tower` | 0.125 | 1024 | 32x32 | 1,576,963 | 0.001 | 33.2976 ± 0.0178 | 0.1892 | 0.3802 | 0.5070 | 39.6261 |
+| `tower` | 0.250 | 1024 | 32x32 | 1,576,963 | 0.001 | 31.1591 ± 0.1627 | 0.2204 | 0.4263 | 0.5526 | 37.7804 |
+| `tower` | 0.375 | 1024 | 32x32 | 1,576,963 | 0.001 | 28.1655 ± 0.0870 | 0.2683 | 0.5002 | 0.6195 | 35.1521 |
+| `tower` | 0.500 | 1024 | 32x32 | 1,576,963 | 0.001 | 23.5468 ± 0.2720 | 0.3719 | 0.6150 | 0.7144 | 30.9337 |
+| `tower` | 0.625 | 1024 | 32x32 | 1,576,963 | 0.001 | 20.2889 ± 0.4092 | 0.4690 | 0.6940 | 0.7733 | 28.0600 |
+| `tower` | 0.750 | 1024 | 32x32 | 1,576,963 | 0.0003 | 19.4649 ± 0.0948 | 0.5114 | 0.7153 | 0.7832 | 27.4754 |
+| `tower` | 0.875 | 1024 | 32x32 | 1,576,963 | 0.0003 | 20.2905 ± 0.1650 | 0.4875 | 0.6987 | 0.7711 | 28.3623 |
+| `tower` | 1.000 | 1024 | 32x32 | 1,576,963 | 0.001 | 22.2159 ± 0.2773 | 0.4203 | 0.6570 | 0.7418 | 30.1264 |
+
+### exolabs/Kimi-K2.6-vision, normal, unmatched
+
+| Stage | Rel. Depth | Width | Grid | Params | LR | mean_deg | d1 | d2 | d3 | rmse |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `tower` | 0.111 | 1152 | 32x32 | 1,642,499 | 0.0003 | 36.1312 ± 0.5243 | 0.1410 | 0.3179 | 0.4431 | 41.9055 |
+| `tower` | 0.259 | 1152 | 32x32 | 1,642,499 | 0.0003 | 32.5895 ± 1.4177 | 0.1916 | 0.3856 | 0.5127 | 38.7008 |
+| `tower` | 0.370 | 1152 | 32x32 | 1,642,499 | 0.0003 | 30.7247 ± 0.7791 | 0.2253 | 0.4348 | 0.5572 | 37.1985 |
+| `tower` | 0.519 | 1152 | 32x32 | 1,642,499 | 0.0003 | 30.7084 ± 0.7363 | 0.2407 | 0.4386 | 0.5565 | 37.4285 |
+| `tower` | 0.630 | 1152 | 32x32 | 1,642,499 | 0.0003 | 30.4836 ± 0.7852 | 0.2414 | 0.4485 | 0.5653 | 37.2977 |
+| `tower` | 0.741 | 1152 | 32x32 | 1,642,499 | 0.0003 | 30.3659 ± 0.6948 | 0.2416 | 0.4543 | 0.5691 | 37.2275 |
+| `tower` | 0.889 | 1152 | 32x32 | 1,642,499 | 0.0003 | 30.3440 ± 0.7691 | 0.2400 | 0.4545 | 0.5712 | 37.1964 |
+| `tower` | 1.000 | 1152 | 32x32 | 1,642,499 | 0.0003 | 32.1145 ± 0.2873 | 0.2114 | 0.4119 | 0.5325 | 38.6795 |
+| `merged` | 1.000 | 4608 | 16x16 | 3,411,971 | 0.0001 | 31.7011 ± 0.1206 | 0.2158 | 0.4176 | 0.5393 | 38.3063 |
+| `projected` | 1.000 | 7168 | 16x16 | 4,722,691 | 0.0003 | 28.9968 ± 0.4593 | 0.2754 | 0.4985 | 0.6119 | 36.5440 |
+
+### immanuelpeter/MoonViT-V2, normal, unmatched
+
+| Stage | Rel. Depth | Width | Grid | Params | LR | mean_deg | d1 | d2 | d3 | rmse |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `tower` | 0.111 | 1024 | 32x32 | 1,576,963 | 0.0003 | 35.2611 ± 0.1525 | 0.1671 | 0.3503 | 0.4749 | 41.5687 |
+| `tower` | 0.259 | 1024 | 32x32 | 1,576,963 | 0.0003 | 31.9093 ± 0.2385 | 0.2063 | 0.4146 | 0.5400 | 38.4130 |
+| `tower` | 0.370 | 1024 | 32x32 | 1,576,963 | 0.0003 | 30.5854 ± 0.2562 | 0.2272 | 0.4417 | 0.5659 | 37.2110 |
+| `tower` | 0.519 | 1024 | 32x32 | 1,576,963 | 0.0003 | 29.4626 ± 0.5316 | 0.2538 | 0.4707 | 0.5901 | 36.3112 |
+| `tower` | 0.630 | 1024 | 32x32 | 1,576,963 | 0.0003 | 27.9684 ± 0.3681 | 0.2817 | 0.5096 | 0.6237 | 35.0491 |
+| `tower` | 0.741 | 1024 | 32x32 | 1,576,963 | 0.0003 | 30.0627 ± 0.5840 | 0.2451 | 0.4538 | 0.5721 | 36.8059 |
+| `tower` | 0.889 | 1024 | 32x32 | 1,576,963 | 0.0003 | 31.0717 ± 0.2614 | 0.2262 | 0.4305 | 0.5489 | 37.6195 |
+| `tower` | 1.000 | 1024 | 32x32 | 1,576,963 | 0.0003 | 33.3010 ± 0.3408 | 0.2043 | 0.3903 | 0.5079 | 39.8396 |
+| `merged` | 1.000 | 4096 | 16x16 | 3,149,827 | 0.0003 | 31.4798 ± 1.5624 | 0.2309 | 0.4359 | 0.5512 | 38.4114 |
+| `projected` | 1.000 | 7168 | 16x16 | 4,722,691 | 0.0003 | 30.4365 ± 0.4786 | 0.2509 | 0.4665 | 0.5791 | 37.8141 |
+
+### meta-models/Muse-Glimmer-30B, normal, unmatched
+
+| Stage | Rel. Depth | Width | Grid | Params | LR | mean_deg | d1 | d2 | d3 | rmse |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `tower` | 0.120 | 1536 | 32x32 | 1,839,107 | 0.0003 | 30.7638 ± 0.1683 | 0.2259 | 0.4413 | 0.5653 | 37.5004 |
+| `tower` | 0.240 | 1536 | 32x32 | 1,839,107 | 0.0003 | 30.2688 ± 0.0780 | 0.2339 | 0.4540 | 0.5749 | 37.0959 |
+| `tower` | 0.380 | 1536 | 32x32 | 1,839,107 | 0.0003 | 28.5679 ± 0.1209 | 0.2636 | 0.4924 | 0.6100 | 35.5533 |
+| `tower` | 0.500 | 1536 | 32x32 | 1,839,107 | 0.0003 | 25.3331 ± 0.1494 | 0.3312 | 0.5728 | 0.6804 | 32.7601 |
+| `tower` | 0.620 | 1536 | 32x32 | 1,839,107 | 0.0003 | 22.7825 ± 0.1977 | 0.3992 | 0.6428 | 0.7327 | 30.5146 |
+| `tower` | 0.760 | 1536 | 32x32 | 1,839,107 | 0.0003 | 29.1317 ± 0.2392 | 0.2692 | 0.4832 | 0.5972 | 36.3489 |
+| `tower` | 0.880 | 1536 | 32x32 | 1,839,107 | 0.0003 | 32.5051 ± 0.4479 | 0.2222 | 0.4138 | 0.5301 | 39.3761 |
+| `tower` | 1.000 | 1536 | 32x32 | 1,839,107 | 0.0003 | 33.8248 ± 0.3720 | 0.1836 | 0.3705 | 0.4926 | 40.1752 |
+| `merged` | 1.000 | 6144 | 16x16 | 4,198,403 | 0.0003 | 32.4033 ± 0.7558 | 0.2096 | 0.4090 | 0.5285 | 39.1869 |
+| `projected` | 1.000 | 6656 | 16x16 | 4,460,547 | 0.0001 | 30.9194 ± 0.1447 | 0.2348 | 0.4442 | 0.5622 | 38.0412 |
+
+### Qwen/Qwen3.8-27B, normal, unmatched
+
+| Stage | Rel. Depth | Width | Grid | Params | LR | mean_deg | d1 | d2 | d3 | rmse |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `tower` | 0.111 | 1152 | 28x28 | 1,642,499 | 0.0003 | 32.1732 ± 1.1640 | 0.2066 | 0.4116 | 0.5348 | 38.7828 |
+| `tower` | 0.259 | 1152 | 28x28 | 1,642,499 | 0.0003 | 26.6246 ± 0.7241 | 0.2962 | 0.5436 | 0.6576 | 33.7496 |
+| `tower` | 0.370 | 1152 | 28x28 | 1,642,499 | 0.0003 | 25.2558 ± 1.0400 | 0.3312 | 0.5778 | 0.6847 | 32.6247 |
+| `tower` | 0.519 | 1152 | 28x28 | 1,642,499 | 0.0003 | 24.6806 ± 0.8037 | 0.3473 | 0.5950 | 0.6977 | 32.3075 |
+| `tower` | 0.630 | 1152 | 28x28 | 1,642,499 | 0.0003 | 25.6999 ± 0.7823 | 0.3240 | 0.5700 | 0.6780 | 33.2389 |
+| `tower` | 0.741 | 1152 | 28x28 | 1,642,499 | 0.0003 | 27.5391 ± 0.7395 | 0.2933 | 0.5247 | 0.6360 | 34.9947 |
+| `tower` | 0.889 | 1152 | 28x28 | 1,642,499 | 0.0003 | 29.4470 ± 0.4981 | 0.2605 | 0.4787 | 0.5928 | 36.5895 |
+| `tower` | 1.000 | 1152 | 28x28 | 1,642,499 | 0.0001 | 33.7285 ± 0.2487 | 0.1927 | 0.3839 | 0.5001 | 40.1323 |
+| `merged` | 1.000 | 4608 | 14x14 | 3,411,971 | 0.0001 | 36.0520 ± 0.5543 | 0.1635 | 0.3381 | 0.4521 | 42.1390 |
+| `projected` | 1.000 | 5120 | 14x14 | 3,674,115 | 0.0003 | 29.4337 ± 0.4774 | 0.2630 | 0.4858 | 0.6006 | 36.8478 |
+
+### google/siglip2-so400m-patch14-384, normal, unmatched
+
+| Stage | Rel. Depth | Width | Grid | Params | LR | mean_deg | d1 | d2 | d3 | rmse |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `tower` | 0.111 | 1152 | 32x32 | 1,642,499 | 0.0003 | 31.1498 ± 0.5694 | 0.2140 | 0.4292 | 0.5550 | 37.7250 |
+| `tower` | 0.259 | 1152 | 32x32 | 1,642,499 | 0.0003 | 26.6409 ± 0.5423 | 0.2909 | 0.5352 | 0.6539 | 33.6841 |
+| `tower` | 0.370 | 1152 | 32x32 | 1,642,499 | 0.0003 | 25.1602 ± 0.6379 | 0.3319 | 0.5771 | 0.6834 | 32.5233 |
+| `tower` | 0.519 | 1152 | 32x32 | 1,642,499 | 0.0003 | 26.3867 ± 0.7395 | 0.3089 | 0.5492 | 0.6604 | 33.8426 |
+| `tower` | 0.630 | 1152 | 32x32 | 1,642,499 | 0.0003 | 28.2179 ± 0.7949 | 0.2769 | 0.5037 | 0.6194 | 35.4383 |
+| `tower` | 0.741 | 1152 | 32x32 | 1,642,499 | 0.0003 | 29.0876 ± 0.6317 | 0.2663 | 0.4857 | 0.5988 | 36.2216 |
+| `tower` | 0.889 | 1152 | 32x32 | 1,642,499 | 0.0003 | 30.1578 ± 0.5761 | 0.2495 | 0.4617 | 0.5758 | 37.1682 |
+| `tower` | 1.000 | 1152 | 32x32 | 1,642,499 | 0.0003 | 30.6009 ± 0.3867 | 0.2433 | 0.4533 | 0.5659 | 37.5917 |
+
+### Capacity-matched arm
 
 ### facebook/dinov2-large, normal, capacity-matched
 
 | Stage | Rel. Depth | Width | Grid | Params | LR | mean_deg | d1 | d2 | d3 | rmse |
 |---|---|---|---|---|---|---|---|---|---|---|
-| `tower` | 0.125 | 512 | 32x32 | 1,314,819 | 0.001 | 30.8365 ± 0.2288 | 0.2288 | 0.4438 | 0.5682 | 37.6737 |
-| `tower` | 0.250 | 512 | 32x32 | 1,314,819 | 0.003 | 29.3149 ± 1.0814 | 0.2465 | 0.4766 | 0.6054 | 36.3978 |
-| `tower` | 0.375 | 512 | 32x32 | 1,314,819 | 0.003 | 25.4561 ± 0.8159 | 0.3251 | 0.5787 | 0.6829 | 32.8569 |
-| `tower` | 0.500 | 512 | 32x32 | 1,314,819 | 0.003 | 22.7559 ± 0.6928 | 0.3945 | 0.6405 | 0.7332 | 30.2941 |
-| `tower` | 0.625 | 512 | 32x32 | 1,314,819 | 0.001 | 20.2734 ± 0.1735 | 0.4740 | 0.6951 | 0.7730 | 28.1122 |
-| `tower` | 0.750 | 512 | 32x32 | 1,314,819 | 0.001 | 18.8500 ± 0.2525 | 0.5341 | 0.7270 | 0.7915 | 26.9738 |
-| `tower` | 0.875 | 512 | 32x32 | 1,314,819 | 0.001 | 20.3733 ± 0.3741 | 0.4806 | 0.6994 | 0.7716 | 28.3238 |
-| `tower` | 1.000 | 512 | 32x32 | 1,314,819 | 0.0003 | 23.1962 ± 0.1988 | 0.4028 | 0.6315 | 0.7212 | 31.2007 |
+| `tower` | 0.125 | 512 | 32x32 | 1,314,819 | 0.001 | 30.8478 ± 0.1671 | 0.2287 | 0.4425 | 0.5677 | 37.6856 |
+| `tower` | 0.250 | 512 | 32x32 | 1,314,819 | 0.003 | 29.8682 ± 2.1282 | 0.2466 | 0.4653 | 0.5879 | 36.8131 |
+| `tower` | 0.375 | 512 | 32x32 | 1,314,819 | 0.003 | 25.4657 ± 0.6502 | 0.3267 | 0.5790 | 0.6819 | 32.9074 |
+| `tower` | 0.500 | 512 | 32x32 | 1,314,819 | 0.003 | 22.7496 ± 0.6949 | 0.3952 | 0.6408 | 0.7334 | 30.2997 |
+| `tower` | 0.625 | 512 | 32x32 | 1,314,819 | 0.001 | 20.2639 ± 0.1659 | 0.4744 | 0.6952 | 0.7730 | 28.1088 |
+| `tower` | 0.750 | 512 | 32x32 | 1,314,819 | 0.001 | 18.8508 ± 0.2614 | 0.5336 | 0.7271 | 0.7915 | 26.9678 |
+| `tower` | 0.875 | 512 | 32x32 | 1,314,819 | 0.001 | 20.3814 ± 0.3886 | 0.4803 | 0.6992 | 0.7714 | 28.3337 |
+| `tower` | 1.000 | 512 | 32x32 | 1,314,819 | 0.0003 | 23.1934 ± 0.1973 | 0.4029 | 0.6315 | 0.7212 | 31.1996 |
 
+### exolabs/Kimi-K2.6-vision, normal, capacity-matched
+
+| Stage | Rel. Depth | Width | Grid | Params | LR | mean_deg | d1 | d2 | d3 | rmse |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `tower` | 0.111 | 512 | 32x32 | 1,314,819 | 0.001 | 31.7331 ± 0.3865 | 0.2121 | 0.4185 | 0.5455 | 38.4190 |
+| `tower` | 0.259 | 512 | 32x32 | 1,314,819 | 0.001 | 26.6648 ± 0.6773 | 0.3035 | 0.5474 | 0.6574 | 33.9686 |
+| `tower` | 0.370 | 512 | 32x32 | 1,314,819 | 0.001 | 25.5109 ± 0.8880 | 0.3308 | 0.5758 | 0.6811 | 32.9608 |
+| `tower` | 0.519 | 512 | 32x32 | 1,314,819 | 0.001 | 27.2178 ± 1.3838 | 0.3041 | 0.5347 | 0.6435 | 34.6541 |
+| `tower` | 0.630 | 512 | 32x32 | 1,314,819 | 0.001 | 27.9056 ± 1.2596 | 0.2881 | 0.5187 | 0.6291 | 35.2715 |
+| `tower` | 0.741 | 512 | 32x32 | 1,314,819 | 0.001 | 28.9012 ± 1.1858 | 0.2719 | 0.4946 | 0.6064 | 36.1333 |
+| `tower` | 0.889 | 512 | 32x32 | 1,314,819 | 0.0003 | 28.9423 ± 0.4194 | 0.2660 | 0.4947 | 0.6100 | 36.2404 |
+| `tower` | 1.000 | 512 | 32x32 | 1,314,819 | 0.001 | 30.6895 ± 0.3123 | 0.2395 | 0.4554 | 0.5734 | 37.8288 |
+| `merged` | 1.000 | 512 | 16x16 | 1,314,819 | 0.001 | 30.8625 ± 0.4531 | 0.2367 | 0.4505 | 0.5682 | 37.9534 |
+| `projected` | 1.000 | 512 | 16x16 | 1,314,819 | 0.001 | 28.5182 ± 0.6087 | 0.2875 | 0.5171 | 0.6260 | 36.2813 |
+
+### immanuelpeter/MoonViT-V2, normal, capacity-matched
+
+| Stage | Rel. Depth | Width | Grid | Params | LR | mean_deg | d1 | d2 | d3 | rmse |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `tower` | 0.111 | 512 | 32x32 | 1,314,819 | 0.001 | 31.5431 ± 0.8915 | 0.2273 | 0.4331 | 0.5526 | 38.4678 |
+| `tower` | 0.259 | 512 | 32x32 | 1,314,819 | 0.001 | 27.9846 ± 1.0336 | 0.2790 | 0.5170 | 0.6303 | 35.1923 |
+| `tower` | 0.370 | 512 | 32x32 | 1,314,819 | 0.001 | 27.0277 ± 1.1372 | 0.2975 | 0.5345 | 0.6463 | 34.2448 |
+| `tower` | 0.519 | 512 | 32x32 | 1,314,819 | 0.001 | 27.4822 ± 3.1567 | 0.3057 | 0.5372 | 0.6370 | 34.8134 |
+| `tower` | 0.630 | 512 | 32x32 | 1,314,819 | 0.001 | 27.1783 ± 2.7715 | 0.3072 | 0.5351 | 0.6386 | 34.4793 |
+| `tower` | 0.741 | 512 | 32x32 | 1,314,819 | 0.001 | 28.3899 ± 2.9250 | 0.2869 | 0.5020 | 0.6162 | 35.5862 |
+| `tower` | 0.889 | 512 | 32x32 | 1,314,819 | 0.001 | 29.6773 ± 2.3439 | 0.2639 | 0.4789 | 0.5898 | 36.7852 |
+| `tower` | 1.000 | 512 | 32x32 | 1,314,819 | 0.001 | 31.7594 ± 1.4007 | 0.2374 | 0.4379 | 0.5488 | 38.9399 |
+| `merged` | 1.000 | 512 | 16x16 | 1,314,819 | 0.001 | 29.1905 ± 0.6670 | 0.2767 | 0.5002 | 0.6099 | 36.8601 |
+| `projected` | 1.000 | 512 | 16x16 | 1,314,819 | 0.001 | 29.3040 ± 0.6480 | 0.2730 | 0.4972 | 0.6077 | 36.9290 |
+
+### meta-models/Muse-Glimmer-30B, normal, capacity-matched
+
+| Stage | Rel. Depth | Width | Grid | Params | LR | mean_deg | d1 | d2 | d3 | rmse |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `tower` | 0.120 | 512 | 32x32 | 1,314,819 | 0.0003 | 30.1532 ± 0.3697 | 0.2392 | 0.4589 | 0.5785 | 37.0316 |
+| `tower` | 0.240 | 512 | 32x32 | 1,314,819 | 0.0003 | 29.5711 ± 0.4013 | 0.2496 | 0.4714 | 0.5886 | 36.5678 |
+| `tower` | 0.380 | 512 | 32x32 | 1,314,819 | 0.0003 | 28.0283 ± 0.4184 | 0.2767 | 0.5079 | 0.6247 | 35.1999 |
+| `tower` | 0.500 | 512 | 32x32 | 1,314,819 | 0.0003 | 26.1587 ± 0.6811 | 0.3169 | 0.5549 | 0.6638 | 33.5529 |
+| `tower` | 0.620 | 512 | 32x32 | 1,314,819 | 0.0003 | 24.3014 ± 0.4858 | 0.3583 | 0.6059 | 0.7049 | 31.9281 |
+| `tower` | 0.760 | 512 | 32x32 | 1,314,819 | 0.0003 | 28.6054 ± 0.8560 | 0.2763 | 0.5022 | 0.6153 | 36.0714 |
+| `tower` | 0.880 | 512 | 32x32 | 1,314,819 | 0.0003 | 30.7152 ± 0.7427 | 0.2456 | 0.4569 | 0.5713 | 37.9954 |
+| `tower` | 1.000 | 512 | 32x32 | 1,314,819 | 0.001 | 31.5342 ± 0.4085 | 0.2240 | 0.4368 | 0.5559 | 38.6510 |
+| `merged` | 1.000 | 512 | 16x16 | 1,314,819 | 0.001 | 32.2451 ± 0.4025 | 0.2102 | 0.4179 | 0.5380 | 39.2153 |
+| `projected` | 1.000 | 512 | 16x16 | 1,314,819 | 0.0003 | 30.6088 ± 0.4363 | 0.2413 | 0.4567 | 0.5738 | 37.9774 |
+
+### Qwen/Qwen3.8-27B, normal, capacity-matched
+
+| Stage | Rel. Depth | Width | Grid | Params | LR | mean_deg | d1 | d2 | d3 | rmse |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `tower` | 0.111 | 512 | 28x28 | 1,314,819 | 0.001 | 29.3251 ± 0.7471 | 0.2571 | 0.4830 | 0.6023 | 36.4647 |
+| `tower` | 0.259 | 512 | 28x28 | 1,314,819 | 0.001 | 25.1282 ± 0.5807 | 0.3390 | 0.5904 | 0.6912 | 32.6162 |
+| `tower` | 0.370 | 512 | 28x28 | 1,314,819 | 0.001 | 24.2386 ± 0.9138 | 0.3597 | 0.6041 | 0.7042 | 31.7430 |
+| `tower` | 0.519 | 512 | 28x28 | 1,314,819 | 0.001 | 24.5956 ± 1.1498 | 0.3501 | 0.5979 | 0.6982 | 32.1925 |
+| `tower` | 0.630 | 512 | 28x28 | 1,314,819 | 0.001 | 27.0879 ± 2.8561 | 0.3059 | 0.5316 | 0.6410 | 34.4314 |
+| `tower` | 0.741 | 512 | 28x28 | 1,314,819 | 0.0003 | 26.8129 ± 0.3620 | 0.3080 | 0.5467 | 0.6548 | 34.4681 |
+| `tower` | 0.889 | 512 | 28x28 | 1,314,819 | 0.0003 | 27.8236 ± 0.3253 | 0.2895 | 0.5241 | 0.6347 | 35.3875 |
+| `tower` | 1.000 | 512 | 28x28 | 1,314,819 | 0.0001 | 34.4539 ± 0.5360 | 0.1709 | 0.3534 | 0.4769 | 40.4072 |
+| `merged` | 1.000 | 512 | 14x14 | 1,314,819 | 0.0003 | 36.1673 ± 0.1886 | 0.1582 | 0.3330 | 0.4477 | 42.0939 |
+| `projected` | 1.000 | 512 | 14x14 | 1,314,819 | 0.0003 | 29.9228 ± 0.3512 | 0.2525 | 0.4773 | 0.5921 | 37.3421 |
+
+### google/siglip2-so400m-patch14-384, normal, capacity-matched
+
+| Stage | Rel. Depth | Width | Grid | Params | LR | mean_deg | d1 | d2 | d3 | rmse |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `tower` | 0.111 | 512 | 32x32 | 1,314,819 | 0.001 | 29.5101 ± 0.5238 | 0.2525 | 0.4773 | 0.5961 | 36.6022 |
+| `tower` | 0.259 | 512 | 32x32 | 1,314,819 | 0.001 | 25.2319 ± 0.5406 | 0.3343 | 0.5795 | 0.6847 | 32.6717 |
+| `tower` | 0.370 | 512 | 32x32 | 1,314,819 | 0.001 | 23.9039 ± 0.4021 | 0.3687 | 0.6109 | 0.7097 | 31.5259 |
+| `tower` | 0.519 | 512 | 32x32 | 1,314,819 | 0.001 | 25.3960 ± 0.9168 | 0.3346 | 0.5766 | 0.6822 | 33.0879 |
+| `tower` | 0.630 | 512 | 32x32 | 1,314,819 | 0.001 | 28.1563 ± 2.0337 | 0.2873 | 0.5077 | 0.6170 | 35.3782 |
+| `tower` | 0.741 | 512 | 32x32 | 1,314,819 | 0.001 | 29.2403 ± 1.7726 | 0.2684 | 0.4881 | 0.5979 | 36.4236 |
+| `tower` | 0.889 | 512 | 32x32 | 1,314,819 | 0.001 | 30.6236 ± 1.6060 | 0.2506 | 0.4619 | 0.5694 | 37.7459 |
+| `tower` | 1.000 | 512 | 32x32 | 1,314,819 | 0.0003 | 31.0147 ± 0.2987 | 0.2360 | 0.4463 | 0.5595 | 38.0554 |
+
+## Semantics
+
+ImageNet-100 validation, 13,000 images, top-1 over three seeds. `val` is the accuracy the
+rate search selected on.
+
+### Attention readout, unmatched
+
+### facebook/dinov2-large, attention readout, unmatched
+
+| Stage | Rel. Depth | Width | Params | LR | top-1 | val |
+|---|---|---|---|---|---|---|
+| `tower` | 0.125 | 1024 | 2,152,036 | 0.001 | 0.3362 ± 0.0047 | 0.3349 |
+| `tower` | 0.250 | 1024 | 2,152,036 | 0.0003 | 0.4429 ± 0.0025 | 0.4415 |
+| `tower` | 0.375 | 1024 | 2,152,036 | 0.0003 | 0.5472 ± 0.0070 | 0.5508 |
+| `tower` | 0.500 | 1024 | 2,152,036 | 0.001 | 0.6737 ± 0.0044 | 0.6913 |
+| `tower` | 0.625 | 1024 | 2,152,036 | 0.0003 | 0.7827 ± 0.0002 | 0.7913 |
+| `tower` | 0.750 | 1024 | 2,152,036 | 0.0003 | 0.8356 ± 0.0085 | 0.8482 |
+| `tower` | 0.875 | 1024 | 2,152,036 | 0.0003 | 0.8814 ± 0.0031 | 0.8851 |
+| `tower` | 1.000 | 1024 | 2,152,036 | 0.0003 | 0.9055 ± 0.0013 | 0.9067 |
+
+### exolabs/Kimi-K2.6-vision, attention readout, unmatched
+
+| Stage | Rel. Depth | Width | Params | LR | top-1 | val |
+|---|---|---|---|---|---|---|
+| `tower` | 0.111 | 1152 | 2,283,108 | 0.0003 | 0.3152 ± 0.0043 | 0.3123 |
+| `tower` | 0.259 | 1152 | 2,283,108 | 0.0003 | 0.5526 ± 0.0002 | 0.5477 |
+| `tower` | 0.370 | 1152 | 2,283,108 | 0.0003 | 0.6715 ± 0.0057 | 0.6800 |
+| `tower` | 0.518 | 1152 | 2,283,108 | 0.0003 | 0.8060 ± 0.0025 | 0.8297 |
+| `tower` | 0.630 | 1152 | 2,283,108 | 0.0003 | 0.8545 ± 0.0017 | 0.8687 |
+| `tower` | 0.741 | 1152 | 2,283,108 | 0.0003 | 0.8713 ± 0.0019 | 0.8785 |
+| `tower` | 0.889 | 1152 | 2,283,108 | 0.0003 | 0.8786 ± 0.0029 | 0.8867 |
+| `tower` | 1.000 | 1152 | 2,283,108 | 0.0003 | 0.8778 ± 0.0025 | 0.8882 |
+| `merged` | 1.000 | 4608 | 5,822,052 | 0.0003 | 0.8798 ± 0.0017 | 0.8810 |
+| `projected` | 1.000 | 7168 | 8,443,492 | 0.0003 | 0.8728 ± 0.0011 | 0.8821 |
+
+### immanuelpeter/MoonViT-V2, attention readout, unmatched
+
+| Stage | Rel. Depth | Width | Params | LR | top-1 | val |
+|---|---|---|---|---|---|---|
+| `tower` | 0.111 | 1024 | 2,152,036 | 0.0003 | 0.3773 ± 0.0075 | 0.3759 |
+| `tower` | 0.259 | 1024 | 2,152,036 | 0.0003 | 0.5021 ± 0.0026 | 0.4933 |
+| `tower` | 0.370 | 1024 | 2,152,036 | 0.0003 | 0.5884 ± 0.0062 | 0.5738 |
+| `tower` | 0.518 | 1024 | 2,152,036 | 0.0003 | 0.7036 ± 0.0030 | 0.7082 |
+| `tower` | 0.630 | 1024 | 2,152,036 | 0.0003 | 0.7699 ± 0.0033 | 0.7733 |
+| `tower` | 0.741 | 1024 | 2,152,036 | 0.0003 | 0.8063 ± 0.0046 | 0.8092 |
+| `tower` | 0.889 | 1024 | 2,152,036 | 0.0003 | 0.8137 ± 0.0035 | 0.8226 |
+| `tower` | 1.000 | 1024 | 2,152,036 | 0.0003 | 0.8373 ± 0.0016 | 0.8482 |
+| `merged` | 1.000 | 4096 | 5,297,764 | 0.0003 | 0.8410 ± 0.0027 | 0.8456 |
+| `projected` | 1.000 | 7168 | 8,443,492 | 0.0003 | 0.8356 ± 0.0032 | 0.8508 |
+
+### meta-models/Muse-Glimmer-30B, attention readout, unmatched
+
+| Stage | Rel. Depth | Width | Params | LR | top-1 | val |
+|---|---|---|---|---|---|---|
+| `tower` | 0.120 | 1536 | 2,676,324 | 0.0003 | 0.3928 ± 0.0030 | 0.3933 |
+| `tower` | 0.240 | 1536 | 2,676,324 | 0.0003 | 0.4723 ± 0.0027 | 0.4872 |
+| `tower` | 0.380 | 1536 | 2,676,324 | 0.0003 | 0.5518 ± 0.0058 | 0.5482 |
+| `tower` | 0.500 | 1536 | 2,676,324 | 0.0003 | 0.6745 ± 0.0046 | 0.6677 |
+| `tower` | 0.620 | 1536 | 2,676,324 | 0.0003 | 0.7744 ± 0.0076 | 0.7713 |
+| `tower` | 0.760 | 1536 | 2,676,324 | 0.0003 | 0.8641 ± 0.0007 | 0.8851 |
+| `tower` | 0.880 | 1536 | 2,676,324 | 0.0003 | 0.8974 ± 0.0007 | 0.8995 |
+| `tower` | 1.000 | 1536 | 2,676,324 | 0.0003 | 0.9145 ± 0.0019 | 0.9221 |
+| `merged` | 1.000 | 6144 | 7,394,916 | 0.0003 | 0.9096 ± 0.0005 | 0.9113 |
+| `projected` | 1.000 | 6656 | 7,919,204 | 0.0003 | 0.9075 ± 0.0020 | 0.9128 |
+
+### Qwen/Qwen3.8-27B, attention readout, unmatched
+
+| Stage | Rel. Depth | Width | Params | LR | top-1 | val |
+|---|---|---|---|---|---|---|
+| `tower` | 0.111 | 1152 | 2,283,108 | 0.0003 | 0.4569 ± 0.0058 | 0.4369 |
+| `tower` | 0.259 | 1152 | 2,283,108 | 0.0003 | 0.6443 ± 0.0023 | 0.6374 |
+| `tower` | 0.370 | 1152 | 2,283,108 | 0.0003 | 0.7421 ± 0.0018 | 0.7431 |
+| `tower` | 0.518 | 1152 | 2,283,108 | 0.0003 | 0.8195 ± 0.0033 | 0.8287 |
+| `tower` | 0.630 | 1152 | 2,283,108 | 0.0003 | 0.8667 ± 0.0004 | 0.8708 |
+| `tower` | 0.741 | 1152 | 2,283,108 | 0.0003 | 0.8853 ± 0.0043 | 0.8774 |
+| `tower` | 0.889 | 1152 | 2,283,108 | 0.0003 | 0.8827 ± 0.0017 | 0.8846 |
+| `tower` | 1.000 | 1152 | 2,283,108 | 0.0003 | 0.8742 ± 0.0035 | 0.8918 |
+| `merged` | 1.000 | 4608 | 5,822,052 | 0.0003 | 0.8697 ± 0.0011 | 0.8846 |
+| `projected` | 1.000 | 5120 | 6,346,340 | 0.0003 | 0.8749 ± 0.0017 | 0.8749 |
+
+### google/siglip2-so400m-patch14-384, attention readout, unmatched
+
+| Stage | Rel. Depth | Width | Params | LR | top-1 | val |
+|---|---|---|---|---|---|---|
+| `tower` | 0.111 | 1152 | 2,283,108 | 0.0003 | 0.4744 ± 0.0042 | 0.4600 |
+| `tower` | 0.259 | 1152 | 2,283,108 | 0.0003 | 0.6682 ± 0.0023 | 0.6738 |
+| `tower` | 0.370 | 1152 | 2,283,108 | 0.0003 | 0.7511 ± 0.0035 | 0.7728 |
+| `tower` | 0.518 | 1152 | 2,283,108 | 0.0003 | 0.8414 ± 0.0036 | 0.8590 |
+| `tower` | 0.630 | 1152 | 2,283,108 | 0.0003 | 0.8788 ± 0.0023 | 0.8826 |
+| `tower` | 0.741 | 1152 | 2,283,108 | 0.0003 | 0.8896 ± 0.0013 | 0.9046 |
+| `tower` | 0.889 | 1152 | 2,283,108 | 0.0003 | 0.9043 ± 0.0024 | 0.9118 |
+| `tower` | 1.000 | 1152 | 2,283,108 | 0.0003 | 0.9101 ± 0.0009 | 0.9149 |
+
+### Attention readout, capacity-matched
+
+### facebook/dinov2-large, attention readout, capacity-matched
+
+| Stage | Rel. Depth | Width | Params | LR | top-1 | val |
+|---|---|---|---|---|---|---|
+| `tower` | 0.125 | 1024 | 1,627,748 | 0.0003 | 0.3653 ± 0.0035 | 0.3626 |
+| `tower` | 0.250 | 1024 | 1,627,748 | 0.0003 | 0.4716 ± 0.0063 | 0.4559 |
+| `tower` | 0.375 | 1024 | 1,627,748 | 0.0003 | 0.5646 ± 0.0059 | 0.5585 |
+| `tower` | 0.500 | 1024 | 1,627,748 | 0.0003 | 0.6872 ± 0.0036 | 0.6938 |
+| `tower` | 0.625 | 1024 | 1,627,748 | 0.0003 | 0.7682 ± 0.0069 | 0.7744 |
+| `tower` | 0.750 | 1024 | 1,627,748 | 0.0003 | 0.8227 ± 0.0042 | 0.8390 |
+| `tower` | 0.875 | 1024 | 1,627,748 | 0.0003 | 0.8745 ± 0.0036 | 0.8856 |
+| `tower` | 1.000 | 1024 | 1,627,748 | 0.001 | 0.8988 ± 0.0021 | 0.9072 |
+
+### exolabs/Kimi-K2.6-vision, attention readout, capacity-matched
+
+| Stage | Rel. Depth | Width | Params | LR | top-1 | val |
+|---|---|---|---|---|---|---|
+| `tower` | 0.111 | 1152 | 1,627,748 | 0.0003 | 0.4280 ± 0.0046 | 0.4205 |
+| `tower` | 0.259 | 1152 | 1,627,748 | 0.0003 | 0.6075 ± 0.0076 | 0.6185 |
+| `tower` | 0.370 | 1152 | 1,627,748 | 0.0003 | 0.7014 ± 0.0019 | 0.7179 |
+| `tower` | 0.518 | 1152 | 1,627,748 | 0.0003 | 0.8079 ± 0.0040 | 0.8272 |
+| `tower` | 0.630 | 1152 | 1,627,748 | 0.0003 | 0.8571 ± 0.0002 | 0.8554 |
+| `tower` | 0.741 | 1152 | 1,627,748 | 0.0003 | 0.8718 ± 0.0004 | 0.8754 |
+| `tower` | 0.889 | 1152 | 1,627,748 | 0.0003 | 0.8730 ± 0.0038 | 0.8836 |
+| `tower` | 1.000 | 1152 | 1,627,748 | 0.0003 | 0.8815 ± 0.0025 | 0.8790 |
+| `merged` | 1.000 | 4608 | 1,627,748 | 0.0003 | 0.8756 ± 0.0011 | 0.8810 |
+| `projected` | 1.000 | 7168 | 1,627,748 | 0.001 | 0.8745 ± 0.0040 | 0.8815 |
+
+### immanuelpeter/MoonViT-V2, attention readout, capacity-matched
+
+| Stage | Rel. Depth | Width | Params | LR | top-1 | val |
+|---|---|---|---|---|---|---|
+| `tower` | 0.111 | 1024 | 1,627,748 | 0.0003 | 0.3824 ± 0.0036 | 0.3795 |
+| `tower` | 0.259 | 1024 | 1,627,748 | 0.0003 | 0.5280 ± 0.0065 | 0.5077 |
+| `tower` | 0.370 | 1024 | 1,627,748 | 0.0003 | 0.6022 ± 0.0122 | 0.5887 |
+| `tower` | 0.518 | 1024 | 1,627,748 | 0.0003 | 0.7120 ± 0.0013 | 0.7041 |
+| `tower` | 0.630 | 1024 | 1,627,748 | 0.0003 | 0.7634 ± 0.0065 | 0.7687 |
+| `tower` | 0.741 | 1024 | 1,627,748 | 0.0003 | 0.8010 ± 0.0051 | 0.8179 |
+| `tower` | 0.889 | 1024 | 1,627,748 | 0.0003 | 0.8250 ± 0.0034 | 0.8318 |
+| `tower` | 1.000 | 1024 | 1,627,748 | 0.0003 | 0.8338 ± 0.0022 | 0.8477 |
+| `merged` | 1.000 | 4096 | 1,627,748 | 0.0003 | 0.8395 ± 0.0025 | 0.8497 |
+| `projected` | 1.000 | 7168 | 1,627,748 | 0.0003 | 0.8422 ± 0.0017 | 0.8518 |
+
+### meta-models/Muse-Glimmer-30B, attention readout, capacity-matched
+
+| Stage | Rel. Depth | Width | Params | LR | top-1 | val |
+|---|---|---|---|---|---|---|
+| `tower` | 0.120 | 1536 | 1,627,748 | 0.0003 | 0.4079 ± 0.0057 | 0.3969 |
+| `tower` | 0.240 | 1536 | 1,627,748 | 0.0003 | 0.4926 ± 0.0040 | 0.4928 |
+| `tower` | 0.380 | 1536 | 1,627,748 | 0.0003 | 0.5615 ± 0.0075 | 0.5708 |
+| `tower` | 0.500 | 1536 | 1,627,748 | 0.0003 | 0.6619 ± 0.0013 | 0.6631 |
+| `tower` | 0.620 | 1536 | 1,627,748 | 0.0003 | 0.7626 ± 0.0059 | 0.7708 |
+| `tower` | 0.760 | 1536 | 1,627,748 | 0.0003 | 0.8627 ± 0.0006 | 0.8862 |
+| `tower` | 0.880 | 1536 | 1,627,748 | 0.0003 | 0.8962 ± 0.0016 | 0.9005 |
+| `tower` | 1.000 | 1536 | 1,627,748 | 0.0003 | 0.9178 ± 0.0010 | 0.9215 |
+| `merged` | 1.000 | 6144 | 1,627,748 | 0.0003 | 0.9154 ± 0.0015 | 0.9190 |
+| `projected` | 1.000 | 6656 | 1,627,748 | 0.0003 | 0.9079 ± 0.0006 | 0.9149 |
+
+### Qwen/Qwen3.8-27B, attention readout, capacity-matched
+
+| Stage | Rel. Depth | Width | Params | LR | top-1 | val |
+|---|---|---|---|---|---|---|
+| `tower` | 0.111 | 1152 | 1,627,748 | 0.0003 | 0.4658 ± 0.0046 | 0.4549 |
+| `tower` | 0.259 | 1152 | 1,627,748 | 0.0003 | 0.6383 ± 0.0040 | 0.6492 |
+| `tower` | 0.370 | 1152 | 1,627,748 | 0.0003 | 0.7330 ± 0.0029 | 0.7297 |
+| `tower` | 0.518 | 1152 | 1,627,748 | 0.0003 | 0.8096 ± 0.0013 | 0.8308 |
+| `tower` | 0.630 | 1152 | 1,627,748 | 0.001 | 0.8564 ± 0.0011 | 0.8672 |
+| `tower` | 0.741 | 1152 | 1,627,748 | 0.0003 | 0.8776 ± 0.0020 | 0.8810 |
+| `tower` | 0.889 | 1152 | 1,627,748 | 0.0003 | 0.8773 ± 0.0017 | 0.8867 |
+| `tower` | 1.000 | 1152 | 1,627,748 | 0.0003 | 0.8750 ± 0.0016 | 0.8872 |
+| `merged` | 1.000 | 4608 | 1,627,748 | 0.0003 | 0.8769 ± 0.0013 | 0.8805 |
+| `projected` | 1.000 | 5120 | 1,627,748 | 0.0003 | 0.8783 ± 0.0009 | 0.8795 |
+
+### google/siglip2-so400m-patch14-384, attention readout, capacity-matched
+
+| Stage | Rel. Depth | Width | Params | LR | top-1 | val |
+|---|---|---|---|---|---|---|
+| `tower` | 0.111 | 1152 | 1,627,748 | 0.0003 | 0.4651 ± 0.0056 | 0.4462 |
+| `tower` | 0.259 | 1152 | 1,627,748 | 0.0003 | 0.6538 ± 0.0025 | 0.6513 |
+| `tower` | 0.370 | 1152 | 1,627,748 | 0.0003 | 0.7338 ± 0.0011 | 0.7421 |
+| `tower` | 0.518 | 1152 | 1,627,748 | 0.0003 | 0.8344 ± 0.0040 | 0.8544 |
+| `tower` | 0.630 | 1152 | 1,627,748 | 0.0003 | 0.8769 ± 0.0029 | 0.8779 |
+| `tower` | 0.741 | 1152 | 1,627,748 | 0.0003 | 0.8904 ± 0.0016 | 0.9041 |
+| `tower` | 0.889 | 1152 | 1,627,748 | 0.0003 | 0.9029 ± 0.0034 | 0.9082 |
+| `tower` | 1.000 | 1152 | 1,627,748 | 0.0003 | 0.9091 ± 0.0019 | 0.9154 |
+
+### Mean readout, unmatched
+
+### facebook/dinov2-large, mean readout, unmatched
+
+| Stage | Rel. Depth | Width | Params | LR | top-1 | val |
+|---|---|---|---|---|---|---|
+| `tower` | 0.125 | 1024 | 102,500 | 1 | 0.2627 ± 0.0012 | 0.2554 |
+| `tower` | 0.250 | 1024 | 102,500 | 1 | 0.3458 ± 0.0032 | 0.3462 |
+| `tower` | 0.375 | 1024 | 102,500 | 1 | 0.4277 ± 0.0044 | 0.4067 |
+| `tower` | 0.500 | 1024 | 102,500 | 0.3 | 0.5564 ± 0.0015 | 0.5364 |
+| `tower` | 0.625 | 1024 | 102,500 | 0.1 | 0.6467 ± 0.0023 | 0.6549 |
+| `tower` | 0.750 | 1024 | 102,500 | 0.03 | 0.7538 ± 0.0011 | 0.7518 |
+| `tower` | 0.875 | 1024 | 102,500 | 0.01 | 0.8291 ± 0.0002 | 0.8164 |
+| `tower` | 1.000 | 1024 | 102,500 | 0.001 | 0.8916 ± 0.0010 | 0.8923 |
+
+### exolabs/Kimi-K2.6-vision, mean readout, unmatched
+
+| Stage | Rel. Depth | Width | Params | LR | top-1 | val |
+|---|---|---|---|---|---|---|
+| `tower` | 0.111 | 1152 | 115,300 | 0.3 | 0.2291 ± 0.0043 | 0.2405 |
+| `tower` | 0.259 | 1152 | 115,300 | 0.3 | 0.4036 ± 0.0025 | 0.3979 |
+| `tower` | 0.370 | 1152 | 115,300 | 0.3 | 0.5279 ± 0.0038 | 0.5205 |
+| `tower` | 0.518 | 1152 | 115,300 | 0.1 | 0.7094 ± 0.0038 | 0.7205 |
+| `tower` | 0.630 | 1152 | 115,300 | 0.03 | 0.8050 ± 0.0006 | 0.8241 |
+| `tower` | 0.741 | 1152 | 115,300 | 0.01 | 0.8421 ± 0.0019 | 0.8554 |
+| `tower` | 0.889 | 1152 | 115,300 | 0.01 | 0.8603 ± 0.0019 | 0.8754 |
+| `tower` | 1.000 | 1152 | 115,300 | 0.01 | 0.8682 ± 0.0017 | 0.8718 |
+| `merged` | 1.000 | 4608 | 460,900 | 0.003 | 0.8665 ± 0.0012 | 0.8764 |
+| `projected` | 1.000 | 7168 | 716,900 | 0.01 | 0.8658 ± 0.0009 | 0.8733 |
+
+### immanuelpeter/MoonViT-V2, mean readout, unmatched
+
+| Stage | Rel. Depth | Width | Params | LR | top-1 | val |
+|---|---|---|---|---|---|---|
+| `tower` | 0.111 | 1024 | 102,500 | 0.3 | 0.2696 ± 0.0052 | 0.2697 |
+| `tower` | 0.259 | 1024 | 102,500 | 0.3 | 0.3728 ± 0.0029 | 0.3626 |
+| `tower` | 0.370 | 1024 | 102,500 | 0.3 | 0.4385 ± 0.0017 | 0.4251 |
+| `tower` | 0.518 | 1024 | 102,500 | 0.1 | 0.5896 ± 0.0023 | 0.5708 |
+| `tower` | 0.630 | 1024 | 102,500 | 0.1 | 0.6663 ± 0.0016 | 0.6641 |
+| `tower` | 0.741 | 1024 | 102,500 | 0.1 | 0.7097 ± 0.0025 | 0.7144 |
+| `tower` | 0.889 | 1024 | 102,500 | 0.3 | 0.7256 ± 0.0037 | 0.7333 |
+| `tower` | 1.000 | 1024 | 102,500 | 0.1 | 0.8147 ± 0.0013 | 0.8277 |
+| `merged` | 1.000 | 4096 | 409,700 | 0.03 | 0.8159 ± 0.0000 | 0.8297 |
+| `projected` | 1.000 | 7168 | 716,900 | 0.03 | 0.8154 ± 0.0004 | 0.8246 |
+
+### meta-models/Muse-Glimmer-30B, mean readout, unmatched
+
+| Stage | Rel. Depth | Width | Params | LR | top-1 | val |
+|---|---|---|---|---|---|---|
+| `tower` | 0.120 | 1536 | 153,700 | 0.01 | 0.2959 ± 0.0033 | 0.3138 |
+| `tower` | 0.240 | 1536 | 153,700 | 0.01 | 0.3627 ± 0.0036 | 0.3585 |
+| `tower` | 0.380 | 1536 | 153,700 | 0.01 | 0.4226 ± 0.0033 | 0.4113 |
+| `tower` | 0.500 | 1536 | 153,700 | 0.003 | 0.5179 ± 0.0048 | 0.5097 |
+| `tower` | 0.620 | 1536 | 153,700 | 0.01 | 0.6549 ± 0.0007 | 0.6518 |
+| `tower` | 0.760 | 1536 | 153,700 | 0.003 | 0.8193 ± 0.0029 | 0.8379 |
+| `tower` | 0.880 | 1536 | 153,700 | 0.001 | 0.8836 ± 0.0029 | 0.8918 |
+| `tower` | 1.000 | 1536 | 153,700 | 0.01 | 0.9106 ± 0.0009 | 0.9190 |
+| `merged` | 1.000 | 6144 | 614,500 | 0.003 | 0.9137 ± 0.0005 | 0.9159 |
+| `projected` | 1.000 | 6656 | 665,700 | 0.001 | 0.8990 ± 0.0011 | 0.9144 |
+
+### Qwen/Qwen3.8-27B, mean readout, unmatched
+
+| Stage | Rel. Depth | Width | Params | LR | top-1 | val |
+|---|---|---|---|---|---|---|
+| `tower` | 0.111 | 1152 | 115,300 | 0.1 | 0.3520 ± 0.0034 | 0.3328 |
+| `tower` | 0.259 | 1152 | 115,300 | 0.1 | 0.5038 ± 0.0046 | 0.5072 |
+| `tower` | 0.370 | 1152 | 115,300 | 0.03 | 0.6282 ± 0.0004 | 0.6451 |
+| `tower` | 0.518 | 1152 | 115,300 | 0.01 | 0.7241 ± 0.0007 | 0.7467 |
+| `tower` | 0.630 | 1152 | 115,300 | 0.003 | 0.8015 ± 0.0011 | 0.8359 |
+| `tower` | 0.741 | 1152 | 115,300 | 0.003 | 0.8528 ± 0.0018 | 0.8662 |
+| `tower` | 0.889 | 1152 | 115,300 | 0.003 | 0.8593 ± 0.0017 | 0.8785 |
+| `tower` | 1.000 | 1152 | 115,300 | 0.003 | 0.8412 ± 0.0039 | 0.8487 |
+| `merged` | 1.000 | 4608 | 460,900 | 0.003 | 0.8320 ± 0.0024 | 0.8436 |
+| `projected` | 1.000 | 5120 | 512,100 | 0.001 | 0.8631 ± 0.0011 | 0.8713 |
+
+### google/siglip2-so400m-patch14-384, mean readout, unmatched
+
+| Stage | Rel. Depth | Width | Params | LR | top-1 | val |
+|---|---|---|---|---|---|---|
+| `tower` | 0.111 | 1152 | 115,300 | 0.3 | 0.3207 ± 0.0021 | 0.3462 |
+| `tower` | 0.259 | 1152 | 115,300 | 0.1 | 0.5195 ± 0.0044 | 0.5087 |
+| `tower` | 0.370 | 1152 | 115,300 | 0.03 | 0.6550 ± 0.0017 | 0.6610 |
+| `tower` | 0.518 | 1152 | 115,300 | 0.03 | 0.7706 ± 0.0005 | 0.7933 |
+| `tower` | 0.630 | 1152 | 115,300 | 0.01 | 0.8578 ± 0.0021 | 0.8692 |
+| `tower` | 0.741 | 1152 | 115,300 | 0.003 | 0.8856 ± 0.0011 | 0.9041 |
+| `tower` | 0.889 | 1152 | 115,300 | 0.001 | 0.9065 ± 0.0006 | 0.9159 |
+| `tower` | 1.000 | 1152 | 115,300 | 0.001 | 0.9121 ± 0.0005 | 0.9241 |
+
+### Mean readout, capacity-matched
+
+### facebook/dinov2-large, mean readout, capacity-matched
+
+| Stage | Rel. Depth | Width | Params | LR | top-1 | val |
+|---|---|---|---|---|---|---|
+| `tower` | 0.125 | 1024 | 51,300 | 0.1 | 0.2882 ± 0.0007 | 0.2862 |
+| `tower` | 0.250 | 1024 | 51,300 | 0.3 | 0.3774 ± 0.0008 | 0.3662 |
+| `tower` | 0.375 | 1024 | 51,300 | 0.3 | 0.4474 ± 0.0012 | 0.4405 |
+| `tower` | 0.500 | 1024 | 51,300 | 0.1 | 0.5738 ± 0.0019 | 0.5590 |
+| `tower` | 0.625 | 1024 | 51,300 | 0.03 | 0.6559 ± 0.0008 | 0.6528 |
+| `tower` | 0.750 | 1024 | 51,300 | 0.03 | 0.7494 ± 0.0013 | 0.7554 |
+| `tower` | 0.875 | 1024 | 51,300 | 0.003 | 0.8301 ± 0.0009 | 0.8205 |
+| `tower` | 1.000 | 1024 | 51,300 | 0.001 | 0.8916 ± 0.0013 | 0.8933 |
+
+### exolabs/Kimi-K2.6-vision, mean readout, capacity-matched
+
+| Stage | Rel. Depth | Width | Params | LR | top-1 | val |
+|---|---|---|---|---|---|---|
+| `tower` | 0.111 | 1152 | 51,300 | 0.1 | 0.3605 ± 0.0011 | 0.3431 |
+| `tower` | 0.259 | 1152 | 51,300 | 0.03 | 0.5181 ± 0.0024 | 0.5144 |
+| `tower` | 0.370 | 1152 | 51,300 | 0.03 | 0.6174 ± 0.0015 | 0.6185 |
+| `tower` | 0.518 | 1152 | 51,300 | 0.03 | 0.7441 ± 0.0013 | 0.7569 |
+| `tower` | 0.630 | 1152 | 51,300 | 0.01 | 0.8215 ± 0.0008 | 0.8354 |
+| `tower` | 0.741 | 1152 | 51,300 | 0.003 | 0.8497 ± 0.0029 | 0.8595 |
+| `tower` | 0.889 | 1152 | 51,300 | 0.003 | 0.8639 ± 0.0017 | 0.8790 |
+| `tower` | 1.000 | 1152 | 51,300 | 0.01 | 0.8802 ± 0.0013 | 0.8856 |
+| `merged` | 1.000 | 4608 | 51,300 | 0.003 | 0.8732 ± 0.0006 | 0.8841 |
+| `projected` | 1.000 | 7168 | 51,300 | 0.01 | 0.8769 ± 0.0004 | 0.8815 |
+
+### immanuelpeter/MoonViT-V2, mean readout, capacity-matched
+
+| Stage | Rel. Depth | Width | Params | LR | top-1 | val |
+|---|---|---|---|---|---|---|
+| `tower` | 0.111 | 1024 | 51,300 | 0.03 | 0.2981 ± 0.0013 | 0.2928 |
+| `tower` | 0.259 | 1024 | 51,300 | 0.03 | 0.4130 ± 0.0005 | 0.3903 |
+| `tower` | 0.370 | 1024 | 51,300 | 0.03 | 0.5000 ± 0.0011 | 0.4687 |
+| `tower` | 0.518 | 1024 | 51,300 | 0.03 | 0.6138 ± 0.0007 | 0.6108 |
+| `tower` | 0.630 | 1024 | 51,300 | 0.03 | 0.6952 ± 0.0009 | 0.6903 |
+| `tower` | 0.741 | 1024 | 51,300 | 0.03 | 0.7475 ± 0.0026 | 0.7513 |
+| `tower` | 0.889 | 1024 | 51,300 | 0.03 | 0.7774 ± 0.0013 | 0.7856 |
+| `tower` | 1.000 | 1024 | 51,300 | 0.1 | 0.8415 ± 0.0011 | 0.8395 |
+| `merged` | 1.000 | 4096 | 51,300 | 0.03 | 0.8438 ± 0.0019 | 0.8426 |
+| `projected` | 1.000 | 7168 | 51,300 | 0.03 | 0.8412 ± 0.0015 | 0.8359 |
+
+### meta-models/Muse-Glimmer-30B, mean readout, capacity-matched
+
+| Stage | Rel. Depth | Width | Params | LR | top-1 | val |
+|---|---|---|---|---|---|---|
+| `tower` | 0.120 | 1536 | 51,300 | 0.003 | 0.3178 ± 0.0024 | 0.3221 |
+| `tower` | 0.240 | 1536 | 51,300 | 0.003 | 0.3821 ± 0.0011 | 0.3856 |
+| `tower` | 0.380 | 1536 | 51,300 | 0.003 | 0.4398 ± 0.0019 | 0.4195 |
+| `tower` | 0.500 | 1536 | 51,300 | 0.003 | 0.5291 ± 0.0019 | 0.5154 |
+| `tower` | 0.620 | 1536 | 51,300 | 0.003 | 0.6538 ± 0.0034 | 0.6544 |
+| `tower` | 0.760 | 1536 | 51,300 | 0.003 | 0.8231 ± 0.0013 | 0.8385 |
+| `tower` | 0.880 | 1536 | 51,300 | 0.001 | 0.8875 ± 0.0020 | 0.8938 |
+| `tower` | 1.000 | 1536 | 51,300 | 0.01 | 0.9104 ± 0.0002 | 0.9210 |
+| `merged` | 1.000 | 6144 | 51,300 | 0.003 | 0.9070 ± 0.0010 | 0.9164 |
+| `projected` | 1.000 | 6656 | 51,300 | 0.003 | 0.9106 ± 0.0013 | 0.9174 |
+
+### Qwen/Qwen3.8-27B, mean readout, capacity-matched
+
+| Stage | Rel. Depth | Width | Params | LR | top-1 | val |
+|---|---|---|---|---|---|---|
+| `tower` | 0.111 | 1152 | 51,300 | 0.03 | 0.3793 ± 0.0006 | 0.3621 |
+| `tower` | 0.259 | 1152 | 51,300 | 0.03 | 0.5391 ± 0.0019 | 0.5251 |
+| `tower` | 0.370 | 1152 | 51,300 | 0.01 | 0.6333 ± 0.0004 | 0.6492 |
+| `tower` | 0.518 | 1152 | 51,300 | 0.01 | 0.7383 ± 0.0013 | 0.7600 |
+| `tower` | 0.630 | 1152 | 51,300 | 0.003 | 0.8234 ± 0.0002 | 0.8467 |
+| `tower` | 0.741 | 1152 | 51,300 | 0.001 | 0.8547 ± 0.0023 | 0.8733 |
+| `tower` | 0.889 | 1152 | 51,300 | 0.001 | 0.8709 ± 0.0026 | 0.8749 |
+| `tower` | 1.000 | 1152 | 51,300 | 0.001 | 0.8709 ± 0.0023 | 0.8795 |
+| `merged` | 1.000 | 4608 | 51,300 | 0.003 | 0.8515 ± 0.0006 | 0.8703 |
+| `projected` | 1.000 | 5120 | 51,300 | 0.003 | 0.8689 ± 0.0013 | 0.8785 |
+
+### google/siglip2-so400m-patch14-384, mean readout, capacity-matched
+
+| Stage | Rel. Depth | Width | Params | LR | top-1 | val |
+|---|---|---|---|---|---|---|
+| `tower` | 0.111 | 1152 | 51,300 | 0.03 | 0.3509 ± 0.0013 | 0.3538 |
+| `tower` | 0.259 | 1152 | 51,300 | 0.03 | 0.5373 ± 0.0012 | 0.5272 |
+| `tower` | 0.370 | 1152 | 51,300 | 0.03 | 0.6622 ± 0.0002 | 0.6585 |
+| `tower` | 0.518 | 1152 | 51,300 | 0.03 | 0.7720 ± 0.0010 | 0.7887 |
+| `tower` | 0.630 | 1152 | 51,300 | 0.01 | 0.8571 ± 0.0002 | 0.8718 |
+| `tower` | 0.741 | 1152 | 51,300 | 0.003 | 0.8885 ± 0.0010 | 0.9087 |
+| `tower` | 0.889 | 1152 | 51,300 | 0.003 | 0.9003 ± 0.0006 | 0.9174 |
+| `tower` | 1.000 | 1152 | 51,300 | 0.001 | 0.9135 ± 0.0009 | 0.9195 |
 
 ## Indoors against outdoor
 
-Coverage is the fraction of each target the metric can score, averaged over the test
-split. It differs sharply by scene type and by task: depth is annotated on 0.9890 of an
-indoor image and 0.7771 of an outdoor one, while normals reach 0.9803 indoors and only
-0.6116 outdoors. DIODE ships no validity mask for normals, so an unannotated pixel is a
-zero vector and validity comes from normal magnitude. Read every outdoor normals number as
-an average over about three fifths of the frame.
+Coverage is the fraction of each target the metric can score, averaged over the test split.
+Depth is annotated on 0.9890 of an indoor image and 0.7771 of an outdoor one; normals reach
+0.9803 indoors and 0.6116 outdoors. DIODE ships no validity mask for normals, so an
+unannotated pixel is a zero vector and validity comes from normal magnitude. Read every
+outdoor normals number as an average over about three fifths of the frame.
 
-### AI4Industry/MoonViT-V2, depth, capacity-matched
+Both scene types give the same answers as the pooled numbers above. The capacity-matched arm
+is shown.
 
-| Stage | Rel. Depth | indoors d1 | outdoor d1 | indoors coverage | outdoor coverage |
-|---|---|---|---|---|---|
-| `tower` | 0.111 | 0.3868 ± 0.0127 | 0.4215 ± 0.0104 | 0.9890 | 0.7771 |
-| `tower` | 0.259 | 0.5196 ± 0.0019 | 0.5334 ± 0.0020 | 0.9890 | 0.7771 |
-| `tower` | 0.370 | 0.5699 ± 0.0100 | 0.5806 ± 0.0059 | 0.9890 | 0.7771 |
-| `tower` | 0.519 | 0.6313 ± 0.0061 | 0.6140 ± 0.0074 | 0.9890 | 0.7771 |
-| `tower` | 0.630 | 0.6663 ± 0.0039 | 0.6447 ± 0.0002 | 0.9890 | 0.7771 |
-| `tower` | 0.741 | 0.6408 ± 0.0036 | 0.6239 ± 0.0027 | 0.9890 | 0.7771 |
-| `tower` | 0.889 | 0.6070 ± 0.0060 | 0.5865 ± 0.0139 | 0.9890 | 0.7771 |
-| `tower` | 1.000 | 0.5420 ± 0.0071 | 0.5344 ± 0.0037 | 0.9890 | 0.7771 |
-| `merged` | 1.000 | 0.6446 ± 0.0043 | 0.5756 ± 0.0013 | 0.9890 | 0.7771 |
-| `projected` | 1.000 | 0.6599 ± 0.0132 | 0.5782 ± 0.0067 | 0.9890 | 0.7771 |
-
-### AI4Industry/MoonViT-V2, normal, capacity-matched
-
-| Stage | Rel. Depth | indoors mean_deg | outdoor mean_deg | indoors coverage | outdoor coverage |
-|---|---|---|---|---|---|
-| `tower` | 0.111 | 33.0059 ± 1.0477 | 30.2229 ± 0.5265 | 0.9803 | 0.6116 |
-| `tower` | 0.259 | 27.9178 ± 1.5304 | 28.1666 ± 0.8210 | 0.9803 | 0.6116 |
-| `tower` | 0.370 | 27.1065 ± 1.6564 | 27.0186 ± 0.7967 | 0.9803 | 0.6116 |
-| `tower` | 0.519 | 27.3853 ± 3.7252 | 27.5751 ± 2.7010 | 0.9803 | 0.6116 |
-| `tower` | 0.630 | 26.7959 ± 3.3259 | 27.4472 ± 2.2769 | 0.9803 | 0.6116 |
-| `tower` | 0.741 | 28.1312 ± 3.6720 | 28.5676 ± 2.3470 | 0.9803 | 0.6116 |
-| `tower` | 0.889 | 30.1737 ± 2.9582 | 29.3055 ± 1.9200 | 0.9803 | 0.6116 |
-| `tower` | 1.000 | 32.9150 ± 1.7641 | 30.8073 ± 0.9561 | 0.9803 | 0.6116 |
-| `merged` | 1.000 | 29.3405 ± 0.9091 | 29.1296 ± 0.5279 | 0.9803 | 0.6116 |
-| `projected` | 1.000 | 29.6334 ± 0.8878 | 29.1159 ± 0.4927 | 0.9803 | 0.6116 |
+### Depth
 
 ### facebook/dinov2-large, depth, capacity-matched
 
 | Stage | Rel. Depth | indoors d1 | outdoor d1 | indoors coverage | outdoor coverage |
 |---|---|---|---|---|---|
-| `tower` | 0.125 | 0.4806 ± 0.0144 | 0.4372 ± 0.0072 | 0.9890 | 0.7771 |
-| `tower` | 0.250 | 0.5274 ± 0.0190 | 0.5115 ± 0.0084 | 0.9890 | 0.7771 |
-| `tower` | 0.375 | 0.5240 ± 0.0493 | 0.5277 ± 0.0215 | 0.9890 | 0.7771 |
-| `tower` | 0.500 | 0.6872 ± 0.0002 | 0.6047 ± 0.0101 | 0.9890 | 0.7771 |
-| `tower` | 0.625 | 0.6817 ± 0.0119 | 0.6599 ± 0.0021 | 0.9890 | 0.7771 |
-| `tower` | 0.750 | 0.7047 ± 0.0068 | 0.6979 ± 0.0045 | 0.9890 | 0.7771 |
-| `tower` | 0.875 | 0.7129 ± 0.0032 | 0.7006 ± 0.0005 | 0.9890 | 0.7771 |
-| `tower` | 1.000 | 0.6937 ± 0.0062 | 0.6643 ± 0.0076 | 0.9890 | 0.7771 |
+| `tower` | 0.125 | 0.4892 ± 0.0116 | 0.4307 ± 0.0088 | 0.9890 | 0.7771 |
+| `tower` | 0.250 | 0.4641 ± 0.0153 | 0.4924 ± 0.0034 | 0.9890 | 0.7771 |
+| `tower` | 0.375 | 0.5391 ± 0.0367 | 0.5355 ± 0.0257 | 0.9890 | 0.7771 |
+| `tower` | 0.500 | 0.6917 ± 0.0032 | 0.6005 ± 0.0067 | 0.9890 | 0.7771 |
+| `tower` | 0.625 | 0.6771 ± 0.0132 | 0.6628 ± 0.0025 | 0.9890 | 0.7771 |
+| `tower` | 0.750 | 0.6964 ± 0.0018 | 0.6951 ± 0.0033 | 0.9890 | 0.7771 |
+| `tower` | 0.875 | 0.7026 ± 0.0114 | 0.7007 ± 0.0020 | 0.9890 | 0.7771 |
+| `tower` | 1.000 | 0.6938 ± 0.0082 | 0.6616 ± 0.0071 | 0.9890 | 0.7771 |
+
+### exolabs/Kimi-K2.6-vision, depth, capacity-matched
+
+| Stage | Rel. Depth | indoors d1 | outdoor d1 | indoors coverage | outdoor coverage |
+|---|---|---|---|---|---|
+| `tower` | 0.111 | 0.3243 ± 0.0141 | 0.4315 ± 0.0019 | 0.9890 | 0.7771 |
+| `tower` | 0.259 | 0.5375 ± 0.0180 | 0.5696 ± 0.0126 | 0.9890 | 0.7771 |
+| `tower` | 0.370 | 0.6197 ± 0.0101 | 0.6125 ± 0.0088 | 0.9890 | 0.7771 |
+| `tower` | 0.519 | 0.6617 ± 0.0077 | 0.6577 ± 0.0057 | 0.9890 | 0.7771 |
+| `tower` | 0.630 | 0.6308 ± 0.0051 | 0.6599 ± 0.0069 | 0.9890 | 0.7771 |
+| `tower` | 0.741 | 0.6386 ± 0.0012 | 0.6572 ± 0.0007 | 0.9890 | 0.7771 |
+| `tower` | 0.889 | 0.6425 ± 0.0024 | 0.6529 ± 0.0049 | 0.9890 | 0.7771 |
+| `tower` | 1.000 | 0.5953 ± 0.0108 | 0.6041 ± 0.0106 | 0.9890 | 0.7771 |
+| `merged` | 1.000 | 0.6277 ± 0.0091 | 0.5987 ± 0.0062 | 0.9890 | 0.7771 |
+| `projected` | 1.000 | 0.6646 ± 0.0107 | 0.6396 ± 0.0011 | 0.9890 | 0.7771 |
+
+### immanuelpeter/MoonViT-V2, depth, capacity-matched
+
+| Stage | Rel. Depth | indoors d1 | outdoor d1 | indoors coverage | outdoor coverage |
+|---|---|---|---|---|---|
+| `tower` | 0.111 | 0.3905 ± 0.0172 | 0.4266 ± 0.0055 | 0.9890 | 0.7771 |
+| `tower` | 0.259 | 0.5163 ± 0.0083 | 0.5325 ± 0.0077 | 0.9890 | 0.7771 |
+| `tower` | 0.370 | 0.5805 ± 0.0060 | 0.5826 ± 0.0035 | 0.9890 | 0.7771 |
+| `tower` | 0.519 | 0.6302 ± 0.0018 | 0.6097 ± 0.0064 | 0.9890 | 0.7771 |
+| `tower` | 0.630 | 0.6644 ± 0.0051 | 0.6469 ± 0.0012 | 0.9890 | 0.7771 |
+| `tower` | 0.741 | 0.6392 ± 0.0027 | 0.6240 ± 0.0014 | 0.9890 | 0.7771 |
+| `tower` | 0.889 | 0.6085 ± 0.0056 | 0.5937 ± 0.0007 | 0.9890 | 0.7771 |
+| `tower` | 1.000 | 0.5460 ± 0.0041 | 0.5314 ± 0.0018 | 0.9890 | 0.7771 |
+| `merged` | 1.000 | 0.6447 ± 0.0102 | 0.5805 ± 0.0023 | 0.9890 | 0.7771 |
+| `projected` | 1.000 | 0.6607 ± 0.0093 | 0.5838 ± 0.0050 | 0.9890 | 0.7771 |
+
+### meta-models/Muse-Glimmer-30B, depth, capacity-matched
+
+| Stage | Rel. Depth | indoors d1 | outdoor d1 | indoors coverage | outdoor coverage |
+|---|---|---|---|---|---|
+| `tower` | 0.120 | 0.3875 ± 0.0003 | 0.4530 ± 0.0043 | 0.9890 | 0.7771 |
+| `tower` | 0.240 | 0.4193 ± 0.0101 | 0.4790 ± 0.0039 | 0.9890 | 0.7771 |
+| `tower` | 0.380 | 0.4873 ± 0.0130 | 0.5504 ± 0.0057 | 0.9890 | 0.7771 |
+| `tower` | 0.500 | 0.5846 ± 0.0037 | 0.6073 ± 0.0039 | 0.9890 | 0.7771 |
+| `tower` | 0.620 | 0.6317 ± 0.0053 | 0.6539 ± 0.0008 | 0.9890 | 0.7771 |
+| `tower` | 0.760 | 0.6709 ± 0.0038 | 0.6492 ± 0.0018 | 0.9890 | 0.7771 |
+| `tower` | 0.880 | 0.6346 ± 0.0007 | 0.6342 ± 0.0015 | 0.9890 | 0.7771 |
+| `tower` | 1.000 | 0.5586 ± 0.0133 | 0.5181 ± 0.0313 | 0.9890 | 0.7771 |
+| `merged` | 1.000 | 0.5540 ± 0.0023 | 0.4948 ± 0.0021 | 0.9890 | 0.7771 |
+| `projected` | 1.000 | 0.6131 ± 0.0033 | 0.5718 ± 0.0011 | 0.9890 | 0.7771 |
+
+### Qwen/Qwen3.8-27B, depth, capacity-matched
+
+| Stage | Rel. Depth | indoors d1 | outdoor d1 | indoors coverage | outdoor coverage |
+|---|---|---|---|---|---|
+| `tower` | 0.111 | 0.4690 ± 0.0040 | 0.5090 ± 0.0069 | 0.9890 | 0.7771 |
+| `tower` | 0.259 | 0.6027 ± 0.0046 | 0.6054 ± 0.0043 | 0.9890 | 0.7771 |
+| `tower` | 0.370 | 0.6558 ± 0.0053 | 0.6281 ± 0.0035 | 0.9890 | 0.7771 |
+| `tower` | 0.519 | 0.6606 ± 0.0125 | 0.6589 ± 0.0036 | 0.9890 | 0.7771 |
+| `tower` | 0.630 | 0.6787 ± 0.0151 | 0.6695 ± 0.0050 | 0.9890 | 0.7771 |
+| `tower` | 0.741 | 0.6648 ± 0.0084 | 0.6641 ± 0.0025 | 0.9890 | 0.7771 |
+| `tower` | 0.889 | 0.6469 ± 0.0061 | 0.6314 ± 0.0137 | 0.9890 | 0.7771 |
+| `tower` | 1.000 | 0.5474 ± 0.0091 | 0.5186 ± 0.0110 | 0.9890 | 0.7771 |
+| `merged` | 1.000 | 0.5565 ± 0.0048 | 0.5083 ± 0.0057 | 0.9890 | 0.7771 |
+| `projected` | 1.000 | 0.6347 ± 0.0054 | 0.5784 ± 0.0063 | 0.9890 | 0.7771 |
+
+### google/siglip2-so400m-patch14-384, depth, capacity-matched
+
+| Stage | Rel. Depth | indoors d1 | outdoor d1 | indoors coverage | outdoor coverage |
+|---|---|---|---|---|---|
+| `tower` | 0.111 | 0.4618 ± 0.0232 | 0.4980 ± 0.0051 | 0.9890 | 0.7771 |
+| `tower` | 0.259 | 0.6201 ± 0.0050 | 0.6010 ± 0.0048 | 0.9890 | 0.7771 |
+| `tower` | 0.370 | 0.6840 ± 0.0033 | 0.6209 ± 0.0015 | 0.9890 | 0.7771 |
+| `tower` | 0.519 | 0.6959 ± 0.0054 | 0.6441 ± 0.0020 | 0.9890 | 0.7771 |
+| `tower` | 0.630 | 0.6872 ± 0.0025 | 0.6567 ± 0.0028 | 0.9890 | 0.7771 |
+| `tower` | 0.741 | 0.6707 ± 0.0045 | 0.6496 ± 0.0031 | 0.9890 | 0.7771 |
+| `tower` | 0.889 | 0.6463 ± 0.0061 | 0.6253 ± 0.0008 | 0.9890 | 0.7771 |
+| `tower` | 1.000 | 0.5964 ± 0.0090 | 0.5917 ± 0.0025 | 0.9890 | 0.7771 |
+
+### Surface normals
 
 ### facebook/dinov2-large, normal, capacity-matched
 
 | Stage | Rel. Depth | indoors mean_deg | outdoor mean_deg | indoors coverage | outdoor coverage |
 |---|---|---|---|---|---|
-| `tower` | 0.125 | 31.5905 ± 0.4123 | 30.2356 ± 0.0844 | 0.9803 | 0.6116 |
-| `tower` | 0.250 | 29.5397 ± 1.1970 | 29.1358 ± 0.9957 | 0.9803 | 0.6116 |
-| `tower` | 0.375 | 24.7116 ± 1.0924 | 26.0493 ± 0.5995 | 0.9803 | 0.6116 |
-| `tower` | 0.500 | 21.3494 ± 0.9238 | 23.8767 ± 0.5108 | 0.9803 | 0.6116 |
-| `tower` | 0.625 | 17.9439 ± 0.2944 | 22.1298 ± 0.0775 | 0.9803 | 0.6116 |
-| `tower` | 0.750 | 15.5210 ± 0.2830 | 21.5029 ± 0.2286 | 0.9803 | 0.6116 |
-| `tower` | 0.875 | 17.0204 ± 0.4787 | 23.0453 ± 0.2914 | 0.9803 | 0.6116 |
-| `tower` | 1.000 | 20.5807 ± 0.1848 | 25.2805 ± 0.2325 | 0.9803 | 0.6116 |
+| `tower` | 0.125 | 31.5517 ± 0.4030 | 30.2869 ± 0.0236 | 0.9803 | 0.6116 |
+| `tower` | 0.250 | 30.1081 ± 2.5090 | 29.6770 ± 1.8333 | 0.9803 | 0.6116 |
+| `tower` | 0.375 | 24.8067 ± 0.8240 | 25.9908 ± 0.5128 | 0.9803 | 0.6116 |
+| `tower` | 0.500 | 21.3455 ± 0.9225 | 23.8685 ± 0.5166 | 0.9803 | 0.6116 |
+| `tower` | 0.625 | 17.9393 ± 0.2919 | 22.1163 ± 0.0656 | 0.9803 | 0.6116 |
+| `tower` | 0.750 | 15.5161 ± 0.2854 | 21.5080 ± 0.2427 | 0.9803 | 0.6116 |
+| `tower` | 0.875 | 17.0385 ± 0.4951 | 23.0453 ± 0.3045 | 0.9803 | 0.6116 |
+| `tower` | 1.000 | 20.5754 ± 0.1844 | 25.2796 ± 0.2308 | 0.9803 | 0.6116 |
 
+### exolabs/Kimi-K2.6-vision, normal, capacity-matched
 
-## What this run does not establish
+| Stage | Rel. Depth | indoors mean_deg | outdoor mean_deg | indoors coverage | outdoor coverage |
+|---|---|---|---|---|---|
+| `tower` | 0.111 | 33.3234 ± 0.5237 | 30.4659 ± 0.2882 | 0.9803 | 0.6116 |
+| `tower` | 0.259 | 26.2951 ± 0.9247 | 26.9594 ± 0.4865 | 0.9803 | 0.6116 |
+| `tower` | 0.370 | 24.8144 ± 1.1522 | 26.0659 ± 0.6797 | 0.9803 | 0.6116 |
+| `tower` | 0.519 | 26.8214 ± 1.6830 | 27.5337 ± 1.1455 | 0.9803 | 0.6116 |
+| `tower` | 0.630 | 27.8044 ± 1.6030 | 27.9862 ± 0.9865 | 0.9803 | 0.6116 |
+| `tower` | 0.741 | 29.1103 ± 1.4521 | 28.7346 ± 0.9777 | 0.9803 | 0.6116 |
+| `tower` | 0.889 | 29.3895 ± 0.5349 | 28.5858 ± 0.3295 | 0.9803 | 0.6116 |
+| `tower` | 1.000 | 31.6976 ± 0.3729 | 29.8861 ± 0.2643 | 0.9803 | 0.6116 |
+| `merged` | 1.000 | 31.5287 ± 0.5793 | 30.3316 ± 0.3530 | 0.9803 | 0.6116 |
+| `projected` | 1.000 | 28.3783 ± 0.8417 | 28.6297 ± 0.4534 | 0.9803 | 0.6116 |
 
-541 training images for a head of 1.3 to 4.9 million parameters is thin, so the absolute
-numbers are noisy and should not be compared against published Probe3D results. Nobody has
-published Probe3D numbers on DIODE in any case (ADR-0011). Every question above is a
-comparison between cells that saw identical data, an identical head and an identical rate
-grid, and those comparisons hold; the levels do not.
+### immanuelpeter/MoonViT-V2, normal, capacity-matched
 
-Seed spread is not uniform across the matrix, and the normals cells carry most of it.
-Capacity-matched MoonViT-V2 normals run above 2.7 degrees of spread through the middle of
-the Tower against 0.09 to 0.4 on unmatched DINOv2 normals, which is why the peak position
-survives on one and not the other. Three seeds size that spread; they do not shrink it.
+| Stage | Rel. Depth | indoors mean_deg | outdoor mean_deg | indoors coverage | outdoor coverage |
+|---|---|---|---|---|---|
+| `tower` | 0.111 | 33.1793 ± 1.3264 | 30.2392 ± 0.5465 | 0.9803 | 0.6116 |
+| `tower` | 0.259 | 27.8205 ± 1.4053 | 28.1153 ± 0.7379 | 0.9803 | 0.6116 |
+| `tower` | 0.370 | 27.1026 ± 1.6382 | 26.9681 ± 0.7385 | 0.9803 | 0.6116 |
+| `tower` | 0.519 | 27.3764 ± 3.7206 | 27.5666 ± 2.7077 | 0.9803 | 0.6116 |
+| `tower` | 0.630 | 26.8221 ± 3.3862 | 27.4622 ± 2.2816 | 0.9803 | 0.6116 |
+| `tower` | 0.741 | 28.1536 ± 3.6574 | 28.5781 ± 2.3416 | 0.9803 | 0.6116 |
+| `tower` | 0.889 | 30.1616 ± 2.9005 | 29.2913 ± 1.9019 | 0.9803 | 0.6116 |
+| `tower` | 1.000 | 32.9197 ± 1.8179 | 30.8347 ± 1.0704 | 0.9803 | 0.6116 |
+| `merged` | 1.000 | 29.2834 ± 0.9346 | 29.1165 ± 0.4595 | 0.9803 | 0.6116 |
+| `projected` | 1.000 | 29.5762 ± 0.8415 | 29.0871 ± 0.4943 | 0.9803 | 0.6116 |
 
-The depth head bins over 0 to 299.83 m because DIODE is metric and reaches that far
-outdoors. That range is correct for the data and coarse for indoor scenes, which live in
-the first nine of 256 bins. The bin floor also pulls an untrained prediction to about
-150 m. Both effects are identical in every cell, so they cost absolute indoor depth
-accuracy without touching any Stage or Relative Depth comparison.
+### meta-models/Muse-Glimmer-30B, normal, capacity-matched
 
-Correspondence is still unscoped, the multilayer run in ADR-0010 has not been done, and
-the pooling validation ADR-0005 requires is still outstanding. The DIODE training split
-was not downloaded; at 222 GB it waits on this run's answer, and this run's answer is
-that the Stage comparison is not where the effect lives.
+| Stage | Rel. Depth | indoors mean_deg | outdoor mean_deg | indoors coverage | outdoor coverage |
+|---|---|---|---|---|---|
+| `tower` | 0.120 | 30.6567 ± 0.5668 | 29.7520 ± 0.2174 | 0.9803 | 0.6116 |
+| `tower` | 0.240 | 30.2888 ± 0.5147 | 28.9993 ± 0.3116 | 0.9803 | 0.6116 |
+| `tower` | 0.380 | 27.9959 ± 0.5433 | 28.0542 ± 0.3340 | 0.9803 | 0.6116 |
+| `tower` | 0.500 | 25.7936 ± 0.8565 | 26.4496 ± 0.5414 | 0.9803 | 0.6116 |
+| `tower` | 0.620 | 23.2179 ± 0.6207 | 25.1648 ± 0.3806 | 0.9803 | 0.6116 |
+| `tower` | 0.760 | 29.2551 ± 1.1061 | 28.0877 ± 0.6570 | 0.9803 | 0.6116 |
+| `tower` | 0.880 | 32.2114 ± 0.8936 | 29.5229 ± 0.6242 | 0.9803 | 0.6116 |
+| `tower` | 1.000 | 32.4569 ± 0.5056 | 30.7989 ± 0.3334 | 0.9803 | 0.6116 |
+| `merged` | 1.000 | 33.1057 ± 0.5533 | 31.5593 ± 0.2827 | 0.9803 | 0.6116 |
+| `projected` | 1.000 | 31.2144 ± 0.4889 | 30.1262 ± 0.4034 | 0.9803 | 0.6116 |
 
-# Semantic pillar, first run
+### Qwen/Qwen3.8-27B, normal, capacity-matched
 
-This run uses the 13,000-image, 100-class ImageNet-100 validation split. An A100 80GB
-extracted features at 448 square and pooled them to a 4x4 grid (ADR-0005). Each cell
-searches eight learning rates, selects one on the validation subset, and reports mean
-test accuracy over three seeds.
+| Stage | Rel. Depth | indoors mean_deg | outdoor mean_deg | indoors coverage | outdoor coverage |
+|---|---|---|---|---|---|
+| `tower` | 0.111 | 29.7600 ± 1.0829 | 28.9785 ± 0.4812 | 0.9803 | 0.6116 |
+| `tower` | 0.259 | 24.2661 ± 0.7613 | 25.8151 ± 0.4368 | 0.9803 | 0.6116 |
+| `tower` | 0.370 | 22.8247 ± 1.2173 | 25.3652 ± 0.6719 | 0.9803 | 0.6116 |
+| `tower` | 0.519 | 23.2956 ± 1.5939 | 25.6315 ± 0.7962 | 0.9803 | 0.6116 |
+| `tower` | 0.630 | 26.3461 ± 3.6539 | 27.6789 ± 2.2232 | 0.9803 | 0.6116 |
+| `tower` | 0.741 | 26.4572 ± 0.4082 | 27.0964 ± 0.3377 | 0.9803 | 0.6116 |
+| `tower` | 0.889 | 27.6985 ± 0.4120 | 27.9232 ± 0.2566 | 0.9803 | 0.6116 |
+| `tower` | 1.000 | 37.1364 ± 0.7564 | 32.3163 ± 0.3667 | 0.9803 | 0.6116 |
+| `merged` | 1.000 | 39.1792 ± 0.2437 | 33.7673 ± 0.1447 | 0.9803 | 0.6116 |
+| `projected` | 1.000 | 30.0894 ± 0.4852 | 29.7899 ± 0.2452 | 0.9803 | 0.6116 |
 
-Each model has four arms. Attention and mean readouts both run with and without the PCA
-capacity matching from ADR-0008. `matched` trains 1,627,748 parameters in every cell.
-`raw` trains 2,152,036 at width 1024 and 8,443,492 at width 7168.
+### google/siglip2-so400m-patch14-384, normal, capacity-matched
 
-The geometry pillar has since run; see above. The pooling validation required by ADR-0005
-is still outstanding.
-
-## What the run shows
-
-The Projector did not reduce semantic accuracy in this run. Under capacity matching,
-MoonViT-V2 reads 0.8345 at `tower`, 0.8417 at `merged`, and 0.8412 at `projected`.
-Without matching, the same three are 0.8373, 0.8390, and 0.8362. The claim in PLAN.md
-pairs this with a spatial collapse. The geometry run above tested it and did not find one.
-
-`merged` matching `tower` does not measure information loss from merging. For this Tower,
-the merge is a lossless regrouping of four Tower tokens into one. `torch.equal` verifies
-the regrouping in `tests/test_moonvit_v2.py`. The informative comparison is `projected`
-against `merged`.
-
-Capacity matching passes ADR-0008's acceptance test. Across the attention arms, the
-largest gap between matched and raw is 0.0283 and the mean gap is 0.0113. Model ordering
-is the same in both, and both curves rise monotonically with Relative Depth. The reduction
-changes no conclusion.
-
-The attention pool leads mean pooling by 8 to 12 points at shallow and middle depths. The
-two converge at the last DINOv2 layer, where attention reaches 0.9026 and mean pooling
-reaches 0.8911.
-
-DINOv2 leads MoonViT-V2 at every comparable Relative Depth, 0.9026 against 0.8345 at the
-last layer. DINOv2 trained on ImageNet, so read this as one task rather than a ranking.
+| Stage | Rel. Depth | indoors mean_deg | outdoor mean_deg | indoors coverage | outdoor coverage |
+|---|---|---|---|---|---|
+| `tower` | 0.111 | 30.4421 ± 0.6346 | 28.7674 ± 0.4382 | 0.9803 | 0.6116 |
+| `tower` | 0.259 | 24.7360 ± 0.7296 | 25.6270 ± 0.3929 | 0.9803 | 0.6116 |
+| `tower` | 0.370 | 23.1202 ± 0.5824 | 24.5285 ± 0.2585 | 0.9803 | 0.6116 |
+| `tower` | 0.519 | 24.9286 ± 1.2404 | 25.7685 ± 0.6591 | 0.9803 | 0.6116 |
+| `tower` | 0.630 | 28.3677 ± 2.4164 | 27.9878 ± 1.7287 | 0.9803 | 0.6116 |
+| `tower` | 0.741 | 29.6583 ± 2.1893 | 28.9073 ± 1.4406 | 0.9803 | 0.6116 |
+| `tower` | 0.889 | 31.5293 ± 1.8416 | 29.9019 ± 1.4215 | 0.9803 | 0.6116 |
+| `tower` | 1.000 | 32.4316 ± 0.2859 | 29.8856 ± 0.3096 | 0.9803 | 0.6116 |

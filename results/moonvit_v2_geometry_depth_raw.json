@@ -1,0 +1,1409 @@
+{
+  "task": "depth",
+  "images": 771,
+  "train_images": 541,
+  "capacity_matched": false,
+  "head": "multiscale",
+  "epochs": 10,
+  "seeds": 3,
+  "learning_rates": [
+    0.0001,
+    0.0003,
+    0.001,
+    0.003,
+    0.01,
+    0.03
+  ],
+  "cells": [
+    {
+      "d1": 0.5217,
+      "d1_std": 0.006,
+      "d2": 0.7813,
+      "d2_std": 0.0035,
+      "d3": 0.8901,
+      "d3_std": 0.0037,
+      "rmse": 4.492,
+      "rmse_std": 0.0232,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.5402,
+          "d1_std": 0.0111,
+          "d2": 0.8062,
+          "d2_std": 0.0052,
+          "d3": 0.9078,
+          "d3_std": 0.0062,
+          "rmse": 1.0241,
+          "rmse_std": 0.0285,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.5069,
+          "d1_std": 0.0019,
+          "d2": 0.7614,
+          "d2_std": 0.0024,
+          "d3": 0.8761,
+          "d3_std": 0.0021,
+          "rmse": 7.2555,
+          "rmse_std": 0.0189,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.001,
+      "val_metric": "d1",
+      "val_score": 0.4996,
+      "learning_rate_search": {
+        "0.0001": 0.1981,
+        "0.0003": 0.3947,
+        "0.001": 0.4996,
+        "0.003": 0.4436,
+        "0.01": 0.1245,
+        "0.03": 0.1245
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.5153,
+          "d2": 0.7787,
+          "d3": 0.8883,
+          "rmse": 4.5171,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5287,
+              "d2": 0.8036,
+              "d3": 0.9064,
+              "rmse": 1.0536,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5046,
+              "d2": 0.7589,
+              "d3": 0.8738,
+              "rmse": 7.277,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5297,
+          "d2": 0.7863,
+          "d3": 0.8953,
+          "rmse": 4.4612,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5553,
+              "d2": 0.8135,
+              "d3": 0.916,
+              "rmse": 0.9856,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5093,
+              "d2": 0.7646,
+              "d3": 0.8789,
+              "rmse": 7.2309,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.52,
+          "d2": 0.7789,
+          "d3": 0.8868,
+          "rmse": 4.4977,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5367,
+              "d2": 0.8016,
+              "d3": 0.9009,
+              "rmse": 1.0332,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5067,
+              "d2": 0.7608,
+              "d3": 0.8757,
+              "rmse": 7.2585,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/MoonViT-V2",
+      "stage": "merged",
+      "layer_index": 27,
+      "relative_depth": 1.0,
+      "token_width": 4096,
+      "grid": 16,
+      "trainable_parameters": 3279616,
+      "seconds": 206.6
+    },
+    {
+      "d1": 0.4804,
+      "d1_std": 0.0076,
+      "d2": 0.7488,
+      "d2_std": 0.0045,
+      "d3": 0.8687,
+      "d3_std": 0.0028,
+      "rmse": 4.7125,
+      "rmse_std": 0.0254,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.4876,
+          "d1_std": 0.0196,
+          "d2": 0.7667,
+          "d2_std": 0.0117,
+          "d3": 0.8775,
+          "d3_std": 0.0081,
+          "rmse": 1.1573,
+          "rmse_std": 0.0247,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.4747,
+          "d1_std": 0.0049,
+          "d2": 0.7345,
+          "d2_std": 0.0053,
+          "d3": 0.8617,
+          "d3_std": 0.0028,
+          "rmse": 7.5455,
+          "rmse_std": 0.049,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.001,
+      "val_metric": "d1",
+      "val_score": 0.4629,
+      "learning_rate_search": {
+        "0.0001": 0.2024,
+        "0.0003": 0.3277,
+        "0.001": 0.4629,
+        "0.003": 0.3816,
+        "0.01": 0.1247,
+        "0.03": 0.1246
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.4899,
+          "d2": 0.7545,
+          "d3": 0.8713,
+          "rmse": 4.6832,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5067,
+              "d2": 0.775,
+              "d3": 0.8811,
+              "rmse": 1.1361,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.4765,
+              "d2": 0.7382,
+              "d3": 0.8636,
+              "rmse": 7.5099,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.4712,
+          "d2": 0.7436,
+          "d3": 0.8649,
+          "rmse": 4.7091,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.4607,
+              "d2": 0.7502,
+              "d3": 0.8663,
+              "rmse": 1.192,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.4796,
+              "d2": 0.7384,
+              "d3": 0.8638,
+              "rmse": 7.5118,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.4801,
+          "d2": 0.7482,
+          "d3": 0.87,
+          "rmse": 4.7451,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.4955,
+              "d2": 0.7749,
+              "d3": 0.8852,
+              "rmse": 1.1439,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.4679,
+              "d2": 0.727,
+              "d3": 0.8578,
+              "rmse": 7.6148,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/MoonViT-V2",
+      "stage": "projected",
+      "layer_index": 27,
+      "relative_depth": 1.0,
+      "token_width": 7168,
+      "grid": 16,
+      "trainable_parameters": 4852480,
+      "seconds": 288.1
+    },
+    {
+      "d1": 0.2899,
+      "d1_std": 0.0046,
+      "d2": 0.5562,
+      "d2_std": 0.0027,
+      "d3": 0.7355,
+      "d3_std": 0.0009,
+      "rmse": 6.2861,
+      "rmse_std": 0.026,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.2792,
+          "d1_std": 0.0129,
+          "d2": 0.5672,
+          "d2_std": 0.0116,
+          "d3": 0.7602,
+          "d3_std": 0.0078,
+          "rmse": 1.8702,
+          "rmse_std": 0.0359,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.2985,
+          "d1_std": 0.002,
+          "d2": 0.5474,
+          "d2_std": 0.0053,
+          "d3": 0.7158,
+          "d3_std": 0.0047,
+          "rmse": 9.805,
+          "rmse_std": 0.0745,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.001,
+      "val_metric": "d1",
+      "val_score": 0.2725,
+      "learning_rate_search": {
+        "0.0001": 0.1683,
+        "0.0003": 0.2446,
+        "0.001": 0.2725,
+        "0.003": 0.1245,
+        "0.01": 0.1245,
+        "0.03": 0.1245
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.296,
+          "d2": 0.5597,
+          "d3": 0.7366,
+          "rmse": 6.3214,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.2962,
+              "d2": 0.5836,
+              "d3": 0.7705,
+              "rmse": 1.8195,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.2959,
+              "d2": 0.5408,
+              "d3": 0.7095,
+              "rmse": 9.9089,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.2849,
+          "d2": 0.5557,
+          "d3": 0.7344,
+          "rmse": 6.277,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.2651,
+              "d2": 0.558,
+              "d3": 0.7517,
+              "rmse": 1.8961,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.3007,
+              "d2": 0.5538,
+              "d3": 0.7207,
+              "rmse": 9.7681,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.2889,
+          "d2": 0.5532,
+          "d3": 0.7355,
+          "rmse": 6.2598,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.2762,
+              "d2": 0.5601,
+              "d3": 0.7585,
+              "rmse": 1.895,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.299,
+              "d2": 0.5477,
+              "d3": 0.7172,
+              "rmse": 9.738,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/MoonViT-V2",
+      "stage": "tower",
+      "layer_index": 3,
+      "relative_depth": 0.1111111111111111,
+      "token_width": 1024,
+      "grid": 32,
+      "trainable_parameters": 1706752,
+      "seconds": 536.9
+    },
+    {
+      "d1": 0.3295,
+      "d1_std": 0.0081,
+      "d2": 0.6017,
+      "d2_std": 0.0085,
+      "d3": 0.7712,
+      "d3_std": 0.0071,
+      "rmse": 5.8914,
+      "rmse_std": 0.1019,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.3175,
+          "d1_std": 0.0089,
+          "d2": 0.608,
+          "d2_std": 0.0035,
+          "d3": 0.7856,
+          "d3_std": 0.0042,
+          "rmse": 1.7332,
+          "rmse_std": 0.018,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.3389,
+          "d1_std": 0.0133,
+          "d2": 0.5967,
+          "d2_std": 0.0127,
+          "d3": 0.7597,
+          "d3_std": 0.0105,
+          "rmse": 9.2049,
+          "rmse_std": 0.1771,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.001,
+      "val_metric": "d1",
+      "val_score": 0.3309,
+      "learning_rate_search": {
+        "0.0001": 0.1913,
+        "0.0003": 0.2666,
+        "0.001": 0.3309,
+        "0.003": 0.2502,
+        "0.01": 0.1245,
+        "0.03": 0.1245
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.3409,
+          "d2": 0.612,
+          "d3": 0.78,
+          "rmse": 5.7883,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.324,
+              "d2": 0.6128,
+              "d3": 0.7914,
+              "rmse": 1.709,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.3543,
+              "d2": 0.6113,
+              "d3": 0.7709,
+              "rmse": 9.039,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.3249,
+          "d2": 0.602,
+          "d3": 0.7709,
+          "rmse": 5.8556,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.305,
+              "d2": 0.6064,
+              "d3": 0.7814,
+              "rmse": 1.7523,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.3407,
+              "d2": 0.5985,
+              "d3": 0.7625,
+              "rmse": 9.1254,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.3226,
+          "d2": 0.5911,
+          "d3": 0.7626,
+          "rmse": 6.0302,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.3236,
+              "d2": 0.6048,
+              "d3": 0.784,
+              "rmse": 1.7382,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.3218,
+              "d2": 0.5803,
+              "d3": 0.7456,
+              "rmse": 9.4504,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/MoonViT-V2",
+      "stage": "tower",
+      "layer_index": 7,
+      "relative_depth": 0.25925925925925924,
+      "token_width": 1024,
+      "grid": 32,
+      "trainable_parameters": 1706752,
+      "seconds": 539.7
+    },
+    {
+      "d1": 0.3281,
+      "d1_std": 0.0129,
+      "d2": 0.6099,
+      "d2_std": 0.0131,
+      "d3": 0.7894,
+      "d3_std": 0.0065,
+      "rmse": 5.5898,
+      "rmse_std": 0.0341,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.275,
+          "d1_std": 0.0289,
+          "d2": 0.5732,
+          "d2_std": 0.0356,
+          "d3": 0.7771,
+          "d3_std": 0.0184,
+          "rmse": 1.8631,
+          "rmse_std": 0.0619,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.3704,
+          "d1_std": 0.0025,
+          "d2": 0.6391,
+          "d2_std": 0.0061,
+          "d3": 0.7992,
+          "d3_std": 0.005,
+          "rmse": 8.5596,
+          "rmse_std": 0.0662,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.001,
+      "val_metric": "d1",
+      "val_score": 0.3257,
+      "learning_rate_search": {
+        "0.0001": 0.1968,
+        "0.0003": 0.2681,
+        "0.001": 0.3257,
+        "0.003": 0.2671,
+        "0.01": 0.1245,
+        "0.03": 0.1245
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.3287,
+          "d2": 0.6137,
+          "d3": 0.7875,
+          "rmse": 5.6322,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.2809,
+              "d2": 0.5904,
+              "d3": 0.7797,
+              "rmse": 1.8462,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.3669,
+              "d2": 0.6322,
+              "d3": 0.7937,
+              "rmse": 8.6493,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.3119,
+          "d2": 0.5923,
+          "d3": 0.7826,
+          "rmse": 5.5887,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.237,
+              "d2": 0.5237,
+              "d3": 0.7533,
+              "rmse": 1.9459,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.3715,
+              "d2": 0.647,
+              "d3": 0.8059,
+              "rmse": 8.4915,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.3436,
+          "d2": 0.6236,
+          "d3": 0.7982,
+          "rmse": 5.5486,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.307,
+              "d2": 0.6056,
+              "d3": 0.7982,
+              "rmse": 1.7972,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.3728,
+              "d2": 0.638,
+              "d3": 0.7981,
+              "rmse": 8.538,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/MoonViT-V2",
+      "stage": "tower",
+      "layer_index": 10,
+      "relative_depth": 0.37037037037037035,
+      "token_width": 1024,
+      "grid": 32,
+      "trainable_parameters": 1706752,
+      "seconds": 544.6
+    },
+    {
+      "d1": 0.4404,
+      "d1_std": 0.0098,
+      "d2": 0.7176,
+      "d2_std": 0.006,
+      "d3": 0.8566,
+      "d3_std": 0.0045,
+      "rmse": 4.8904,
+      "rmse_std": 0.0375,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.4572,
+          "d1_std": 0.0232,
+          "d2": 0.7357,
+          "d2_std": 0.0128,
+          "d3": 0.8685,
+          "d3_std": 0.012,
+          "rmse": 1.259,
+          "rmse_std": 0.0406,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.427,
+          "d1_std": 0.0021,
+          "d2": 0.7033,
+          "d2_std": 0.0051,
+          "d3": 0.8471,
+          "d3_std": 0.0033,
+          "rmse": 7.7841,
+          "rmse_std": 0.0458,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.001,
+      "val_metric": "d1",
+      "val_score": 0.3714,
+      "learning_rate_search": {
+        "0.0001": 0.2101,
+        "0.0003": 0.2983,
+        "0.001": 0.3714,
+        "0.003": 0.27,
+        "0.01": 0.1245,
+        "0.03": 0.1245
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.4444,
+          "d2": 0.7166,
+          "d3": 0.8579,
+          "rmse": 4.9076,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.47,
+              "d2": 0.7421,
+              "d3": 0.8772,
+              "rmse": 1.2415,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.424,
+              "d2": 0.6963,
+              "d3": 0.8425,
+              "rmse": 7.8291,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.4269,
+          "d2": 0.7109,
+          "d3": 0.8506,
+          "rmse": 4.9252,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.4246,
+              "d2": 0.7178,
+              "d3": 0.8515,
+              "rmse": 1.3151,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.4286,
+              "d2": 0.7055,
+              "d3": 0.8498,
+              "rmse": 7.802,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.45,
+          "d2": 0.7254,
+          "d3": 0.8614,
+          "rmse": 4.8383,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.4769,
+              "d2": 0.7472,
+              "d3": 0.8769,
+              "rmse": 1.2203,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.4285,
+              "d2": 0.7081,
+              "d3": 0.8491,
+              "rmse": 7.7213,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/MoonViT-V2",
+      "stage": "tower",
+      "layer_index": 14,
+      "relative_depth": 0.5185185185185185,
+      "token_width": 1024,
+      "grid": 32,
+      "trainable_parameters": 1706752,
+      "seconds": 535.6
+    },
+    {
+      "d1": 0.544,
+      "d1_std": 0.0047,
+      "d2": 0.7896,
+      "d2_std": 0.0047,
+      "d3": 0.8938,
+      "d3_std": 0.0049,
+      "rmse": 4.297,
+      "rmse_std": 0.0182,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.5592,
+          "d1_std": 0.0094,
+          "d2": 0.8038,
+          "d2_std": 0.0088,
+          "d3": 0.9091,
+          "d3_std": 0.0109,
+          "rmse": 1.0024,
+          "rmse_std": 0.0202,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.5319,
+          "d1_std": 0.0024,
+          "d2": 0.7782,
+          "d2_std": 0.0014,
+          "d3": 0.8816,
+          "d3_std": 0.001,
+          "rmse": 6.9226,
+          "rmse_std": 0.0278,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.001,
+      "val_metric": "d1",
+      "val_score": 0.4928,
+      "learning_rate_search": {
+        "0.0001": 0.259,
+        "0.0003": 0.3945,
+        "0.001": 0.4928,
+        "0.003": 0.4043,
+        "0.01": 0.1245,
+        "0.03": 0.1245
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.5498,
+          "d2": 0.7937,
+          "d3": 0.8983,
+          "rmse": 4.2726,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5685,
+              "d2": 0.8112,
+              "d3": 0.9177,
+              "rmse": 0.9807,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5348,
+              "d2": 0.7796,
+              "d3": 0.8828,
+              "rmse": 6.8959,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5384,
+          "d2": 0.783,
+          "d3": 0.887,
+          "rmse": 4.3024,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5464,
+              "d2": 0.7915,
+              "d3": 0.8938,
+              "rmse": 1.0293,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5321,
+              "d2": 0.7762,
+              "d3": 0.8816,
+              "rmse": 6.9108,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5439,
+          "d2": 0.792,
+          "d3": 0.8961,
+          "rmse": 4.3161,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5627,
+              "d2": 0.8087,
+              "d3": 0.9159,
+              "rmse": 0.9971,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5289,
+              "d2": 0.7787,
+              "d3": 0.8803,
+              "rmse": 6.961,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/MoonViT-V2",
+      "stage": "tower",
+      "layer_index": 17,
+      "relative_depth": 0.6296296296296297,
+      "token_width": 1024,
+      "grid": 32,
+      "trainable_parameters": 1706752,
+      "seconds": 532.7
+    },
+    {
+      "d1": 0.5071,
+      "d1_std": 0.0067,
+      "d2": 0.7761,
+      "d2_std": 0.0069,
+      "d3": 0.8879,
+      "d3_std": 0.0037,
+      "rmse": 4.3734,
+      "rmse_std": 0.0035,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.4948,
+          "d1_std": 0.0153,
+          "d2": 0.7796,
+          "d2_std": 0.0124,
+          "d3": 0.8942,
+          "d3_std": 0.0089,
+          "rmse": 1.1308,
+          "rmse_std": 0.0229,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.5168,
+          "d1_std": 0.0005,
+          "d2": 0.7732,
+          "d2_std": 0.0025,
+          "d3": 0.8829,
+          "d3_std": 0.0011,
+          "rmse": 6.9574,
+          "rmse_std": 0.0241,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.001,
+      "val_metric": "d1",
+      "val_score": 0.4393,
+      "learning_rate_search": {
+        "0.0001": 0.2476,
+        "0.0003": 0.3842,
+        "0.001": 0.4393,
+        "0.003": 0.1245,
+        "0.01": 0.1245,
+        "0.03": 0.1245
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.5139,
+          "d2": 0.7826,
+          "d3": 0.8918,
+          "rmse": 4.3752,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5099,
+              "d2": 0.7909,
+              "d3": 0.9021,
+              "rmse": 1.1071,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5171,
+              "d2": 0.7759,
+              "d3": 0.8836,
+              "rmse": 6.9795,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.498,
+          "d2": 0.7665,
+          "d3": 0.8829,
+          "rmse": 4.3685,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.4738,
+              "d2": 0.7624,
+              "d3": 0.8818,
+              "rmse": 1.1618,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5173,
+              "d2": 0.7698,
+              "d3": 0.8837,
+              "rmse": 6.9239,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5093,
+          "d2": 0.7791,
+          "d3": 0.8891,
+          "rmse": 4.3764,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5008,
+              "d2": 0.7855,
+              "d3": 0.8987,
+              "rmse": 1.1234,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5161,
+              "d2": 0.7739,
+              "d3": 0.8814,
+              "rmse": 6.9687,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/MoonViT-V2",
+      "stage": "tower",
+      "layer_index": 20,
+      "relative_depth": 0.7407407407407407,
+      "token_width": 1024,
+      "grid": 32,
+      "trainable_parameters": 1706752,
+      "seconds": 539.5
+    },
+    {
+      "d1": 0.4437,
+      "d1_std": 0.01,
+      "d2": 0.7274,
+      "d2_std": 0.0092,
+      "d3": 0.8592,
+      "d3_std": 0.0052,
+      "rmse": 4.745,
+      "rmse_std": 0.0134,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.4328,
+          "d1_std": 0.0243,
+          "d2": 0.7283,
+          "d2_std": 0.0181,
+          "d3": 0.8601,
+          "d3_std": 0.0117,
+          "rmse": 1.3006,
+          "rmse_std": 0.0348,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.4524,
+          "d1_std": 0.0016,
+          "d2": 0.7266,
+          "d2_std": 0.0023,
+          "d3": 0.8584,
+          "d3_std": 0.0008,
+          "rmse": 7.4897,
+          "rmse_std": 0.0073,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.001,
+      "val_metric": "d1",
+      "val_score": 0.4013,
+      "learning_rate_search": {
+        "0.0001": 0.2031,
+        "0.0003": 0.3147,
+        "0.001": 0.4013,
+        "0.003": 0.3215,
+        "0.01": 0.1245,
+        "0.03": 0.1245
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.4505,
+          "d2": 0.7339,
+          "d3": 0.8629,
+          "rmse": 4.7341,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.4481,
+              "d2": 0.7394,
+              "d3": 0.8673,
+              "rmse": 1.2833,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.4525,
+              "d2": 0.7294,
+              "d3": 0.8594,
+              "rmse": 7.484,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.4295,
+          "d2": 0.7144,
+          "d3": 0.8519,
+          "rmse": 4.7639,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.3984,
+              "d2": 0.7027,
+              "d3": 0.8437,
+              "rmse": 1.3491,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.4543,
+              "d2": 0.7238,
+              "d3": 0.8584,
+              "rmse": 7.485,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.451,
+          "d2": 0.7338,
+          "d3": 0.8628,
+          "rmse": 4.7369,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.4518,
+              "d2": 0.7427,
+              "d3": 0.8694,
+              "rmse": 1.2694,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.4503,
+              "d2": 0.7267,
+              "d3": 0.8574,
+              "rmse": 7.5,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/MoonViT-V2",
+      "stage": "tower",
+      "layer_index": 24,
+      "relative_depth": 0.8888888888888888,
+      "token_width": 1024,
+      "grid": 32,
+      "trainable_parameters": 1706752,
+      "seconds": 542.1
+    },
+    {
+      "d1": 0.4562,
+      "d1_std": 0.0154,
+      "d2": 0.7354,
+      "d2_std": 0.0122,
+      "d3": 0.8613,
+      "d3_std": 0.0074,
+      "rmse": 4.7223,
+      "rmse_std": 0.0383,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.4393,
+          "d1_std": 0.0298,
+          "d2": 0.7357,
+          "d2_std": 0.0218,
+          "d3": 0.8585,
+          "d3_std": 0.0148,
+          "rmse": 1.2541,
+          "rmse_std": 0.0565,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.4697,
+          "d1_std": 0.0049,
+          "d2": 0.7351,
+          "d2_std": 0.0054,
+          "d3": 0.8635,
+          "d3_std": 0.002,
+          "rmse": 7.4861,
+          "rmse_std": 0.026,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.001,
+      "val_metric": "d1",
+      "val_score": 0.4448,
+      "learning_rate_search": {
+        "0.0001": 0.1757,
+        "0.0003": 0.2949,
+        "0.001": 0.4448,
+        "0.003": 0.3776,
+        "0.01": 0.1245,
+        "0.03": 0.1245
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.4685,
+          "d2": 0.7458,
+          "d3": 0.867,
+          "rmse": 4.6883,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.459,
+              "d2": 0.7506,
+              "d3": 0.868,
+              "rmse": 1.2165,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.4762,
+              "d2": 0.7419,
+              "d3": 0.8662,
+              "rmse": 7.455,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.4344,
+          "d2": 0.7182,
+          "d3": 0.8509,
+          "rmse": 4.7759,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.3971,
+              "d2": 0.7049,
+              "d3": 0.8376,
+              "rmse": 1.334,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.4642,
+              "d2": 0.7288,
+              "d3": 0.8615,
+              "rmse": 7.5187,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.4656,
+          "d2": 0.7421,
+          "d3": 0.8661,
+          "rmse": 4.7028,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.4617,
+              "d2": 0.7515,
+              "d3": 0.87,
+              "rmse": 1.2118,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.4687,
+              "d2": 0.7346,
+              "d3": 0.8629,
+              "rmse": 7.4847,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/MoonViT-V2",
+      "stage": "tower",
+      "layer_index": 27,
+      "relative_depth": 1.0,
+      "token_width": 1024,
+      "grid": 32,
+      "trainable_parameters": 1706752,
+      "seconds": 544.7
+    }
+  ]
+}
