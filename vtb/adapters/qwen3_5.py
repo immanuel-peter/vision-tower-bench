@@ -73,9 +73,9 @@ def raster(tokens: torch.Tensor, rows: int) -> torch.Tensor:
 
 def load_tower(dtype: torch.dtype) -> Qwen3_5VisionModel:
     config = AutoConfig.from_pretrained(MODEL_ID).vision_config
-    model = Qwen3_5VisionModel._from_config(config)
+    model = Qwen3_5VisionModel._from_config(config, dtype=dtype)
     model.load_state_dict(load_prefixed(MODEL_ID, [VISION_SHARD], VISION_PREFIX))
-    return model.to(dtype).eval()
+    return model.eval()
 
 
 class Qwen3_5Adapter:

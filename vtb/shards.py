@@ -76,9 +76,9 @@ def _runs(entries: list[tuple[str, dict]]) -> list[tuple[int, int, list[tuple[st
     return spans
 
 
-def resolve(repo: str, filename: str) -> tuple[str, str]:
+def resolve(repo: str, filename: str, revision: str | None = None) -> tuple[str, str]:
     """Return a download URL and the etag identifying the revision behind it."""
-    meta = get_hf_file_metadata(hf_hub_url(repo, filename))
+    meta = get_hf_file_metadata(hf_hub_url(repo, filename, revision=revision))
     return meta.location, meta.etag or ""
 
 
@@ -89,9 +89,9 @@ def _header_at(url: str) -> tuple[dict, int]:
     return header, HEADER_SIZE_BYTES + size
 
 
-def read_header(repo: str, filename: str) -> tuple[dict, str, int]:
+def read_header(repo: str, filename: str, revision: str | None = None) -> tuple[dict, str, int]:
     """Return a shard's tensor index, its resolved URL, and where its data starts."""
-    url, _ = resolve(repo, filename)
+    url, _ = resolve(repo, filename, revision)
     header, data_start = _header_at(url)
     return header, url, data_start
 
@@ -110,10 +110,16 @@ def cache_path(repo: str, prefix: str, etags: Iterable[tuple[str, str]]) -> Path
     return cache_root() / f"{hashlib.sha256(identity.encode()).hexdigest()[:32]}.safetensors"
 
 
-def load_prefixed(repo: str, filenames: Iterable[str], prefix: str) -> dict[str, torch.Tensor]:
+def load_prefixed(
+    repo: str,
+    filenames: Iterable[str],
+    prefix: str,
+    *,
+    revision: str | None = None,
+) -> dict[str, torch.Tensor]:
     """Load matching tensors and cache them locally."""
     filenames = list(filenames)
-    resolved = {name: resolve(repo, name) for name in filenames}
+    resolved = {name: resolve(repo, name, revision) for name in filenames}
     path = cache_path(repo, prefix, ((name, etag) for name, (_, etag) in resolved.items()))
     if path.exists():
         return load_file(path)
@@ -140,11 +146,17 @@ def load_prefixed(repo: str, filenames: Iterable[str], prefix: str) -> dict[str,
     return weights
 
 
-def prefix_bytes(repo: str, filenames: Iterable[str], prefix: str) -> int:
+def prefix_bytes(
+    repo: str,
+    filenames: Iterable[str],
+    prefix: str,
+    *,
+    revision: str | None = None,
+) -> int:
     """Report what ``load_prefixed`` would download, without downloading it."""
     total = 0
     for filename in filenames:
-        header, _, _ = read_header(repo, filename)
+        header, _, _ = read_header(repo, filename, revision)
         for name, entry in header.items():
             if name.startswith(prefix):
                 start, end = entry["data_offsets"]

@@ -75,13 +75,13 @@ class Projector(nn.Module):
 
 def load_parts(dtype: torch.dtype) -> tuple[MuseGlimmerVisionModel, Projector]:
     config = AutoConfig.from_pretrained(MODEL_ID)
-    tower = MuseGlimmerVisionModel._from_config(config.vision_config)
+    tower = MuseGlimmerVisionModel._from_config(config.vision_config, dtype=dtype)
     tower.load_state_dict(load_prefixed(MODEL_ID, SHARDS, TOWER_PREFIX))
 
     projector = Projector(config)
     projector.adapter.load_state_dict(load_prefixed(MODEL_ID, SHARDS, ADAPTER_PREFIX))
     projector.projection.load_state_dict(load_prefixed(MODEL_ID, SHARDS, PROJECTION_PREFIX))
-    return tower.to(dtype).eval(), projector.to(dtype).eval()
+    return tower.eval(), projector.to(dtype).eval()
 
 
 class MuseGlimmerAdapter:
