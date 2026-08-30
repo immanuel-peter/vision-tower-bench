@@ -11,8 +11,11 @@ from safetensors.torch import load_file
 from transformers import AutoModel
 
 from scripts.export_moonvit_k26 import SOURCE_REVISION as KIMI_REVISION
+from scripts.export_moonvit_k26 import load_source_parts as load_kimi_source
 from scripts.export_muse_glimmer_vision import SOURCE_REVISION as MUSE_REVISION
+from scripts.export_muse_glimmer_vision import load_source_parts as load_muse_source
 from scripts.export_qwen3_8_vision import SOURCE_REVISION as QWEN_REVISION
+from scripts.export_qwen3_8_vision import load_source_tower as load_qwen_source
 from vtb.adapters import kimi_k26, muse_glimmer, qwen3_5
 from vtb.shards import load_prefixed
 
@@ -45,7 +48,7 @@ def load_projector_module(bundle: Path):
 
 def test_qwen_release_weights_match_the_pinned_parent():
     source = load_prefixed(
-        qwen3_5.MODEL_ID,
+        qwen3_5.SOURCE_REPO,
         [qwen3_5.VISION_SHARD],
         qwen3_5.VISION_PREFIX,
         revision=QWEN_REVISION,
@@ -56,7 +59,7 @@ def test_qwen_release_weights_match_the_pinned_parent():
 
 def test_muse_release_weights_match_the_pinned_parent():
     source_tower = load_prefixed(
-        muse_glimmer.MODEL_ID,
+        muse_glimmer.SOURCE_REPO,
         muse_glimmer.SHARDS,
         muse_glimmer.TOWER_PREFIX,
         revision=MUSE_REVISION,
@@ -67,7 +70,7 @@ def test_muse_release_weights_match_the_pinned_parent():
     source_projector = {
         "adapter." + name: weight
         for name, weight in load_prefixed(
-            muse_glimmer.MODEL_ID,
+            muse_glimmer.SOURCE_REPO,
             muse_glimmer.SHARDS,
             muse_glimmer.ADAPTER_PREFIX,
             revision=MUSE_REVISION,
@@ -76,7 +79,7 @@ def test_muse_release_weights_match_the_pinned_parent():
     source_projector.update({
         "projection." + name: weight
         for name, weight in load_prefixed(
-            muse_glimmer.MODEL_ID,
+            muse_glimmer.SOURCE_REPO,
             muse_glimmer.SHARDS,
             muse_glimmer.PROJECTION_PREFIX,
             revision=MUSE_REVISION,
@@ -92,8 +95,8 @@ def test_kimi_release_weights_match_the_pinned_parent():
         ("projector.safetensors", kimi_k26.PROJECTOR_PREFIX, 6),
     ):
         source = load_prefixed(
-            "moonshotai/Kimi-K2.6",
-            ("model-00063-of-000064.safetensors", "model-00064-of-000064.safetensors"),
+            kimi_k26.SOURCE_REPO,
+            kimi_k26.SOURCE_SHARDS,
             prefix,
             revision=KIMI_REVISION,
         )
@@ -102,7 +105,7 @@ def test_kimi_release_weights_match_the_pinned_parent():
 
 
 def test_qwen_release_forward_matches_the_parent():
-    source = qwen3_5.load_tower(DTYPE).to(DEVICE)
+    source = load_qwen_source(DTYPE).to(DEVICE)
     released = AutoModel.from_pretrained(
         QWEN_BUNDLE,
         dtype=DTYPE,
@@ -122,7 +125,7 @@ def test_qwen_release_forward_matches_the_parent():
 
 
 def test_muse_release_forward_matches_the_parent():
-    source, source_projector = muse_glimmer.load_parts(DTYPE)
+    source, source_projector = load_muse_source(DTYPE)
     source = source.to(DEVICE)
     source_projector = source_projector.to(DEVICE)
     released = AutoModel.from_pretrained(
@@ -147,7 +150,7 @@ def test_muse_release_forward_matches_the_parent():
 
 
 def test_kimi_release_forward_matches_the_parent():
-    source, source_projector = kimi_k26.load_parts(DTYPE, attention="eager")
+    source, source_projector = load_kimi_source(DTYPE, attention="eager")
     source = source.to(DEVICE)
     source_projector = source_projector.to(DEVICE)
     released = AutoModel.from_pretrained(

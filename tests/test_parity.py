@@ -1,4 +1,7 @@
-"""Verify extracted weights against their parent checkpoints.
+"""Verify the weights each adapter loads against their parent checkpoints.
+
+Four adapters now load a republished Tower, so these tests are what ties the repository
+the bench probes back to the checkpoint it came out of.
 
 These tests compare state dictionaries. They do not run the parent language models.
 """
@@ -14,9 +17,6 @@ from vtb.shards import load_prefixed
 pytestmark = pytest.mark.skipif(
     os.environ.get("VTB_SKIP_WEIGHTS") == "1", reason="VTB_SKIP_WEIGHTS=1"
 )
-
-KIMI_SOURCE = "moonshotai/Kimi-K2.6"
-KIMI_SHARDS = ("model-00063-of-000064.safetensors", "model-00064-of-000064.safetensors")
 
 
 def assert_bit_exact(
@@ -39,7 +39,7 @@ def test_siglip2_tower_matches_published_checkpoint():
 def test_qwen_tower_matches_parent_checkpoint():
     tower = qwen3_5.load_tower(torch.bfloat16)
     checkpoint_weights = load_prefixed(
-        qwen3_5.MODEL_ID, [qwen3_5.VISION_SHARD], qwen3_5.VISION_PREFIX
+        qwen3_5.SOURCE_REPO, [qwen3_5.VISION_SHARD], qwen3_5.VISION_PREFIX
     )
     assert_bit_exact(tower.state_dict(), checkpoint_weights, 333)
 
@@ -47,7 +47,7 @@ def test_qwen_tower_matches_parent_checkpoint():
 def test_muse_tower_and_projector_match_parent_checkpoint():
     tower, projector = muse_glimmer.load_parts(torch.bfloat16)
     checkpoint_weights = load_prefixed(
-        muse_glimmer.MODEL_ID, muse_glimmer.SHARDS, muse_glimmer.TOWER_PREFIX
+        muse_glimmer.SOURCE_REPO, muse_glimmer.SHARDS, muse_glimmer.TOWER_PREFIX
     )
     assert_bit_exact(tower.state_dict(), checkpoint_weights, 806)
 
@@ -55,7 +55,7 @@ def test_muse_tower_and_projector_match_parent_checkpoint():
         (projector.adapter, muse_glimmer.ADAPTER_PREFIX, 2),
         (projector.projection, muse_glimmer.PROJECTION_PREFIX, 1),
     ):
-        checkpoint_weights = load_prefixed(muse_glimmer.MODEL_ID, muse_glimmer.SHARDS, prefix)
+        checkpoint_weights = load_prefixed(muse_glimmer.SOURCE_REPO, muse_glimmer.SHARDS, prefix)
         assert_bit_exact(module.state_dict(), checkpoint_weights, count)
 
 
@@ -65,5 +65,7 @@ def test_kimi_k26_republished_weights_match_parent_checkpoint():
         (tower, kimi_k26.TOWER_PREFIX, 329),
         (projector, kimi_k26.PROJECTOR_PREFIX, 6),
     ):
-        checkpoint_weights = load_prefixed(KIMI_SOURCE, KIMI_SHARDS, prefix)
-        assert_bit_exact(module.state_dict(), checkpoint_weights, count)
+        checkpoint_weights = load_prefixed(kimi_k26.SOURCE_REPO, kimi_k26.SOURCE_SHARDS, prefix)
+        # Ignore buffers the standalone model rebuilds at load time.
+        loaded = {k: v for k, v in module.state_dict().items() if k in checkpoint_weights}
+        assert_bit_exact(loaded, checkpoint_weights, count)

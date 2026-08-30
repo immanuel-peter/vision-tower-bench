@@ -3,13 +3,15 @@ from dataclasses import dataclass, field
 
 import torch
 from torchvision import transforms
-from transformers import AutoConfig, Qwen3_5VisionModel
+from transformers import AutoModel, Qwen3_5VisionModel
 
 from vtb.feature_batch import FeatureBatch
 from vtb.images import square_crop
-from vtb.shards import load_prefixed
 
-MODEL_ID = "Qwen/Qwen3.8-27B"
+MODEL_ID = "immanuelpeter/Qwen3.8-27B-Vision"
+
+# Qwen3.8-27B is where scripts/export_qwen3_8_vision.py reads the Tower from.
+SOURCE_REPO = "Qwen/Qwen3.8-27B"
 VISION_SHARD = "model-00001-of-00018.safetensors"
 VISION_PREFIX = "model.visual."
 PATCH_SIZE = 16
@@ -72,10 +74,7 @@ def raster(tokens: torch.Tensor, rows: int) -> torch.Tensor:
 
 
 def load_tower(dtype: torch.dtype) -> Qwen3_5VisionModel:
-    config = AutoConfig.from_pretrained(MODEL_ID).vision_config
-    model = Qwen3_5VisionModel._from_config(config, dtype=dtype)
-    model.load_state_dict(load_prefixed(MODEL_ID, [VISION_SHARD], VISION_PREFIX))
-    return model.eval()
+    return AutoModel.from_pretrained(MODEL_ID, dtype=dtype).eval()
 
 
 class Qwen3_5Adapter:

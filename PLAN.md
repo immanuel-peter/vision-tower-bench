@@ -39,10 +39,10 @@ Supporting hypotheses:
 
 | Model | Source | Role | Adapter effort |
 |---|---|---|---|
-| MoonViT (Kimi K2.6) | [exolabs/Kimi-K2.6-vision](https://huggingface.co/exolabs/Kimi-K2.6-vision) republishes Tower and Projector as one 0.94 GB file; architecture loads from [moonshotai/Kimi-K2.6](https://huggingface.co/moonshotai/Kimi-K2.6) | Multimodal Tower | Done |
+| MoonViT (Kimi K2.6) | [immanuelpeter/MoonViT-K2.6](https://huggingface.co/immanuelpeter/MoonViT-K2.6), Tower, Projector and standalone modeling code republished from [moonshotai/Kimi-K2.6](https://huggingface.co/moonshotai/Kimi-K2.6) (ADR-0018) | Multimodal Tower | Done |
 | MoonViT-V2 (Kimi K3) | [immanuelpeter/MoonViT-V2](https://huggingface.co/immanuelpeter/MoonViT-V2), Tower and Projector extracted from Kimi K3 shards 95 and 96 and republished together (ADR-0015) | Multimodal Tower | Done |
-| Qwen3.8-27B Tower | [Qwen/Qwen3.8-27B](https://huggingface.co/Qwen/Qwen3.8-27B), all 333 `model.visual.*` tensors in shard 1 of 18, 0.92 GB read by range request | Multimodal Tower | Done |
-| Muse Glimmer PE | [meta-models/Muse-Glimmer-30B](https://huggingface.co/meta-models/Muse-Glimmer-30B) via transformers `MuseGlimmerVisionModel`; 50 blocks, 3.84 GB of vision weights read by range request from both shards | Multimodal Tower | Done |
+| Qwen3.8-27B Tower | [immanuelpeter/Qwen3.8-27B-Vision](https://huggingface.co/immanuelpeter/Qwen3.8-27B-Vision), all 333 `model.visual.*` tensors republished from shard 1 of 18 of [Qwen/Qwen3.8-27B](https://huggingface.co/Qwen/Qwen3.8-27B) (ADR-0018) | Multimodal Tower | Done |
+| Muse Glimmer PE | [immanuelpeter/Muse-Glimmer-Vision](https://huggingface.co/immanuelpeter/Muse-Glimmer-Vision), 50 blocks and the Projector republished from both shards of [meta-models/Muse-Glimmer-30B](https://huggingface.co/meta-models/Muse-Glimmer-30B) (ADR-0018) | Multimodal Tower | Done |
 | DINOv2 ViT-L/14 | [facebook/dinov2-large](https://huggingface.co/facebook/dinov2-large) | Self-supervised control | Done |
 | SigLIP2-SO400M | [google/siglip2-so400m-patch14-384](https://huggingface.co/google/siglip2-so400m-patch14-384) | Contrastive control | Done |
 
@@ -87,7 +87,7 @@ Notes:
 Extraction runs on rented Brev GPUs in bounded bursts. Everything else runs locally on the M4 Max against cached features.
 
 - Features get cached once per (model, Relative Depth point, Stage, resolution) into resumable safetensors shards. Downstream code never touches a GPU. Safetensors adds no measurable overhead, so shard size is the tensor size.
-- Push extracted Tower checkpoints to Hugging Face as soon as parity passes. The cheapest burst instances cannot be stopped, so HF is what keeps the next burst from re-downloading the source shards.
+- Push extracted Tower checkpoints to Hugging Face as soon as parity passes. The cheapest burst instances cannot be stopped, so HF is what keeps the next burst from re-downloading the source shards. All four multimodal Towers are published and every adapter loads its release (ADR-0018).
 - Budget ceiling is $150. If costs climb, drop 896² runs before dropping any model (ADR-0002).
 - Prefer `hyperstack_A100_80G` at $1.62/hr, checked August 23. It has the same 80 GB as an H100 at half the price, and extraction only needs forward passes. The cheapest H100 is $3.00/hr and buys about twice the throughput, so the two are close on cost per image. Use `hyperstack_A6000` at $0.60/hr or `massedcompute_L40S` at $1.06/hr for the control models and pipeline work.
 - Prefer instances with bundled disk over metered volumes. Brev meters storage near $0.10/GB/month, so a 1 TB volume for a month would cost more than half the budget.
@@ -97,7 +97,7 @@ Extraction runs on rented Brev GPUs in bounded bursts. Everything else runs loca
 
 ## Known risks
 
-1. The shard-surgery risk is retired. Range requests fetch Qwen's 0.92 GB Tower and Muse's 3.84 GB Tower without downloading their 63.52 GB of source shards. The whole roster costs about 10 GB, not the 715 GB in the parent repositories (ADR-0016). MoonViT-V2 has bit-exact weight parity (ADR-0007).
+1. The shard-surgery risk is retired. Every Tower is now republished on its own, so extraction downloads about 10 GB from the release repositories instead of range-reading the 715 GB in the parents. The export scripts and parity tests still range-read Qwen's 0.92 GB Tower and Muse's 3.84 GB Tower from their 63.52 GB of source shards (ADR-0016, ADR-0018). MoonViT-V2 has bit-exact weight parity (ADR-0007).
 2. The Kimi licenses permit republication. The Kimi K3 License grants publication and derivative works over model weights and configuration files; its only binding condition for research is shipping the copyright and permission notice, and its revenue gates start at 20 million dollars (ADR-0015). Qwen and Muse are Apache 2.0.
 3. Parity tests gate everything. An extracted Tower ships only after its outputs match the Tower inside the full model within BF16 tolerance on fixed images.
 
@@ -117,7 +117,7 @@ If the schedule slips, cut 896² runs first, reduce the Perturbation Study to on
 ## Shipping order
 
 1. Bench repo with adapters, probes, parity tests, reproducible commands.
-2. Extracted Tower checkpoints under your HF account with provenance model cards.
+2. Extracted Tower checkpoints under your HF account with provenance model cards. Done for all four multimodal Towers (ADR-0015, ADR-0018).
 3. Per-example prediction datasets from every probe run.
 4. Perturbation Study dataset with transform metadata.
 5. HF Space demo, if time remains.

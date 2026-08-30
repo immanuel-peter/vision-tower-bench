@@ -16,6 +16,10 @@ representative of the roster.
 Both pillars run every cell on identical data with an identical head and an identical rate
 grid, so cell-to-cell comparisons hold even where absolute levels do not.
 
+Sections below name each Tower by the repository its adapter read at the time. Three of
+those have since been republished and the adapters now load the releases, so a later run
+will name `immanuelpeter/...` for the same weights (ADR-0018).
+
 Geometry uses DIODE validation, 771 images, 325 indoors and 446 outdoor, prepared at native
 768 by 1024 and scored on the centre 768 square that `square_crop` feeds each Stage
 (ADR-0012). The split is 541 train, 115 val, 115 test, drawn once with a fixed seed. Depth

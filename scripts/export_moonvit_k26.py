@@ -4,18 +4,21 @@ import argparse
 import json
 import shutil
 from pathlib import Path
+from types import SimpleNamespace
 
 import torch
 from huggingface_hub import hf_hub_download
 from safetensors.torch import load_file, save_file
+from transformers.dynamic_module_utils import get_class_from_dynamic_module
+from transformers.utils import import_utils
 
-SOURCE_REPO = "moonshotai/Kimi-K2.6"
+from vtb.adapters.kimi_k26 import PROJECTOR_PREFIX, SOURCE_REPO, TOWER_PREFIX
+
+SOURCE_MODULE = "modeling_kimi_k25"
 SOURCE_REVISION = "7eb5002f6aadc958aed6a9177b7ed26bb94011bb"
 WEIGHT_REPO = "exolabs/Kimi-K2.6-vision"
 WEIGHT_REVISION = "b20f6d9fcbfef482ef870153073df85f20ddb9e6"
 WEIGHT_FILE = "kimi_k26_vision.safetensors"
-TOWER_PREFIX = "vision_tower."
-PROJECTOR_PREFIX = "mm_projector."
 TOWER_TENSORS = 329
 PROJECTOR_TENSORS = 6
 
@@ -80,6 +83,31 @@ def split(weights: dict[str, torch.Tensor], prefix: str) -> dict[str, torch.Tens
         for name, weight in weights.items()
         if name.startswith(prefix)
     }
+
+
+def remote_class(name: str):
+    # The K2.6 code targets transformers 4.x and imports one helper that 5.x dropped.
+    if not hasattr(import_utils, "is_torch_fx_available"):
+        import_utils.is_torch_fx_available = lambda: False
+    return get_class_from_dynamic_module(
+        f"{SOURCE_MODULE}.{name}", SOURCE_REPO, revision=SOURCE_REVISION
+    )
+
+
+def load_source_parts(dtype: torch.dtype = torch.bfloat16, attention: str = "eager"):
+    """Build both halves from Moonshot's own code, which the release must match."""
+    settings = json.loads(
+        Path(hf_hub_download(SOURCE_REPO, "config.json", revision=SOURCE_REVISION)).read_text()
+    )["vision_config"]
+    settings["_attn_implementation"] = attention
+    source = SimpleNamespace(**settings)
+
+    weights = load_file(hf_hub_download(WEIGHT_REPO, WEIGHT_FILE, revision=WEIGHT_REVISION))
+    tower = remote_class("MoonViT3dPretrainedModel")(remote_class("VisionTowerConfig")(source))
+    tower.load_state_dict(split(weights, TOWER_PREFIX))
+    projector = remote_class("PatchMergerMLP")(remote_class("ProjectorConfig")(source))
+    projector.load_state_dict(split(weights, PROJECTOR_PREFIX))
+    return tower.to(dtype).eval(), projector.to(dtype).eval()
 
 
 def standalone_modeling_source(source: str) -> str:

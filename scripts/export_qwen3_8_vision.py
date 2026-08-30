@@ -9,11 +9,22 @@ import torch
 from huggingface_hub import hf_hub_download
 from transformers import AutoConfig, Qwen3_5VisionModel
 
-from vtb.adapters.qwen3_5 import MODEL_ID, VISION_PREFIX, VISION_SHARD
+from vtb.adapters.qwen3_5 import SOURCE_REPO, VISION_PREFIX, VISION_SHARD
 from vtb.shards import load_prefixed
 
 SOURCE_REVISION = "1d4bf0f2ff6012fd82039f2fa52739d0dd7c60c0"
 TOWER_TENSORS = 333
+
+
+def load_source_tower(dtype: torch.dtype = torch.bfloat16) -> Qwen3_5VisionModel:
+    """Build the Tower from the pinned parent checkpoint, which the release must match."""
+    config = AutoConfig.from_pretrained(SOURCE_REPO, revision=SOURCE_REVISION).vision_config
+    tower = Qwen3_5VisionModel._from_config(config, dtype=dtype)
+    weights = load_prefixed(SOURCE_REPO, [VISION_SHARD], VISION_PREFIX, revision=SOURCE_REVISION)
+    if len(weights) != TOWER_TENSORS:
+        raise SystemExit(f"expected {TOWER_TENSORS} Tower tensors, read {len(weights)}")
+    tower.load_state_dict(weights)
+    return tower.eval()
 
 
 def write_bundle(
@@ -34,23 +45,12 @@ def write_bundle(
 
 
 def export(out: Path) -> None:
-    config = AutoConfig.from_pretrained(MODEL_ID, revision=SOURCE_REVISION).vision_config
-    tower = Qwen3_5VisionModel._from_config(config, dtype=torch.bfloat16)
-    weights = load_prefixed(
-        MODEL_ID,
-        [VISION_SHARD],
-        VISION_PREFIX,
-        revision=SOURCE_REVISION,
-    )
-    if len(weights) != TOWER_TENSORS:
-        raise SystemExit(f"expected {TOWER_TENSORS} Tower tensors, read {len(weights)}")
-    tower.load_state_dict(weights)
-    tower.eval()
+    tower = load_source_tower()
 
     preprocessor = Path(
-        hf_hub_download(MODEL_ID, "preprocessor_config.json", revision=SOURCE_REVISION)
+        hf_hub_download(SOURCE_REPO, "preprocessor_config.json", revision=SOURCE_REVISION)
     )
-    license_path = Path(hf_hub_download(MODEL_ID, "LICENSE", revision=SOURCE_REVISION))
+    license_path = Path(hf_hub_download(SOURCE_REPO, "LICENSE", revision=SOURCE_REVISION))
     write_bundle(tower, preprocessor, license_path, out)
 
     for path in sorted(out.iterdir()):

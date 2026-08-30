@@ -41,3 +41,8 @@ killed process cannot leave a half-written entry that a later run would trust.
 The remaining cost is that a first read still depends on the parent repository serving
 range requests. A Tower that gets probed repeatedly should be republished instead, the way
 ADR-0015 handles MoonViT-V2.
+
+ADR-0018 republished every multimodal Tower and moved the adapters to those releases, so
+extraction no longer uses range reads. The export scripts still read pinned parent revisions
+to build the releases, and the parity tests read them to compare each release against its
+parent. Those paths still use the range reader described above.

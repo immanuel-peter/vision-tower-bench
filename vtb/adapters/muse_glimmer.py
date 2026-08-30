@@ -1,10 +1,15 @@
 from collections.abc import Iterator
 from dataclasses import dataclass, field
+from json import loads
+from pathlib import Path
+from types import SimpleNamespace
 
 import torch
+from huggingface_hub import hf_hub_download
+from safetensors.torch import load_file
 from torch import nn
 from torchvision import transforms
-from transformers import AutoConfig, MuseGlimmerVisionModel
+from transformers import AutoModel, MuseGlimmerVisionModel
 from transformers.models.muse_glimmer.modeling_muse_glimmer import (
     MuseGlimmerRMSNorm,
     MuseGlimmerVisionAdapter,
@@ -13,9 +18,13 @@ from transformers.vision_utils import get_vision_window_index
 
 from vtb.feature_batch import FeatureBatch
 from vtb.images import square_crop
-from vtb.shards import load_prefixed
 
-MODEL_ID = "meta-models/Muse-Glimmer-30B"
+MODEL_ID = "immanuelpeter/Muse-Glimmer-Vision"
+PROJECTOR_FILE = "projector.safetensors"
+PROJECTOR_CONFIG = "projector_config.json"
+
+# Muse Glimmer 30B is where scripts/export_muse_glimmer_vision.py reads both halves from.
+SOURCE_REPO = "meta-models/Muse-Glimmer-30B"
 SHARDS = ("model-00001-of-00002.safetensors", "model-00002-of-00002.safetensors")
 TOWER_PREFIX = "model.vision_tower."
 ADAPTER_PREFIX = "model.vision_adapter."
@@ -73,15 +82,25 @@ class Projector(nn.Module):
         return self.norm(self.projection(self.adapter(tokens)))
 
 
-def load_parts(dtype: torch.dtype) -> tuple[MuseGlimmerVisionModel, Projector]:
-    config = AutoConfig.from_pretrained(MODEL_ID)
-    tower = MuseGlimmerVisionModel._from_config(config.vision_config, dtype=dtype)
-    tower.load_state_dict(load_prefixed(MODEL_ID, SHARDS, TOWER_PREFIX))
+def projector_shapes(settings: dict) -> SimpleNamespace:
+    """Describe the released Projector the way its parent config did."""
+    return SimpleNamespace(
+        out_hidden_size=settings["input_size"],
+        projector_hidden_size=settings["hidden_size"],
+        projector_hidden_act=settings["activation_func"],
+        text_config=SimpleNamespace(
+            hidden_size=settings["output_size"],
+            rms_norm_eps=settings["norm_eps"],
+        ),
+    )
 
-    projector = Projector(config)
-    projector.adapter.load_state_dict(load_prefixed(MODEL_ID, SHARDS, ADAPTER_PREFIX))
-    projector.projection.load_state_dict(load_prefixed(MODEL_ID, SHARDS, PROJECTION_PREFIX))
-    return tower.eval(), projector.to(dtype).eval()
+
+def load_parts(dtype: torch.dtype) -> tuple[MuseGlimmerVisionModel, Projector]:
+    tower = AutoModel.from_pretrained(MODEL_ID, dtype=dtype).eval()
+    settings = loads(Path(hf_hub_download(MODEL_ID, PROJECTOR_CONFIG)).read_text())
+    projector = Projector(projector_shapes(settings))
+    projector.load_state_dict(load_file(hf_hub_download(MODEL_ID, PROJECTOR_FILE)))
+    return tower, projector.to(dtype).eval()
 
 
 class MuseGlimmerAdapter:

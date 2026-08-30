@@ -1,26 +1,27 @@
 from collections.abc import Iterator
 from dataclasses import dataclass, field
 from json import loads
-from types import SimpleNamespace
+from pathlib import Path
 
 import torch
 from huggingface_hub import hf_hub_download
 from safetensors.torch import load_file
+from torch import nn
 from torchvision import transforms
-from transformers.dynamic_module_utils import get_class_from_dynamic_module
-from transformers.utils import import_utils
+from transformers import AutoModel
 
 from vtb.feature_batch import FeatureBatch
 from vtb.images import square_crop
 
-MODEL_ID = "exolabs/Kimi-K2.6-vision"
-WEIGHTS_FILE = "kimi_k26_vision.safetensors"
+MODEL_ID = "immanuelpeter/MoonViT-K2.6"
+PROJECTOR_FILE = "projector.safetensors"
+PROJECTOR_CONFIG = "projector_config.json"
+
+# Kimi K2.6 is where scripts/export_moonvit_k26.py reads both halves from.
+SOURCE_REPO = "moonshotai/Kimi-K2.6"
+SOURCE_SHARDS = ("model-00063-of-000064.safetensors", "model-00064-of-000064.safetensors")
 TOWER_PREFIX = "vision_tower."
 PROJECTOR_PREFIX = "mm_projector."
-
-# exolabs republishes the weights but not the architecture, which stays with the source model.
-CODE_REPO = "moonshotai/Kimi-K2.6"
-CODE_MODULE = "modeling_kimi_k25"
 PATCH_SIZE = 14
 
 
@@ -56,28 +57,25 @@ def collate(samples: list[torch.Tensor]) -> dict[str, torch.Tensor]:
     }
 
 
-def remote_class(name: str):
-    # The K2.6 code targets transformers 4.x and imports one helper that 5.x dropped.
-    if not hasattr(import_utils, "is_torch_fx_available"):
-        import_utils.is_torch_fx_available = lambda: False
-    return get_class_from_dynamic_module(f"{CODE_MODULE}.{name}", CODE_REPO)
+def load_projector(dtype: torch.dtype) -> nn.Module:
+    """Build Kimi K2.6's patch merger from its published weights."""
+    settings = loads(Path(hf_hub_download(MODEL_ID, PROJECTOR_CONFIG)).read_text())
+    projector = nn.Module()
+    projector.pre_norm = nn.LayerNorm(settings["input_size"], eps=settings["norm_eps"])
+    projector.proj = nn.Sequential(
+        nn.Linear(settings["hidden_size"], settings["hidden_size"]),
+        nn.GELU(),
+        nn.Linear(settings["hidden_size"], settings["output_size"]),
+    )
+    projector.load_state_dict(load_file(hf_hub_download(MODEL_ID, PROJECTOR_FILE)))
+    return projector.to(dtype).eval()
 
 
 def load_parts(dtype: torch.dtype, attention: str = "eager"):
-    settings = loads(open(hf_hub_download(MODEL_ID, "config.json")).read())["vision_config"]
-    settings["_attn_implementation"] = attention
-    source = SimpleNamespace(**settings)
-
-    weights = load_file(hf_hub_download(MODEL_ID, WEIGHTS_FILE))
-    tower = remote_class("MoonViT3dPretrainedModel")(remote_class("VisionTowerConfig")(source))
-    tower.load_state_dict(split(weights, TOWER_PREFIX))
-    projector = remote_class("PatchMergerMLP")(remote_class("ProjectorConfig")(source))
-    projector.load_state_dict(split(weights, PROJECTOR_PREFIX))
-    return tower.to(dtype).eval(), projector.to(dtype).eval()
-
-
-def split(weights: dict[str, torch.Tensor], prefix: str) -> dict[str, torch.Tensor]:
-    return {k.removeprefix(prefix): v for k, v in weights.items() if k.startswith(prefix)}
+    tower = AutoModel.from_pretrained(
+        MODEL_ID, dtype=dtype, trust_remote_code=True, attn_implementation=attention
+    ).eval()
+    return tower, load_projector(dtype)
 
 
 class KimiK26Adapter:
@@ -135,7 +133,8 @@ class KimiK26Adapter:
 
         stacked = torch.stack(merged)
         yield self._batch(stacked.flatten(2), image_ids, "merged", self.num_layers)
-        yield self._batch(self.projector(stacked), image_ids, "projected", self.num_layers)
+        grouped = self.projector.pre_norm(stacked).flatten(2)
+        yield self._batch(self.projector.proj(grouped), image_ids, "projected", self.num_layers)
 
     def _batch(self, tokens: torch.Tensor, image_ids: list[str], stage: str, layer: int) -> FeatureBatch:
         return FeatureBatch(

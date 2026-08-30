@@ -12,9 +12,9 @@ from transformers import AutoConfig, MuseGlimmerVisionModel
 
 from vtb.adapters.muse_glimmer import (
     ADAPTER_PREFIX,
-    MODEL_ID,
     PROJECTION_PREFIX,
     SHARDS,
+    SOURCE_REPO,
     TOWER_PREFIX,
     Projector,
 )
@@ -23,6 +23,29 @@ from vtb.shards import load_prefixed
 SOURCE_REVISION = "a4e59da52a7bc87ae7251dd5545c0dd437c44b68"
 TOWER_TENSORS = 806
 PROJECTOR_TENSORS = 3
+
+
+def load_source_parts(
+    dtype: torch.dtype = torch.bfloat16,
+) -> tuple[MuseGlimmerVisionModel, Projector]:
+    """Build both halves from the pinned parent checkpoint, which the release must match."""
+    config = AutoConfig.from_pretrained(SOURCE_REPO, revision=SOURCE_REVISION)
+    tower = MuseGlimmerVisionModel._from_config(config.vision_config, dtype=dtype)
+    tower_weights = load_prefixed(SOURCE_REPO, SHARDS, TOWER_PREFIX, revision=SOURCE_REVISION)
+    if len(tower_weights) != TOWER_TENSORS:
+        raise SystemExit(f"expected {TOWER_TENSORS} Tower tensors, read {len(tower_weights)}")
+    tower.load_state_dict(tower_weights)
+
+    projector = Projector(config)
+    projector.adapter.load_state_dict(
+        load_prefixed(SOURCE_REPO, SHARDS, ADAPTER_PREFIX, revision=SOURCE_REVISION)
+    )
+    projector.projection.load_state_dict(
+        load_prefixed(SOURCE_REPO, SHARDS, PROJECTION_PREFIX, revision=SOURCE_REVISION)
+    )
+    if len(projector.state_dict()) != PROJECTOR_TENSORS:
+        raise SystemExit(f"expected {PROJECTOR_TENSORS} Projector tensors")
+    return tower.eval(), projector.to(dtype).eval()
 
 
 def projector_config(projector: Projector) -> dict:
@@ -62,35 +85,10 @@ def write_bundle(
 
 
 def export(out: Path) -> None:
-    config = AutoConfig.from_pretrained(MODEL_ID, revision=SOURCE_REVISION)
-    tower = MuseGlimmerVisionModel._from_config(
-        config.vision_config,
-        dtype=torch.bfloat16,
-    )
-    tower_weights = load_prefixed(
-        MODEL_ID,
-        SHARDS,
-        TOWER_PREFIX,
-        revision=SOURCE_REVISION,
-    )
-    if len(tower_weights) != TOWER_TENSORS:
-        raise SystemExit(f"expected {TOWER_TENSORS} Tower tensors, read {len(tower_weights)}")
-    tower.load_state_dict(tower_weights)
-
-    projector = Projector(config)
-    projector.adapter.load_state_dict(
-        load_prefixed(MODEL_ID, SHARDS, ADAPTER_PREFIX, revision=SOURCE_REVISION)
-    )
-    projector.projection.load_state_dict(
-        load_prefixed(MODEL_ID, SHARDS, PROJECTION_PREFIX, revision=SOURCE_REVISION)
-    )
-    if len(projector.state_dict()) != PROJECTOR_TENSORS:
-        raise SystemExit(f"expected {PROJECTOR_TENSORS} Projector tensors")
-    tower.eval()
-    projector.to(torch.bfloat16).eval()
+    tower, projector = load_source_parts()
 
     files = {
-        name: Path(hf_hub_download(MODEL_ID, name, revision=SOURCE_REVISION))
+        name: Path(hf_hub_download(SOURCE_REPO, name, revision=SOURCE_REVISION))
         for name in ("processor_config.json", "LICENSE", "USAGE_POLICY.md")
     }
     write_bundle(
