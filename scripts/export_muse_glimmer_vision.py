@@ -53,6 +53,7 @@ def write_bundle(
     (out / "projector_config.json").write_text(json.dumps(projector_config(projector), indent=2) + "\n")
 
     parent_processor = json.loads(processor_config.read_text())
+    parent_processor["image_processor"]["processor_class"] = "AutoImageProcessor"
     (out / "preprocessor_config.json").write_text(
         json.dumps(parent_processor["image_processor"], indent=2) + "\n"
     )

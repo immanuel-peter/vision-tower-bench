@@ -51,7 +51,7 @@ def test_qwen_bundle_loads_through_auto_model_without_the_parent_repo(tmp_path):
     assert loaded.config.model_type == "qwen3_5_vision"
     exported_processor = json.loads((out / "preprocessor_config.json").read_text())
     assert exported_processor["image_processor_type"] == "Qwen2VLImageProcessorFast"
-    assert "processor_class" not in exported_processor
+    assert exported_processor["processor_class"] == "AutoImageProcessor"
     assert (out / "LICENSE").read_text() == "Apache License\n"
 
 
@@ -110,6 +110,9 @@ def test_muse_bundle_loads_the_tower_and_keeps_the_projector_separate(tmp_path):
         "projection.weight",
     }
     assert json.loads((out / "preprocessor_config.json").read_text())["patch_size"] == 2
+    assert json.loads((out / "preprocessor_config.json").read_text())["processor_class"] == (
+        "AutoImageProcessor"
+    )
     assert (out / "USAGE_POLICY.md").read_text() == "Usage policy\n"
 
 

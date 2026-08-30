@@ -26,7 +26,7 @@ def write_bundle(
     tower.config.architectures = ["Qwen3_5VisionModel"]
     tower.save_pretrained(out, safe_serialization=True)
     processor_config = json.loads(preprocessor.read_text())
-    del processor_config["processor_class"]
+    processor_config["processor_class"] = "AutoImageProcessor"
     (out / "preprocessor_config.json").write_text(
         json.dumps(processor_config, indent=2) + "\n"
     )
