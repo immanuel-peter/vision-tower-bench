@@ -359,3 +359,16 @@ def test_depth_head_bins_span_the_requested_range():
     near = geometry.DepthHead([32], head="linear", max_depth=10.0)
     assert near([torch.randn(1, 32, 8, 8) * 50]).max().item() <= 10.0
     assert far.shape == near([torch.randn(1, 32, 8, 8)]).shape
+
+
+def test_shard_cache_key_tracks_the_revision_it_read(tmp_path, monkeypatch):
+    from vtb import shards
+
+    monkeypatch.setenv("VTB_SHARD_CACHE", str(tmp_path))
+    assert shards.cache_root() == tmp_path
+
+    first = shards.cache_path("org/model", "vision.", [("a.safetensors", "etag1")])
+    assert first == shards.cache_path("org/model", "vision.", [("a.safetensors", "etag1")])
+    assert first != shards.cache_path("org/model", "vision.", [("a.safetensors", "etag2")])
+    assert first != shards.cache_path("org/model", "text.", [("a.safetensors", "etag1")])
+    assert first != shards.cache_path("other/model", "vision.", [("a.safetensors", "etag1")])

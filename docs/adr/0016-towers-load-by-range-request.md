@@ -13,9 +13,31 @@ One request per tensor does not work. Qwen's Tower is 333 tensors and Muse's is 
 issuing that many requests earns a 429 from the CDN partway through. Tensors sharing a
 prefix sit next to each other in the file, so the reader groups them into spans and reads
 one span per request, tolerating gaps up to 8 MB. Qwen's 333 tensors become one request,
-0.92 GB in 18.7 seconds. Requests retry with exponential backoff on 429 and on 5xx.
+0.92 GB in 18.7 seconds.
 
-The cost is that the parent repository has to keep serving range requests, which
-`hf_hub_download` would have cached locally. That trade is worth it while the roster is
-still moving; a Tower that gets probed repeatedly should be republished instead, the way
+Spans are then capped at 256 MB, which undoes part of that grouping on purpose. The CDN
+resets long transfers, and a reset costs the whole request, so one 3.7 GB span for Muse
+threw away gigabytes on a broken socket. At 256 MB Muse takes about 15 requests and Qwen
+about 4, both far below the rate limit that 333 hit, and a reset costs at most 256 MB.
+Requests retry with exponential backoff on 429, on 5xx, and on transport errors. The
+transport case was missing at first, so a reset socket raised `ChunkedEncodingError` and
+killed the read outright.
+
+## Cache range reads
+
+`hf_hub_download` caches; raw range requests do not. Every construction of an adapter
+re-read the whole Tower. Muse's 3.71 GB took 758 seconds each time, which is most of why
+the parity suite ran for 31 minutes and the merge tests for 23.
+
+`load_prefixed` now writes its result to `$HF_HOME/vtb-shards`, so a scratch disk holds it
+beside the Hugging Face cache, and `VTB_SHARD_CACHE` moves it. The same Muse read returns
+in 0.33 seconds, 2306 times faster, with tensors verified identical.
+
+The cache key is a hash of the repository, the prefix, and the etag of every shard read.
+A new upstream revision changes the etags and misses the cache, preventing stale weights
+from being served silently. Entries are written to a temporary file and renamed, so a
+killed process cannot leave a half-written entry that a later run would trust.
+
+The remaining cost is that a first read still depends on the parent repository serving
+range requests. A Tower that gets probed repeatedly should be republished instead, the way
 ADR-0015 handles MoonViT-V2.

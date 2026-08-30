@@ -66,8 +66,18 @@ def test_adapter_yields_every_stage_at_the_expected_shape(adapter_class, image):
         assert tuple(only[0].tokens.shape) == (1, side**2, width)
 
 
-def test_kimi_k26_merging_only_regroups_tower_tokens(image):
-    adapter = KimiK26Adapter(resolution=RESOLUTION, device="cpu", dtype=torch.float32)
+# Projectors group 2x2 grid squares, then flatten by position or channel (ADR-0013).
+MERGE_LAYOUT = {
+    MoonViTV2Adapter: "position",
+    KimiK26Adapter: "position",
+    Qwen3_5Adapter: "position",
+    MuseGlimmerAdapter: "channel",
+}
+
+
+@pytest.mark.parametrize("adapter_class", MERGE_LAYOUT, ids=lambda c: c.__name__)
+def test_merging_only_regroups_tower_tokens(adapter_class, image):
+    adapter = adapter_class(resolution=RESOLUTION, device="cpu", dtype=torch.bfloat16)
     batch = adapter.collate([adapter.preprocess()(image)])
     yielded = {(b.stage, b.layer_index): b for b in adapter.extract(batch, ["one"])}
 
@@ -75,7 +85,11 @@ def test_kimi_k26_merging_only_regroups_tower_tokens(image):
     merged = yielded[("merged", adapter.num_layers)].tokens
     rows, count, width = tower.shape
     side = int(count**0.5)
-    blocks = tower.view(rows, side // 2, 2, side // 2, 2, width).permute(0, 1, 3, 2, 4, 5)
+    blocks = tower.view(rows, side // 2, 2, side // 2, 2, width)
+    blocks = blocks.permute(0, 1, 3, 2, 4, 5).reshape(rows, -1, 4, width)
+    if MERGE_LAYOUT[adapter_class] == "channel":
+        blocks = blocks.permute(0, 1, 3, 2)
+
     assert torch.equal(blocks.reshape(merged.shape), merged)
     assert not torch.equal(tower.reshape(merged.shape), merged)
 
