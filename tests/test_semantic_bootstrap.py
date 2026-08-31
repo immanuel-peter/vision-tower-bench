@@ -4,6 +4,21 @@ import torch
 from vtb.semantic_bootstrap import paired_image_bootstrap
 
 
+def test_bootstrap_runner_defaults_to_the_headline_arm():
+    from scripts.semantic_bootstrap import parser
+
+    args = parser().parse_args(
+        [
+            "--first-run", "first", "--first-name", "a", "--first-layer", "1",
+            "--second-run", "second", "--second-name", "b", "--second-layer", "2",
+            "--labels", "labels.json", "--out", "out.json",
+        ]
+    )
+
+    assert args.readout == "attention"
+    assert args.arm == "matched"
+
+
 def test_paired_bootstrap_uses_seed_mean_correctness_and_is_reproducible():
     first = torch.tensor([[True, True, False, True], [True, False, False, True]])
     second = torch.tensor([[True, False, False, False], [True, False, True, False]])

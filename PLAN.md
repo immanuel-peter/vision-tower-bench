@@ -26,23 +26,17 @@ Supporting hypotheses:
 
 1. Semantic decodability improves toward the last layers; geometry peaks earlier. Geometry
    declines before the last layer in 23 of 24 arms, the exception being unmatched DINOv2
-   depth. Semantics rises to the last layer in 20 of 24. Qwen3.5 is the real exception: its
-   semantics peaks at Relative Depth 0.741 to 0.889 and falls to the last layer by up to
-   6.0 seed deviations, so both capabilities peak early in that Tower. In all six the
-   geometry peak is at or before the semantic one.
-   (Amended August 31 after the eleven-point semantic re-run: semantics rises to the last
-   layer in 19 of 24 arms - qwen3_5 peaks at Relative Depth 0.889 on all four of its
-   semantic arms, falling 3.6 sd on attention raw and 15.5 on mean raw - while the geometry
-   counts are unchanged.)
+   depth. Semantics rises to the last layer in 19 of 24 arms. Qwen3.5 is the only Tower
+   whose semantics genuinely decline into the last layer: all four arms peak at Relative
+   Depth 0.889 and fall by 1.2 to 11.6 seed deviations. The other non-rising arm, kimi_k26
+   attention raw, falls 0.5 deviations and is noise. In all six Towers the geometry peak is
+   at or before the semantic one.
 2. Rankings change by task. No Tower wins everywhere: DINOv2 takes both geometry tasks,
-   Muse Glimmer the attention readout, SigLIP2 the mean readout. Changing the readout alone
-   changes the semantic winner. Results ship as Capability Profiles instead of one score.
-   (Amended August 31 after the eleven-point semantic re-run: Muse Glimmer keeps the
-   attention readout only in the capacity-matched arm, 0.9195 over SigLIP2's 0.9154; on
-   unmatched attention SigLIP2 0.9171 edges Muse Glimmer 0.9154 at 2.4 seed deviations. The
-   readout-dependence claim itself survives - SigLIP2 takes both mean columns and the
-   unmatched attention column, Muse Glimmer the matched attention one - and the roster's
-   Muse-first unmatched-attention cell was a truncation artifact of the old grid.)
+   while Muse Glimmer and SigLIP2 occupy the top semantic rows. Results ship as Capability
+   Profiles instead of one score. The stronger readout-dependence claim is not supported:
+   paired 95% image-bootstrap intervals for Muse Glimmer against SigLIP2 cross zero in all
+   four semantic readout-arm columns, so neither the nominal Muse-first attention ranking
+   nor the nominal SigLIP2-first mean ranking resolves on the test set.
 3. Scale stops dominating once token count, latency, and label efficiency enter the comparison.
 
 ## Roster

@@ -21,6 +21,8 @@ def parser() -> argparse.ArgumentParser:
     ap.add_argument("--second-layer", type=int, required=True)
     ap.add_argument("--labels", type=Path, required=True)
     ap.add_argument("--out", type=Path, required=True)
+    ap.add_argument("--readout", choices=("attention", "mean"), default="attention")
+    ap.add_argument("--arm", choices=("raw", "matched"), default="matched")
     ap.add_argument("--epochs", type=int, default=20)
     ap.add_argument("--batch-size", type=int, default=256)
     ap.add_argument("--seeds", type=int, default=3)
@@ -50,8 +52,9 @@ def train_cell(run, layer, labels_by_id, args):
     labels = torch.tensor([labels_by_id[image_id] for image_id in image_ids])
     split = probe_run.split_indices(len(image_ids))
     features = tokens.float()
-    reducer = probe_run.fit_reducer(features, split, args.width)
-    features = reducer(features)
+    if args.arm == "matched":
+        reducer = probe_run.fit_reducer(features, split, args.width)
+        features = reducer(features)
     test_labels = labels[split.test]
     selected_rate = None
     best_validation = -1.0
@@ -62,7 +65,7 @@ def train_cell(run, layer, labels_by_id, args):
             labels,
             split,
             len(set(labels_by_id.values())),
-            "attention",
+            args.readout,
             rate,
             0,
             args.device,
@@ -82,7 +85,7 @@ def train_cell(run, layer, labels_by_id, args):
             labels,
             split,
             len(set(labels_by_id.values())),
-            "attention",
+            args.readout,
             selected_rate,
             seed,
             args.device,
@@ -136,8 +139,8 @@ def main() -> None:
         )
     payload = {
         "protocol": {
-            "readout": "attention",
-            "arm": "matched",
+            "readout": args.readout,
+            "arm": args.arm,
             "epochs": args.epochs,
             "seeds": args.seeds,
             "test_images": len(rows),

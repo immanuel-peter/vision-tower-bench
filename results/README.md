@@ -200,7 +200,8 @@ attention-matched arm.)
 
 ## 4. Rankings change by task, and no Tower wins everywhere
 
-Supporting hypothesis 2 is supported. Best Tower cell per task and arm:
+The nominal best-Tower ranking changes by task and arm. These point estimates preceded the
+paired-bootstrap analysis below, which does not resolve the semantic winners:
 
 | task | arm | ranking |
 |---|---|---|
@@ -217,8 +218,8 @@ Supporting hypothesis 2 is supported. Best Tower cell per task and arm:
 Muse Glimmer first, 0.9195 over SigLIP2's 0.9154. Unmatched attention flips to SigLIP2
 0.9171 over Muse Glimmer 0.9154 at 2.4 seed deviations - the roster's Muse-first
 unmatched-attention column was a truncation artifact. Mean holds: SigLIP2 first in both
-arms. The winner still changes with the readout, which is what hypothesis 2 claims. See the
-re-run section at the bottom of this file.)
+arms. A later paired bootstrap supersedes the winner claim: all four Muse-versus-SigLIP2
+intervals cross zero. See the re-run and pooling-validation sections below.)
 
 Three Towers take a first place: DINOv2 four times, Muse Glimmer twice, SigLIP2 twice. No
 Tower wins everywhere, so nothing here undercuts the Capability Profile framing.
@@ -803,7 +804,7 @@ The roster's attention readout was under-reported by 0.002 to 0.011 top-1 at the
 cells. The largest single correction is siglip2 attention raw `tower` d1.0: 0.9171 against
 0.9101, +0.0070 at 7.8 seed deviations.
 
-### Does hypothesis 2 survive? Yes, with one arm flipped
+### The grid preserves nominal winners; the bootstrap does not resolve them
 
 Winner of each semantic column, best Tower cell, re-run against roster:
 
@@ -814,17 +815,12 @@ Winner of each semantic column, best Tower cell, re-run against roster:
 | mean | matched | siglip2 0.9133 > muse_glimmer 0.9097 > dinov2 0.8906 > kimi_k26 0.8812 > qwen3_5 0.8723 > moonvit_v2 0.8415 | siglip2 0.9135 > muse_glimmer 0.9104 > ... |
 | mean | raw | siglip2 0.9121 > muse_glimmer 0.9111 > dinov2 0.8916 > kimi_k26 0.8682 > qwen3_5 0.8598 > moonvit_v2 0.8147 | siglip2 0.9121 > muse_glimmer 0.9106 > ... |
 
-The hypothesis - Muse Glimmer wins the attention readout, SigLIP2 the mean one, so changing
-the readout changes the winner - survives in the capacity-matched arm, which ADR-0010
-nominates for headlines: Muse Glimmer 0.9195 over SigLIP2 0.9154 on attention, SigLIP2
-0.9133 over Muse Glimmer 0.9097 on mean pooling. But the attention-raw column flipped: at
-properly searched rates SigLIP2 0.9171 beats Muse Glimmer 0.9154 by 0.0017, 2.4 seed
-deviations. In the roster's truncated grid Muse Glimmer took that column by 0.0044 at 2.1
-deviations. Both attention columns are SigLIP2-versus-Muse margins inside 0.005; the
-attention-matched margin is 1.4 seed deviations of Muse Glimmer's own spread, so the honest
-reading is that the two contrastive Towers are tied at the top of the attention column and
-the readout choice decides which of them is named. SigLIP2 holds the mean readout in both
-arms; Muse Glimmer keeps attention-matched. No Tower wins everywhere still holds.
+The eleven-point grid gives Muse Glimmer the capacity-matched attention column and SigLIP2
+both mean columns and raw attention. Those are nominal orderings, not resolved winners. A
+later paired image bootstrap over the same 1,950 test images finds all four
+Muse-versus-SigLIP2 intervals crossing zero. The claim that changing the readout changes the
+semantic winner is therefore unsupported. No Tower wins everywhere remains a descriptive
+summary of the measured Capability Profiles, not evidence for a resolved semantic winner.
 
 ### The Stage conclusion strengthens
 
@@ -1229,30 +1225,36 @@ comparisons are unaffected. Within-model comparisons remain controlled because e
 uses the same pooled cache, but that does not establish that pooling preserves the absolute
 shape of an attention Relative Depth curve. Details in ADR-0019.
 
-### Paired bootstrap on the matched attention headline
+### Paired bootstrap on the semantic readout rankings
 
-The promised paired image bootstrap was added after the pooling diagnostic. Because the
-original matched cells used a randomized PCA basis before the reducer was seeded, their
-trained heads and per-image predictions cannot be reconstructed exactly. The two deepest
-Tower cells were therefore re-searched on the full eleven-point grid under the deterministic
-reducer in commit `8c82a96`, then trained for three seeds at the selected rate. Both again
-selected `1e-4` over the same 1,950 test images.
+The promised paired image bootstrap was added after the pooling diagnostic. The deepest
+Tower cells for Muse Glimmer and SigLIP2 were re-searched on the full eleven-point grid,
+then trained for three seeds at the selected rate. Ten thousand paired resamples of
+seed-averaged correctness over the same 1,950 test images produce these intervals; every
+difference is Muse minus SigLIP2.
 
-| Tower | deterministic mean accuracy | committed headline |
-|---|---:|---:|
-| Muse Glimmer | 0.92034 | 0.9195 |
-| SigLIP2 | 0.91624 | 0.9154 |
+| readout | arm | Muse | SigLIP2 | difference | paired 95% interval |
+|---|---|---:|---:|---:|---:|
+| attention | matched | 0.92034 | 0.91624 | +0.00410 | [-0.00359, +0.01214] |
+| attention | raw | 0.91538 | 0.91709 | -0.00171 | [-0.00974, +0.00633] |
+| mean | matched | 0.90872 | 0.91265 | -0.00393 | [-0.01299, +0.00530] |
+| mean | raw | 0.91111 | 0.91214 | -0.00103 | [-0.01043, +0.00855] |
 
-The Muse-minus-SigLIP2 difference is `+0.00410`. Ten thousand paired resamples of
-seed-averaged per-image correctness give a 95% percentile interval of
-`[-0.00359, +0.01214]`. The interval crosses zero: the pooled test set does not resolve
-which Tower ranks first on the matched attention readout. Hypothesis 2's Muse-first
-attention half is therefore not supported as a ranking claim.
+All four intervals cross zero. The pooled test set resolves neither a Muse-first attention
+ranking nor a SigLIP2-first mean ranking. Hypothesis 2's claim that changing the readout
+changes the semantic winner is therefore unsupported; winner identity is unresolved in
+every semantic readout column.
+
+The two raw reruns reproduce the committed headline accuracies at their reported precision.
+The matched cells use the deterministic reducer from commit `8c82a96`; their original
+randomized PCA draws and trained heads were not saved and cannot be reconstructed exactly.
+On matched attention the corrected run raises both Towers by about 0.0008 and preserves the
+committed +0.0041 margin.
 
 This statistical result does not validate pooling. It neither compares pooled against full
 tokens nor answers whether pooling changes the attention Relative Depth curve. The
-per-image predictions and bootstrap metadata live in
-`results/bootstrap/semantic-attention-matched-muse-vs-siglip2.json`.
+four per-image prediction datasets and their bootstrap metadata live in
+`results/bootstrap/`.
 
 ## Indoors against outdoor
 
