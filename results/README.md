@@ -1225,7 +1225,34 @@ cells), it matches or beats pooled and the rankings agree in the matched arm.
 
 The semantic pillar's attention readout therefore carries a caveat: its cross-model
 rankings are measured on pooled features whose control did not validate. Mean-readout
-comparisons and all within-model comparisons are unaffected. Details in ADR-0019.
+comparisons are unaffected. Within-model comparisons remain controlled because every cell
+uses the same pooled cache, but that does not establish that pooling preserves the absolute
+shape of an attention Relative Depth curve. Details in ADR-0019.
+
+### Paired bootstrap on the matched attention headline
+
+The promised paired image bootstrap was added after the pooling diagnostic. Because the
+original matched cells used a randomized PCA basis before the reducer was seeded, their
+trained heads and per-image predictions cannot be reconstructed exactly. The two deepest
+Tower cells were therefore re-searched on the full eleven-point grid under the deterministic
+reducer in commit `8c82a96`, then trained for three seeds at the selected rate. Both again
+selected `1e-4` over the same 1,950 test images.
+
+| Tower | deterministic mean accuracy | committed headline |
+|---|---:|---:|
+| Muse Glimmer | 0.92034 | 0.9195 |
+| SigLIP2 | 0.91624 | 0.9154 |
+
+The Muse-minus-SigLIP2 difference is `+0.00410`. Ten thousand paired resamples of
+seed-averaged per-image correctness give a 95% percentile interval of
+`[-0.00359, +0.01214]`. The interval crosses zero: the pooled test set does not resolve
+which Tower ranks first on the matched attention readout. Hypothesis 2's Muse-first
+attention half is therefore not supported as a ranking claim.
+
+This statistical result does not validate pooling. It neither compares pooled against full
+tokens nor answers whether pooling changes the attention Relative Depth curve. The
+per-image predictions and bootstrap metadata live in
+`results/bootstrap/semantic-attention-matched-muse-vs-siglip2.json`.
 
 ## Indoors against outdoor
 
