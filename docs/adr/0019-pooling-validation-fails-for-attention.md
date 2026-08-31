@@ -96,3 +96,42 @@ attention cells agree in shape with pooled.
 The semantic pillar's attention readout should be described as "rankings on pooled features;
 the pooling control passed for mean pooling and is inconclusive for attention" until a
 passing validation exists.
+
+## Amendment: the follow-up diagnostic did not produce a usable attention control
+
+The August 31 follow-up tested both remedies named above on the three collapsed cells:
+1,500 against 5,000 images, 20 against 100 epochs, pooled and full tokens at every setting.
+Each cell searched `[1e-5, 3e-5, 1e-4, 3e-4, 1e-3]` and reported three seeds. The complete
+24-cell diagnostic and its independent baseline repeat are preserved under
+`results/pooling-diagnostic/`.
+
+No setting fixed all three cells. Lever A, 5,000 images at the pillar's 20 epochs, failed
+decisively: SigLIP2 matched at Relative Depth 0.630 read 0.6796 +/- 0.1551. Lever B fixed
+Muse Glimmer at 1,500 images but left SigLIP2 matched at 0.8133 +/- 0.0251 and retained the
+raw validation cliff. Combining 5,000 images and 100 epochs cleaned both matched cells, but
+SigLIP2 raw still read 0.7227 +/- 0.0275. The diagnostic target was a seed spread around
+0.02 together with an interior validation maximum. No tested configuration met it across
+all three cells.
+
+The diagnostic also exposed a second confound in the original matched results.
+`torch.svd_lowrank` randomized the capacity-matching PCA before a seed was established, so
+an isolated cell did not reproduce the matrix process's RNG history. Commit `8c82a96`
+seeds the semantic reducer without changing the readout RNG. Raw 1,500-image/20-epoch cells
+reproduce this ADR exactly; the original matched cells do not. Two corrected baseline runs
+agree on every selected rate, mean, and seed spread. This does not rescue the attention
+control: Muse Glimmer still collapses at 1,500/20, and Lever A still collapses on SigLIP2.
+
+Job 3 was therefore not run. More epochs are required for the nearest usable setting, which
+changes the protocol and would force a 100-epoch re-run of the 13,000-image semantic matrix.
+Even the combined diagnostic missed its stated stability target. The protocol the semantic
+pillar actually ran - 13,000 images, 20 epochs, pooled tokens - has **not** been validated
+against a working full-token attention baseline.
+
+Paired image bootstraps later removed the practical cross-model winner claim but did not
+validate pooling. All four Muse Glimmer-versus-SigLIP2 semantic readout-arm intervals cross
+zero. Muse Glimmer exceeds DINOv2 on matched attention, while SigLIP2 versus DINOv2 remains
+unresolved. The write-up must therefore withdraw the readout-dependent semantic winner,
+retain the validated mean readout, and describe attention Relative Depth curve shape as
+unvalidated. In particular, the earlier claim that common pooling cannot affect within-model
+curve differences is too strong: a depth-dependent pooling distortion is exactly what the
+unresolved Muse Glimmer mid-depth gap could represent.
