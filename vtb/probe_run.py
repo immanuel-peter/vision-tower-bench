@@ -100,6 +100,14 @@ def selected_slices(run: Path, depth_points: list[int] | None) -> list[tuple[str
     return [(stage, layer) for stage, layer in slices if layer in selected]
 
 
+def fit_reducer(features: torch.Tensor, split: Split, width: int) -> probe.Reducer:
+    # torch.svd_lowrank is randomized. Seed it per cell without changing the RNG state
+    # used by the readout, so a --depth-points invocation matches a matrix invocation.
+    with torch.random.fork_rng(devices=[]):
+        torch.random.default_generator.manual_seed(0)
+        return probe.Reducer.fit(features[split.train], width)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Train a semantic readout on cached features.")
     parser.add_argument("--run", type=Path, required=True, help="cache directory written by vtb.extract")
@@ -149,7 +157,7 @@ def main() -> None:
 
         features = tokens.float()
         if args.match_capacity:
-            reducer = probe.Reducer.fit(features[split.train], args.width)
+            reducer = fit_reducer(features, split, args.width)
             features = reducer(features)
 
         result = run_cell(features, labels, split, num_classes, args)

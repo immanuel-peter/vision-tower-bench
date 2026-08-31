@@ -60,6 +60,23 @@ def test_semantic_runner_filters_cache_slices_by_depth_point(monkeypatch):
     assert probe_run.selected_slices(args.run, None) == slices
 
 
+def test_semantic_capacity_reducer_is_deterministic_and_preserves_rng_state():
+    torch.manual_seed(7)
+    features = torch.randn(32, 16, 24)
+    split = probe_run.split_indices(len(features))
+
+    torch.manual_seed(11)
+    first = probe_run.fit_reducer(features, split, 8)
+    after_first = torch.rand(4)
+    torch.manual_seed(11)
+    second = probe_run.fit_reducer(features, split, 8)
+    after_second = torch.rand(4)
+
+    assert torch.equal(first.basis, second.basis)
+    assert torch.equal(first.mean, second.mean)
+    assert torch.equal(after_first, after_second)
+
+
 def test_reducer_keeps_a_linearly_separable_signal():
     torch.manual_seed(0)
     signal = torch.cat([torch.ones(64, 16, 1), -torch.ones(64, 16, 1)])
