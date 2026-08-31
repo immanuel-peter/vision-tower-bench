@@ -30,7 +30,19 @@ object storage. Using 26,000 images at 8x8 would confound the separate label-bud
 v1 also caches full patch tokens for a fixed 1,500-image semantic subset, about 25 GB per
 model and 150 GB across the roster. An earlier version of this ADR set that subset at
 5,000 images and called it 80 GB across the roster. That was wrong by the size of the
-roster: 5,000 images at 16.0 MB is 83.9 GB for one model and over 500 GB for six. Run semantic probes on pooled and full tokens for at least two Towers.
+roster: 5,000 images at 16.0 MB is 83.9 GB for one model and over 500 GB for six.
+
+Run semantic probes on pooled and full tokens for at least two Towers.
 Accept pooling only if model rankings and Relative Depth curves agree. Report any
 disagreement. ADR-0003 does not allow cutting this check, the parity tests, or the control
 models.
+
+## The validation ran, August 31 2026
+
+It ran on SigLIP2 and Muse Glimmer and returned a split verdict: the mean readout validates
+(rankings and Relative Depth curves agree, raw cells identical to four decimals) and the
+attention readout does not - the full-token attention heads fail to train at mid Relative
+Depth on the 1,500-image subset, so their curves cannot confirm the pooled ones. See
+ADR-0019 for the numbers and the consequences. The 1,500-image, 25 GB-per-model subset this
+ADR specifies stands; the earlier 5,000-image figure in PLAN.md was the error this ADR
+already corrected, and PLAN.md now carries the corrected numbers.

@@ -30,9 +30,19 @@ Supporting hypotheses:
    semantics peaks at Relative Depth 0.741 to 0.889 and falls to the last layer by up to
    6.0 seed deviations, so both capabilities peak early in that Tower. In all six the
    geometry peak is at or before the semantic one.
+   (Amended August 31 after the eleven-point semantic re-run: semantics rises to the last
+   layer in 19 of 24 arms - qwen3_5 peaks at Relative Depth 0.889 on all four of its
+   semantic arms, falling 3.6 sd on attention raw and 15.5 on mean raw - while the geometry
+   counts are unchanged.)
 2. Rankings change by task. No Tower wins everywhere: DINOv2 takes both geometry tasks,
    Muse Glimmer the attention readout, SigLIP2 the mean readout. Changing the readout alone
    changes the semantic winner. Results ship as Capability Profiles instead of one score.
+   (Amended August 31 after the eleven-point semantic re-run: Muse Glimmer keeps the
+   attention readout only in the capacity-matched arm, 0.9195 over SigLIP2's 0.9154; on
+   unmatched attention SigLIP2 0.9171 edges Muse Glimmer 0.9154 at 2.4 seed deviations. The
+   readout-dependence claim itself survives - SigLIP2 takes both mean columns and the
+   unmatched attention column, Muse Glimmer the matched attention one - and the roster's
+   Muse-first unmatched-attention cell was a truncation artifact of the old grid.)
 3. Scale stops dominating once token count, latency, and label efficiency enter the comparison.
 
 ## Roster
@@ -67,12 +77,12 @@ Notes:
 - Global semantic tasks use the same frozen-feature attention pool with one to two million parameters. Mean pooling appears once as an ablation column.
 - Head size scales with token width. Without capacity matching, a `projected` cell at 7168 trains a head four times larger than a `tower` cell at 1024. Fit and freeze a PCA reduction to a common width first, giving every cell 1.63M trainable parameters. Also run unmatched heads, and accept the matched result only if rankings and Relative Depth curves agree (ADR-0008).
 - Semantic features are cached as a 4x4 spatially pooled grid, identical for every model and Stage, so the attention pool still reads spatial tokens and cross-model comparison holds (ADR-0005). Report the pooling in the protocol section of the writeup.
-- Cache full patch tokens for a fixed 5000-image semantic subset, about 80 GB across the roster. Run the semantic probe both ways on at least two Towers and confirm that model rankings and Relative Depth curves agree. This pooling control cannot be cut (ADR-0005).
+- Cache full patch tokens for a fixed 1,500-image semantic subset, about 25 GB per model (the earlier 5,000-image, 80 GB figure was wrong by the size of the roster; ADR-0005 corrects it). Run the semantic probe both ways on at least two Towers and confirm that model rankings and Relative Depth curves agree. This pooling control cannot be cut (ADR-0005).
 - Dense tasks use the Probe3D decoder family unchanged across every cell. Geometry keeps full patch tokens, because that pillar carries the headline claim. DIODE's 25,458 training images would cost 407 GB per model at full tokens, so any training run draws a capped 4,000-image subset with a fixed seed. v1 starts on the 771-image validation split alone (ADR-0011).
 - Geometry runs depth and surface normals first, one probe per Stage and Relative Depth point, plus one multilayer run per model as an internal consistency check. Depth is metric on DIODE and reaches 230 m outdoors, so the head's bin range comes from the prep manifest rather than NYU's 10 m default (ADR-0011). Capacity matching applies here too: a multiscale depth head reads 1.71M parameters at a 1024-wide Stage and 4.85M at 7168 (ADR-0010).
 - Probe3D's three correspondence evaluations score features directly rather than train a probe, so they sit outside the cache-then-probe shape and get scoped once that is confirmed.
 - Label budgets: 1%, 5%, 20%, 100%.
-- Identical hyperparameter search everywhere: eight-point learning-rate grid, validation-selected, three seeds, paired bootstrap intervals on headline numbers.
+- Identical hyperparameter search everywhere: one learning-rate grid, validation-selected, three seeds, paired bootstrap intervals on headline numbers. The grid is eleven points for semantics, `[1e-5 ... 1]` after the roster run found 107 of 112 attention cells pinning at the old floor, and six points for geometry (ADR-0014).
 - Do not compute cross-model cosine similarity on raw embeddings. Dimensions carry no shared meaning between models. Every cross-model claim goes through a probe.
 
 ## Datasets
