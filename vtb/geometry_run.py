@@ -14,14 +14,14 @@ import numpy as np
 import torch
 from torch.nn.functional import interpolate
 
-from vtb import cache, geometry, probe
+from vtb import cache, geometry
 from vtb.geometry_metrics import (
     depth_si_loss,
     evaluate_depth,
     evaluate_surface_normal,
     normal_loss,
 )
-from vtb.probe_run import split_indices
+from vtb.probe_run import fit_reducer, split_indices
 
 TASKS = ("depth", "normal")
 
@@ -188,6 +188,12 @@ def build_head(width: int, task: str, args) -> torch.nn.Module:
     return geometry.SurfaceNormalHead([width], head=args.head)
 
 
+def match_capacity(batch, split, width: int):
+    """Apply the same deterministic, train-split-only reduction as semantics."""
+    reducer = fit_reducer(batch.tokens.float(), split, width)
+    return batch.with_tokens(reducer(batch.tokens.float()))
+
+
 def run_cell(features, targets, valid, split, task, coverage, image_ids, scenes, args) -> dict:
     best_rate, selection = select_learning_rate(features, targets, valid, split, task, args)
     per_seed = []
@@ -261,8 +267,7 @@ def main() -> None:
         split = split_indices(len(order))
 
         if args.match_capacity:
-            reducer = probe.Reducer.fit(batch.tokens[split.train].float(), args.width)
-            batch = batch.with_tokens(reducer(batch.tokens.float()))
+            batch = match_capacity(batch, split, args.width)
         # The cache holds bfloat16; the heads are float32.
         features = geometry.dense_map(batch).float()
 

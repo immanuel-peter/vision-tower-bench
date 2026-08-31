@@ -77,6 +77,26 @@ def test_semantic_capacity_reducer_is_deterministic_and_preserves_rng_state():
     assert torch.equal(after_first, after_second)
 
 
+def test_geometry_capacity_reducer_is_deterministic_and_preserves_rng_state():
+    torch.manual_seed(7)
+    batch = FeatureBatch(
+        tokens=torch.randn(32, 16, 24), image_ids=[str(i) for i in range(32)],
+        model_id="test/model", stage="tower", layer_index=6, num_layers=12,
+        resolution=56,
+    )
+    split = probe_run.split_indices(len(batch.image_ids))
+
+    torch.manual_seed(11)
+    first = geometry_run.match_capacity(batch, split, 8)
+    after_first = torch.rand(4)
+    torch.manual_seed(11)
+    second = geometry_run.match_capacity(batch, split, 8)
+    after_second = torch.rand(4)
+
+    assert torch.equal(first.tokens, second.tokens)
+    assert torch.equal(after_first, after_second)
+
+
 def test_reducer_keeps_a_linearly_separable_signal():
     torch.manual_seed(0)
     signal = torch.cat([torch.ones(64, 16, 1), -torch.ones(64, 16, 1)])
