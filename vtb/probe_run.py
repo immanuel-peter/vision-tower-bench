@@ -8,8 +8,9 @@ from torch import nn
 
 from vtb import cache, probe
 
-# The eight points PLAN.md specifies, sized for the small attention pool.
-LEARNING_RATES = (3e-4, 1e-3, 3e-3, 1e-2, 3e-2, 1e-1, 3e-1, 1.0)
+# The eleven points PLAN.md specifies, extended below the old 3e-4 floor after the
+# roster run found 107 of 112 attention cells selecting it.
+LEARNING_RATES = (1e-5, 3e-5, 1e-4, 3e-4, 1e-3, 3e-3, 1e-2, 3e-2, 1e-1, 3e-1, 1.0)
 
 
 @dataclass(frozen=True)

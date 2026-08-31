@@ -10,7 +10,7 @@ OUT="${1:?output dir}"; shift
 GPUS="${GPUS:-$(nvidia-smi --query-gpu=index --format=csv,noheader | paste -sd,)}"
 IFS=, read -ra GPU <<< "$GPUS"
 LANES="${LANES:-${#GPU[@]}}"
-GRID="${GRID:-3e-4 1e-3 3e-3 1e-2 3e-2 1e-1 3e-1 1}"   # vtb.probe_run.LEARNING_RATES
+GRID="${GRID:-1e-5 3e-5 1e-4 3e-4 1e-3 3e-3 1e-2 3e-2 1e-1 3e-1 1}"   # vtb.probe_run.LEARNING_RATES
 SEEDS="${SEEDS:-3}"
 READOUTS="${READOUTS:-attention mean}"
 ARMS="${ARMS:-raw matched}"
