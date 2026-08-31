@@ -118,7 +118,7 @@ The brief derived 6 min/cell (360 s) for full-token cells. Measured: 381-457 s/c
 SigLIP2 and 489-565 s/cell on Muse Glimmer, so 1.06x to 1.57x - within the brief's 2x stop
 threshold, and the first completed invocation (siglip2 mean raw, 381 s/cell) was within 6
 percent of the estimate. The brief's 7.2 lane-hours estimate for the whole poolcheck matrix
-was close: measured 7.7.
+was close: measured 7.31.
 
 Full-token cell costs are per-cell averages over invocations whose first cell is the widest
 (`merged`/`projected` come first in `cache.slices` order); the tower cells that dominate the
@@ -130,9 +130,8 @@ count are cheaper.
   The ranking of batch sizes held exactly.
 - The semantic matrix estimate of 5.5 lane-hours was 35 percent high; measured 3.58
   (roster-box per-cell costs scaled to eleven points; this box is faster per cell).
-- The full-token cell estimate of 6 min/cell was honest: measured 473 s/cell raw across
-  both Towers (siglip2 381-457, muse_glimmer 489-565), within 1.6x, and the matched full
-  cells came in under it.
+- The full-token cell estimate of 6 min/cell was honest: measured 381-565 s/cell raw
+  (1.06x-1.57x the estimate) and ~206 s/cell matched, under it.
 - The brief's per-model full-token cache sizes assumed the roster's Stage mix; Muse
   Glimmer's `projected` Stage dominates at 6,656 tokens wide and 31 GB landed against 47.6
   predicted. SigLIP2 matched its 28.3 GB estimate.
