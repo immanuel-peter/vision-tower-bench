@@ -1245,6 +1245,13 @@ ranking nor a SigLIP2-first mean ranking. Hypothesis 2's claim that changing the
 changes the semantic winner is therefore unsupported; winner identity is unresolved in
 every semantic readout column.
 
+The separate cross-task comparison does resolve. On matched attention Muse Glimmer reads
+0.92034 against DINOv2's 0.90786, a difference of +0.01248 with paired 95% interval
+[+0.00342, +0.02154]. DINOv2 is therefore below the top semantic row even though the
+Muse-versus-SigLIP2 ordering inside that row is unresolved. This establishes the semantic
+side of the cross-task Capability Profile claim; DINOv2's geometry wins still need their
+own paired intervals.
+
 The two raw reruns reproduce the committed headline accuracies at their reported precision.
 The matched cells use the deterministic reducer from commit `8c82a96`; their original
 randomized PCA draws and trained heads were not saved and cannot be reconstructed exactly.
