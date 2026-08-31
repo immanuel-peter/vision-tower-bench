@@ -92,7 +92,15 @@ def run_cell(features, labels, split, num_classes, args) -> dict:
     }
 
 
-def main() -> None:
+def selected_slices(run: Path, depth_points: list[int] | None) -> list[tuple[str, int]]:
+    slices = cache.slices(run)
+    if depth_points is None:
+        return slices
+    selected = set(depth_points)
+    return [(stage, layer) for stage, layer in slices if layer in selected]
+
+
+def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Train a semantic readout on cached features.")
     parser.add_argument("--run", type=Path, required=True, help="cache directory written by vtb.extract")
     parser.add_argument("--labels", type=Path, required=True, help="JSON written by scripts/export_imagenet100.py")
@@ -115,14 +123,25 @@ def main() -> None:
         nargs="+",
         default=list(LEARNING_RATES),
     )
-    args = parser.parse_args()
+    parser.add_argument(
+        "--depth-points",
+        type=int,
+        nargs="+",
+        default=None,
+        help="only probe cache slices with these Tower layer indices (default: all)",
+    )
+    return parser
+
+
+def main() -> None:
+    args = build_parser().parse_args()
 
     label_map = json.loads(args.labels.read_text())["labels"]
     num_classes = len(set(label_map.values()))
 
     cells = []
     image_count = 0
-    for stage, layer in cache.slices(args.run):
+    for stage, layer in selected_slices(args.run, args.depth_points):
         tokens, image_ids, meta = cache.load(args.run, stage, layer)
         image_count = len(image_ids)
         labels = torch.tensor([label_map[i] for i in image_ids])

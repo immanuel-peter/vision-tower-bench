@@ -43,6 +43,23 @@ def test_cache_round_trips_tokens_and_image_ids(tmp_path):
     assert meta["relative_depth"] == "0.5000"
 
 
+def test_semantic_runner_filters_cache_slices_by_depth_point(monkeypatch):
+    slices = [("merged", 12), ("tower", 3), ("tower", 6), ("tower", 12)]
+    monkeypatch.setattr(cache, "slices", lambda _run: slices)
+
+    parser = probe_run.build_parser()
+    args = parser.parse_args(
+        ["--run", "cache", "--labels", "labels.json", "--depth-points", "3", "12"]
+    )
+
+    assert probe_run.selected_slices(args.run, args.depth_points) == [
+        ("merged", 12),
+        ("tower", 3),
+        ("tower", 12),
+    ]
+    assert probe_run.selected_slices(args.run, None) == slices
+
+
 def test_reducer_keeps_a_linearly_separable_signal():
     torch.manual_seed(0)
     signal = torch.cat([torch.ones(64, 16, 1), -torch.ones(64, 16, 1)])
