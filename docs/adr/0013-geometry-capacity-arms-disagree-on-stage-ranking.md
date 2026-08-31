@@ -110,3 +110,21 @@ to 0.4, meaning the Projector moves the metric further than a step that loses no
 Muse Glimmer on depth moves +0.0691 at 34.4 seed deviations against a lossless step of
 -0.0151 at 0.9. The noise-floor argument holds for one model out of four. See
 `results/README.md` section 1.
+
+## Amendment: paired image interval, August 31 2026
+
+The original matched matrix fitted randomized PCA before seeding it, so its exact reducers
+were dependent on lane history and cannot be reconstructed. The corrected geometry path
+uses the deterministic, train-split-only reducer shared with the semantic pillar. This is a
+reproducibility correction, not a new capacity arm.
+
+Muse Glimmer's matched depth cells retain the same selected rate, 3e-3. The corrected
+`projected` cell reads 0.58920 `d1` and `merged` reads 0.52298, moving the Stage gap from
++0.0691 to +0.06622. Ten thousand paired resamples of the seed-mean per-image metric over
+the 115-image test split give a 95% interval of [+0.04992, +0.08338]. The interval excludes
+zero overall, indoors, and outdoors. The Projector improvement therefore survives both the
+deterministic reduction correction and test-image uncertainty.
+
+This interval resolves the strongest Projector step; it does not put intervals on every
+Stage comparison in the matrix. The full per-image dataset and learning-rate curves are in
+`results/bootstrap/geometry-depth-matched-muse-projected-vs-merged.json`.

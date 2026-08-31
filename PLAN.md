@@ -20,7 +20,9 @@ the lossless `tower` to `merged` step, held on MoonViT-V2 and fails on the other
 lossless-over-Projector ratio in the matched arm is 7.9 and 22.6 for MoonViT-V2 against 0.0
 to 0.4 for Kimi K2.6, Qwen3.5 and Muse Glimmer. Muse Glimmer's depth Projector moves
 +0.0691 at 34.4 seed deviations while its lossless step moves -0.0151 at 0.9. Read the
-earlier two-model conclusion as a MoonViT-V2 result. See `results/README.md` and ADR-0013.
+earlier two-model conclusion as a MoonViT-V2 result. A later deterministic matched rerun
+reads +0.06622 with paired 95% image-bootstrap interval [0.04992, 0.08338], so the strongest
+Projector step resolves beyond test-image variation. See `results/README.md` and ADR-0013.
 
 Supporting hypotheses:
 
@@ -41,8 +43,11 @@ Supporting hypotheses:
    matched attention, with paired 95% interval [0.00342, 0.02154], while SigLIP2's 0.00838
    margin over DINOv2 has interval [-0.00085, 0.01778]. The evidence therefore supports
    "DINOv2 is below Muse Glimmer," not "DINOv2 is below the top semantic row." DINOv2's
-   geometry wins still need their own paired intervals before the full cross-task claim is
-   inferential rather than descriptive.
+   matched geometry wins do resolve: it leads Qwen3.5 on depth by 0.02916 `d1`, paired 95%
+   interval [0.00989, 0.04835], and beats SigLIP2 on surface normals by 5.037 degrees lower
+   mean angular error, interval [4.304, 5.816]. The cross-task contrast between DINOv2 and
+   Muse Glimmer is therefore inferential rather than only descriptive, while no ordering is
+   claimed among the unresolved semantic Towers.
 3. Scale stops dominating once token count, latency, and label efficiency enter the comparison.
 
 ## Roster

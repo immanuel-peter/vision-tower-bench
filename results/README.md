@@ -41,6 +41,11 @@ to 8,443,492 on the semantic side. `matched` fits a frozen PCA reduction to 512 
 cell's training split and trains 1,444,608 parameters everywhere for depth, 1,314,819 for
 normals, and 1,627,748 for semantics (ADR-0008).
 
+The original matched matrices used randomized PCA before fixing its seed, so their exact
+PCA draws cannot be reconstructed. The later semantic and geometry bootstrap reruns use a
+deterministic train-split-only reducer. The six geometry cells below retain their selected
+rates, and all corrected point estimates are reported alongside their intervals.
+
 Cells: eight Relative Depth points each for DINOv2 and SigLIP2, which have no Projector, and
 ten for the four Towers that do, adding `merged` and `projected` at the deepest point. That
 is 56 cells per task-arm pair and 224 per pillar.
@@ -101,6 +106,11 @@ ADR-0010 nominates the matched arm for the headline. In it, one Projector of fou
 its own lossless yardstick. The other three move the metric three to twenty times further
 than the step that provably changes no information. The unmatched arm agrees on the shape
 and disagrees on which models: there kimi_k26 depth reads 14.0 and MoonViT-V2 reads 1.6.
+
+A later deterministic matched rerun preserves the strongest step: Muse Glimmer reads
+0.58920 at `projected` against 0.52298 at `merged`, a +0.06622 `d1` difference with paired
+95% image-bootstrap interval [+0.04992, +0.08338]. The original randomized-PCA point gap was
++0.0691. The corrected effect excludes zero overall and within both DIODE scene types.
 
 The direction matters as much as the size. Across all sixteen model-task-arm combinations
 the `merged` to `projected` step improves the metric in fourteen. Both exceptions are
@@ -1254,8 +1264,8 @@ The cross-task semantic comparison resolves against only one of those Towers:
 
 Muse Glimmer measurably exceeds DINOv2; SigLIP2 does not. Because Muse Glimmer and SigLIP2
 are themselves unresolved, the supported statement is "DINOv2 is below Muse Glimmer," not
-"DINOv2 is below the top semantic row." DINOv2's geometry wins still need their own paired
-intervals before the full cross-task Capability Profile claim is inferential.
+"DINOv2 is below the top semantic row." The geometry intervals below complete the
+cross-task Capability Profile claim against Muse Glimmer.
 
 The two raw reruns reproduce the committed headline accuracies at their reported precision.
 The matched cells use the deterministic reducer from commit `8c82a96`; their original
@@ -1267,6 +1277,35 @@ This statistical result does not validate pooling. It neither compares pooled ag
 tokens nor answers whether pooling changes the attention Relative Depth curve. The
 six per-image prediction datasets and their bootstrap metadata live in
 `results/bootstrap/`.
+
+### Paired bootstrap on the geometry headline comparisons
+
+The geometry pass targets three predeclared comparisons rather than rerunning all 448
+cells: the strongest Projector Stage step, and DINOv2 against the next-best Tower on each
+geometry task. Each selected cell is re-searched on the full six-point grid under the
+deterministic matched reducer, trained for three seeds, and scored per image. Ten thousand
+paired resamples operate on the seed-mean metric over the same 115 test images. Positive
+differences mean the first cell is better; for surface normals that is the second cell's
+mean angular error minus DINOv2's because lower is better.
+
+| comparison | corrected cells | first advantage | paired 95% interval |
+|---|---:|---:|---:|
+| Muse Glimmer `projected` - `merged`, depth `d1` | 0.58920 vs 0.52298 | +0.06622 | [+0.04992, +0.08338] |
+| DINOv2 - Qwen3.5, depth `d1` | 0.69881 vs 0.66965 | +0.02916 | [+0.00989, +0.04835] |
+| DINOv2 advantage over SigLIP2, normal `mean_deg` | 18.8204 vs 23.8575 | +5.0370 degrees | [+4.3038, +5.8164] |
+
+All three overall intervals exclude zero. The Muse Projector step and DINOv2 normal lead
+also resolve separately indoors and outdoors. DINOv2's depth lead resolves outdoors; the
+51-image indoor interval [-0.00696, +0.07074] crosses zero, while the combined paired
+interval remains positive.
+
+This completes the uncertainty check for hypothesis 2's geometry half. Together with the
+resolved Muse Glimmer-over-DINOv2 semantic interval, it supports the cross-task statement:
+DINOv2 wins both measured geometry tasks but loses matched-attention semantics to Muse
+Glimmer. It does not restore an ordering among the statistically unresolved top semantic
+Towers, and it is conditional on the Relative Depth cells selected by the original matrix.
+The three per-image metric datasets, validation curves, seed metrics, and bootstrap metadata
+live beside the six semantic datasets in `results/bootstrap/`.
 
 ## Indoors against outdoor
 
