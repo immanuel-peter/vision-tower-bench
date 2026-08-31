@@ -37,10 +37,12 @@ Supporting hypotheses:
    paired 95% image-bootstrap intervals for Muse Glimmer against SigLIP2 cross zero in all
    four semantic readout-arm columns, so neither the nominal Muse-first attention ranking
    nor the nominal SigLIP2-first mean ranking resolves on the test set. The cross-task
-   semantic contrast does resolve: Muse Glimmer exceeds DINOv2 by 0.01248 on matched
-   attention, with a paired 95% interval of [0.00342, 0.02154]. DINOv2's geometry wins still
-   need their own paired intervals before the full cross-task claim is inferential rather
-   than descriptive.
+   semantic contrast resolves only against Muse Glimmer: Muse exceeds DINOv2 by 0.01248 on
+   matched attention, with paired 95% interval [0.00342, 0.02154], while SigLIP2's 0.00838
+   margin over DINOv2 has interval [-0.00085, 0.01778]. The evidence therefore supports
+   "DINOv2 is below Muse Glimmer," not "DINOv2 is below the top semantic row." DINOv2's
+   geometry wins still need their own paired intervals before the full cross-task claim is
+   inferential rather than descriptive.
 3. Scale stops dominating once token count, latency, and label efficiency enter the comparison.
 
 ## Roster

@@ -1,0 +1,25 @@
+{
+  "images": 5000,
+  "cells": [
+    {
+      "learning_rate": 0.0003,
+      "learning_rate_search": {
+        "1e-05": 0.4453,
+        "3e-05": 0.6107,
+        "0.0001": 0.7053,
+        "0.0003": 0.72,
+        "0.001": 0.3987
+      },
+      "val_accuracy": 0.72,
+      "test_accuracy": 0.7227,
+      "test_std": 0.0275,
+      "seeds": 3,
+      "model_id": "google/siglip2-so400m-patch14-384",
+      "stage": "tower",
+      "layer_index": 10,
+      "relative_depth": 0.3704,
+      "token_width": 1152,
+      "trainable_parameters": 2283108
+    }
+  ]
+}

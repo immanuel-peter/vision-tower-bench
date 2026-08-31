@@ -1245,12 +1245,17 @@ ranking nor a SigLIP2-first mean ranking. Hypothesis 2's claim that changing the
 changes the semantic winner is therefore unsupported; winner identity is unresolved in
 every semantic readout column.
 
-The separate cross-task comparison does resolve. On matched attention Muse Glimmer reads
-0.92034 against DINOv2's 0.90786, a difference of +0.01248 with paired 95% interval
-[+0.00342, +0.02154]. DINOv2 is therefore below the top semantic row even though the
-Muse-versus-SigLIP2 ordering inside that row is unresolved. This establishes the semantic
-side of the cross-task Capability Profile claim; DINOv2's geometry wins still need their
-own paired intervals.
+The cross-task semantic comparison resolves against only one of those Towers:
+
+| comparison, matched attention | difference | paired 95% interval |
+|---|---:|---:|
+| Muse Glimmer - DINOv2 | +0.01248 | [+0.00342, +0.02154] |
+| SigLIP2 - DINOv2 | +0.00838 | [-0.00085, +0.01778] |
+
+Muse Glimmer measurably exceeds DINOv2; SigLIP2 does not. Because Muse Glimmer and SigLIP2
+are themselves unresolved, the supported statement is "DINOv2 is below Muse Glimmer," not
+"DINOv2 is below the top semantic row." DINOv2's geometry wins still need their own paired
+intervals before the full cross-task Capability Profile claim is inferential.
 
 The two raw reruns reproduce the committed headline accuracies at their reported precision.
 The matched cells use the deterministic reducer from commit `8c82a96`; their original
@@ -1260,7 +1265,7 @@ committed +0.0041 margin.
 
 This statistical result does not validate pooling. It neither compares pooled against full
 tokens nor answers whether pooling changes the attention Relative Depth curve. The
-four per-image prediction datasets and their bootstrap metadata live in
+six per-image prediction datasets and their bootstrap metadata live in
 `results/bootstrap/`.
 
 ## Indoors against outdoor
