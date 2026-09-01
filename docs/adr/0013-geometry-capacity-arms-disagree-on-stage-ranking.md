@@ -163,3 +163,34 @@ randomized-PCA gap of +0.0505 to +0.01737, and Muse Glimmer depth moves from +0.
 +0.02611. Qwen3.5 depth also changes its selected rates. The direction and the headline
 conclusion survive, but the original matched point estimates must not be presented as
 exactly reproducible values.
+
+## Amendment: raw-arm Projector intervals, September 1 2026
+
+The same targeted comparison was run without the capacity reducer: `projected` against the
+final `tower` Stage for both tasks and all four Projectors, using full patch tokens, the
+six-rate grid, ten epochs, three seeds, and ten thousand paired resamples over the same 115
+DIODE test images.
+
+| Projector | task | `projected` | `tower` | advantage | paired 95% interval |
+|---|---|---:|---:|---:|---:|
+| Kimi K2.6 | depth `d1` | 0.48741 | 0.46781 | +0.01960 | [-0.00032, +0.04021] |
+| Kimi K2.6 | normal error | 29.0061 | 32.1187 | +3.11261 deg | [+2.42151, +3.82282] |
+| MoonViT-V2 | depth `d1` | 0.48626 | 0.45926 | +0.02700 | [+0.01129, +0.04268] |
+| MoonViT-V2 | normal error | 30.4614 | 33.2883 | +2.82685 deg | [+2.15059, +3.54422] |
+| Qwen3.5 | depth `d1` | 0.54075 | 0.38069 | +0.16007 | [+0.12108, +0.19774] |
+| Qwen3.5 | normal error | 29.3152 | 33.7584 | +4.44317 deg | [+3.50759, +5.44265] |
+| Muse Glimmer | depth `d1` | 0.50063 | 0.40792 | +0.09271 | [+0.06235, +0.12374] |
+| Muse Glimmer | normal error | 30.9422 | 33.8354 | +2.89322 deg | [+2.37672, +3.44321] |
+
+Seven of eight raw-arm intervals exclude zero in the Projector's favour. Kimi K2.6 depth is
+the exception: its positive point estimate survives, but its lower bound misses zero by
+0.00032 `d1`. This is not evidence of a loss, but it does prevent the universal claim that
+both capacity arms resolve for every Projector. Combining both amendments, fifteen of the
+sixteen Projector-versus-final-Tower comparisons resolve against test-image variation; all
+sixteen point estimates favour the Projector.
+
+Fourteen of sixteen raw scene-specific intervals resolve. Kimi K2.6 depth outdoors and
+MoonViT-V2 depth outdoors cross zero. The raw outputs also reproduce most original selected
+rates, but Qwen3.5 depth selects 1e-3 for `tower` rather than the matrix's 3e-3 and its fresh
+gap is +0.16007 rather than +0.1962. The conclusion survives; the fresh bootstrap output is
+the evidence for the interval claim.

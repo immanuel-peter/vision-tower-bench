@@ -25,7 +25,10 @@ reads +0.06622 with paired 95% image-bootstrap interval [0.04992, 0.08338], so t
 Projector step resolves beyond test-image variation. A September 1 targeted pass puts the
 headline comparison itself on firmer ground: all eight matched intervals comparing
 `projected` with final `tower`, four Projectors by two geometry tasks, exclude zero in the
-Projector's favour. See `results/README.md` and ADR-0013.
+Projector's favour. The corresponding raw-arm pass resolves seven of eight; Kimi K2.6 raw
+depth remains positive at +0.01960 `d1`, but its paired 95% interval
+[-0.00032, +0.04021] crosses zero. Across both arms, fifteen of sixteen headline intervals
+therefore resolve in the Projector's favour. See `results/README.md` and ADR-0013.
 
 Supporting hypotheses:
 
@@ -33,12 +36,16 @@ Supporting hypotheses:
    declines before the last layer in 23 of 24 arms, the exception being unmatched DINOv2
    depth. Semantics rises to the last layer in 19 of 24 point-estimate curves. Four of the
    five exceptions are Qwen3.5; the other, kimi_k26 attention raw, falls 0.5 seed deviations
-   and is noise. Do not describe all four Qwen3.5 curves as genuine declines: after the
-   deterministic PCA correction, its matched-mean Relative Depth 0.889-to-1.000 difference
-   is +0.00154 with paired 95% interval [-0.00564, +0.00855], so that arm is unresolved.
-   The remaining Qwen3.5 declines are descriptive seed-spread comparisons until they receive
-   the same paired test. In all six Towers the geometry peak is at or before the semantic
-   one.
+   and is noise. Paired tests separate Qwen3.5's four nominal declines under the pooled
+   semantic protocol. Raw attention and raw mean decline into the last Tower layer: their
+   earlier-cell advantages are
+   +0.01282, interval [+0.00530, +0.02034], and +0.01556, interval
+   [+0.00530, +0.02632]. Matched attention and matched mean do not resolve: +0.00171,
+   interval [-0.00632, +0.00957], and +0.00154, interval [-0.00564, +0.00855]. Thus the
+   late semantic decline is an unmatched-arm Qwen3.5 result, not a four-arm property. The
+   raw-mean curve is covered by the passed mean pooling control; ADR-0019 still leaves the
+   attention Relative Depth curve unvalidated against full tokens. In all six Towers the
+   geometry peak is at or before the semantic one.
 2. Rankings change by task. No Tower wins everywhere: DINOv2 takes both geometry tasks,
    while Muse Glimmer and SigLIP2 occupy the top semantic rows. Results ship as Capability
    Profiles instead of one score. The stronger readout-dependence claim is not supported:

@@ -138,6 +138,22 @@ Glimmer depth from +0.0540 to +0.02611, and Qwen3.5 depth selects different rate
 bootstrap files for corrected matched headline values rather than treating the old matched
 matrix as exactly reproducible.
 
+The corresponding raw-arm rerun uses full token width with the same six-rate grid, seeds,
+test images, and resampling protocol:
+
+| Projector | depth advantage (`d1`) | paired 95% interval | normal advantage (deg) | paired 95% interval |
+|---|---:|---:|---:|---:|
+| Kimi K2.6 | +0.01960 | [-0.00032, +0.04021] | +3.11261 | [+2.42151, +3.82282] |
+| MoonViT-V2 | +0.02700 | [+0.01129, +0.04268] | +2.82685 | [+2.15059, +3.54422] |
+| Qwen3.5 | +0.16007 | [+0.12108, +0.19774] | +4.44317 | [+3.50759, +5.44265] |
+| Muse Glimmer | +0.09271 | [+0.06235, +0.12374] | +2.89322 | [+2.37672, +3.44321] |
+
+Seven raw-arm intervals resolve. Kimi K2.6 raw depth is the sole exception: the point
+estimate favours the Projector, but the interval crosses zero. Across both capacity arms,
+fifteen of sixteen headline comparisons therefore resolve in the Projector's favour; all
+sixteen point estimates do. The universal descriptive result survives, while the universal
+inferential wording does not.
+
 The direction matters as much as the size. Across all sixteen model-task-arm combinations
 the `merged` to `projected` step improves the metric in fourteen. Both exceptions are
 MoonViT-V2: unmatched depth at -0.0413, and matched normals at +0.1135, which is 0.2 seed
@@ -183,20 +199,17 @@ layer is still 3.0 deviations or more, so the curve is measurably falling even t
 argmax is not resolved. Read those rows as "peaks somewhere in this region" rather than as a
 located layer.
 
-Semantics run the other way. Tower accuracy rises monotonically to the final layer in 20 of
-24 arms, and three of the four exceptions are qwen3_5: it peaks at Relative Depth 0.741 on
-both attention arms and at 0.889 on unmatched mean pooling, falling 0.0111 at 2.8 deviations,
-0.0026 at 1.4, and 0.0181 at 6.0. The fourth exception is kimi_k26 unmatched attention, which
-falls 0.0008 at 0.3 deviations from a peak at 0.889 and is noise. So one Tower of six trades
-a little late-layer semantics, and the rest are still gaining at the layer where their
-geometry has been declining for a quarter of the depth.
-
-(Amended September 1: the eleven-point results still have 19 of 24 point-estimate curves
-rising to the final layer. Four exceptions are qwen3_5 and the fifth is the same kimi_k26
-noise cell. The deterministic matched-mean Qwen3.5 difference from Relative Depth 0.889 to
-1.000 is only +0.00154 with paired 95% interval [-0.00564, +0.00855], so the earlier claim
-that all four Qwen3.5 declines are genuine is withdrawn. See the re-run and bootstrap
-sections below.)
+Semantics run the other way. Tower accuracy rises to the final layer in 19 of 24
+point-estimate curves. Four of the five exceptions are Qwen3.5; the fifth is Kimi K2.6 raw
+attention, whose 0.5-seed-deviation fall is noise. Under the pooled semantic protocol,
+paired tests show that Qwen3.5's raw attention and raw mean declines resolve: the earlier
+cells lead by +0.01282, interval
+[+0.00530, +0.02034], and +0.01556, interval [+0.00530, +0.02632]. Its matched-attention
+and matched-mean differences do not resolve: +0.00171, interval [-0.00632, +0.00957], and
++0.00154, interval [-0.00564, +0.00855]. Qwen3.5 is therefore the only Tower with a
+resolved within-cache semantic decline into the last layer, but the evidence is specific to
+both raw readouts rather than all four arms. The mean pooling control passed; ADR-0019 still
+leaves the attention Relative Depth shape unvalidated against full patch tokens.
 
 That is the result a reader can act on. It says which layer to tap for a spatial task, and
 it says the answer is not the last one.
@@ -890,9 +903,13 @@ are qwen3_5 in all four arms and kimi_k26 attention raw. Qwen3.5 falls from its 
 by 0.0034 in matched attention, 0.0128 in raw attention, 0.0016 in matched mean, and 0.0155
 in raw mean; the matched-attention point peak moves to Relative Depth 0.741 under the
 deterministic reducer, while the other three sit at 0.889. Kimi K2.6 falls 0.0015 at 0.5
-seed deviations and is noise. Crucially, Qwen3.5's matched-mean +0.00154 earlier-layer
-advantage has paired 95% interval [-0.00564, +0.00855]. The point curve is non-rising, but
-this arm does not establish a genuine late-layer decline.
+seed deviations and is noise. Paired intervals resolve both raw Qwen3.5 declines within the
+pooled cache: attention
++0.01282 [+0.00530, +0.02034] and mean +0.01556 [+0.00530, +0.02632]. They do not resolve
+either matched decline: attention +0.00171 [-0.00632, +0.00957] and mean +0.00154
+[-0.00564, +0.00855]. The nominal shape is therefore a four-arm exception, but a genuine
+late-layer decline is established only in the two raw arms. This does not repair the failed
+full-token attention control, so only the raw-mean curve is pooling-validated.
 
 ### Tables
 
@@ -1287,12 +1304,13 @@ ranking nor a SigLIP2-first mean ranking. Hypothesis 2's claim that changing the
 changes the semantic winner is therefore unsupported; winner identity is unresolved in
 every semantic readout column.
 
-The same procedure was applied within Qwen3.5 to the capacity-matched mean Tower cells at
-Relative Depth 0.889 and 1.000. Under the deterministic reducer they read 0.87077 and
-0.86923, a +0.00154 earlier-layer advantage with paired 95% interval [-0.00564, +0.00855].
-The interval crosses zero. The old randomized-PCA description of this arm as a genuine
-late-layer decline is therefore withdrawn: its point estimate still peaks at 0.889, but the
-test images do not resolve the difference.
+The same procedure was applied within Qwen3.5 to all four non-rising semantic arms. Raw
+attention and raw mean resolve earlier-layer advantages of +0.01282
+[+0.00530, +0.02034] and +0.01556 [+0.00530, +0.02632]. Matched attention and matched mean
+cross zero at +0.00171 [-0.00632, +0.00957] and +0.00154
+[-0.00564, +0.00855]. Thus only the two raw declines resolve within the pooled cache. The
+matched-mean result uses the deterministic reducer; its earlier cell reads 0.87077 against
+0.86923 at the final layer.
 
 The cross-task semantic comparison resolves against only one of those Towers:
 
@@ -1314,7 +1332,7 @@ committed +0.0041 margin.
 
 This statistical result does not validate pooling. It neither compares pooled against full
 tokens nor answers whether pooling changes the attention Relative Depth curve. The
-seven per-image prediction datasets and their bootstrap metadata live in
+ten per-image prediction datasets and their bootstrap metadata live in
 `results/bootstrap/`.
 
 ### Paired bootstrap on the geometry headline comparisons
@@ -1345,11 +1363,12 @@ Glimmer. It does not restore an ordering among the statistically unresolved top 
 Towers, and it is conditional on the Relative Depth cells selected by the original matrix.
 The September 1 follow-up then tested the eight matched Projector headline comparisons:
 `projected` against final `tower` for four Projectors and two tasks. All eight overall
-intervals exclude zero in the Projector's favour; the complete table is in section 1.
-Together, these are eleven targeted geometry comparisons, not a blanket bootstrap over the
-matrix. Their per-image metric datasets, validation curves, seed metrics, and bootstrap
-metadata live beside the semantic datasets in `results/bootstrap/`. Cache reconstruction,
-timings, and the deterministic semantic rerun are recorded in
+intervals exclude zero in the Projector's favour. The corresponding raw pass resolves seven
+of eight; Kimi K2.6 depth crosses zero. The complete tables are in section 1. Together,
+these are nineteen targeted geometry comparisons, not a blanket bootstrap over the matrix.
+Their per-image metric datasets, validation curves, seed metrics, and bootstrap metadata
+live beside the semantic datasets in `results/bootstrap/`. Cache reconstruction, timings,
+and the deterministic semantic rerun are recorded in
 `docs/measurements/remaining-bootstrap-2026-09-01.md`.
 
 ## Indoors against outdoor
