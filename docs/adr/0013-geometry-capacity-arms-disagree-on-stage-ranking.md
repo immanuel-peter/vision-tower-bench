@@ -128,3 +128,38 @@ deterministic reduction correction and test-image uncertainty.
 This interval resolves the strongest Projector step; it does not put intervals on every
 Stage comparison in the matrix. The full per-image dataset and learning-rate curves are in
 `results/bootstrap/geometry-depth-matched-muse-projected-vs-merged.json`.
+
+## Amendment: all matched Projector intervals, September 1 2026
+
+The remaining headline comparison is `projected` against the final `tower`, not
+`projected` against `merged`. It was rerun for both geometry tasks in every Projector with
+the deterministic reducer, the full six-rate grid, three seeds, and ten thousand paired
+image resamples over the 115-image test split. Positive depth differences and positive
+normal advantages both mean that `projected` performs better.
+
+| Projector | task | corrected `projected` | corrected `tower` | advantage | paired 95% interval |
+|---|---|---:|---:|---:|---:|
+| Kimi K2.6 | depth `d1` | 0.62232 | 0.60495 | +0.01737 | [+0.00596, +0.02892] |
+| Kimi K2.6 | normal error | 28.5296 | 30.7276 | +2.19797 deg | [+1.65383, +2.76855] |
+| MoonViT-V2 | depth `d1` | 0.60866 | 0.53029 | +0.07836 | [+0.05956, +0.09838] |
+| MoonViT-V2 | normal error | 29.1440 | 31.6408 | +2.49678 deg | [+1.96158, +3.04919] |
+| Qwen3.5 | depth `d1` | 0.59177 | 0.53342 | +0.05835 | [+0.03738, +0.08088] |
+| Qwen3.5 | normal error | 29.8926 | 34.2056 | +4.31301 deg | [+3.39556, +5.30180] |
+| Muse Glimmer | depth `d1` | 0.58936 | 0.56325 | +0.02611 | [+0.01287, +0.03955] |
+| Muse Glimmer | normal error | 30.6672 | 31.4596 | +0.79244 deg | [+0.37697, +1.20646] |
+
+All eight overall intervals exclude zero in the Projector's favour. The matched-arm
+headline is therefore supported against test-image variation: on both measured geometry
+tasks, every Projector beats its own final Tower Stage. This is a targeted test of the eight
+headline comparisons, not a blanket interval over all 224 geometry cells.
+
+Scene-specific intervals resolve in the same direction in fifteen of sixteen cases. The
+exception is Kimi K2.6 depth outdoors, +0.00529 with interval [-0.00849, +0.01977]; its
+overall and indoor effects resolve. The complete per-image predictions and scene-stratified
+intervals are in the eight `results/bootstrap/geometry-*-projected-vs-tower.json` files.
+
+The correction matters numerically. For example, Kimi K2.6 depth moves from the original
+randomized-PCA gap of +0.0505 to +0.01737, and Muse Glimmer depth moves from +0.0540 to
++0.02611. Qwen3.5 depth also changes its selected rates. The direction and the headline
+conclusion survive, but the original matched point estimates must not be presented as
+exactly reproducible values.

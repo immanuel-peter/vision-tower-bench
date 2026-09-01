@@ -22,17 +22,23 @@ to 0.4 for Kimi K2.6, Qwen3.5 and Muse Glimmer. Muse Glimmer's depth Projector m
 +0.0691 at 34.4 seed deviations while its lossless step moves -0.0151 at 0.9. Read the
 earlier two-model conclusion as a MoonViT-V2 result. A later deterministic matched rerun
 reads +0.06622 with paired 95% image-bootstrap interval [0.04992, 0.08338], so the strongest
-Projector step resolves beyond test-image variation. See `results/README.md` and ADR-0013.
+Projector step resolves beyond test-image variation. A September 1 targeted pass puts the
+headline comparison itself on firmer ground: all eight matched intervals comparing
+`projected` with final `tower`, four Projectors by two geometry tasks, exclude zero in the
+Projector's favour. See `results/README.md` and ADR-0013.
 
 Supporting hypotheses:
 
 1. Semantic decodability improves toward the last layers; geometry peaks earlier. Geometry
    declines before the last layer in 23 of 24 arms, the exception being unmatched DINOv2
-   depth. Semantics rises to the last layer in 19 of 24 arms. Qwen3.5 is the only Tower
-   whose semantics genuinely decline into the last layer: all four arms peak at Relative
-   Depth 0.889 and fall by 1.2 to 11.6 seed deviations. The other non-rising arm, kimi_k26
-   attention raw, falls 0.5 deviations and is noise. In all six Towers the geometry peak is
-   at or before the semantic one.
+   depth. Semantics rises to the last layer in 19 of 24 point-estimate curves. Four of the
+   five exceptions are Qwen3.5; the other, kimi_k26 attention raw, falls 0.5 seed deviations
+   and is noise. Do not describe all four Qwen3.5 curves as genuine declines: after the
+   deterministic PCA correction, its matched-mean Relative Depth 0.889-to-1.000 difference
+   is +0.00154 with paired 95% interval [-0.00564, +0.00855], so that arm is unresolved.
+   The remaining Qwen3.5 declines are descriptive seed-spread comparisons until they receive
+   the same paired test. In all six Towers the geometry peak is at or before the semantic
+   one.
 2. Rankings change by task. No Tower wins everywhere: DINOv2 takes both geometry tasks,
    while Muse Glimmer and SigLIP2 occupy the top semantic rows. Results ship as Capability
    Profiles instead of one score. The stronger readout-dependence claim is not supported:

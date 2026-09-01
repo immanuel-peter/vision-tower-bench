@@ -42,9 +42,10 @@ cell's training split and trains 1,444,608 parameters everywhere for depth, 1,31
 normals, and 1,627,748 for semantics (ADR-0008).
 
 The original matched matrices used randomized PCA before fixing its seed, so their exact
-PCA draws cannot be reconstructed. The later semantic and geometry bootstrap reruns use a
-deterministic train-split-only reducer. The six geometry cells below retain their selected
-rates, and all corrected point estimates are reported alongside their intervals.
+PCA draws cannot be reconstructed. The semantic matched arm has since been regenerated in
+full with the deterministic train-split-only reducer, and the matched JSONs and semantic
+tables below are the corrected results. The geometry bootstrap reruns use the same reducer;
+their corrected point estimates are reported alongside their intervals.
 
 Cells: eight Relative Depth points each for DINOv2 and SigLIP2, which have no Projector, and
 ten for the four Towers that do, adding `merged` and `projected` at the deepest point. That
@@ -112,6 +113,31 @@ A later deterministic matched rerun preserves the strongest step: Muse Glimmer r
 95% image-bootstrap interval [+0.04992, +0.08338]. The original randomized-PCA point gap was
 +0.0691. The corrected effect excludes zero overall and within both DIODE scene types.
 
+A September 1 targeted rerun covers the headline comparison directly: `projected` against
+the final `tower` Stage for all four Projectors and both measured geometry tasks. It uses
+the deterministic matched reducer, the full six-rate grid, three seeds, and ten thousand
+paired image resamples. Positive values below always favour `projected` (for normals the
+advantage is `tower` error minus `projected` error).
+
+| Projector | depth advantage (`d1`) | paired 95% interval | normal advantage (deg) | paired 95% interval |
+|---|---:|---:|---:|---:|
+| Kimi K2.6 | +0.01737 | [+0.00596, +0.02892] | +2.19797 | [+1.65383, +2.76855] |
+| MoonViT-V2 | +0.07836 | [+0.05956, +0.09838] | +2.49678 | [+1.96158, +3.04919] |
+| Qwen3.5 | +0.05835 | [+0.03738, +0.08088] | +4.31301 | [+3.39556, +5.30180] |
+| Muse Glimmer | +0.02611 | [+0.01287, +0.03955] | +0.79244 | [+0.37697, +1.20646] |
+
+All eight overall intervals exclude zero in the Projector's favour. This supports the
+matched-arm headline against test-image variation; it does not put intervals on all 224
+geometry cells. Fifteen of sixteen scene-specific intervals also resolve. Kimi K2.6 depth
+outdoors is the exception, +0.00529 with interval [-0.00849, +0.01977], while its overall
+and indoor effects resolve.
+
+The deterministic correction changes some point gaps materially without changing their
+direction. Kimi K2.6 depth falls from the original randomized-PCA +0.0505 to +0.01737, Muse
+Glimmer depth from +0.0540 to +0.02611, and Qwen3.5 depth selects different rates. Use the
+bootstrap files for corrected matched headline values rather than treating the old matched
+matrix as exactly reproducible.
+
 The direction matters as much as the size. Across all sixteen model-task-arm combinations
 the `merged` to `projected` step improves the metric in fourteen. Both exceptions are
 MoonViT-V2: unmatched depth at -0.0413, and matched normals at +0.1135, which is 0.2 seed
@@ -165,9 +191,12 @@ falls 0.0008 at 0.3 deviations from a peak at 0.889 and is noise. So one Tower o
 a little late-layer semantics, and the rest are still gaining at the layer where their
 geometry has been declining for a quarter of the depth.
 
-(Amended August 31: the eleven-point semantic re-run raises that to 19 of 24 arms rising, the
-exceptions being qwen3_5 on all four of its semantic arms and the same kimi_k26 noise cell.
-See the re-run section at the bottom of this file.)
+(Amended September 1: the eleven-point results still have 19 of 24 point-estimate curves
+rising to the final layer. Four exceptions are qwen3_5 and the fifth is the same kimi_k26
+noise cell. The deterministic matched-mean Qwen3.5 difference from Relative Depth 0.889 to
+1.000 is only +0.00154 with paired 95% interval [-0.00564, +0.00855], so the earlier claim
+that all four Qwen3.5 declines are genuine is withdrawn. See the re-run and bootstrap
+sections below.)
 
 That is the result a reader can act on. It says which layer to tap for a spatial task, and
 it says the answer is not the last one.
@@ -185,16 +214,14 @@ but the steps are no longer all inside the noise.
 | muse_glimmer | attention | matched | 0.9178 | 0.9154 | 0.9079 | -0.0075 (6.6 sd) |
 
 On the headline attention-matched arm three of four Projectors hold flat, moving the metric
-On the headline attention-matched arm three of four Projectors hold flat, moving the metric
 by 0.0027 or less against their own seed spread. Muse Glimmer does not: it loses 0.0075 at
 6.6 deviations, and 0.0099 in total from `tower` to `projected`. That is a small number in
 absolute terms and a solid one statistically.
 
-(Amended August 31: the eleven-point re-run dissolves the Muse Glimmer loss. At properly
-searched rates its `merged` to `projected` step reads -0.0004 at 0.3 seed deviations, and all
-four Projectors hold the attention readout flat within 4.6 deviations. The 6.6-deviation loss
-was the truncated rate grid reporting `projected` below its optimum, not the Projector.
-See the re-run section at the bottom of this file.)
+(Amended September 1: the eleven-point deterministic matched rerun dissolves the Muse
+Glimmer loss. Its `merged`-to-`projected` step reads +0.0042, and all four Projectors move by
+at most 0.0051 in magnitude and 2.4 of the larger cell spread. The old 0.0075 loss was a
+truncated-grid and randomized-reducer artifact. See the re-run section below.)
 
 The mean-pooling arm is noisier and moves further. qwen3_5 matched mean drops 0.0194 from
 `tower` to `merged` at 11.5 deviations then recovers 0.0174 at `projected`, and muse_glimmer
@@ -202,11 +229,15 @@ unmatched mean loses 0.0147 at 17.2 deviations across the Projector. The `tower`
 step is the lossless one, so a move of 0.0194 there is the same readout artifact the geometry
 pillar measures, and it bounds how much of the neighbouring Projector step to believe.
 
+(Amended September 1: deterministic matched mean reads 0.8692 at Qwen3.5 `tower`, 0.8542
+at `merged`, and 0.8684 at `projected`. The same lossless-readout-artifact shape remains,
+with a 0.0150 drop and 0.0142 recovery. The unmatched Muse Glimmer result is unchanged.)
+
 Semantics survive the Connector in every model. The strong form of the original reading,
 that the numbers are identical, holds for three Projectors out of four.
 
-(Amended August 31: at the extended grid it holds for four of four on the headline
-attention-matched arm.)
+(Amended September 1: at the extended grid all four are nearly flat on the headline
+attention-matched arm; no `merged`-to-`projected` difference exceeds 0.0051.)
 
 ## 4. Rankings change by task, and no Tower wins everywhere
 
@@ -224,9 +255,9 @@ paired-bootstrap analysis below, which does not resolve the semantic winners:
 | semantic, mean | matched | siglip2 0.9135 > muse_glimmer 0.9104 > dinov2 0.8916 > kimi_k26 0.8802 > qwen3_5 0.8709 > moonvit_v2 0.8415 |
 | semantic, mean | unmatched | siglip2 0.9121 > muse_glimmer 0.9106 > dinov2 0.8916 > kimi_k26 0.8682 > qwen3_5 0.8593 > moonvit_v2 0.8147 |
 
-(Amended August 31: on the eleven-point grid the attention rankings re-draw. Matched keeps
-Muse Glimmer first, 0.9195 over SigLIP2's 0.9154. Unmatched attention flips to SigLIP2
-0.9171 over Muse Glimmer 0.9154 at 2.4 seed deviations - the roster's Muse-first
+(Amended September 1: on the eleven-point grid the attention rankings re-draw. The
+deterministic matched arm keeps Muse Glimmer first, 0.9203 over SigLIP2's 0.9162. Unmatched
+attention flips to SigLIP2 0.9171 over Muse Glimmer 0.9154 at 2.4 seed deviations - the roster's Muse-first
 unmatched-attention column was a truncation artifact. Mean holds: SigLIP2 first in both
 arms. A later paired bootstrap supersedes the winner claim: all four Muse-versus-SigLIP2
 intervals cross zero. See the re-run and pooling-validation sections below.)
@@ -742,7 +773,7 @@ are the fraction of annotated pixels within 11.25, 22.5 and 30 degrees.
 | `tower` | 0.889 | 512 | 32x32 | 1,314,819 | 0.001 | 30.6236 ± 1.6060 | 0.2506 | 0.4619 | 0.5694 | 37.7459 |
 | `tower` | 1.000 | 512 | 32x32 | 1,314,819 | 0.0003 | 31.0147 ± 0.2987 | 0.2360 | 0.4463 | 0.5595 | 38.0554 |
 
-## Semantics, re-run on the eleven-point grid (August 31, 2026)
+## Semantics, eleven-point grid and deterministic matched correction
 
 The roster run found 107 of the 112 attention cells selecting 3e-4, the floor of the
 eight-point semantic grid, and none of the 112 mean cells doing so. This re-run re-searched
@@ -751,30 +782,34 @@ all 224 semantic cells on the eleven-point grid `vtb.probe_run.LEARNING_RATES` n
 `results/`. Same data (ImageNet-100 validation, 13,000 images, 4x4 pooled grid, ADR-0005),
 same heads, same three seeds, same two capacity arms. The geometry pillar is untouched.
 
+The August 31 matched arm used randomized PCA before the reducer seed was fixed. On
+September 1 all 112 matched cells, both readouts over six Towers, were regenerated from the
+same caches with the deterministic reducer. The matched JSONs and tables in this section
+now contain that correction; raw results are unchanged. Earlier matched point estimates in
+the git history are not exactly reproducible and are superseded here.
+
 ### The extended grid cleared the truncation
 
 Selected rates over the 224 cells:
 
 | rate | 1e-5 | 3e-5 | 1e-4 | 3e-4 | 1e-3 | 3e-3 | 1e-2 | 3e-2 | 1e-1 | 3e-1 | 1.0 |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| attention | 0 | 1 | 51 | 58 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| mean | 0 | 0 | 0 | 0 | 12 | 25 | 21 | 26 | 13 | 12 | 3 |
+| attention | 0 | 1 | 48 | 58 | 5 | 0 | 0 | 0 | 0 | 0 | 0 |
+| mean | 0 | 0 | 0 | 0 | 11 | 27 | 20 | 23 | 15 | 13 | 3 |
 
 Zero cells select the new 1e-5 floor and one selects 3e-5 (Muse Glimmer attention raw
 `merged`, where the curve rises to 0.9200 at 3e-5, holds at 1e-4, and falls after, so the
 optimum is interior). The old 3e-4 floor is now an interior value selected 58 times. Against
-the roster's 107 of 112 attention cells pinned at the floor, the truncation is gone: **4 of
-224 cells select an edge of the grid, against 107 of 224 before**, and all four are
-explainable - three mean raw dinov2 cells select the 1.0 ceiling and are still climbing
-there (gaps of 0.0072, 0.0190 and 0.0026 over 3e-1), and the one 3e-5 cell is an interior
-peak whose curve falls on both sides.
+the roster's 107 of 112 attention cells pinned at the floor, the low-rate truncation is
+gone: **3 of 224 cells select an endpoint of the grid**, all mean-raw DINOv2 cells at the
+1.0 ceiling. The one 3e-5 attention cell is an interior peak, not an endpoint.
 
 The attention cells moved onto the two points just above the old floor. The split stayed by
 readout and not by arm, exactly as ADR-0014 predicted:
 
-| readout | arm | 1e-4 | 3e-4 | above 1e-3 |
+| readout | arm | 1e-4 | 3e-4 | 1e-3 or above |
 |---|---|---|---|---|
-| attention | matched | 27 of 56 | 29 of 56 | 0 |
+| attention | matched | 24 of 56 | 29 of 56 | 3 |
 | attention | raw | 24 of 56 (+1 at 3e-5) | 29 of 56 | 2 |
 | mean | matched | 0 | 0 | 56 |
 | mean | raw | 0 | 0 | 56 |
@@ -786,29 +821,23 @@ every cell.
 ### What moved, in seed deviations
 
 Per Tower, per Stage, test accuracy against the roster JSONs in units of the roster cell's
-seed standard deviation (`test_std`). Cells whose selected rate did not change are bit-identical
-and move exactly 0; every move below comes from a changed selection.
+seed standard deviation (`test_std`). The raw rows isolate the wider grid. The matched rows
+combine that grid correction with deterministic PCA, because the randomized bases used by
+the roster cannot be reconstructed.
 
-| arm | readout | cells moved | mean move | median move | largest single move |
+| readout | arm | cells moved | mean move | median move | largest single move |
 |---|---|---|---|---|---|
 | attention | raw | 31 of 56 | 1.48 sd | 0.30 sd | muse_glimmer `merged` +0.0061 (+12.2 sd) |
-| attention | matched | 54 of 56 | 1.98 sd | 1.10 sd | muse_glimmer `projected` +0.0078 (+13.0 sd) |
+| attention | matched | 54 of 56 | 2.37 sd | 0.87 sd | muse_glimmer `projected` +0.0112 (+18.7 sd) |
 | mean | raw | 17 of 56 | 0.15 sd | 0.00 sd | qwen3_5 `tower` -0.0007 (-1.8 sd) |
-| mean | matched | 42 of 56 | 2.07 sd | 0.50 sd | siglip2 `tower` d0.37 -0.0118 (-59 sd) |
+| mean | matched | 56 of 56 | 3.47 sd | 1.76 sd | qwen3_5 `tower` d0.111 -0.0152 (-25.3 sd) |
 
-Per Tower, the mean absolute move in the headline attention-matched arm is 1.1 to 2.7 sd,
-and every attention cell that moved at all moved up: the deepest cells gained the most
-(muse_glimmer `projected` +13.0 sd, kimi_k26 `tower` d0.741 +8.0, qwen3_5 `tower` d0.630
-+8.3, moonvit_v2 `projected` +4.8, siglip2 `tower` d0.741 +4.5, dinov2 `tower` d1.0 +3.3).
-The mean readouts barely moved (median 0.00 sd raw, 0.50 sd matched), which is what the
-roster predicted: the old floor bound the attention pool only.
-
-Two moves deserve their caveat. SigLIP2 mean matched `tower` at Relative Depth 0.370 fell
-0.0118: its validation curve has 1e-2 at 0.6590 and 3e-2 at 0.6574, a near-tie whose flip
-landed on a rate that generalizes slightly worse, against a seed spread of 0.0002. And
-qwen3_5 matched mean `merged` rose 0.0099 at 16.5 sd. Both are selection flips, not
-information changes; the lossless `tower` to `merged` step bounds how much of any such move
-to believe (section 3 of the roster run).
+The deterministic correction is not a uniformly favourable shift. Relative to the August
+31 randomized matched JSONs, mean absolute accuracy changes by 0.00270 for attention and
+0.00310 for mean; the largest changes are DINOv2 attention at one late Tower cell (-0.0110)
+and SigLIP2 mean at Relative Depth 0.370 (+0.0156). Eighteen of 112 matched cells also select a
+different rate. These are reproducibility corrections to the readout, not information
+changes in a Tower or Stage.
 
 The roster's attention readout was under-reported by 0.002 to 0.011 top-1 at the deepest
 cells. The largest single correction is siglip2 attention raw `tower` d1.0: 0.9171 against
@@ -820,9 +849,9 @@ Winner of each semantic column, best Tower cell, re-run against roster:
 
 | readout | arm | re-run | roster |
 |---|---|---|---|
-| attention | matched | **muse_glimmer 0.9195** > siglip2 0.9154 > dinov2 0.9058 > kimi_k26 0.8848 > qwen3_5 0.8834 > moonvit_v2 0.8368 | muse_glimmer 0.9178 > siglip2 0.9091 > ... |
+| attention | matched | **muse_glimmer 0.9203** > siglip2 0.9162 > dinov2 0.9079 > kimi_k26 0.8891 > qwen3_5 0.8824 > moonvit_v2 0.8366 | muse_glimmer 0.9178 > siglip2 0.9091 > ... |
 | attention | raw | siglip2 0.9171 > muse_glimmer 0.9154 > dinov2 0.9079 > qwen3_5 0.8870 > kimi_k26 0.8781 > moonvit_v2 0.8373 | muse_glimmer 0.9145 > siglip2 0.9101 > ... |
-| mean | matched | siglip2 0.9133 > muse_glimmer 0.9097 > dinov2 0.8906 > kimi_k26 0.8812 > qwen3_5 0.8723 > moonvit_v2 0.8415 | siglip2 0.9135 > muse_glimmer 0.9104 > ... |
+| mean | matched | siglip2 0.9126 > muse_glimmer 0.9087 > dinov2 0.8933 > kimi_k26 0.8745 > qwen3_5 0.8708 > moonvit_v2 0.8397 | siglip2 0.9135 > muse_glimmer 0.9104 > ... |
 | mean | raw | siglip2 0.9121 > muse_glimmer 0.9111 > dinov2 0.8916 > kimi_k26 0.8682 > qwen3_5 0.8598 > moonvit_v2 0.8147 | siglip2 0.9121 > muse_glimmer 0.9106 > ... |
 
 The eleven-point grid gives Muse Glimmer the capacity-matched attention column and SigLIP2
@@ -836,21 +865,20 @@ summary of the measured Capability Profiles, not evidence for a resolved semanti
 
 With every cell at its own optimum, the roster's one statistical blemish on the semantic
 pillar dissolves. Muse Glimmer's attention `merged` to `projected` step, which the roster
-measured as a 0.0075 loss at 6.6 seed deviations, now reads -0.0004 at 0.3 deviations:
+measured as a 0.0075 loss, becomes a +0.0042 point difference under deterministic PCA:
 
 | model | arm | `tower` | `merged` | `projected` | `merged` to `projected` |
 |---|---|---|---|---|---|
-| moonvit_v2 | matched | 0.8368 | 0.8443 | 0.8503 | +0.0060 (+4.6 sd) |
-| kimi_k26 | matched | 0.8848 | 0.8798 | 0.8832 | +0.0034 (1.4 sd) |
-| qwen3_5 | matched | 0.8807 | 0.8764 | 0.8798 | +0.0034 (2.0 sd) |
-| muse_glimmer | matched | 0.9195 | 0.9161 | 0.9157 | -0.0004 (-0.3 sd) |
+| moonvit_v2 | matched | 0.8366 | 0.8405 | 0.8456 | +0.0051 |
+| kimi_k26 | matched | 0.8891 | 0.8858 | 0.8827 | -0.0031 |
+| qwen3_5 | matched | 0.8790 | 0.8768 | 0.8812 | +0.0044 |
+| muse_glimmer | matched | 0.9203 | 0.9149 | 0.9191 | +0.0042 |
 
-The roster's one statistically solid semantic Projector loss was a rate-truncation artifact.
-At the extended grid all four Projectors hold the attention readout flat across the
-Connector: the largest step in either direction is MoonViT-V2's +0.0060 at 4.6 deviations,
-and Muse Glimmer - the roster's outlier - moves 0.0004. The strong form of the original
-reading, that the numbers are identical across the Connector, now holds for four Projectors
-out of four in the matched attention arm.
+The roster's semantic Projector loss was a rate-truncation and randomized-reducer artifact.
+At the extended grid all four Projectors hold the attention readout nearly flat across the
+Connector: every `merged`-to-`projected` difference is at most 0.0051 in magnitude and at
+most 2.4 of the two cells' larger seed spreads. These descriptive seed comparisons do not
+replace paired Stage intervals, but none supports the old loss claim.
 
 The raw arm agrees in shape: every Projector's `merged` to `projected` step is inside 20
 seed deviations, the largest being qwen3_5's +0.0121 at 20.2 sd in the Projector's favour.
@@ -858,10 +886,13 @@ seed deviations, the largest being qwen3_5's +0.0121 at 20.2 sd in the Projector
 ### Relative Depth
 
 Tower accuracy still rises to the final layer in 19 of the 24 semantic arms. The exceptions
-are qwen3_5 in all four of its arms, peaking at Relative Depth 0.889 and falling to the last
-layer by 0.0128 at 3.6 sd (attention raw) and 0.0155 at 15.5 sd (mean raw), and kimi_k26
-attention raw, which falls 0.0015 at 0.5 sd and is noise. This matches the roster's picture:
-one Tower of six trades late-layer semantics, and both its readouts peak one layer early.
+are qwen3_5 in all four arms and kimi_k26 attention raw. Qwen3.5 falls from its point peak
+by 0.0034 in matched attention, 0.0128 in raw attention, 0.0016 in matched mean, and 0.0155
+in raw mean; the matched-attention point peak moves to Relative Depth 0.741 under the
+deterministic reducer, while the other three sit at 0.889. Kimi K2.6 falls 0.0015 at 0.5
+seed deviations and is noise. Crucially, Qwen3.5's matched-mean +0.00154 earlier-layer
+advantage has paired 95% interval [-0.00564, +0.00855]. The point curve is non-rising, but
+this arm does not establish a genuine late-layer decline.
 
 ### Tables
 
@@ -869,18 +900,19 @@ ImageNet-100 validation, 13,000 images, top-1 over three seeds. `val` is the acc
 rate search selected on.
 
 
+
 ### facebook/dinov2-large, attention readout, capacity-matched
 
 | Stage | Rel. Depth | Width | Params | LR | top-1 | val |
 |---|---|---|---|---|---|---|
-| `tower` | 0.125 | 1024 | 1,627,748 | 0.0003 | 0.3627 ± 0.0063 | 0.3549 |
-| `tower` | 0.250 | 1024 | 1,627,748 | 0.0003 | 0.4720 ± 0.0065 | 0.4621 |
-| `tower` | 0.375 | 1024 | 1,627,748 | 0.0003 | 0.5634 ± 0.0056 | 0.5574 |
-| `tower` | 0.500 | 1024 | 1,627,748 | 0.0003 | 0.6901 ± 0.0044 | 0.6913 |
-| `tower` | 0.625 | 1024 | 1,627,748 | 0.0001 | 0.7579 ± 0.0084 | 0.7759 |
-| `tower` | 0.750 | 1024 | 1,627,748 | 0.0001 | 0.8253 ± 0.0025 | 0.8405 |
-| `tower` | 0.875 | 1024 | 1,627,748 | 0.0001 | 0.8826 ± 0.0018 | 0.8856 |
-| `tower` | 1.000 | 1024 | 1,627,748 | 0.0001 | 0.9058 ± 0.0013 | 0.9087 |
+| `tower` | 0.125 | 1024 | 1,627,748 | 0.0003 | 0.3677 ± 0.0004 | 0.3585 |
+| `tower` | 0.250 | 1024 | 1,627,748 | 0.0003 | 0.4716 ± 0.0034 | 0.4554 |
+| `tower` | 0.375 | 1024 | 1,627,748 | 0.0003 | 0.5612 ± 0.0047 | 0.5544 |
+| `tower` | 0.500 | 1024 | 1,627,748 | 0.0003 | 0.6827 ± 0.0027 | 0.6938 |
+| `tower` | 0.625 | 1024 | 1,627,748 | 0.001 | 0.7629 ± 0.0009 | 0.7785 |
+| `tower` | 0.750 | 1024 | 1,627,748 | 0.0001 | 0.8209 ± 0.0019 | 0.8421 |
+| `tower` | 0.875 | 1024 | 1,627,748 | 0.001 | 0.8716 ± 0.0021 | 0.8872 |
+| `tower` | 1.000 | 1024 | 1,627,748 | 0.0001 | 0.9079 ± 0.0028 | 0.9092 |
 
 ### facebook/dinov2-large, attention readout, unmatched
 
@@ -899,14 +931,14 @@ rate search selected on.
 
 | Stage | Rel. Depth | Width | Params | LR | top-1 | val |
 |---|---|---|---|---|---|---|
-| `tower` | 0.125 | 1024 | 51,300 | 0.1 | 0.2858 ± 0.0010 | 0.2887 |
-| `tower` | 0.250 | 1024 | 51,300 | 0.3 | 0.3776 ± 0.0006 | 0.3662 |
-| `tower` | 0.375 | 1024 | 51,300 | 0.3 | 0.4472 ± 0.0011 | 0.4405 |
-| `tower` | 0.500 | 1024 | 51,300 | 0.1 | 0.5738 ± 0.0019 | 0.5590 |
-| `tower` | 0.625 | 1024 | 51,300 | 0.03 | 0.6557 ± 0.0006 | 0.6528 |
-| `tower` | 0.750 | 1024 | 51,300 | 0.03 | 0.7494 ± 0.0013 | 0.7554 |
-| `tower` | 0.875 | 1024 | 51,300 | 0.003 | 0.8299 ± 0.0006 | 0.8210 |
-| `tower` | 1.000 | 1024 | 51,300 | 0.003 | 0.8906 ± 0.0017 | 0.8944 |
+| `tower` | 0.125 | 1024 | 51,300 | 0.3 | 0.2997 ± 0.0011 | 0.2887 |
+| `tower` | 0.250 | 1024 | 51,300 | 0.3 | 0.3742 ± 0.0011 | 0.3713 |
+| `tower` | 0.375 | 1024 | 51,300 | 0.3 | 0.4460 ± 0.0017 | 0.4415 |
+| `tower` | 0.500 | 1024 | 51,300 | 0.1 | 0.5754 ± 0.0015 | 0.5641 |
+| `tower` | 0.625 | 1024 | 51,300 | 0.1 | 0.6480 ± 0.0024 | 0.6497 |
+| `tower` | 0.750 | 1024 | 51,300 | 0.03 | 0.7496 ± 0.0011 | 0.7585 |
+| `tower` | 0.875 | 1024 | 51,300 | 0.01 | 0.8296 ± 0.0002 | 0.8236 |
+| `tower` | 1.000 | 1024 | 51,300 | 0.003 | 0.8933 ± 0.0013 | 0.8979 |
 
 ### facebook/dinov2-large, mean readout, unmatched
 
@@ -925,16 +957,16 @@ rate search selected on.
 
 | Stage | Rel. Depth | Width | Params | LR | top-1 | val |
 |---|---|---|---|---|---|---|
-| `tower` | 0.111 | 1152 | 1,627,748 | 0.0003 | 0.4243 ± 0.0068 | 0.4133 |
-| `tower` | 0.259 | 1152 | 1,627,748 | 0.0003 | 0.6074 ± 0.0011 | 0.6108 |
-| `tower` | 0.370 | 1152 | 1,627,748 | 0.0003 | 0.6952 ± 0.0033 | 0.7097 |
-| `tower` | 0.518 | 1152 | 1,627,748 | 0.0003 | 0.8106 ± 0.0021 | 0.8282 |
-| `tower` | 0.630 | 1152 | 1,627,748 | 0.0001 | 0.8581 ± 0.0027 | 0.8621 |
-| `tower` | 0.741 | 1152 | 1,627,748 | 0.0001 | 0.8750 ± 0.0028 | 0.8826 |
-| `tower` | 0.889 | 1152 | 1,627,748 | 0.0001 | 0.8798 ± 0.0017 | 0.8892 |
-| `tower` | 1.000 | 1152 | 1,627,748 | 0.0001 | 0.8848 ± 0.0036 | 0.8897 |
-| `merged` | 1.000 | 4608 | 1,627,748 | 0.0001 | 0.8798 ± 0.0020 | 0.8938 |
-| `projected` | 1.000 | 7168 | 1,627,748 | 0.0001 | 0.8832 ± 0.0024 | 0.8877 |
+| `tower` | 0.111 | 1152 | 1,627,748 | 0.0003 | 0.4309 ± 0.0032 | 0.4067 |
+| `tower` | 0.259 | 1152 | 1,627,748 | 0.0003 | 0.6118 ± 0.0090 | 0.6236 |
+| `tower` | 0.370 | 1152 | 1,627,748 | 0.0003 | 0.6928 ± 0.0029 | 0.7118 |
+| `tower` | 0.518 | 1152 | 1,627,748 | 0.0003 | 0.8101 ± 0.0017 | 0.8149 |
+| `tower` | 0.630 | 1152 | 1,627,748 | 0.0001 | 0.8593 ± 0.0030 | 0.8687 |
+| `tower` | 0.741 | 1152 | 1,627,748 | 0.0001 | 0.8769 ± 0.0008 | 0.8846 |
+| `tower` | 0.889 | 1152 | 1,627,748 | 0.0001 | 0.8810 ± 0.0037 | 0.8928 |
+| `tower` | 1.000 | 1152 | 1,627,748 | 0.0001 | 0.8891 ± 0.0025 | 0.8928 |
+| `merged` | 1.000 | 4608 | 1,627,748 | 0.0001 | 0.8858 ± 0.0013 | 0.8892 |
+| `projected` | 1.000 | 7168 | 1,627,748 | 0.0001 | 0.8827 ± 0.0017 | 0.8923 |
 
 ### immanuelpeter/MoonViT-K2.6, attention readout, unmatched
 
@@ -955,16 +987,16 @@ rate search selected on.
 
 | Stage | Rel. Depth | Width | Params | LR | top-1 | val |
 |---|---|---|---|---|---|---|
-| `tower` | 0.111 | 1152 | 51,300 | 0.1 | 0.3607 ± 0.0006 | 0.3431 |
-| `tower` | 0.259 | 1152 | 51,300 | 0.03 | 0.5183 ± 0.0023 | 0.5133 |
-| `tower` | 0.370 | 1152 | 51,300 | 0.03 | 0.6181 ± 0.0015 | 0.6190 |
-| `tower` | 0.518 | 1152 | 51,300 | 0.03 | 0.7450 ± 0.0005 | 0.7585 |
-| `tower` | 0.630 | 1152 | 51,300 | 0.01 | 0.8229 ± 0.0017 | 0.8364 |
-| `tower` | 0.741 | 1152 | 51,300 | 0.01 | 0.8508 ± 0.0015 | 0.8600 |
-| `tower` | 0.889 | 1152 | 51,300 | 0.003 | 0.8634 ± 0.0027 | 0.8805 |
-| `tower` | 1.000 | 1152 | 51,300 | 0.01 | 0.8812 ± 0.0015 | 0.8856 |
-| `merged` | 1.000 | 4608 | 51,300 | 0.003 | 0.8738 ± 0.0015 | 0.8836 |
-| `projected` | 1.000 | 7168 | 51,300 | 0.01 | 0.8773 ± 0.0006 | 0.8815 |
+| `tower` | 0.111 | 1152 | 51,300 | 0.1 | 0.3552 ± 0.0013 | 0.3364 |
+| `tower` | 0.259 | 1152 | 51,300 | 0.03 | 0.5179 ± 0.0011 | 0.5144 |
+| `tower` | 0.370 | 1152 | 51,300 | 0.03 | 0.6214 ± 0.0013 | 0.6179 |
+| `tower` | 0.518 | 1152 | 51,300 | 0.01 | 0.7503 ± 0.0022 | 0.7574 |
+| `tower` | 0.630 | 1152 | 51,300 | 0.01 | 0.8260 ± 0.0013 | 0.8374 |
+| `tower` | 0.741 | 1152 | 51,300 | 0.003 | 0.8547 ± 0.0023 | 0.8585 |
+| `tower` | 0.889 | 1152 | 51,300 | 0.003 | 0.8672 ± 0.0013 | 0.8790 |
+| `tower` | 1.000 | 1152 | 51,300 | 0.003 | 0.8745 ± 0.0012 | 0.8846 |
+| `merged` | 1.000 | 4608 | 51,300 | 0.003 | 0.8745 ± 0.0009 | 0.8826 |
+| `projected` | 1.000 | 7168 | 51,300 | 0.01 | 0.8786 ± 0.0013 | 0.8841 |
 
 ### immanuelpeter/MoonViT-K2.6, mean readout, unmatched
 
@@ -985,16 +1017,16 @@ rate search selected on.
 
 | Stage | Rel. Depth | Width | Params | LR | top-1 | val |
 |---|---|---|---|---|---|---|
-| `tower` | 0.111 | 1024 | 1,627,748 | 0.0003 | 0.3851 ± 0.0037 | 0.3749 |
-| `tower` | 0.259 | 1024 | 1,627,748 | 0.0003 | 0.5275 ± 0.0063 | 0.5128 |
-| `tower` | 0.370 | 1024 | 1,627,748 | 0.0003 | 0.6015 ± 0.0081 | 0.5903 |
-| `tower` | 0.518 | 1024 | 1,627,748 | 0.0003 | 0.7106 ± 0.0081 | 0.6995 |
-| `tower` | 0.630 | 1024 | 1,627,748 | 0.0003 | 0.7638 ± 0.0052 | 0.7703 |
-| `tower` | 0.741 | 1024 | 1,627,748 | 0.0003 | 0.8032 ± 0.0042 | 0.8113 |
-| `tower` | 0.889 | 1024 | 1,627,748 | 0.0003 | 0.8263 ± 0.0038 | 0.8282 |
-| `tower` | 1.000 | 1024 | 1,627,748 | 0.0001 | 0.8368 ± 0.0028 | 0.8559 |
-| `merged` | 1.000 | 4096 | 1,627,748 | 0.0001 | 0.8443 ± 0.0027 | 0.8605 |
-| `projected` | 1.000 | 7168 | 1,627,748 | 0.0001 | 0.8503 ± 0.0013 | 0.8538 |
+| `tower` | 0.111 | 1024 | 1,627,748 | 0.0003 | 0.3855 ± 0.0046 | 0.3774 |
+| `tower` | 0.259 | 1024 | 1,627,748 | 0.0003 | 0.5299 ± 0.0059 | 0.5087 |
+| `tower` | 0.370 | 1024 | 1,627,748 | 0.0003 | 0.6026 ± 0.0022 | 0.5974 |
+| `tower` | 0.518 | 1024 | 1,627,748 | 0.0003 | 0.7120 ± 0.0038 | 0.7118 |
+| `tower` | 0.630 | 1024 | 1,627,748 | 0.0003 | 0.7607 ± 0.0045 | 0.7718 |
+| `tower` | 0.741 | 1024 | 1,627,748 | 0.0003 | 0.8021 ± 0.0037 | 0.8097 |
+| `tower` | 0.889 | 1024 | 1,627,748 | 0.0003 | 0.8253 ± 0.0025 | 0.8282 |
+| `tower` | 1.000 | 1024 | 1,627,748 | 0.0001 | 0.8366 ± 0.0016 | 0.8533 |
+| `merged` | 1.000 | 4096 | 1,627,748 | 0.0003 | 0.8405 ± 0.0034 | 0.8569 |
+| `projected` | 1.000 | 7168 | 1,627,748 | 0.0001 | 0.8456 ± 0.0011 | 0.8518 |
 
 ### immanuelpeter/MoonViT-V2, attention readout, unmatched
 
@@ -1015,16 +1047,16 @@ rate search selected on.
 
 | Stage | Rel. Depth | Width | Params | LR | top-1 | val |
 |---|---|---|---|---|---|---|
-| `tower` | 0.111 | 1024 | 51,300 | 0.03 | 0.2985 ± 0.0015 | 0.2928 |
-| `tower` | 0.259 | 1024 | 51,300 | 0.03 | 0.4130 ± 0.0006 | 0.3897 |
-| `tower` | 0.370 | 1024 | 51,300 | 0.03 | 0.4998 ± 0.0002 | 0.4672 |
-| `tower` | 0.518 | 1024 | 51,300 | 0.03 | 0.6132 ± 0.0006 | 0.6108 |
-| `tower` | 0.630 | 1024 | 51,300 | 0.03 | 0.6947 ± 0.0012 | 0.6908 |
-| `tower` | 0.741 | 1024 | 51,300 | 0.03 | 0.7480 ± 0.0030 | 0.7518 |
-| `tower` | 0.889 | 1024 | 51,300 | 0.03 | 0.7773 ± 0.0015 | 0.7856 |
-| `tower` | 1.000 | 1024 | 51,300 | 0.1 | 0.8415 ± 0.0011 | 0.8390 |
-| `merged` | 1.000 | 4096 | 51,300 | 0.03 | 0.8463 ± 0.0011 | 0.8426 |
-| `projected` | 1.000 | 7168 | 51,300 | 0.03 | 0.8410 ± 0.0018 | 0.8354 |
+| `tower` | 0.111 | 1024 | 51,300 | 0.03 | 0.2993 ± 0.0016 | 0.2928 |
+| `tower` | 0.259 | 1024 | 51,300 | 0.03 | 0.4109 ± 0.0013 | 0.3918 |
+| `tower` | 0.370 | 1024 | 51,300 | 0.03 | 0.5036 ± 0.0015 | 0.4615 |
+| `tower` | 0.518 | 1024 | 51,300 | 0.03 | 0.6142 ± 0.0006 | 0.6128 |
+| `tower` | 0.630 | 1024 | 51,300 | 0.03 | 0.6969 ± 0.0007 | 0.6918 |
+| `tower` | 0.741 | 1024 | 51,300 | 0.03 | 0.7467 ± 0.0007 | 0.7564 |
+| `tower` | 0.889 | 1024 | 51,300 | 0.03 | 0.7761 ± 0.0002 | 0.7836 |
+| `tower` | 1.000 | 1024 | 51,300 | 0.1 | 0.8397 ± 0.0002 | 0.8400 |
+| `merged` | 1.000 | 4096 | 51,300 | 0.03 | 0.8470 ± 0.0013 | 0.8441 |
+| `projected` | 1.000 | 7168 | 51,300 | 0.03 | 0.8421 ± 0.0017 | 0.8369 |
 
 ### immanuelpeter/MoonViT-V2, mean readout, unmatched
 
@@ -1045,16 +1077,16 @@ rate search selected on.
 
 | Stage | Rel. Depth | Width | Params | LR | top-1 | val |
 |---|---|---|---|---|---|---|
-| `tower` | 0.120 | 1536 | 1,627,748 | 0.0003 | 0.4015 ± 0.0021 | 0.3887 |
-| `tower` | 0.240 | 1536 | 1,627,748 | 0.0003 | 0.4944 ± 0.0011 | 0.4892 |
-| `tower` | 0.380 | 1536 | 1,627,748 | 0.0003 | 0.5593 ± 0.0080 | 0.5682 |
-| `tower` | 0.500 | 1536 | 1,627,748 | 0.0003 | 0.6619 ± 0.0021 | 0.6564 |
-| `tower` | 0.620 | 1536 | 1,627,748 | 0.0003 | 0.7629 ± 0.0030 | 0.7759 |
-| `tower` | 0.760 | 1536 | 1,627,748 | 0.0003 | 0.8632 ± 0.0029 | 0.8846 |
-| `tower` | 0.880 | 1536 | 1,627,748 | 0.0001 | 0.9031 ± 0.0037 | 0.9138 |
-| `tower` | 1.000 | 1536 | 1,627,748 | 0.0001 | 0.9195 ± 0.0029 | 0.9277 |
-| `merged` | 1.000 | 6144 | 1,627,748 | 0.0001 | 0.9161 ± 0.0009 | 0.9190 |
-| `projected` | 1.000 | 6656 | 1,627,748 | 0.0001 | 0.9157 ± 0.0015 | 0.9210 |
+| `tower` | 0.120 | 1536 | 1,627,748 | 0.0003 | 0.4053 ± 0.0020 | 0.3964 |
+| `tower` | 0.240 | 1536 | 1,627,748 | 0.0003 | 0.4961 ± 0.0050 | 0.4903 |
+| `tower` | 0.380 | 1536 | 1,627,748 | 0.0003 | 0.5561 ± 0.0033 | 0.5559 |
+| `tower` | 0.500 | 1536 | 1,627,748 | 0.001 | 0.6568 ± 0.0061 | 0.6610 |
+| `tower` | 0.620 | 1536 | 1,627,748 | 0.0003 | 0.7581 ± 0.0101 | 0.7733 |
+| `tower` | 0.760 | 1536 | 1,627,748 | 0.0001 | 0.8591 ± 0.0026 | 0.8887 |
+| `tower` | 0.880 | 1536 | 1,627,748 | 0.0001 | 0.9029 ± 0.0017 | 0.9097 |
+| `tower` | 1.000 | 1536 | 1,627,748 | 0.0001 | 0.9203 ± 0.0024 | 0.9256 |
+| `merged` | 1.000 | 6144 | 1,627,748 | 0.0001 | 0.9149 ± 0.0018 | 0.9236 |
+| `projected` | 1.000 | 6656 | 1,627,748 | 0.0001 | 0.9191 ± 0.0006 | 0.9251 |
 
 ### immanuelpeter/Muse-Glimmer-Vision, attention readout, unmatched
 
@@ -1075,16 +1107,16 @@ rate search selected on.
 
 | Stage | Rel. Depth | Width | Params | LR | top-1 | val |
 |---|---|---|---|---|---|---|
-| `tower` | 0.120 | 1536 | 51,300 | 0.003 | 0.3183 ± 0.0017 | 0.3205 |
-| `tower` | 0.240 | 1536 | 51,300 | 0.003 | 0.3836 ± 0.0026 | 0.3862 |
-| `tower` | 0.380 | 1536 | 51,300 | 0.003 | 0.4400 ± 0.0019 | 0.4190 |
-| `tower` | 0.500 | 1536 | 51,300 | 0.003 | 0.5296 ± 0.0011 | 0.5159 |
-| `tower` | 0.620 | 1536 | 51,300 | 0.003 | 0.6532 ± 0.0015 | 0.6528 |
-| `tower` | 0.760 | 1536 | 51,300 | 0.003 | 0.8219 ± 0.0025 | 0.8405 |
-| `tower` | 0.880 | 1536 | 51,300 | 0.001 | 0.8874 ± 0.0035 | 0.8954 |
-| `tower` | 1.000 | 1536 | 51,300 | 0.01 | 0.9097 ± 0.0008 | 0.9221 |
-| `merged` | 1.000 | 6144 | 51,300 | 0.003 | 0.9051 ± 0.0004 | 0.9174 |
-| `projected` | 1.000 | 6656 | 51,300 | 0.003 | 0.9097 ± 0.0011 | 0.9185 |
+| `tower` | 0.120 | 1536 | 51,300 | 0.003 | 0.3179 ± 0.0029 | 0.3226 |
+| `tower` | 0.240 | 1536 | 51,300 | 0.003 | 0.3819 ± 0.0015 | 0.3815 |
+| `tower` | 0.380 | 1536 | 51,300 | 0.003 | 0.4373 ± 0.0036 | 0.4200 |
+| `tower` | 0.500 | 1536 | 51,300 | 0.003 | 0.5297 ± 0.0029 | 0.5179 |
+| `tower` | 0.620 | 1536 | 51,300 | 0.003 | 0.6540 ± 0.0021 | 0.6554 |
+| `tower` | 0.760 | 1536 | 51,300 | 0.003 | 0.8179 ± 0.0018 | 0.8374 |
+| `tower` | 0.880 | 1536 | 51,300 | 0.001 | 0.8843 ± 0.0016 | 0.8985 |
+| `tower` | 1.000 | 1536 | 51,300 | 0.01 | 0.9087 ± 0.0008 | 0.9231 |
+| `merged` | 1.000 | 6144 | 51,300 | 0.003 | 0.9050 ± 0.0002 | 0.9179 |
+| `projected` | 1.000 | 6656 | 51,300 | 0.003 | 0.9108 ± 0.0008 | 0.9185 |
 
 ### immanuelpeter/Muse-Glimmer-Vision, mean readout, unmatched
 
@@ -1105,16 +1137,16 @@ rate search selected on.
 
 | Stage | Rel. Depth | Width | Params | LR | top-1 | val |
 |---|---|---|---|---|---|---|
-| `tower` | 0.111 | 1152 | 1,627,748 | 0.0003 | 0.4704 ± 0.0045 | 0.4544 |
-| `tower` | 0.259 | 1152 | 1,627,748 | 0.0003 | 0.6427 ± 0.0021 | 0.6513 |
-| `tower` | 0.370 | 1152 | 1,627,748 | 0.0003 | 0.7299 ± 0.0067 | 0.7323 |
-| `tower` | 0.518 | 1152 | 1,627,748 | 0.0001 | 0.8137 ± 0.0009 | 0.8241 |
-| `tower` | 0.630 | 1152 | 1,627,748 | 0.0001 | 0.8655 ± 0.0029 | 0.8744 |
-| `tower` | 0.741 | 1152 | 1,627,748 | 0.0001 | 0.8814 ± 0.0005 | 0.8918 |
-| `tower` | 0.889 | 1152 | 1,627,748 | 0.0001 | 0.8834 ± 0.0009 | 0.8933 |
-| `tower` | 1.000 | 1152 | 1,627,748 | 0.0001 | 0.8807 ± 0.0025 | 0.8964 |
-| `merged` | 1.000 | 4608 | 1,627,748 | 0.0003 | 0.8764 ± 0.0026 | 0.8887 |
-| `projected` | 1.000 | 5120 | 1,627,748 | 0.0001 | 0.8798 ± 0.0017 | 0.8892 |
+| `tower` | 0.111 | 1152 | 1,627,748 | 0.0003 | 0.4665 ± 0.0005 | 0.4395 |
+| `tower` | 0.259 | 1152 | 1,627,748 | 0.0003 | 0.6390 ± 0.0042 | 0.6328 |
+| `tower` | 0.370 | 1152 | 1,627,748 | 0.0003 | 0.7303 ± 0.0036 | 0.7385 |
+| `tower` | 0.518 | 1152 | 1,627,748 | 0.0003 | 0.8130 ± 0.0009 | 0.8344 |
+| `tower` | 0.630 | 1152 | 1,627,748 | 0.0001 | 0.8598 ± 0.0025 | 0.8738 |
+| `tower` | 0.741 | 1152 | 1,627,748 | 0.0001 | 0.8824 ± 0.0038 | 0.8867 |
+| `tower` | 0.889 | 1152 | 1,627,748 | 0.0003 | 0.8800 ± 0.0033 | 0.8938 |
+| `tower` | 1.000 | 1152 | 1,627,748 | 0.0001 | 0.8790 ± 0.0008 | 0.8949 |
+| `merged` | 1.000 | 4608 | 1,627,748 | 0.0001 | 0.8768 ± 0.0026 | 0.8851 |
+| `projected` | 1.000 | 5120 | 1,627,748 | 0.0001 | 0.8812 ± 0.0029 | 0.8851 |
 
 ### immanuelpeter/Qwen3.8-27B-Vision, attention readout, unmatched
 
@@ -1135,16 +1167,16 @@ rate search selected on.
 
 | Stage | Rel. Depth | Width | Params | LR | top-1 | val |
 |---|---|---|---|---|---|---|
-| `tower` | 0.111 | 1152 | 51,300 | 0.03 | 0.3790 ± 0.0008 | 0.3636 |
-| `tower` | 0.259 | 1152 | 51,300 | 0.03 | 0.5391 ± 0.0012 | 0.5241 |
-| `tower` | 0.370 | 1152 | 51,300 | 0.01 | 0.6338 ± 0.0011 | 0.6492 |
-| `tower` | 0.518 | 1152 | 51,300 | 0.01 | 0.7391 ± 0.0013 | 0.7585 |
-| `tower` | 0.630 | 1152 | 51,300 | 0.003 | 0.8241 ± 0.0011 | 0.8456 |
-| `tower` | 0.741 | 1152 | 51,300 | 0.003 | 0.8533 ± 0.0008 | 0.8718 |
-| `tower` | 0.889 | 1152 | 51,300 | 0.001 | 0.8723 ± 0.0038 | 0.8749 |
-| `tower` | 1.000 | 1152 | 51,300 | 0.001 | 0.8677 ± 0.0019 | 0.8795 |
-| `merged` | 1.000 | 4608 | 51,300 | 0.001 | 0.8614 ± 0.0011 | 0.8656 |
-| `projected` | 1.000 | 5120 | 51,300 | 0.001 | 0.8658 ± 0.0012 | 0.8785 |
+| `tower` | 0.111 | 1152 | 51,300 | 0.1 | 0.3641 ± 0.0029 | 0.3636 |
+| `tower` | 0.259 | 1152 | 51,300 | 0.03 | 0.5426 ± 0.0013 | 0.5236 |
+| `tower` | 0.370 | 1152 | 51,300 | 0.01 | 0.6337 ± 0.0015 | 0.6508 |
+| `tower` | 0.518 | 1152 | 51,300 | 0.01 | 0.7427 ± 0.0017 | 0.7579 |
+| `tower` | 0.630 | 1152 | 51,300 | 0.003 | 0.8214 ± 0.0013 | 0.8415 |
+| `tower` | 0.741 | 1152 | 51,300 | 0.003 | 0.8556 ± 0.0017 | 0.8662 |
+| `tower` | 0.889 | 1152 | 51,300 | 0.001 | 0.8708 ± 0.0008 | 0.8749 |
+| `tower` | 1.000 | 1152 | 51,300 | 0.001 | 0.8692 ± 0.0022 | 0.8800 |
+| `merged` | 1.000 | 4608 | 51,300 | 0.001 | 0.8542 ± 0.0050 | 0.8651 |
+| `projected` | 1.000 | 5120 | 51,300 | 0.003 | 0.8684 ± 0.0017 | 0.8764 |
 
 ### immanuelpeter/Qwen3.8-27B-Vision, mean readout, unmatched
 
@@ -1165,14 +1197,14 @@ rate search selected on.
 
 | Stage | Rel. Depth | Width | Params | LR | top-1 | val |
 |---|---|---|---|---|---|---|
-| `tower` | 0.111 | 1152 | 1,627,748 | 0.0003 | 0.4619 ± 0.0058 | 0.4405 |
-| `tower` | 0.259 | 1152 | 1,627,748 | 0.0003 | 0.6561 ± 0.0046 | 0.6528 |
-| `tower` | 0.370 | 1152 | 1,627,748 | 0.0003 | 0.7306 ± 0.0002 | 0.7446 |
-| `tower` | 0.518 | 1152 | 1,627,748 | 0.0003 | 0.8321 ± 0.0031 | 0.8431 |
-| `tower` | 0.630 | 1152 | 1,627,748 | 0.0001 | 0.8800 ± 0.0052 | 0.8882 |
-| `tower` | 0.741 | 1152 | 1,627,748 | 0.0001 | 0.8976 ± 0.0031 | 0.9159 |
-| `tower` | 0.889 | 1152 | 1,627,748 | 0.0001 | 0.9096 ± 0.0005 | 0.9159 |
-| `tower` | 1.000 | 1152 | 1,627,748 | 0.0001 | 0.9154 ± 0.0004 | 0.9215 |
+| `tower` | 0.111 | 1152 | 1,627,748 | 0.0003 | 0.4636 ± 0.0051 | 0.4390 |
+| `tower` | 0.259 | 1152 | 1,627,748 | 0.0003 | 0.6525 ± 0.0030 | 0.6579 |
+| `tower` | 0.370 | 1152 | 1,627,748 | 0.0003 | 0.7303 ± 0.0007 | 0.7441 |
+| `tower` | 0.518 | 1152 | 1,627,748 | 0.0003 | 0.8323 ± 0.0023 | 0.8421 |
+| `tower` | 0.630 | 1152 | 1,627,748 | 0.0001 | 0.8756 ± 0.0038 | 0.8933 |
+| `tower` | 0.741 | 1152 | 1,627,748 | 0.0001 | 0.8983 ± 0.0015 | 0.9144 |
+| `tower` | 0.889 | 1152 | 1,627,748 | 0.0001 | 0.9128 ± 0.0027 | 0.9195 |
+| `tower` | 1.000 | 1152 | 1,627,748 | 0.0001 | 0.9162 ± 0.0030 | 0.9226 |
 
 ### google/siglip2-so400m-patch14-384, attention readout, unmatched
 
@@ -1191,14 +1223,14 @@ rate search selected on.
 
 | Stage | Rel. Depth | Width | Params | LR | top-1 | val |
 |---|---|---|---|---|---|---|
-| `tower` | 0.111 | 1152 | 51,300 | 0.03 | 0.3485 ± 0.0011 | 0.3508 |
-| `tower` | 0.259 | 1152 | 51,300 | 0.03 | 0.5371 ± 0.0013 | 0.5272 |
-| `tower` | 0.370 | 1152 | 51,300 | 0.01 | 0.6504 ± 0.0012 | 0.6590 |
-| `tower` | 0.518 | 1152 | 51,300 | 0.03 | 0.7716 ± 0.0005 | 0.7908 |
-| `tower` | 0.630 | 1152 | 51,300 | 0.01 | 0.8569 ± 0.0015 | 0.8728 |
-| `tower` | 0.741 | 1152 | 51,300 | 0.003 | 0.8887 ± 0.0015 | 0.9077 |
-| `tower` | 0.889 | 1152 | 51,300 | 0.003 | 0.9010 ± 0.0011 | 0.9144 |
-| `tower` | 1.000 | 1152 | 51,300 | 0.001 | 0.9133 ± 0.0011 | 0.9190 |
+| `tower` | 0.111 | 1152 | 51,300 | 0.03 | 0.3513 ± 0.0008 | 0.3533 |
+| `tower` | 0.259 | 1152 | 51,300 | 0.03 | 0.5403 ± 0.0020 | 0.5323 |
+| `tower` | 0.370 | 1152 | 51,300 | 0.03 | 0.6660 ± 0.0020 | 0.6595 |
+| `tower` | 0.518 | 1152 | 51,300 | 0.1 | 0.7644 ± 0.0005 | 0.7928 |
+| `tower` | 0.630 | 1152 | 51,300 | 0.01 | 0.8566 ± 0.0011 | 0.8723 |
+| `tower` | 0.741 | 1152 | 51,300 | 0.003 | 0.8867 ± 0.0008 | 0.9103 |
+| `tower` | 0.889 | 1152 | 51,300 | 0.003 | 0.9070 ± 0.0020 | 0.9169 |
+| `tower` | 1.000 | 1152 | 51,300 | 0.001 | 0.9126 ± 0.0013 | 0.9185 |
 
 ### google/siglip2-so400m-patch14-384, mean readout, unmatched
 
@@ -1255,6 +1287,13 @@ ranking nor a SigLIP2-first mean ranking. Hypothesis 2's claim that changing the
 changes the semantic winner is therefore unsupported; winner identity is unresolved in
 every semantic readout column.
 
+The same procedure was applied within Qwen3.5 to the capacity-matched mean Tower cells at
+Relative Depth 0.889 and 1.000. Under the deterministic reducer they read 0.87077 and
+0.86923, a +0.00154 earlier-layer advantage with paired 95% interval [-0.00564, +0.00855].
+The interval crosses zero. The old randomized-PCA description of this arm as a genuine
+late-layer decline is therefore withdrawn: its point estimate still peaks at 0.889, but the
+test images do not resolve the difference.
+
 The cross-task semantic comparison resolves against only one of those Towers:
 
 | comparison, matched attention | difference | paired 95% interval |
@@ -1275,14 +1314,14 @@ committed +0.0041 margin.
 
 This statistical result does not validate pooling. It neither compares pooled against full
 tokens nor answers whether pooling changes the attention Relative Depth curve. The
-six per-image prediction datasets and their bootstrap metadata live in
+seven per-image prediction datasets and their bootstrap metadata live in
 `results/bootstrap/`.
 
 ### Paired bootstrap on the geometry headline comparisons
 
-The geometry pass targets three predeclared comparisons rather than rerunning all 448
-cells: the strongest Projector Stage step, and DINOv2 against the next-best Tower on each
-geometry task. Each selected cell is re-searched on the full six-point grid under the
+The first geometry pass targeted three predeclared comparisons rather than rerunning all
+448 cells: the strongest Projector Stage step, and DINOv2 against the next-best Tower on
+each geometry task. Each selected cell is re-searched on the full six-point grid under the
 deterministic matched reducer, trained for three seeds, and scored per image. Ten thousand
 paired resamples operate on the seed-mean metric over the same 115 test images. Positive
 differences mean the first cell is better; for surface normals that is the second cell's
@@ -1304,8 +1343,14 @@ resolved Muse Glimmer-over-DINOv2 semantic interval, it supports the cross-task 
 DINOv2 wins both measured geometry tasks but loses matched-attention semantics to Muse
 Glimmer. It does not restore an ordering among the statistically unresolved top semantic
 Towers, and it is conditional on the Relative Depth cells selected by the original matrix.
-The three per-image metric datasets, validation curves, seed metrics, and bootstrap metadata
-live beside the six semantic datasets in `results/bootstrap/`.
+The September 1 follow-up then tested the eight matched Projector headline comparisons:
+`projected` against final `tower` for four Projectors and two tasks. All eight overall
+intervals exclude zero in the Projector's favour; the complete table is in section 1.
+Together, these are eleven targeted geometry comparisons, not a blanket bootstrap over the
+matrix. Their per-image metric datasets, validation curves, seed metrics, and bootstrap
+metadata live beside the semantic datasets in `results/bootstrap/`. Cache reconstruction,
+timings, and the deterministic semantic rerun are recorded in
+`docs/measurements/remaining-bootstrap-2026-09-01.md`.
 
 ## Indoors against outdoor
 

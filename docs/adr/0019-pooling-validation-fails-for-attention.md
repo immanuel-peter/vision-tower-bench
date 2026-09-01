@@ -135,3 +135,19 @@ retain the validated mean readout, and describe attention Relative Depth curve s
 unvalidated. In particular, the earlier claim that common pooling cannot affect within-model
 curve differences is too strong: a depth-dependent pooling distortion is exactly what the
 unresolved Muse Glimmer mid-depth gap could represent.
+
+## Amendment: deterministic matched semantic matrix, September 1 2026
+
+All 112 matched semantic cells were regenerated from the resident 13,000-image pooled
+caches after the PCA seed fix. The twelve matched JSONs in `results/` now contain the
+deterministic results and supersede the randomized-PCA files from the August 31 matrix.
+Eight attention cells and ten mean cells select a different rate; mean absolute top-1
+movement against the randomized files is 0.00270 and 0.00310 respectively. This is large
+enough that preserving only the isolated bootstrap cells would not have cleared the
+reproducibility debt.
+
+The corrected deepest cells agree with the deterministic paired semantic bootstrap. They do
+not change its inference: Muse Glimmer and SigLIP2 remain unresolved in all four
+readout-arm comparisons. Nor does this rerun validate pooling. It uses the same 4x4 pooled
+cache as the semantic pillar and supplies no working full-token attention baseline, so the
+attention pooling verdict remains inconclusive.
