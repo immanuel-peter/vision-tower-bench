@@ -76,6 +76,14 @@ def read_depth(path: Path, divisor: float = 1000.0) -> torch.Tensor:
         return torch.from_numpy(np.array(image).astype(np.float32)) / divisor
 
 
+def align_rgb_to_depth(image: Image.Image, depth: torch.Tensor) -> Image.Image:
+    """Put ScanNet RGB into the pixel frame used by its depth and intrinsics."""
+    size = [depth.shape[-2], depth.shape[-1]]
+    if image.size == (size[1], size[0]):
+        return image
+    return tv_F.resize(image, size, InterpolationMode.BICUBIC, antialias=True)
+
+
 def navi_depth(path: Path) -> torch.Tensor:
     with Image.open(path) as image:
         disparity = np.array(image).astype(np.uint16).astype(np.float32)
@@ -147,9 +155,11 @@ class ScanNetPairs:
         scene, first, second, matrix = self.rows[index]
         images, depths, frames = [], [], []
         for frame_id in (first, second):
+            depth = read_depth(self.root / scene / "depth" / f"{frame_id}.png")
             with Image.open(self.root / scene / "color" / f"{frame_id}.jpg") as raw:
-                image, frame = canonical(raw, self.resolution)
-            depth = frame.target(read_depth(self.root / scene / "depth" / f"{frame_id}.png"))
+                aligned = align_rgb_to_depth(ImageOps.exif_transpose(raw).convert("RGB"), depth)
+                image, frame = canonical(aligned, self.resolution)
+            depth = frame.target(depth)
             images.append(image)
             depths.append(depth)
             frames.append(frame)

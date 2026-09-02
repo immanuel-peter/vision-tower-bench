@@ -1,0 +1,56 @@
+{
+  "protocol": {
+    "dataset": "spair",
+    "metric": "pck_0.1",
+    "pairing": "paired over image pairs",
+    "resolution": 448,
+    "evaluation_side": 64,
+    "num_correspondences": 1000
+  },
+  "model": "qwen3_5",
+  "model_id": "immanuelpeter/Qwen3.8-27B-Vision",
+  "first": "projected:27",
+  "second": "tower:27",
+  "first_advantage": {
+    "point_estimate": 0.021649090573191643,
+    "confidence": 0.95,
+    "lower": 0.011829614639282227,
+    "upper": 0.03164470195770264,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second",
+    "pairs": 3408
+  },
+  "by_difficulty": {
+    "0": {
+      "point_estimate": 0.03232210502028465,
+      "confidence": 0.95,
+      "lower": 0.019705593585968018,
+      "upper": 0.04506165534257889,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 1802
+    },
+    "1": {
+      "point_estimate": 0.004702932666987181,
+      "confidence": 0.95,
+      "lower": -0.01106263604015112,
+      "upper": 0.020144598558545113,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 1323
+    },
+    "2": {
+      "point_estimate": 0.03291057050228119,
+      "confidence": 0.95,
+      "lower": -0.005681534297764301,
+      "upper": 0.07181786745786667,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 283
+    }
+  }
+}

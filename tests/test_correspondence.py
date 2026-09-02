@@ -1,5 +1,6 @@
 import pytest
 import torch
+from PIL import Image
 
 from vtb.correspondence import (
     dense_map,
@@ -105,6 +106,17 @@ def test_correspondence_runner_keeps_full_patch_grid_defaults():
     assert args.resolution == 448
     assert args.evaluation_side == 64
     assert args.num_correspondences == 1_000
+
+
+def test_scannet_rgb_is_aligned_to_the_depth_and_intrinsics_frame():
+    from scripts.correspondence_run import align_rgb_to_depth
+
+    image = Image.new("RGB", (1296, 968))
+    depth = torch.ones(480, 640)
+
+    aligned = align_rgb_to_depth(image, depth)
+
+    assert aligned.size == (640, 480)
 
 
 def test_correspondence_bootstrap_defaults_to_projected_against_tower():

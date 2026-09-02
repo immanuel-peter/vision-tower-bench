@@ -1,0 +1,56 @@
+{
+  "protocol": {
+    "dataset": "spair",
+    "metric": "pck_0.1",
+    "pairing": "paired over image pairs",
+    "resolution": 448,
+    "evaluation_side": 64,
+    "num_correspondences": 1000
+  },
+  "model": "muse_glimmer",
+  "model_id": "immanuelpeter/Muse-Glimmer-Vision",
+  "first": "projected:50",
+  "second": "tower:50",
+  "first_advantage": {
+    "point_estimate": 0.13251031935214996,
+    "confidence": 0.95,
+    "lower": 0.12393377721309662,
+    "upper": 0.14110775291919708,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second",
+    "pairs": 3408
+  },
+  "by_difficulty": {
+    "0": {
+      "point_estimate": 0.1365738958120346,
+      "confidence": 0.95,
+      "lower": 0.12548232078552246,
+      "upper": 0.14773468673229218,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 1802
+    },
+    "1": {
+      "point_estimate": 0.12717480957508087,
+      "confidence": 0.95,
+      "lower": 0.11273175477981567,
+      "upper": 0.14174380898475647,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 1323
+    },
+    "2": {
+      "point_estimate": 0.13157857954502106,
+      "confidence": 0.95,
+      "lower": 0.10244821757078171,
+      "upper": 0.16136786341667175,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 283
+    }
+  }
+}

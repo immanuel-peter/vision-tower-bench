@@ -1567,46 +1567,64 @@ ratio-ranked matches for the geometric datasets. SPair samples at most 200 test 
 class and reports macro PCK at 0.1 of target bounding-box scale. This is a declared bench
 adaptation, not a reproduction of Probe3D's published rows.
 
-The explicit disagreement stop condition fired after four Towers, including two
-Projectors, had completed all three datasets. The valid partial matrix contains 12 of the
-planned 18 jobs:
+The continuation completed all 18 jobs. ScanNet was rerun after fixing a coordinate-frame
+bug: its RGB frames are 1296 by 968, while depth and intrinsics use 640 by 480. RGB is now
+aligned to that frame before the shared crop. The old floor-limited ScanNet files were
+replaced.
 
 | Tower | Stage | ScanNet recall@10px | NAVI recall@2cm | SPair macro PCK@0.1 |
 | --- | --- | ---: | ---: | ---: |
-| DINOv2 | `tower` | 0.00748 | 0.53891 | 0.55475 |
-| SigLIP2 | `tower` | 0.00449 | 0.40133 | 0.39818 |
-| MoonViT-V2 | `tower` | 0.00396 | 0.33342 | 0.27600 |
-| MoonViT-V2 | `merged` | 0.00506 | 0.38818 | 0.25745 |
-| MoonViT-V2 | `projected` | 0.00510 | 0.39244 | 0.26140 |
-| Kimi K2.6 | `tower` | 0.00483 | 0.36458 | 0.17821 |
-| Kimi K2.6 | `merged` | 0.00333 | 0.23138 | 0.06944 |
-| Kimi K2.6 | `projected` | 0.00535 | 0.42111 | 0.29184 |
+| DINOv2 | `tower` | 0.08958 | 0.53891 | 0.55475 |
+| SigLIP2 | `tower` | 0.05843 | 0.40133 | 0.39818 |
+| MoonViT-V2 | `tower` | 0.02580 | 0.33342 | 0.27600 |
+| MoonViT-V2 | `merged` | 0.04709 | 0.38818 | 0.25745 |
+| MoonViT-V2 | `projected` | 0.04714 | 0.39244 | 0.26140 |
+| Kimi K2.6 | `tower` | 0.05466 | 0.36458 | 0.17821 |
+| Kimi K2.6 | `merged` | 0.01618 | 0.23138 | 0.06944 |
+| Kimi K2.6 | `projected` | 0.06219 | 0.42111 | 0.29184 |
+| Qwen3.8 | `tower` | 0.08337 | 0.37847 | 0.30806 |
+| Qwen3.8 | `merged` | 0.00262 | 0.11297 | 0.02772 |
+| Qwen3.8 | `projected` | 0.06396 | 0.39731 | 0.33091 |
+| Muse Glimmer | `tower` | 0.02075 | 0.21392 | 0.09092 |
+| Muse Glimmer | `merged` | 0.00898 | 0.18450 | 0.05641 |
+| Muse Glimmer | `projected` | 0.05253 | 0.31970 | 0.22148 |
 
 Paired intervals compare `projected` with the final `tower` Stage over image pairs. A
 positive difference favours `projected`.
 
 | Tower | column | difference | paired 95% interval | pairs |
 | --- | --- | ---: | ---: | ---: |
-| MoonViT-V2 | ScanNet recall@10px | +0.001139 | [+0.000889, +0.001398] | 1,500 |
+| MoonViT-V2 | ScanNet recall@10px | +0.021341 | [+0.020162, +0.022543] | 1,500 |
 | MoonViT-V2 | NAVI recall@2cm | +0.059020 | [+0.054193, +0.063709] | 555 |
-| MoonViT-V2 | SPair PCK@0.1 | **-0.014355** | **[-0.021642, -0.007021]** | 3,408 |
-| Kimi K2.6 | ScanNet recall@10px | +0.000524 | [+0.000278, +0.000769] | 1,500 |
+| MoonViT-V2 | SPair PCK@0.1 | -0.014355 | [-0.021642, -0.007021] | 3,408 |
+| Kimi K2.6 | ScanNet recall@10px | +0.007535 | [+0.006092, +0.008967] | 1,500 |
 | Kimi K2.6 | NAVI recall@2cm | +0.056532 | [+0.052110, +0.060899] | 555 |
 | Kimi K2.6 | SPair PCK@0.1 | +0.114964 | [+0.106328, +0.123475] | 3,408 |
+| Qwen3.8 | ScanNet recall@10px | -0.019414 | [-0.020802, -0.018019] | 1,500 |
+| Qwen3.8 | NAVI recall@2cm | +0.018836 | [+0.014590, +0.023038] | 555 |
+| Qwen3.8 | SPair PCK@0.1 | +0.021649 | [+0.011830, +0.031645] | 3,408 |
+| Muse Glimmer | ScanNet recall@10px | +0.031772 | [+0.029930, +0.033612] | 1,500 |
+| Muse Glimmer | NAVI recall@2cm | +0.105779 | [+0.099457, +0.112103] | 555 |
+| Muse Glimmer | SPair PCK@0.1 | +0.132510 | [+0.123934, +0.141108] | 3,408 |
 
-The geometric correspondence result agrees with the trained depth and surface-normal
-probes for both completed Projectors. NAVI is the informative column: absolute scores are
-substantial, both intervals resolve in the Projector's favour, and every viewpoint-bin
-interval is positive. ScanNet points the same way, but every absolute Stage score is below
-one percent, so that protocol adaptation is floor-limited.
+NAVI is the spatial headline. All four Projectors improve its multiview 3D recall, and all
+four paired intervals exclude zero. The corrected ScanNet column is no longer floor-limited.
+MoonViT-V2, Kimi K2.6, and Muse Glimmer improve there; Qwen3.8 loses 0.01941 recall with an
+interval wholly below zero. These ScanNet values remain a declared bench adaptation rather
+than Probe3D reproduction numbers.
 
-SPair is the contradiction. Kimi K2.6 improves strongly, while MoonViT-V2 loses 0.01436
-PCK with an interval wholly below zero. MoonViT-V2 falls from 0.27600 at `tower` to
-0.25745 at `merged`; its Projector recovers to 0.26140 but does not regain the Tower score.
-The Connector therefore preserves or improves geometric correspondence in the completed
-rows but does not uniformly preserve semantic correspondence. The remaining Qwen3.5 and
-Muse Glimmer jobs were halted, and the later workstreams were not run pending the required
-headline decision.
+SPair measures semantic part matching across different object instances. MoonViT-V2 loses
+0.01436 PCK there while gaining 0.05902 on NAVI. Its loss occurs mostly at the lossless
+`tower` to `merged` step, and its Projector recovers only part of it. The other three
+Projectors improve SPair. One Connector therefore loses semantic matching ability while
+gaining geometric correspondence. That is not a refutation of the spatial claim because
+SPair does not measure multiview 3D consistency.
 
-Full per-pair results are under `results/correspondence/`. The six paired intervals are
+The Kimi K2.6 raster-order audit found no bug. The published merge loop and adapter both
+emit 2 by 2 blocks in raster order, and the existing weight-backed test checks that layout
+bit for bit. Qwen3.8 and Muse Glimmer also collapse at `merged` on the three direct-cosine
+columns, so the effect is not unique to Kimi. The training-free scorer is sensitive to
+within-block phase after lossless concatenation.
+
+Full per-pair results are under `results/correspondence/`. The twelve paired intervals are
 under `results/bootstrap/` with the `correspondence-` prefix.

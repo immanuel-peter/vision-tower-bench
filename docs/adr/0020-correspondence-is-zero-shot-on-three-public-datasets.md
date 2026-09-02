@@ -20,9 +20,10 @@ Probe3D evaluates correspondence without training a probe. Its three evaluations
 
 The paper and released repository confirm that the first two are geometric correspondence
 tests. SPair-71k is semantic correspondence and Probe3D explicitly warns that it is not, by
-itself, a measure of 3D consistency. We will report the three columns separately. ScanNet
-recall at 10 pixels and NAVI recall at 2 centimetres carry the geometric conclusion;
-SPair-71k PCK is supporting evidence about semantic matching.
+itself, a measure of 3D consistency. We report the three columns separately. NAVI is the
+multiview 3D consistency result and carries the spatial headline. ScanNet is a second
+geometric protocol adaptation. SPair-71k PCK measures semantic part matching across object
+instances and does not decide the spatial claim.
 
 All three released evaluation subsets have direct public download paths and require no
 login. NAVI is a 31.10 GB public Google Cloud archive. SPair-71k is a 226.96 MB public
@@ -30,11 +31,13 @@ archive. The 1,500-pair ScanNet subset is a 1.10 GB public archive mirrored by L
 its pair list and intrinsics also public. The full ScanNet dataset has separate terms, but
 this run does not need it.
 
-The bench will run all three evaluations at 448 square pixels with adapter-owned
-preprocessing. It will score full patch tokens from the final `tower` Stage and every
-available `merged` and `projected` Stage. There is no capacity-matched arm because no
-trainable readout exists. Cosine normalization removes feature scale, and feature width is
-part of the representation being tested rather than probe capacity.
+The bench runs all three evaluations at 448 square pixels with adapter-owned preprocessing.
+For ScanNet, it first aligns the 1296 by 968 RGB frame to the 640 by 480 depth and
+intrinsics frame, then applies the shared square crop. It scores full patch tokens from the
+final `tower` Stage and every available `merged` and `projected` Stage. There is no
+capacity-matched arm because no trainable readout exists. Cosine normalization removes
+feature scale, and feature width is part of the representation being tested rather than
+probe capacity.
 
 Probe3D upsamples features onto a quarter-resolution target grid before geometric
 matching. That would make the cost of an exact search grow sharply with the Projector's
@@ -53,50 +56,65 @@ run's stop condition before the headline claim changes.
 Sources: El Banani et al., "Probing the 3D Awareness of Visual Foundation Models," CVPR
 2024, sections 3.2 and A.3.3-A.3.4; and the authors' `mbanani/probe3d` repository.
 
-## Result: geometric correspondence agrees, semantic correspondence does not
+## Result: NAVI supports the spatial claim; semantic matching splits
 
-The run completed DINOv2, SigLIP2, MoonViT-V2, and Kimi K2.6 on all three
-datasets before the stop condition fired. The other two Projectors were in flight and
-their partial files were discarded. Full results are in `results/correspondence/`.
+The continuation completed all six Towers and four Projectors. Full per-pair results are
+in `results/correspondence/`.
 
 | Tower | Stage | ScanNet recall@10px | NAVI recall@2cm | SPair macro PCK@0.1 |
 | --- | --- | ---: | ---: | ---: |
-| DINOv2 | `tower` | 0.00748 | 0.53891 | 0.55475 |
-| SigLIP2 | `tower` | 0.00449 | 0.40133 | 0.39818 |
-| MoonViT-V2 | `tower` | 0.00396 | 0.33342 | 0.27600 |
-| MoonViT-V2 | `merged` | 0.00506 | 0.38818 | 0.25745 |
-| MoonViT-V2 | `projected` | 0.00510 | 0.39244 | 0.26140 |
-| Kimi K2.6 | `tower` | 0.00483 | 0.36458 | 0.17821 |
-| Kimi K2.6 | `merged` | 0.00333 | 0.23138 | 0.06944 |
-| Kimi K2.6 | `projected` | 0.00535 | 0.42111 | 0.29184 |
+| DINOv2 | `tower` | 0.08958 | 0.53891 | 0.55475 |
+| SigLIP2 | `tower` | 0.05843 | 0.40133 | 0.39818 |
+| MoonViT-V2 | `tower` | 0.02580 | 0.33342 | 0.27600 |
+| MoonViT-V2 | `merged` | 0.04709 | 0.38818 | 0.25745 |
+| MoonViT-V2 | `projected` | 0.04714 | 0.39244 | 0.26140 |
+| Kimi K2.6 | `tower` | 0.05466 | 0.36458 | 0.17821 |
+| Kimi K2.6 | `merged` | 0.01618 | 0.23138 | 0.06944 |
+| Kimi K2.6 | `projected` | 0.06219 | 0.42111 | 0.29184 |
+| Qwen3.8 | `tower` | 0.08337 | 0.37847 | 0.30806 |
+| Qwen3.8 | `merged` | 0.00262 | 0.11297 | 0.02772 |
+| Qwen3.8 | `projected` | 0.06396 | 0.39731 | 0.33091 |
+| Muse Glimmer | `tower` | 0.02075 | 0.21392 | 0.09092 |
+| Muse Glimmer | `merged` | 0.00898 | 0.18450 | 0.05641 |
+| Muse Glimmer | `projected` | 0.05253 | 0.31970 | 0.22148 |
 
 The paired Projector intervals are:
 
 | Tower | column | `projected` minus `tower` | paired 95% interval |
 | --- | --- | ---: | ---: |
-| MoonViT-V2 | ScanNet recall@10px | +0.001139 | [+0.000889, +0.001398] |
+| MoonViT-V2 | ScanNet recall@10px | +0.021341 | [+0.020162, +0.022543] |
 | MoonViT-V2 | NAVI recall@2cm | +0.059020 | [+0.054193, +0.063709] |
-| MoonViT-V2 | SPair PCK@0.1 | **-0.014355** | **[-0.021642, -0.007021]** |
-| Kimi K2.6 | ScanNet recall@10px | +0.000524 | [+0.000278, +0.000769] |
+| MoonViT-V2 | SPair PCK@0.1 | -0.014355 | [-0.021642, -0.007021] |
+| Kimi K2.6 | ScanNet recall@10px | +0.007535 | [+0.006092, +0.008967] |
 | Kimi K2.6 | NAVI recall@2cm | +0.056532 | [+0.052110, +0.060899] |
 | Kimi K2.6 | SPair PCK@0.1 | +0.114964 | [+0.106328, +0.123475] |
+| Qwen3.8 | ScanNet recall@10px | -0.019414 | [-0.020802, -0.018019] |
+| Qwen3.8 | NAVI recall@2cm | +0.018836 | [+0.014590, +0.023038] |
+| Qwen3.8 | SPair PCK@0.1 | +0.021649 | [+0.011830, +0.031645] |
+| Muse Glimmer | ScanNet recall@10px | +0.031772 | [+0.029930, +0.033612] |
+| Muse Glimmer | NAVI recall@2cm | +0.105779 | [+0.099457, +0.112103] |
+| Muse Glimmer | SPair PCK@0.1 | +0.132510 | [+0.123934, +0.141108] |
 
-Both completed Projectors improve on both geometric correspondence columns. NAVI is the
-useful result: absolute recall is substantial, both intervals exclude zero, and every
-viewpoint-bin interval is positive. ScanNet also resolves in the Projector's favour, but
-absolute recall is below one percent for every Stage. The shared 64 by 64, square-crop
-adaptation is floor-limited there and must not be presented as a Probe3D reproduction.
+NAVI carries the spatial result. All four Projectors improve recall at 2 centimetres, and
+all four paired intervals exclude zero. Three retain that sign in every viewpoint bin.
+Qwen3.8's highest-rotation bin crosses zero, but its overall interval remains positive.
 
-SPair contradicts a roster-wide preservation claim. Kimi K2.6 improves strongly, while
-MoonViT-V2 loses 0.01436 PCK and the interval excludes zero. Most of MoonViT-V2's loss
-appears at the `tower` to `merged` step: PCK falls from 0.27600 to 0.25745, then the
-Projector recovers slightly to 0.26140. Because the direct scorer treats each merged token
-as one spatial location, this separates the whole Connector outcome from the learned
-Projector imperfectly. It does not make the negative `projected` versus `tower` comparison
-go away.
+The first run's ScanNet values were invalid. RGB used a different pixel frame from depth
+and intrinsics, so the square-crop transform moved the principal point to the wrong place.
+The old below-one-percent values remain in the completion runbook as an audit record and
+are excluded from every claim. The corrected absolute scores are no longer floor-limited.
+Three Projectors improve, while Qwen3.8 loses 0.01941 recall and its interval excludes zero.
+These are bench-adaptation results, not Probe3D reproduction numbers.
 
-This is exactly the disagreement named by the run's stop condition. The narrower statement
-"the two completed Connectors preserve or improve geometric correspondence" is supported.
-The broader statement "the Projector preserves correspondence" is not supported across
-correspondence types or Projectors. The matrix was halted after 12 of 18 jobs, and
-workstreams B through D were not run pending the user's decision about the headline claim.
+SPair answers a different question. MoonViT-V2 loses 0.01436 PCK for semantic part
+matching while gaining 0.05902 on NAVI geometric correspondence. Its semantic loss occurs
+mostly from `tower` to `merged`, followed by a partial Projector recovery. The other three
+Projectors improve SPair. It is accurate to say that one Connector loses semantic matching
+ability while gaining geometric correspondence. That result does not refute the spatial
+claim because SPair does not measure multiview 3D consistency.
+
+The Kimi K2.6 raster-order audit found no bug. Its published merge code and the adapter both
+emit 2 by 2 blocks in raster order, and the weight-backed test checks the regrouping bit for
+bit. Qwen3.8 and Muse Glimmer show similar `merged` drops, so Kimi's anomaly is not unique.
+Direct cosine scoring is sensitive to within-block phase after lossless concatenation;
+trained probes can learn that layout, but this training-free scorer cannot.

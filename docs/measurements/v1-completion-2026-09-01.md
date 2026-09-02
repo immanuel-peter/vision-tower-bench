@@ -1,5 +1,64 @@
 # v1 completion run, September 2 2026
 
+## Continuation checkpoint
+
+The continuation began at 06:28:38 UTC on the same Brev box. The box was still warm:
+`/ephemeral/data` held 65 GiB, including ImageNet-100 validation and all three
+correspondence datasets, and `/ephemeral/cache` held 551 MiB. The repository was clean at
+`96da245`, equal to `origin/main`. No dataset or model cache was rebuilt before the required
+test gate.
+
+The managed shell did not inherit `HF_HOME` and could not write its default `uv` cache.
+Two gate attempts stopped before comparing weights, first during collection and then on
+offline-only metadata requests. With `HF_HOME=/ephemeral/hf`, network metadata access, and
+the warm weight cache, the required gate passed all 80 tests in 126.90 seconds. No
+`VTB_SKIP_WEIGHTS` setting was used.
+
+The ScanNet diagnosis found a coordinate-frame bug within the 30-minute timebox. Archive
+RGB frames are 1296 by 968 pixels, while the depth maps and supplied intrinsics use a 640
+by 480 frame. The loader transformed the 640 by 480 intrinsics with the RGB resize factor,
+putting the principal point far from its true location. Aligning RGB to the depth frame
+before the declared square crop raised DINOv2 recall at 10 pixels from 0.00748 on the old
+full run to 0.13220 on a corrected 20-pair smoke test. The full six-Tower ScanNet column
+was therefore scheduled for replacement rather than exclusion.
+
+The Kimi K2.6 merge audit found no raster-order bug. Its published model reshapes the
+raster sequence into 2 by 2 blocks, permutes the blocks into raster order, and returns one
+item per block. The adapter preserves that order. The existing weight-backed test also
+checks that `merged` equals the correct 2 by 2 regrouping bit for bit and differs from a
+flat four-token reshape. The correspondence collapse remains a measured property of this
+lossless but phase-sensitive representation, not evidence of scrambled tokens.
+
+## Continuation workstream A: correspondence complete
+
+The six missing Qwen3.8 and Muse Glimmer jobs ran from 06:36:56 through 06:51:00 UTC.
+The corrected six-Tower ScanNet replacement overlapped them on the two freed GPUs and ran
+from 06:42:32 through 06:55:24. This 18m28s measurement window cost $1.30 at $4.22 per
+hour. Both matrix alert logs were empty. A payload check found all 18 dataset jobs, all 42
+expected Stage cells, 1,500 ScanNet pairs, 555 NAVI pairs, and 3,600 SPair pairs.
+
+| Tower | column | `projected` minus `tower` | paired 95% interval |
+| --- | --- | ---: | ---: |
+| MoonViT-V2 | corrected ScanNet | +0.021341 | [+0.020162, +0.022543] |
+| MoonViT-V2 | NAVI | +0.059020 | [+0.054193, +0.063709] |
+| MoonViT-V2 | SPair | -0.014355 | [-0.021642, -0.007021] |
+| Kimi K2.6 | corrected ScanNet | +0.007535 | [+0.006092, +0.008967] |
+| Kimi K2.6 | NAVI | +0.056532 | [+0.052110, +0.060899] |
+| Kimi K2.6 | SPair | +0.114964 | [+0.106328, +0.123475] |
+| Qwen3.8 | corrected ScanNet | -0.019414 | [-0.020802, -0.018019] |
+| Qwen3.8 | NAVI | +0.018836 | [+0.014590, +0.023038] |
+| Qwen3.8 | SPair | +0.021649 | [+0.011830, +0.031645] |
+| Muse Glimmer | corrected ScanNet | +0.031772 | [+0.029930, +0.033612] |
+| Muse Glimmer | NAVI | +0.105779 | [+0.099457, +0.112103] |
+| Muse Glimmer | SPair | +0.132510 | [+0.123934, +0.141108] |
+
+NAVI carries the spatial conclusion. All four Projectors improve multiview 3D recall and
+all four intervals exclude zero. The corrected ScanNet adaptation now has usable absolute
+scores, but Qwen3.8 loses there while the other three improve. SPair remains a separate
+semantic matching column. MoonViT-V2 loses semantic PCK while improving NAVI, so one
+Connector loses semantic matching ability while gaining geometric correspondence. The
+other three Projectors improve both NAVI and SPair.
+
 ## Outcome
 
 The correspondence disagreement stop condition fired after 12 of 18 full jobs. Both

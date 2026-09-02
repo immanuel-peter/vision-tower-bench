@@ -1,66 +1,66 @@
 {
   "protocol": {
-    "dataset": "scannet",
-    "metric": "recall_10px",
+    "dataset": "navi",
+    "metric": "recall_2cm",
     "pairing": "paired over image pairs",
     "resolution": 448,
     "evaluation_side": 64,
     "num_correspondences": 1000
   },
-  "model": "moonvit_v2",
-  "model_id": "immanuelpeter/MoonViT-V2",
+  "model": "qwen3_5",
+  "model_id": "immanuelpeter/Qwen3.8-27B-Vision",
   "first": "projected:27",
   "second": "tower:27",
   "first_advantage": {
-    "point_estimate": 0.02134133316576481,
+    "point_estimate": 0.018835900351405144,
     "confidence": 0.95,
-    "lower": 0.020161982625722885,
-    "upper": 0.022542685270309448,
+    "lower": 0.014589625410735607,
+    "upper": 0.023037806153297424,
     "resamples": 10000,
     "bootstrap_seed": 0,
     "difference": "first_minus_second",
-    "pairs": 1500
+    "pairs": 555
   },
   "by_difficulty": {
-    "[0,15)": {
-      "point_estimate": 0.03309204801917076,
+    "[0,30)": {
+      "point_estimate": 0.04058891534805298,
       "confidence": 0.95,
-      "lower": 0.03056689351797104,
-      "upper": 0.03566532954573631,
+      "lower": 0.029533883556723595,
+      "upper": 0.05184132233262062,
       "resamples": 10000,
       "bootstrap_seed": 0,
       "difference": "first_minus_second",
-      "pairs": 478
-    },
-    "[15,30)": {
-      "point_estimate": 0.02276458963751793,
-      "confidence": 0.95,
-      "lower": 0.02098633348941803,
-      "upper": 0.024616733193397522,
-      "resamples": 10000,
-      "bootstrap_seed": 0,
-      "difference": "first_minus_second",
-      "pairs": 514
+      "pairs": 74
     },
     "[30,60)": {
-      "point_estimate": 0.010652778670191765,
+      "point_estimate": 0.035429954528808594,
       "confidence": 0.95,
-      "lower": 0.009277707897126675,
-      "upper": 0.012075000442564487,
+      "lower": 0.027131257578730583,
+      "upper": 0.043716270476579666,
       "resamples": 10000,
       "bootstrap_seed": 0,
       "difference": "first_minus_second",
-      "pairs": 360
+      "pairs": 141
     },
-    "[60,180)": {
-      "point_estimate": 0.004445946309715509,
+    "[60,90)": {
+      "point_estimate": 0.01572142355144024,
       "confidence": 0.95,
-      "lower": 0.0031418921425938606,
-      "upper": 0.0060000005178153515,
+      "lower": 0.007550439331680536,
+      "upper": 0.023806113749742508,
       "resamples": 10000,
       "bootstrap_seed": 0,
       "difference": "first_minus_second",
-      "pairs": 148
+      "pairs": 149
+    },
+    "[90,120)": {
+      "point_estimate": 0.000587591843213886,
+      "confidence": 0.95,
+      "lower": -0.00592362554743886,
+      "upper": 0.007267069071531296,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 191
     }
   }
 }

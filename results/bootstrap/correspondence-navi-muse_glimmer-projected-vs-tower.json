@@ -1,0 +1,66 @@
+{
+  "protocol": {
+    "dataset": "navi",
+    "metric": "recall_2cm",
+    "pairing": "paired over image pairs",
+    "resolution": 448,
+    "evaluation_side": 64,
+    "num_correspondences": 1000
+  },
+  "model": "muse_glimmer",
+  "model_id": "immanuelpeter/Muse-Glimmer-Vision",
+  "first": "projected:50",
+  "second": "tower:50",
+  "first_advantage": {
+    "point_estimate": 0.1057789996266365,
+    "confidence": 0.95,
+    "lower": 0.09945729374885559,
+    "upper": 0.11210308969020844,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second",
+    "pairs": 555
+  },
+  "by_difficulty": {
+    "[0,30)": {
+      "point_estimate": 0.14251677691936493,
+      "confidence": 0.95,
+      "lower": 0.12361910939216614,
+      "upper": 0.16179776191711426,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 74
+    },
+    "[30,60)": {
+      "point_estimate": 0.13692456483840942,
+      "confidence": 0.95,
+      "lower": 0.12444988638162613,
+      "upper": 0.14958810806274414,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 141
+    },
+    "[60,90)": {
+      "point_estimate": 0.09138668328523636,
+      "confidence": 0.95,
+      "lower": 0.08132404834032059,
+      "upper": 0.10159312933683395,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 149
+    },
+    "[90,120)": {
+      "point_estimate": 0.07978076487779617,
+      "confidence": 0.95,
+      "lower": 0.06992396712303162,
+      "upper": 0.08954379707574844,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 191
+    }
+  }
+}
