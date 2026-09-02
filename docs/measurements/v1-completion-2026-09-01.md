@@ -226,20 +226,47 @@ depth transfer column on selected KITTI driving scenes, not a driving benchmark.
 At 18:51:53 UTC the continuation had reached 12h23m15s and about $52.28, leaving $12.72
 under its ceiling. The $55 report threshold had not been reached.
 
-## Outcome
+## Final outcome
 
-The correspondence disagreement stop condition fired after 12 of 18 full jobs. Both
-completed Projectors improve geometric correspondence on ScanNet and NAVI, but semantic
-correspondence splits. Kimi K2.6 improves on SPair by +0.11496 PCK, paired 95% interval
-[+0.10633, +0.12348]. MoonViT-V2 degrades by -0.01436, interval
-[-0.02164, -0.00702]. The negative interval is resolved, so the matrix stopped and
-workstreams B through D did not run.
+All four continuation workstreams completed. Correspondence has all six Towers across all
+three datasets and a repaired ScanNet frame. The label-budget study has 48 cells plus idle
+throughput and token counts. KITTI supplies the one permitted depth transfer column and
+four paired Stage intervals. The budget-reduced Perturbation Study supplies one factor,
+14 Stage cells, and exact metadata for every transform. The final suite passed 95 tests,
+including every published-weight check, without `VTB_SKIP_WEIGHTS`.
 
-This is not a published-weight failure. The first parity attempt found three missing local
-release bundles before any parity assertion ran. After restoring the public bundles, the
-required gate passed: 74 tests in 176.61 seconds with no `VTB_SKIP_WEIGHTS`.
+Required pushes landed after each completed workstream: A at `02ebbcc`, B at `74ae35d`, D
+at `6f84c39`, and C at `cfe9ce4`. D was pushed before C because it completed while C's
+long paired reruns were still in flight.
 
-## Box and cost
+## Continuation and total cost
+
+The continuation is costed through 19:00 UTC, the planned final-report push. It used about
+12h31m22s and $52.85 of the $65 allowance, leaving $12.15. The required $30 report point
+passed during the first interruption and was reported as soon as the session resumed. The
+$55 point was not reached. Adding the previous session's $16.29 gives about $69.14 and
+16.38 observed hours across the two recorded runs.
+
+| continuation phase | start UTC | end UTC | hours | cost |
+| --- | --- | --- | ---: | ---: |
+| gate, diagnosis, correspondence, tests, A push | 06:28:38 | 07:06:05 | 0.624 | $2.63 |
+| label-budget feature extraction | 07:06:05 | 07:36:15 | 0.503 | $2.13 |
+| first interruption after caches completed | 07:36:15 | 16:58:52 | 9.377 | $39.57 |
+| label probes, idle throughput, tests, B push | 16:58:52 | 17:23:47 | 0.415 | $1.75 |
+| overlapping KITTI and occlusion measurement | 17:23:47 | 18:03:58 | 0.670 | $2.83 |
+| second interruption after perturbation completed | 18:03:58 | 18:33:10 | 0.487 | $2.05 |
+| paired KITTI reruns, validation, docs, C and final pushes | 18:33:10 | 19:00:00 | 0.447 | $1.89 |
+| **continuation total** | **06:28:38** | **19:00:00** | **12.523** | **$52.85** |
+
+The first interruption alone accounts for about 75 percent of continuation spend. The two
+interruption rows total $41.62. Active per-workstream box-window equivalents were about
+$1.30 for A, $3.40 for B, $3.73 for C, and $1.61 for D. C and D overlapped on separate
+GPUs, so those figures must not be added as though they were separate rental bills.
+
+The Brev rental remains billable after this report. It cannot be terminated from the guest
+OS and must be terminated in the Brev console.
+
+## Previous session box and cost
 
 The box had four NVIDIA L40S GPUs with 46,068 MiB each, 46 logical CPU cores, and 2.3 TB
 free on `/ephemeral`. Rate was $4.22 per hour. Through the approved push, total observed
@@ -286,7 +313,7 @@ The three release bundles total about 5.4 GiB, not the 12 GB listed in the earli
 measurement note. ImageNet-100 validation export took about nine minutes because the
 dataset loader fetched all configured shards before materialising the requested split.
 
-## Correspondence protocol and measured time
+## Previous session correspondence protocol and measured time
 
 ADR-0020 records the scope. ScanNet and NAVI are geometric correspondence; SPair is
 semantic correspondence and cannot establish 3D consistency by itself. All three score
@@ -313,7 +340,7 @@ Four lanes completed those 12 jobs in 17.1 minutes of matrix wall time. `alerts.
 remained empty. Qwen3.5 and Muse Glimmer jobs were in flight when the stop condition fired;
 their partial files were discarded.
 
-## Correspondence result
+## Previous session partial correspondence result, superseded above
 
 | Tower | Stage | ScanNet recall@10px | NAVI recall@2cm | SPair macro PCK@0.1 |
 | --- | --- | ---: | ---: | ---: |
@@ -335,20 +362,24 @@ their partial files were discarded.
 | Kimi K2.6 | NAVI | +0.056532 | [+0.052110, +0.060899] |
 | Kimi K2.6 | SPair | +0.114964 | [+0.106328, +0.123475] |
 
-NAVI supplies the clean geometric conclusion: absolute scores are substantial and every
-viewpoint-bin interval favours `projected`. ScanNet points the same way but is floor-limited
+NAVI supplied the first clean geometric conclusion: absolute scores were substantial and every
+viewpoint-bin interval favoured `projected`. ScanNet pointed the same way but was floor-limited
 below one percent absolute recall under the 64 by 64 square-crop adaptation. On
 MoonViT-V2 SPair, most loss occurs from `tower` to `merged`; the Projector recovers a small
 part but leaves `projected` significantly below `tower`.
 
-## Workstreams stopped before measurement
+The continuation's repaired six-Tower ScanNet table and twelve correspondence intervals
+supersede this partial table. The floor came from the RGB-to-depth coordinate-frame bug,
+not a model result.
 
-The label-budget selector and 48-cell matrix driver were implemented while correspondence
+## Previous session stop state, superseded above
+
+At the first stop, the label-budget selector and 48-cell matrix driver were implemented while correspondence
 used the GPUs. They preserve validation and test indices and retain at least one training
 example per class at a one-percent budget. No label-budget cache, probe, latency, or token
 count result was produced.
 
-KITTI Transfer Probe and Perturbation Study work did not start. No dataset credentials
+At that checkpoint the KITTI Transfer Probe and Perturbation Study had not started. No dataset credentials
 blocked them; the earlier correspondence disagreement did.
 
 ## What the brief's estimates got wrong
@@ -369,6 +400,26 @@ blocked them; the earlier correspondence disagreement did.
   assumption added 1.573 billed hours and $6.64, the largest cost in the run.
 - The remote-approval gate added another 1.318 billed hours and $5.56 before the push could
   proceed.
-
-No timing or cache-size estimate for workstreams B through D can be checked against this
-run because the required stop condition prevented those experiments.
+- The continuation brief correctly predicted that `/ephemeral` might preserve the datasets
+  and caches. It did; no correspondence dataset or release bundle was rebuilt.
+- The two-model correspondence continuation plus a full six-model ScanNet replacement took
+  18m28s. The claim that completing the missing matrix would be cheap was right even after
+  the coordinate-frame repair expanded its scope.
+- ScanNet's floor was not an inherent square-crop limitation. RGB was 1296 by 968 while
+  depth and intrinsics used 640 by 480. Correcting that frame raised the 20-pair DINOv2
+  smoke result from 0.00748 to 0.13220 and made a full rerun worthwhile.
+- Kimi K2.6's merged collapse was not a raster-order bug. Qwen3.8 and Muse Glimmer also
+  collapse at `merged` under direct cosine scoring, which the original anomaly framing did
+  not anticipate.
+- The label-budget caches occupied 40 GiB and finished in 30 minutes. The 48 probe cells
+  took about 15 minutes, but the driver's round-robin order put every 100-percent cell on
+  one lane. The brief's claim that uniform phases pack lanes correctly does not hold for
+  this driver.
+- KITTI final-Tower cells took 627 to 863 seconds, roughly three times their projected
+  cells, because the matched reducer and decoder read the denser grid. The complete matrix
+  still finished in 33 minutes.
+- The Perturbation Study did not run all three proposed factors. The interruption-driven
+  spend activated ADR-0003's planned cut, so v1 measures occlusion alone. Six Towers and
+  five conditions then used 0.664 aggregate GPU-hours.
+- Two interactive cutoffs added about 9h52m and $41.62 of continuation idle spend. That was
+  far larger than every measured workstream combined and forced the perturbation cut.
