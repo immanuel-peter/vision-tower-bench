@@ -71,10 +71,14 @@ Supporting hypotheses:
    Muse Glimmer is therefore inferential rather than only descriptive, while no ordering is
    claimed among the unresolved semantic Towers.
 3. Scale stops dominating once token count, latency, and label efficiency enter the
-   comparison. This remains unsupported. The label-budget implementation was completed,
-   but its caches, 48 probe cells, and idle-box latency pass did not run before the
-   correspondence stop condition fired. Drop this hypothesis if v1 ships without a resumed
-   run.
+   comparison. The completed 48-cell label-budget matrix supports the tradeoff but does not
+   identify one efficient winner. Attention changes leaders from SigLIP2 at one and five
+   percent labels to Muse Glimmer at 20 and 100 percent. Mean keeps SigLIP2 first at every
+   budget. Muse Glimmer's full-label attention edge over SigLIP2 is 0.0044 accuracy, while
+   its measured idle throughput is 23.432 against 45.422 images/s and both expose 1,024
+   tokens. Qwen3.8 exposes only 784 tokens and leads throughput at 64.918 images/s, but its
+   semantic accuracy is below the leaders. The hypothesis is supported as a Pareto
+   comparison, not as a claim that the smallest or fastest Tower wins.
 
 ## Roster
 

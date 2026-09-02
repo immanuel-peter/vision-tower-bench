@@ -1,0 +1,14 @@
+{
+  "model": "qwen3_5",
+  "model_id": "immanuelpeter/Qwen3.8-27B-Vision",
+  "resolution": 448,
+  "configured_patch_size": 16,
+  "tower_tokens_per_image": 784,
+  "images": 768,
+  "batch_size": 8,
+  "workers": 8,
+  "warmup_batches": 2,
+  "seconds": 11.83,
+  "images_per_second": 64.918,
+  "scope": "preprocessing, transfer, Tower forward, and final Tower Stage materialization"
+}

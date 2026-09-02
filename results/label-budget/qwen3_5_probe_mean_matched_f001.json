@@ -1,0 +1,37 @@
+{
+  "images": 13000,
+  "label_fraction": 0.01,
+  "train_images": 100,
+  "full_train_images": 9100,
+  "cells": [
+    {
+      "learning_rate": 0.1,
+      "learning_rate_search": {
+        "1e-05": 0.0092,
+        "3e-05": 0.0103,
+        "0.0001": 0.0144,
+        "0.0003": 0.0179,
+        "0.001": 0.0626,
+        "0.003": 0.2221,
+        "0.01": 0.2313,
+        "0.03": 0.239,
+        "0.1": 0.2949,
+        "0.3": 0.281,
+        "1": 0.2867
+      },
+      "val_accuracy": 0.2949,
+      "test_accuracy": 0.2891,
+      "test_std": 0.0006,
+      "seeds": 3,
+      "model_id": "immanuelpeter/Qwen3.8-27B-Vision",
+      "stage": "tower",
+      "layer_index": 27,
+      "relative_depth": 1.0,
+      "token_width": 1152,
+      "trainable_parameters": 51300,
+      "label_fraction": 0.01,
+      "train_images": 100,
+      "full_train_images": 9100
+    }
+  ]
+}

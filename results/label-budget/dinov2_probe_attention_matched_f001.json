@@ -1,0 +1,37 @@
+{
+  "images": 13000,
+  "label_fraction": 0.01,
+  "train_images": 100,
+  "full_train_images": 9100,
+  "cells": [
+    {
+      "learning_rate": 0.001,
+      "learning_rate_search": {
+        "1e-05": 0.0097,
+        "3e-05": 0.0256,
+        "0.0001": 0.1662,
+        "0.0003": 0.3308,
+        "0.001": 0.3518,
+        "0.003": 0.3395,
+        "0.01": 0.2672,
+        "0.03": 0.1626,
+        "0.1": 0.1354,
+        "0.3": 0.1979,
+        "1": 0.0092
+      },
+      "val_accuracy": 0.3518,
+      "test_accuracy": 0.3689,
+      "test_std": 0.0111,
+      "seeds": 3,
+      "model_id": "facebook/dinov2-large",
+      "stage": "tower",
+      "layer_index": 24,
+      "relative_depth": 1.0,
+      "token_width": 1024,
+      "trainable_parameters": 1627748,
+      "label_fraction": 0.01,
+      "train_images": 100,
+      "full_train_images": 9100
+    }
+  ]
+}

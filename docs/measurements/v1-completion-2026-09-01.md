@@ -59,6 +59,63 @@ semantic matching column. MoonViT-V2 loses semantic PCK while improving NAVI, so
 Connector loses semantic matching ability while gaining geometric correspondence. The
 other three Projectors improve both NAVI and SPair.
 
+Workstream A passed 81 tests in 126.49 seconds, including all published-weight checks, and
+was committed and pushed as `02ebbcc` at about 07:06 UTC. Continuation wall time through
+that durable checkpoint was 37m27s, or $2.63.
+
+## Continuation workstream B: label-budget extraction
+
+The six 13,000-image pooled extractions started at 07:06 UTC in a fresh
+`/ephemeral/label-budget-features` root. Each lane used two OpenMP and MKL threads and the
+measured batch sizes. Qwen3.8 and Muse Glimmer finished first; Kimi K2.6, DINOv2, and
+MoonViT-V2 followed. SigLIP2 remained in progress at the 07:28 UTC checkpoint. These
+contended extraction rates are cache-production diagnostics only. The required latency
+comparison will run over 768 images per Tower with every other process stopped.
+
+The official 1.917 GiB KITTI selected-depth archive downloaded without credentials during
+this phase. Its public validation selection contains 1,000 paired RGB, sparse raw LiDAR,
+and accumulated ground-truth depth maps. No KITTI experiment had started at this
+checkpoint.
+
+The interactive session was interrupted after the extraction launch and resumed at
+16:58:52 UTC. By then all six caches were complete: 13,000 images and eight or ten saved
+slices per Tower, occupying 40 GiB in total. No benchmark process remained active. The
+continuation had reached 10h30m14s and about $44.31, crossing the required $30 report
+threshold with about $20.69 left under the $65 continuation ceiling. Most of that interval
+was an unintended idle gap after extraction completed. To protect the KITTI transfer
+column, ADR-0003's cut order is now active: the Perturbation Study will measure one factor
+rather than three.
+
+## Continuation workstream B: label budgets complete
+
+The final cache completed at 07:36:15 UTC. Feature extraction therefore occupied about
+30m15s. The resumed session measured all six Towers sequentially over 768 images on an
+otherwise idle GPU from 16:59:28 through 17:02:35, then ran the 48 probe cells from about
+17:03 through 17:18:08. Active B measurement totalled about 48 minutes, or $3.40. The
+interruption left the completed box idle from 07:36 to 16:58, about 9h22m and $39.55.
+
+All 48 expected JSON payloads exist, each contains one deepest-Tower cell, and `alerts.log`
+is empty. Training counts are 100, 455, 1,820, and 9,100 for requested budgets one, five,
+20, and 100 percent. Attention changes leader from SigLIP2 at one and five percent to Muse
+Glimmer at 20 and 100 percent. Mean keeps SigLIP2 first, although DINOv2 and Muse Glimmer
+swap second and third after one percent. The Tower ranking is not constant across label
+budgets.
+
+| Tower | tokens at 448 square | idle images/s | attention 1% | attention 100% | mean 1% | mean 100% |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| DINOv2 | 1,024 | 44.205 | 0.3689 | 0.9079 | 0.4497 | 0.8933 |
+| SigLIP2 | 1,024 | 45.422 | 0.6559 | 0.9168 | 0.6824 | 0.9128 |
+| MoonViT-V2 | 1,024 | 29.444 | 0.2191 | 0.8369 | 0.2287 | 0.8397 |
+| Kimi K2.6 | 1,024 | 35.127 | 0.3448 | 0.8862 | 0.3590 | 0.8742 |
+| Qwen3.8 | 784 | 64.918 | 0.2451 | 0.8791 | 0.2891 | 0.8679 |
+| Muse Glimmer | 1,024 | 23.432 | 0.4330 | 0.9212 | 0.4361 | 0.9089 |
+
+Muse Glimmer, the largest Tower, does not win at low label budgets and is the slowest in
+the roster. At full labels its 0.0044 attention edge over SigLIP2 costs nearly half the
+throughput with the same number of exposed tokens. Qwen3.8 is fastest and exposes 240 fewer
+tokens but trails the accuracy leaders. Hypothesis 3 is supported as a tradeoff and remains
+in `PLAN.md`; it is not evidence that one Tower dominates all efficiency axes.
+
 ## Outcome
 
 The correspondence disagreement stop condition fired after 12 of 18 full jobs. Both

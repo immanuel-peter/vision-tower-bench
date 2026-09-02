@@ -1,0 +1,37 @@
+{
+  "images": 13000,
+  "label_fraction": 0.05,
+  "train_images": 455,
+  "full_train_images": 9100,
+  "cells": [
+    {
+      "learning_rate": 0.03,
+      "learning_rate_search": {
+        "1e-05": 0.0179,
+        "3e-05": 0.02,
+        "0.0001": 0.0395,
+        "0.0003": 0.1692,
+        "0.001": 0.7087,
+        "0.003": 0.8364,
+        "0.01": 0.8487,
+        "0.03": 0.8503,
+        "0.1": 0.8431,
+        "0.3": 0.8205,
+        "1": 0.819
+      },
+      "val_accuracy": 0.8503,
+      "test_accuracy": 0.8542,
+      "test_std": 0.0013,
+      "seeds": 3,
+      "model_id": "google/siglip2-so400m-patch14-384",
+      "stage": "tower",
+      "layer_index": 27,
+      "relative_depth": 1.0,
+      "token_width": 1152,
+      "trainable_parameters": 51300,
+      "label_fraction": 0.05,
+      "train_images": 455,
+      "full_train_images": 9100
+    }
+  ]
+}

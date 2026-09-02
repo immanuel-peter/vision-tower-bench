@@ -1,0 +1,14 @@
+{
+  "model": "siglip2",
+  "model_id": "google/siglip2-so400m-patch14-384",
+  "resolution": 448,
+  "configured_patch_size": 14,
+  "tower_tokens_per_image": 1024,
+  "images": 768,
+  "batch_size": 16,
+  "workers": 8,
+  "warmup_batches": 2,
+  "seconds": 16.908,
+  "images_per_second": 45.422,
+  "scope": "preprocessing, transfer, Tower forward, and final Tower Stage materialization"
+}

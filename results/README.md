@@ -1628,3 +1628,46 @@ within-block phase after lossless concatenation.
 
 Full per-pair results are under `results/correspondence/`. The twelve paired intervals are
 under `results/bootstrap/` with the `correspondence-` prefix.
+
+## Label budgets, September 2 2026
+
+The label-budget matrix uses pooled ImageNet-100 features from each Tower's final layer,
+the matched arm, and fixed validation and test splits. Only the training labels change.
+The requested one-percent condition keeps one image from every class, 100 rather than the
+literal 91; the remaining budgets use 455, 1,820, and 9,100 training images. All 48 cells
+completed with the eleven-rate semantic grid and three seeds.
+
+| Tower | attention 1% | attention 5% | attention 20% | attention 100% | mean 1% | mean 100% |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| DINOv2 | 0.3689 | 0.7479 | 0.8655 | 0.9079 | 0.4497 | 0.8933 |
+| SigLIP2 | 0.6559 | 0.8651 | 0.8916 | 0.9168 | 0.6824 | 0.9128 |
+| MoonViT-V2 | 0.2191 | 0.5697 | 0.7667 | 0.8369 | 0.2287 | 0.8397 |
+| Kimi K2.6 | 0.3448 | 0.7321 | 0.8460 | 0.8862 | 0.3590 | 0.8742 |
+| Qwen3.8 | 0.2451 | 0.5879 | 0.8547 | 0.8791 | 0.2891 | 0.8679 |
+| Muse Glimmer | 0.4330 | 0.8444 | 0.8978 | 0.9212 | 0.4361 | 0.9089 |
+
+Attention changes leader from SigLIP2 at one and five percent to Muse Glimmer at 20 and
+100 percent. It also swaps Kimi K2.6 and Qwen3.8 between 20 and 100 percent. Mean keeps
+SigLIP2 first at every budget, but DINOv2 and Muse Glimmer swap second and third after one
+percent. The Tower ranking at one percent is not the ranking at 100 percent.
+
+Token count comes from each loaded adapter's configured patch size. Throughput is a
+sequential idle-box measurement over 768 images and includes preprocessing, host-to-device
+transfer, Tower forward, and final Tower Stage materialisation.
+
+| Tower | patch size | tokens at 448 square | images/s |
+| --- | ---: | ---: | ---: |
+| DINOv2 | 14 | 1,024 | 44.205 |
+| SigLIP2 | 14 | 1,024 | 45.422 |
+| MoonViT-V2 | 14 | 1,024 | 29.444 |
+| Kimi K2.6 | 14 | 1,024 | 35.127 |
+| Qwen3.8 | 16 | 784 | 64.918 |
+| Muse Glimmer | 14 | 1,024 | 23.432 |
+
+Muse Glimmer does not dominate once labels and latency enter. It is second to SigLIP2 at
+low label budgets and is the slowest Tower. At full labels its 0.0044 attention advantage
+over SigLIP2 comes at about half the throughput and the same token count. Qwen3.8 is the
+fastest and exposes the fewest tokens, but it gives up accuracy. The result supports
+hypothesis 3 as a Pareto tradeoff rather than selecting one best Tower.
+
+The 48 cell payloads and six throughput records are under `results/label-budget/`.
