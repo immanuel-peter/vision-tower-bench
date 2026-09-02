@@ -1,0 +1,225 @@
+{
+  "task": "depth",
+  "images": 1000,
+  "train_images": 700,
+  "capacity_matched": true,
+  "head": "multiscale",
+  "epochs": 10,
+  "seeds": 3,
+  "learning_rates": [
+    0.0001,
+    0.0003,
+    0.001,
+    0.003,
+    0.01,
+    0.03
+  ],
+  "cells": [
+    {
+      "d1": 0.9483,
+      "d1_std": 0.0001,
+      "d2": 0.9916,
+      "d2_std": 0.0002,
+      "d3": 0.9972,
+      "d3_std": 0.0001,
+      "rmse": 3.252,
+      "rmse_std": 0.0018,
+      "images": 150,
+      "coverage": 0.2239,
+      "by_scene": {
+        "driving": {
+          "d1": 0.9483,
+          "d1_std": 0.0001,
+          "d2": 0.9916,
+          "d2_std": 0.0002,
+          "d3": 0.9972,
+          "d3_std": 0.0001,
+          "rmse": 3.252,
+          "rmse_std": 0.0018,
+          "images": 150,
+          "coverage": 0.2239
+        }
+      },
+      "learning_rate": 0.003,
+      "val_metric": "d1",
+      "val_score": 0.9573,
+      "learning_rate_search": {
+        "0.0001": 0.9092,
+        "0.0003": 0.9359,
+        "0.001": 0.9513,
+        "0.003": 0.9573,
+        "0.01": 0.9538,
+        "0.03": 0.9505
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.9482,
+          "d2": 0.9913,
+          "d3": 0.9971,
+          "rmse": 3.2497,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9482,
+              "d2": 0.9913,
+              "d3": 0.9971,
+              "rmse": 3.2497,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        },
+        {
+          "d1": 0.9485,
+          "d2": 0.9917,
+          "d3": 0.9972,
+          "rmse": 3.2522,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9485,
+              "d2": 0.9917,
+              "d3": 0.9972,
+              "rmse": 3.2522,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        },
+        {
+          "d1": 0.9482,
+          "d2": 0.9919,
+          "d3": 0.9973,
+          "rmse": 3.2542,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9482,
+              "d2": 0.9919,
+              "d3": 0.9973,
+              "rmse": 3.2542,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        }
+      ],
+      "max_depth": 85.766,
+      "model_id": "immanuelpeter/Qwen3.8-27B-Vision",
+      "stage": "projected",
+      "layer_index": 27,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "grid": 14,
+      "trainable_parameters": 1444608,
+      "seconds": 220.7
+    },
+    {
+      "d1": 0.9501,
+      "d1_std": 0.0008,
+      "d2": 0.9929,
+      "d2_std": 0.0002,
+      "d3": 0.9982,
+      "d3_std": 0.0,
+      "rmse": 3.1257,
+      "rmse_std": 0.0015,
+      "images": 150,
+      "coverage": 0.2239,
+      "by_scene": {
+        "driving": {
+          "d1": 0.9501,
+          "d1_std": 0.0008,
+          "d2": 0.9929,
+          "d2_std": 0.0002,
+          "d3": 0.9982,
+          "d3_std": 0.0,
+          "rmse": 3.1257,
+          "rmse_std": 0.0015,
+          "images": 150,
+          "coverage": 0.2239
+        }
+      },
+      "learning_rate": 0.003,
+      "val_metric": "d1",
+      "val_score": 0.955,
+      "learning_rate_search": {
+        "0.0001": 0.8801,
+        "0.0003": 0.9071,
+        "0.001": 0.9409,
+        "0.003": 0.955,
+        "0.01": 0.9504,
+        "0.03": 0.946
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.9492,
+          "d2": 0.9928,
+          "d3": 0.9982,
+          "rmse": 3.1265,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9492,
+              "d2": 0.9928,
+              "d3": 0.9982,
+              "rmse": 3.1265,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        },
+        {
+          "d1": 0.9512,
+          "d2": 0.9932,
+          "d3": 0.9982,
+          "rmse": 3.1271,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9512,
+              "d2": 0.9932,
+              "d3": 0.9982,
+              "rmse": 3.1271,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        },
+        {
+          "d1": 0.9498,
+          "d2": 0.9928,
+          "d3": 0.9982,
+          "rmse": 3.1236,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9498,
+              "d2": 0.9928,
+              "d3": 0.9982,
+              "rmse": 3.1236,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        }
+      ],
+      "max_depth": 85.766,
+      "model_id": "immanuelpeter/Qwen3.8-27B-Vision",
+      "stage": "tower",
+      "layer_index": 27,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "grid": 28,
+      "trainable_parameters": 1444608,
+      "seconds": 627.3
+    }
+  ]
+}

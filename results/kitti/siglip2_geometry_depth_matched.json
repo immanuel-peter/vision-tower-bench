@@ -1,0 +1,122 @@
+{
+  "task": "depth",
+  "images": 1000,
+  "train_images": 700,
+  "capacity_matched": true,
+  "head": "multiscale",
+  "epochs": 10,
+  "seeds": 3,
+  "learning_rates": [
+    0.0001,
+    0.0003,
+    0.001,
+    0.003,
+    0.01,
+    0.03
+  ],
+  "cells": [
+    {
+      "d1": 0.9642,
+      "d1_std": 0.0005,
+      "d2": 0.995,
+      "d2_std": 0.0001,
+      "d3": 0.9986,
+      "d3_std": 0.0,
+      "rmse": 2.7538,
+      "rmse_std": 0.0049,
+      "images": 150,
+      "coverage": 0.2239,
+      "by_scene": {
+        "driving": {
+          "d1": 0.9642,
+          "d1_std": 0.0005,
+          "d2": 0.995,
+          "d2_std": 0.0001,
+          "d3": 0.9986,
+          "d3_std": 0.0,
+          "rmse": 2.7538,
+          "rmse_std": 0.0049,
+          "images": 150,
+          "coverage": 0.2239
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.9723,
+      "learning_rate_search": {
+        "0.0001": 0.9215,
+        "0.0003": 0.9501,
+        "0.001": 0.9665,
+        "0.003": 0.9707,
+        "0.01": 0.9723,
+        "0.03": 0.964
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.9639,
+          "d2": 0.9949,
+          "d3": 0.9986,
+          "rmse": 2.7476,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9639,
+              "d2": 0.9949,
+              "d3": 0.9986,
+              "rmse": 2.7476,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        },
+        {
+          "d1": 0.9649,
+          "d2": 0.9951,
+          "d3": 0.9987,
+          "rmse": 2.7596,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9649,
+              "d2": 0.9951,
+              "d3": 0.9987,
+              "rmse": 2.7596,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        },
+        {
+          "d1": 0.9638,
+          "d2": 0.995,
+          "d3": 0.9986,
+          "rmse": 2.7543,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9638,
+              "d2": 0.995,
+              "d3": 0.9986,
+              "rmse": 2.7543,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        }
+      ],
+      "max_depth": 85.766,
+      "model_id": "google/siglip2-so400m-patch14-384",
+      "stage": "tower",
+      "layer_index": 27,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "grid": 32,
+      "trainable_parameters": 1444608,
+      "seconds": 798.7
+    }
+  ]
+}

@@ -1,0 +1,225 @@
+{
+  "task": "depth",
+  "images": 1000,
+  "train_images": 700,
+  "capacity_matched": true,
+  "head": "multiscale",
+  "epochs": 10,
+  "seeds": 3,
+  "learning_rates": [
+    0.0001,
+    0.0003,
+    0.001,
+    0.003,
+    0.01,
+    0.03
+  ],
+  "cells": [
+    {
+      "d1": 0.9403,
+      "d1_std": 0.0002,
+      "d2": 0.9896,
+      "d2_std": 0.0001,
+      "d3": 0.9965,
+      "d3_std": 0.0001,
+      "rmse": 3.3828,
+      "rmse_std": 0.0105,
+      "images": 150,
+      "coverage": 0.2239,
+      "by_scene": {
+        "driving": {
+          "d1": 0.9403,
+          "d1_std": 0.0002,
+          "d2": 0.9896,
+          "d2_std": 0.0001,
+          "d3": 0.9965,
+          "d3_std": 0.0001,
+          "rmse": 3.3828,
+          "rmse_std": 0.0105,
+          "images": 150,
+          "coverage": 0.2239
+        }
+      },
+      "learning_rate": 0.003,
+      "val_metric": "d1",
+      "val_score": 0.9429,
+      "learning_rate_search": {
+        "0.0001": 0.8846,
+        "0.0003": 0.9166,
+        "0.001": 0.9347,
+        "0.003": 0.9429,
+        "0.01": 0.9398,
+        "0.03": 0.9343
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.9402,
+          "d2": 0.9896,
+          "d3": 0.9965,
+          "rmse": 3.3751,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9402,
+              "d2": 0.9896,
+              "d3": 0.9965,
+              "rmse": 3.3751,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        },
+        {
+          "d1": 0.9406,
+          "d2": 0.9897,
+          "d3": 0.9967,
+          "rmse": 3.3757,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9406,
+              "d2": 0.9897,
+              "d3": 0.9967,
+              "rmse": 3.3757,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        },
+        {
+          "d1": 0.9401,
+          "d2": 0.9895,
+          "d3": 0.9964,
+          "rmse": 3.3976,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9401,
+              "d2": 0.9895,
+              "d3": 0.9964,
+              "rmse": 3.3976,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        }
+      ],
+      "max_depth": 85.766,
+      "model_id": "immanuelpeter/Muse-Glimmer-Vision",
+      "stage": "projected",
+      "layer_index": 50,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "grid": 16,
+      "trainable_parameters": 1444608,
+      "seconds": 308.1
+    },
+    {
+      "d1": 0.9433,
+      "d1_std": 0.0017,
+      "d2": 0.9922,
+      "d2_std": 0.0004,
+      "d3": 0.9977,
+      "d3_std": 0.0,
+      "rmse": 3.1677,
+      "rmse_std": 0.0266,
+      "images": 150,
+      "coverage": 0.2239,
+      "by_scene": {
+        "driving": {
+          "d1": 0.9433,
+          "d1_std": 0.0017,
+          "d2": 0.9922,
+          "d2_std": 0.0004,
+          "d3": 0.9977,
+          "d3_std": 0.0,
+          "rmse": 3.1677,
+          "rmse_std": 0.0266,
+          "images": 150,
+          "coverage": 0.2239
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.9424,
+      "learning_rate_search": {
+        "0.0001": 0.8085,
+        "0.0003": 0.8603,
+        "0.001": 0.9128,
+        "0.003": 0.9351,
+        "0.01": 0.9424,
+        "0.03": 0.9299
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.944,
+          "d2": 0.9924,
+          "d3": 0.9977,
+          "rmse": 3.1417,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.944,
+              "d2": 0.9924,
+              "d3": 0.9977,
+              "rmse": 3.1417,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        },
+        {
+          "d1": 0.945,
+          "d2": 0.9925,
+          "d3": 0.9978,
+          "rmse": 3.1572,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.945,
+              "d2": 0.9925,
+              "d3": 0.9978,
+              "rmse": 3.1572,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        },
+        {
+          "d1": 0.9409,
+          "d2": 0.9917,
+          "d3": 0.9977,
+          "rmse": 3.2042,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9409,
+              "d2": 0.9917,
+              "d3": 0.9977,
+              "rmse": 3.2042,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        }
+      ],
+      "max_depth": 85.766,
+      "model_id": "immanuelpeter/Muse-Glimmer-Vision",
+      "stage": "tower",
+      "layer_index": 50,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "grid": 32,
+      "trainable_parameters": 1444608,
+      "seconds": 862.9
+    }
+  ]
+}

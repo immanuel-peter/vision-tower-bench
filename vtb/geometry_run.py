@@ -45,6 +45,27 @@ def depth_range(targets: Path, override: float | None) -> float:
     return float(manifest(targets).get("max_depth_metres") or 10.0)
 
 
+def selected_slices(
+    run: Path,
+    only: list[str] | None = None,
+    stages: list[str] | None = None,
+    deepest_only: bool = False,
+) -> list[tuple[str, int]]:
+    chosen = cache.slices(run)
+    if only:
+        wanted = {(value.split(":")[0], int(value.split(":")[1])) for value in only}
+        chosen = [cell for cell in chosen if cell in wanted]
+        if len(chosen) != len(wanted):
+            raise ValueError(f"{only} does not match slices in {run}")
+    if stages:
+        wanted_stages = set(stages)
+        chosen = [cell for cell in chosen if cell[0] in wanted_stages]
+    if deepest_only:
+        deepest = max(layer for stage, layer in cache.slices(run) if stage == "tower")
+        chosen = [cell for cell in chosen if cell[1] == deepest]
+    return chosen
+
+
 def centre_square(target):
     """Crop a target to the field of view passed through square_crop."""
     height, width = target.shape[-2:]
@@ -242,17 +263,27 @@ def main() -> None:
         metavar="STAGE:LAYER",
         help="run only the given STAGE:LAYER cells",
     )
+    ap.add_argument(
+        "--stages",
+        nargs="+",
+        choices=("tower", "merged", "projected"),
+        default=None,
+        help="run only these Stages",
+    )
+    ap.add_argument(
+        "--deepest-only",
+        action="store_true",
+        help="run only cells at the final Tower layer",
+    )
     args = ap.parse_args()
     args.max_depth = depth_range(args.targets, args.max_depth)
     scenes = manifest(args.targets).get("scenes", {})
     print(f"depth bins span 0 to {args.max_depth:.1f} m")
 
-    chosen = cache.slices(args.run)
-    if args.only:
-        wanted = {(s.split(":")[0], int(s.split(":")[1])) for s in args.only}
-        chosen = [cell for cell in chosen if cell in wanted]
-        if len(chosen) != len(wanted):
-            raise SystemExit(f"{args.only} does not match slices in {args.run}")
+    try:
+        chosen = selected_slices(args.run, args.only, args.stages, args.deepest_only)
+    except ValueError as error:
+        raise SystemExit(str(error)) from error
 
     cells = []
     order, targets, valid, coverage = None, None, None, None

@@ -58,6 +58,13 @@ def main() -> None:
         help="average the patch grid to SIDE x SIDE tokens; use 4 for semantic probes, "
         "omit for the geometry pillar and the pooling validation subset (ADR-0005)",
     )
+    parser.add_argument(
+        "--final-stages",
+        nargs="+",
+        choices=("tower", "merged", "projected"),
+        default=None,
+        help="write only the named Stages at the final Tower layer",
+    )
     args = parser.parse_args()
 
     adapter = ADAPTERS[args.model](resolution=args.resolution, device=args.device)
@@ -82,6 +89,10 @@ def main() -> None:
     start = time.perf_counter()
     for inputs, image_ids in loader:
         for batch in adapter.extract(inputs, image_ids):
+            if args.final_stages and (
+                batch.layer_index != adapter.num_layers or batch.stage not in args.final_stages
+            ):
+                continue
             if args.pool is not None:
                 batch = batch.pooled(args.pool)
             writer.add(batch)
@@ -106,6 +117,7 @@ def main() -> None:
         image_count,
         written_bytes,
         time.perf_counter() - start,
+        args.final_stages or list(adapter.stages),
     )
 
 
@@ -120,7 +132,7 @@ class Collate:
         return self.batch(list(values)), list(image_ids)
 
 
-def report(run_dir, adapter, pool, tokens, slice_count, images, written_bytes, elapsed) -> None:
+def report(run_dir, adapter, pool, tokens, slice_count, images, written_bytes, elapsed, stages) -> None:
     per_image = written_bytes / images
     on_disk = sum(p.stat().st_size for p in run_dir.glob("*.safetensors"))
 
@@ -130,7 +142,7 @@ def report(run_dir, adapter, pool, tokens, slice_count, images, written_bytes, e
         "pooled_to": pool,
         "tokens_per_image": tokens,
         "images": images,
-        "stages": list(adapter.stages),
+        "stages": stages,
         "depth_points": len(adapter.depth_points()),
         "slices_per_image": slice_count,
         "bytes_per_image_per_slice": round(per_image / slice_count),

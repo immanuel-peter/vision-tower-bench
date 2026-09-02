@@ -244,6 +244,18 @@ def test_depth_metrics_reward_a_perfect_prediction():
     assert metrics["d1"].min().item() == 1.0
 
 
+def test_depth_loss_and_metrics_ignore_sparse_zero_targets():
+    from vtb.geometry_metrics import depth_si_loss, evaluate_depth
+
+    target = torch.tensor([[[[0.0, 2.0], [4.0, 0.0]]]])
+    prediction = torch.tensor([[[[99.0, 2.0], [4.0, 99.0]]]])
+
+    assert depth_si_loss(prediction, target).item() == 0.0
+    metrics = evaluate_depth(prediction, target)
+    assert metrics["d1"].item() == 1.0
+    assert metrics["rmse"].item() == 0.0
+
+
 def test_scale_invariant_depth_recovers_a_scaled_prediction():
     from vtb.geometry_metrics import evaluate_depth
 
@@ -312,6 +324,18 @@ def test_geometry_runner_trains_a_depth_cell_end_to_end(tmp_path):
     assert set(cell["learning_rate_search"]) == {"0.001", "0.003"}
     assert "d1_std" in cell and "d1_std" in cell["by_scene"]["indoors"]
     assert "coverage_std" not in cell
+
+
+def test_geometry_runner_can_select_only_final_tower_and_projected(tmp_path):
+    from vtb import cache, geometry_run
+
+    for name in ("tower_L03_00000.safetensors", "tower_L06_00000.safetensors",
+                 "merged_L06_00000.safetensors", "projected_L06_00000.safetensors"):
+        (tmp_path / name).touch()
+
+    assert geometry_run.selected_slices(
+        tmp_path, stages=["tower", "projected"], deepest_only=True
+    ) == [("projected", 6), ("tower", 6)]
 
 
 def test_learning_rate_selection_runs_the_right_way_per_task():

@@ -1717,3 +1717,47 @@ with perturbed images within each Stage.
 
 The full per-condition intervals and 300 paired test-image records are in each
 `results/perturbation/*_perturbation.json` payload.
+
+## KITTI Transfer Probe, September 2 2026
+
+This is the single driving transfer column ADR-0001 permits, not a driving benchmark. The
+public KITTI depth-completion selected validation set supplies 1,000 paired RGB and metric
+depth files. Targets are zero-masked and sparse: mean valid coverage is 17.0848 percent
+over the prepared set and 22.39 percent on the fixed 150-image test split. The observed
+85.766 metre maximum comes from the prep manifest and sets the head's bin range.
+
+The run uses full patch tokens, the matched arm, and the same multiscale depth protocol as
+DIODE. Only the final `tower` and available `projected` Stages run.
+
+| Tower | Stage | `d1` | seed std | RMSE |
+| --- | --- | ---: | ---: | ---: |
+| DINOv2 | `tower` | 0.9799 | 0.0006 | 2.3561 |
+| SigLIP2 | `tower` | 0.9642 | 0.0005 | 2.7538 |
+| MoonViT-V2 | `tower` | 0.9418 | 0.0009 | 3.4592 |
+| MoonViT-V2 | `projected` | 0.9427 | 0.0020 | 3.5351 |
+| Kimi K2.6 | `tower` | 0.9652 | 0.0002 | 2.6909 |
+| Kimi K2.6 | `projected` | 0.9599 | 0.0007 | 3.0144 |
+| Qwen3.8 | `tower` | 0.9501 | 0.0008 | 3.1257 |
+| Qwen3.8 | `projected` | 0.9483 | 0.0001 | 3.2520 |
+| Muse Glimmer | `tower` | 0.9433 | 0.0017 | 3.1677 |
+| Muse Glimmer | `projected` | 0.9403 | 0.0002 | 3.3828 |
+
+Paired intervals below retrain both cells deterministically and compare seed-mean `d1`
+over the same 150 test images. Positive values favour `projected`.
+
+| Projector | `projected` | `tower` | difference | paired 95% interval |
+| --- | ---: | ---: | ---: | ---: |
+| MoonViT-V2 | 0.94319 | 0.94184 | +0.001354 | [-0.001105, +0.003828] |
+| Kimi K2.6 | 0.96022 | 0.96503 | -0.004807 | [-0.007738, -0.001601] |
+| Qwen3.8 | 0.94763 | 0.94971 | -0.002081 | [-0.005270, +0.001242] |
+| Muse Glimmer | 0.93991 | 0.94383 | -0.003912 | [-0.007402, -0.000731] |
+
+The DIODE Stage ordering does not hold on these driving scenes. All four DIODE Projectors
+had resolved advantages. KITTI instead resolves in favour of the Tower for Kimi K2.6 and
+Muse Glimmer. Qwen3.8's negative and MoonViT-V2's positive estimates are unresolved. No
+Projector has a resolved KITTI advantage.
+
+This result says only that the DIODE ordering fails to transfer to this one selected-depth
+column. It does not evaluate a driving stack, other KITTI tasks or splits, or driving
+performance broadly. Matrix results are under `results/kitti/`; paired per-image records
+are the four `results/bootstrap/geometry-depth-kitti-*` files.

@@ -15,6 +15,7 @@ SEEDS="${SEEDS:-3}"
 TASKS="${TASKS:-depth normal}"
 ARMS="${ARMS:-raw matched}"
 EPOCHS="${EPOCHS:-10}"
+FINAL_STAGES="${FINAL_STAGES:-}"
 
 # Split CPU cores across lanes to avoid Torch oversubscription.
 THREADS="${THREADS:-$(( $(nproc) / LANES ))}"
@@ -29,9 +30,10 @@ FAILURE_PATTERNS='Traceback|CUDA out of memory|RuntimeError|Killed'
 cells_in() {
     uv run python -c "
 import sys
-from vtb import cache
-print(len(cache.slices(sys.argv[1])))
-" "$1"
+from vtb.geometry_run import selected_slices
+stages = sys.argv[2].split() or None
+print(len(selected_slices(sys.argv[1], stages=stages, deepest_only=bool(stages))))
+" "$1" "$FINAL_STAGES"
 }
 
 work=()
@@ -59,15 +61,17 @@ while IFS= read -r item; do
     queue[best]+="$item"$'\n'
 done < <(printf '%s\n' "${work[@]}" | sort -t'	' -k1,1nr -k2,2)
 
-lane() {
+    lane() {
     local index="$1" gpu="$2" name="lane$1" item
     local log="$OUT/$name.log"
     : > "$log"
-    while IFS='	' read -r cells dir tag task arm; do
+        while IFS='	' read -r cells dir tag task arm; do
         [ -n "$dir" ] || continue
         local out_name="${tag}_geometry_${task}_${arm}"
-        local extra=()
-        [ "$arm" = matched ] && extra=(--match-capacity)
+            local extra=()
+            [ "$arm" = matched ] && extra=(--match-capacity)
+            local stage_filter=()
+            [ -n "$FINAL_STAGES" ] && stage_filter=(--stages $FINAL_STAGES --deepest-only)
         echo "[$(date +%T)] start $out_name on gpu $gpu, $cells cells" >> "$log"
         local started rc=0
         started=$SECONDS
@@ -75,7 +79,8 @@ lane() {
         OMP_NUM_THREADS="$THREADS" MKL_NUM_THREADS="$THREADS" \
         uv run python -m vtb.geometry_run \
             --targets "$TARGETS" --device cuda \
-            --run "$FEATURES/$dir" --task "$task" "${extra[@]}" \
+                --run "$FEATURES/$dir" --task "$task" "${extra[@]}" \
+                "${stage_filter[@]}" \
             --learning-rates $GRID --seeds "$SEEDS" --epochs "$EPOCHS" \
             --out "$OUT/$out_name.json" \
             > "$OUT/$out_name.log" 2>&1 || rc=$?

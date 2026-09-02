@@ -193,6 +193,39 @@ levels. Qwen3.8 and Muse Glimmer's Projectors lose more than their Towers at eve
 Those cross-Stage gaps are descriptive; the paired intervals in each result compare clean
 and perturbed images within the same Stage.
 
+## Continuation workstream C: KITTI Transfer Probe complete
+
+The public selected validation archive downloaded without credentials. Prep retained all
+1,000 paired images, decoded depth in metres, preserved zero as invalid, and measured an
+85.766 metre maximum with 17.0848 percent mean valid coverage. Final-Stage extraction took
+85 seconds and wrote 25 GiB. The ten-cell matrix ran from 17:25:55 through 17:58:55. Its
+full-token Tower cells took 627 to 863 seconds, against 221 to 310 seconds for projected
+cells. The four successful paired bootstrap jobs ran from about 18:33 through 18:51:29;
+two earlier partial jobs were lost in the second interruption. Excluding the interruption
+idle gap, preparation, extraction, matrix, and successful bootstrap occupied about 53
+minutes of box time, roughly $3.73. C and D overlapped, so their box costs are not additive.
+
+All six matrix payloads contain exactly ten expected cells, `alerts.log` is empty, every
+cell reads its 85.766 metre bin range from the manifest, and each paired file contains the
+same 150 test images.
+
+| Tower | final `tower` `d1` | `projected` `d1` | projected minus tower | paired 95% interval |
+| --- | ---: | ---: | ---: | ---: |
+| DINOv2 | 0.9799 | N/A | N/A | N/A |
+| SigLIP2 | 0.9642 | N/A | N/A | N/A |
+| MoonViT-V2 | 0.94184 | 0.94319 | +0.001354 | [-0.001105, +0.003828] |
+| Kimi K2.6 | 0.96503 | 0.96022 | -0.004807 | [-0.007738, -0.001601] |
+| Qwen3.8 | 0.94971 | 0.94763 | -0.002081 | [-0.005270, +0.001242] |
+| Muse Glimmer | 0.94383 | 0.93991 | -0.003912 | [-0.007402, -0.000731] |
+
+The DIODE Stage ordering does not transfer. Kimi K2.6 and Muse Glimmer significantly
+favour `tower` on KITTI. Qwen3.8 has an unresolved negative estimate and MoonViT-V2 an
+unresolved positive one. No Projector has a resolved advantage. Per ADR-0001, this is one
+depth transfer column on selected KITTI driving scenes, not a driving benchmark.
+
+At 18:51:53 UTC the continuation had reached 12h23m15s and about $52.28, leaving $12.72
+under its ceiling. The $55 report threshold had not been reached.
+
 ## Outcome
 
 The correspondence disagreement stop condition fired after 12 of 18 full jobs. Both

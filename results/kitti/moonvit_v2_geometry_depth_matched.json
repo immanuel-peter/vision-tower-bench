@@ -1,0 +1,225 @@
+{
+  "task": "depth",
+  "images": 1000,
+  "train_images": 700,
+  "capacity_matched": true,
+  "head": "multiscale",
+  "epochs": 10,
+  "seeds": 3,
+  "learning_rates": [
+    0.0001,
+    0.0003,
+    0.001,
+    0.003,
+    0.01,
+    0.03
+  ],
+  "cells": [
+    {
+      "d1": 0.9427,
+      "d1_std": 0.002,
+      "d2": 0.9884,
+      "d2_std": 0.0005,
+      "d3": 0.9965,
+      "d3_std": 0.0001,
+      "rmse": 3.5351,
+      "rmse_std": 0.0439,
+      "images": 150,
+      "coverage": 0.2239,
+      "by_scene": {
+        "driving": {
+          "d1": 0.9427,
+          "d1_std": 0.002,
+          "d2": 0.9884,
+          "d2_std": 0.0005,
+          "d3": 0.9965,
+          "d3_std": 0.0001,
+          "rmse": 3.5351,
+          "rmse_std": 0.0439,
+          "images": 150,
+          "coverage": 0.2239
+        }
+      },
+      "learning_rate": 0.03,
+      "val_metric": "d1",
+      "val_score": 0.9529,
+      "learning_rate_search": {
+        "0.0001": 0.9024,
+        "0.0003": 0.9313,
+        "0.001": 0.9445,
+        "0.003": 0.9493,
+        "0.01": 0.9514,
+        "0.03": 0.9529
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.9452,
+          "d2": 0.9889,
+          "d3": 0.9966,
+          "rmse": 3.485,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9452,
+              "d2": 0.9889,
+              "d3": 0.9966,
+              "rmse": 3.485,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        },
+        {
+          "d1": 0.9402,
+          "d2": 0.9877,
+          "d3": 0.9963,
+          "rmse": 3.592,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9402,
+              "d2": 0.9877,
+              "d3": 0.9963,
+              "rmse": 3.592,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        },
+        {
+          "d1": 0.9428,
+          "d2": 0.9887,
+          "d3": 0.9965,
+          "rmse": 3.5284,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9428,
+              "d2": 0.9887,
+              "d3": 0.9965,
+              "rmse": 3.5284,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        }
+      ],
+      "max_depth": 85.766,
+      "model_id": "immanuelpeter/MoonViT-V2",
+      "stage": "projected",
+      "layer_index": 27,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "grid": 16,
+      "trainable_parameters": 1444608,
+      "seconds": 294.8
+    },
+    {
+      "d1": 0.9418,
+      "d1_std": 0.0009,
+      "d2": 0.9888,
+      "d2_std": 0.0001,
+      "d3": 0.9969,
+      "d3_std": 0.0001,
+      "rmse": 3.4592,
+      "rmse_std": 0.0168,
+      "images": 150,
+      "coverage": 0.2239,
+      "by_scene": {
+        "driving": {
+          "d1": 0.9418,
+          "d1_std": 0.0009,
+          "d2": 0.9888,
+          "d2_std": 0.0001,
+          "d3": 0.9969,
+          "d3_std": 0.0001,
+          "rmse": 3.4592,
+          "rmse_std": 0.0168,
+          "images": 150,
+          "coverage": 0.2239
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.9448,
+      "learning_rate_search": {
+        "0.0001": 0.8753,
+        "0.0003": 0.915,
+        "0.001": 0.9362,
+        "0.003": 0.9433,
+        "0.01": 0.9448,
+        "0.03": 0.9401
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.9406,
+          "d2": 0.9889,
+          "d3": 0.9969,
+          "rmse": 3.4745,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9406,
+              "d2": 0.9889,
+              "d3": 0.9969,
+              "rmse": 3.4745,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        },
+        {
+          "d1": 0.9428,
+          "d2": 0.9886,
+          "d3": 0.9968,
+          "rmse": 3.4673,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9428,
+              "d2": 0.9886,
+              "d3": 0.9968,
+              "rmse": 3.4673,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        },
+        {
+          "d1": 0.9419,
+          "d2": 0.9888,
+          "d3": 0.997,
+          "rmse": 3.4358,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9419,
+              "d2": 0.9888,
+              "d3": 0.997,
+              "rmse": 3.4358,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        }
+      ],
+      "max_depth": 85.766,
+      "model_id": "immanuelpeter/MoonViT-V2",
+      "stage": "tower",
+      "layer_index": 27,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "grid": 32,
+      "trainable_parameters": 1444608,
+      "seconds": 770.1
+    }
+  ]
+}
