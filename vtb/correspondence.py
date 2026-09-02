@@ -52,7 +52,9 @@ def sample_map(values: torch.Tensor, xy: torch.Tensor, resolution: int) -> torch
     """Bilinearly sample a ``(channels, h, w)`` map at output-image pixel positions."""
     if values.ndim == 2:
         values = values[None]
-    grid = xy.clone()
+    # Stage features may be bfloat16, but grid_sample requires the sampling grid
+    # and input to have the same floating-point dtype.
+    grid = xy.float().clone()
     grid[:, 0] = 2 * grid[:, 0] / resolution - 1
     grid[:, 1] = 2 * grid[:, 1] / resolution - 1
     sampled = F.grid_sample(

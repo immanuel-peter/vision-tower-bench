@@ -67,6 +67,23 @@ def test_semantic_correspondence_scores_exact_keypoints():
     assert recall(errors, 0.1) == 1.0
 
 
+def test_semantic_correspondence_accepts_bfloat16_stage_features():
+    features = torch.eye(4).reshape(4, 2, 2).bfloat16()
+    keypoints = torch.tensor([[0.5, 0.5], [1.5, 1.5]])
+
+    errors = semantic_errors(
+        features,
+        features,
+        keypoints,
+        keypoints,
+        torch.tensor([True, True]),
+        1.0,
+        resolution=2,
+    )
+
+    assert errors.tolist() == pytest.approx([0.0, 0.0])
+
+
 def test_paired_correspondence_bootstrap_is_reproducible():
     first = torch.tensor([0.8, 0.6, 0.4])
     second = torch.tensor([0.5, 0.5, 0.5])

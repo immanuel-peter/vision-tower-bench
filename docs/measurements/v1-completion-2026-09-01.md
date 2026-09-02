@@ -2,91 +2,137 @@
 
 ## Outcome
 
-The run stopped at the mandatory parity gate before any experiment smoke test or full
-matrix. The suite reported 67 passed, 1 skipped, and 6 failed in 367.06 seconds. Every
-failure came from `tests/test_release_parity.py`, and every one was caused by a missing
-repo-local release bundle:
+The correspondence disagreement stop condition fired after 12 of 18 full jobs. Both
+completed Projectors improve geometric correspondence on ScanNet and NAVI, but semantic
+correspondence splits. Kimi K2.6 improves on SPair by +0.11496 PCK, paired 95% interval
+[+0.10633, +0.12348]. MoonViT-V2 degrades by -0.01436, interval
+[-0.02164, -0.00702]. The negative interval is resolved, so the matrix stopped and
+workstreams B through D did not run.
 
-- `hf/Qwen3.8-27B-Vision/model.safetensors`
-- `hf/Muse-Glimmer-Vision/model.safetensors`
-- `hf/MoonViT-K2.6/model.safetensors`
+This is not a published-weight failure. The first parity attempt found three missing local
+release bundles before any parity assertion ran. After restoring the public bundles, the
+required gate passed: 74 tests in 176.61 seconds with no `VTB_SKIP_WEIGHTS`.
 
-The bit-exact and released-versus-parent forward comparisons did not reach their
-assertions. This run therefore did not show that the published weights differ. It showed
-that the box lacked the 12 GB local bundle prerequisite those tests assume. The brief says
-to stop if a parity test fails, so no correspondence, label-budget, Transfer Probe, or
-Perturbation Study measurement ran.
+## Box and cost
 
-## Cost ledger
-
-Box rate was $4.22 per hour on four NVIDIA L40S 48 GB GPUs and 46 logical CPU cores.
+The box had four NVIDIA L40S GPUs with 46,068 MiB each, 46 logical CPU cores, and 2.3 TB
+free on `/ephemeral`. Rate was $4.22 per hour. The cost through the experiment halt was
+$10.11; the final test, commit, push, and provider-termination checkpoint is added to the
+ledger at close.
 
 | phase | start UTC | end UTC | hours | cost | cumulative |
-|---|---|---|---:|---:|---:|
-| setup, reading, data fetch, correspondence scope/build, parity gate | 01:22:29 | 01:41:13 | 0.312 | $1.32 | $1.32 |
-| stop checkpoint, push, and shutdown preparation | 01:41:13 | 01:45:00 | 0.063 | $0.27 | $1.59 |
+| --- | --- | --- | ---: | ---: | ---: |
+| setup, required reading, correspondence build, data fetch, first gate | 01:22:29 | 01:41:13 | 0.312 | $1.32 | $1.32 |
+| first stop checkpoint and OS shutdown attempt | 01:41:13 | 01:45:00 | 0.063 | $0.27 | $1.59 |
+| idle after OS shutdown failed to stop Brev billing | 01:45:00 | 03:19:23 | 1.573 | $6.64 | $8.23 |
+| restore release bundles and pass parity | 03:19:23 | 03:23:52 | 0.075 | $0.32 | $8.55 |
+| three 20-pair smoke tests | 03:23:52 | 03:29:03 | 0.086 | $0.36 | $8.91 |
+| full correspondence matrix, halted by stop condition | 03:29:03 | 03:46:09 | 0.285 | $1.20 | $10.11 |
 
-The cost ledger starts at the first observable timestamp on the box. Provider startup time
-before that timestamp, if any, is not included.
+The $6.64 idle row is real spend. `sudo shutdown -h now` returned success but did not
+terminate the Brev rental. Provider-level termination is required; guest shutdown is not a
+billing control on this box.
 
-## Correspondence work preserved
+## Setup and data
 
-The Probe3D paper and released repository confirm three training-free evaluations:
+All three correspondence datasets downloaded without credentials.
 
-- ScanNet geometric correspondence on 1,500 scene pairs, scored by pixel recall.
-- NAVI geometric correspondence on wild-set views of the same object, scored by metric
-  and pixel recall.
-- SPair-71k semantic keypoint correspondence, scored by PCK at 10 percent of the target
-  bounding-box scale.
-
-All three released subsets have public download paths and required no credentials. ADR-0020
-records the distinction between the two geometric columns and the SPair-71k semantic
-column. It also records the run's protocol adaptation: full patch-token Stage maps are
-resized to a shared 64 by 64 matching grid and retain 1,000 ratio-ranked matches.
-
-The checkpoint includes `vtb/correspondence.py`, dataset and matrix runners, a paired
-bootstrap runner, a reproducible fetch script, and seven focused tests. Those seven tests
-passed inside the full suite. The implementation has not had the required 20-pair smoke
-test, has no results, and must not be described as complete.
-
-## Data and setup measurements
-
-| item | measured size or time |
-|---|---:|
-| ImageNet-100 validation export | 13,000 images, 1.3 GiB |
+| item | measured size or count |
+| --- | ---: |
+| ImageNet-100 validation | 13,000 images, 1.3 GiB |
 | COCO val2017 | 5,000 images, 788 MiB |
-| NAVI archive | 31.10 GB |
-| NAVI archive plus extracted files | 61 GiB |
-| ScanNet 1,500-pair archive | 1.10 GB |
-| ScanNet archive plus extracted files | 2.1 GiB |
-| SPair-71k archive | 226.96 MB |
-| SPair-71k archive plus extracted files | 723 MiB |
-| full pytest gate | 367.06 seconds |
+| NAVI | 555 evaluation pairs, 61 GiB archive plus extraction |
+| ScanNet subset | 1,500 pairs, 2.1 GiB archive plus extraction |
+| SPair-71k | 3,600 selected pairs, 723 MiB archive plus extraction |
+| Qwen local release bundle | 879 MiB |
+| Muse Glimmer local release bundle | 3.6 GiB |
+| Kimi K2.6 local release bundle | 899 MiB |
 
-`/ephemeral` had 2.3 TB free at the start, so disk capacity was not the blocker.
+The three release bundles total about 5.4 GiB, not the 12 GB listed in the earlier
+measurement note. ImageNet-100 validation export took about nine minutes because the
+dataset loader fetched all configured shards before materialising the requested split.
 
-## What the brief's estimates missed
+## Correspondence protocol and measured time
 
-- The handoff said `scripts/brev_setup.sh` had run, but the repository had no usable
-  synced `.venv`. The first ImageNet export used the mandatory `UV_NO_SYNC=1`, created an
-  empty environment, and failed on the missing `datasets` package. One explicit
-  `uv sync --frozen` repaired it.
-- Exporting only ImageNet-100 validation still fetched all 30 training shards, both test
-  shards, and all four validation shards before materialising the requested split. The
-  export took about nine minutes rather than the prior five-minute measurement.
-- `scripts/brev_setup.sh` does not restore the three repo-local release bundles. The prior
-  measurement document listed "release bundles restored (12 GB)" as a separate step, but
-  the completion brief omitted its command. The parity tests still require those files.
+ADR-0020 records the scope. ScanNet and NAVI are geometric correspondence; SPair is
+semantic correspondence and cannot establish 3D consistency by itself. All three score
+frozen Stage features directly. The bench adaptation uses full patch tokens at 448 square,
+a shared 64 by 64 matching grid, and 1,000 ratio-ranked matches for the geometric columns.
 
-No extraction throughput, correspondence cell cost, cache size, label-budget timing,
-KITTI timing, or Perturbation Study timing was measured. Reusing prior numbers for this run
-would be misleading.
+The required DINOv2 smoke tests completed on 20 pairs per dataset. Scoring time, excluding
+adapter construction, was 2.5 seconds on ScanNet, 11.6 seconds on NAVI, and 1.4 seconds on
+SPair. SPair exposed one implementation bug: bfloat16 Stage features produced a bfloat16
+sampling grid against a float input. Casting the coordinate grid to float fixed it and a
+regression test covers the path.
 
-## Resume action
+The valid partial matrix completed four Towers on every dataset. Times below come from each
+result payload and exclude adapter construction.
 
-Restore the public bundles from `immanuelpeter/Qwen3.8-27B-Vision`,
-`immanuelpeter/Muse-Glimmer-Vision`, and `immanuelpeter/MoonViT-K2.6` into the exact
-repo-local `hf/` directories expected by `tests/test_release_parity.py`. Do not set
-`VTB_SKIP_WEIGHTS`. Rerun the full gate against the exported ImageNet-100 images and
-continue only if the bit-exact and forward comparisons execute and pass. Then run the
-three 20-pair DINOv2 correspondence smoke tests before starting the full matrix.
+| Tower | ScanNet | NAVI | SPair | total |
+| --- | ---: | ---: | ---: | ---: |
+| DINOv2 | 121.2 s | 367.2 s | 135.2 s | 10.4 min |
+| SigLIP2 | 123.6 s | 389.4 s | 149.6 s | 11.0 min |
+| MoonViT-V2 | 260.2 s | 375.9 s | 407.7 s | 17.4 min |
+| Kimi K2.6 | 238.9 s | 369.0 s | 324.5 s | 15.5 min |
+
+Four lanes completed those 12 jobs in 17.1 minutes of matrix wall time. `alerts.log`
+remained empty. Qwen3.5 and Muse Glimmer jobs were in flight when the stop condition fired;
+their partial files were discarded.
+
+## Correspondence result
+
+| Tower | Stage | ScanNet recall@10px | NAVI recall@2cm | SPair macro PCK@0.1 |
+| --- | --- | ---: | ---: | ---: |
+| DINOv2 | `tower` | 0.00748 | 0.53891 | 0.55475 |
+| SigLIP2 | `tower` | 0.00449 | 0.40133 | 0.39818 |
+| MoonViT-V2 | `tower` | 0.00396 | 0.33342 | 0.27600 |
+| MoonViT-V2 | `merged` | 0.00506 | 0.38818 | 0.25745 |
+| MoonViT-V2 | `projected` | 0.00510 | 0.39244 | 0.26140 |
+| Kimi K2.6 | `tower` | 0.00483 | 0.36458 | 0.17821 |
+| Kimi K2.6 | `merged` | 0.00333 | 0.23138 | 0.06944 |
+| Kimi K2.6 | `projected` | 0.00535 | 0.42111 | 0.29184 |
+
+| Tower | column | `projected` minus `tower` | paired 95% interval |
+| --- | --- | ---: | ---: |
+| MoonViT-V2 | ScanNet | +0.001139 | [+0.000889, +0.001398] |
+| MoonViT-V2 | NAVI | +0.059020 | [+0.054193, +0.063709] |
+| MoonViT-V2 | SPair | **-0.014355** | **[-0.021642, -0.007021]** |
+| Kimi K2.6 | ScanNet | +0.000524 | [+0.000278, +0.000769] |
+| Kimi K2.6 | NAVI | +0.056532 | [+0.052110, +0.060899] |
+| Kimi K2.6 | SPair | +0.114964 | [+0.106328, +0.123475] |
+
+NAVI supplies the clean geometric conclusion: absolute scores are substantial and every
+viewpoint-bin interval favours `projected`. ScanNet points the same way but is floor-limited
+below one percent absolute recall under the 64 by 64 square-crop adaptation. On
+MoonViT-V2 SPair, most loss occurs from `tower` to `merged`; the Projector recovers a small
+part but leaves `projected` significantly below `tower`.
+
+## Workstreams stopped before measurement
+
+The label-budget selector and 48-cell matrix driver were implemented while correspondence
+used the GPUs. They preserve validation and test indices and retain at least one training
+example per class at a one-percent budget. No label-budget cache, probe, latency, or token
+count result was produced.
+
+KITTI Transfer Probe and Perturbation Study work did not start. No dataset credentials
+blocked them; the earlier correspondence disagreement did.
+
+## What the brief's estimates got wrong
+
+- The handoff said setup had run, but the repository had no usable synced `.venv`. One
+  explicit `uv sync --frozen` was required before `UV_NO_SYNC=1` could be used safely.
+- The brief omitted the release-bundle restore command even though the parity tests require
+  those repo-local files. Their measured total was 5.4 GiB, not 12 GB.
+- ImageNet-100 validation export took about nine minutes, not the prior five-minute
+  measurement, because it downloaded unrelated configured shards first.
+- Correspondence extraction and scoring did fit the claimed minutes-per-Tower scale. The
+  four completed triplets took 10.4 to 17.4 scorer minutes each and 17.1 matrix minutes on
+  four lanes.
+- ScanNet did not provide a healthy absolute signal under the declared 64 by 64 adaptation;
+  it landed below one percent recall for every completed Stage. The brief anticipated a
+  cheap column, not a floor-limited one.
+- Guest shutdown was not equivalent to terminating the rented box. That mistaken
+  assumption added 1.573 billed hours and $6.64, the largest cost in the run.
+
+No timing or cache-size estimate for workstreams B through D can be checked against this
+run because the required stop condition prevented those experiments.

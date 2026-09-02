@@ -1,0 +1,66 @@
+{
+  "protocol": {
+    "dataset": "navi",
+    "metric": "recall_2cm",
+    "pairing": "paired over image pairs",
+    "resolution": 448,
+    "evaluation_side": 64,
+    "num_correspondences": 1000
+  },
+  "model": "moonvit_v2",
+  "model_id": "immanuelpeter/MoonViT-V2",
+  "first": "projected:27",
+  "second": "tower:27",
+  "first_advantage": {
+    "point_estimate": 0.059020157903432846,
+    "confidence": 0.95,
+    "lower": 0.05419282987713814,
+    "upper": 0.06370891630649567,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second",
+    "pairs": 555
+  },
+  "by_difficulty": {
+    "[0,30)": {
+      "point_estimate": 0.11189337074756622,
+      "confidence": 0.95,
+      "lower": 0.10255396366119385,
+      "upper": 0.12132775783538818,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 74
+    },
+    "[30,60)": {
+      "point_estimate": 0.09036707878112793,
+      "confidence": 0.95,
+      "lower": 0.08119324594736099,
+      "upper": 0.09932327270507812,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 141
+    },
+    "[60,90)": {
+      "point_estimate": 0.04835803061723709,
+      "confidence": 0.95,
+      "lower": 0.040240880101919174,
+      "upper": 0.056731726974248886,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 149
+    },
+    "[90,120)": {
+      "point_estimate": 0.023711901158094406,
+      "confidence": 0.95,
+      "lower": 0.018202073872089386,
+      "upper": 0.029353776946663857,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 191
+    }
+  }
+}

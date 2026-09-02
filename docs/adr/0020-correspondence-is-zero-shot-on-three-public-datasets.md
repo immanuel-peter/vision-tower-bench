@@ -52,3 +52,51 @@ run's stop condition before the headline claim changes.
 
 Sources: El Banani et al., "Probing the 3D Awareness of Visual Foundation Models," CVPR
 2024, sections 3.2 and A.3.3-A.3.4; and the authors' `mbanani/probe3d` repository.
+
+## Result: geometric correspondence agrees, semantic correspondence does not
+
+The run completed DINOv2, SigLIP2, MoonViT-V2, and Kimi K2.6 on all three
+datasets before the stop condition fired. The other two Projectors were in flight and
+their partial files were discarded. Full results are in `results/correspondence/`.
+
+| Tower | Stage | ScanNet recall@10px | NAVI recall@2cm | SPair macro PCK@0.1 |
+| --- | --- | ---: | ---: | ---: |
+| DINOv2 | `tower` | 0.00748 | 0.53891 | 0.55475 |
+| SigLIP2 | `tower` | 0.00449 | 0.40133 | 0.39818 |
+| MoonViT-V2 | `tower` | 0.00396 | 0.33342 | 0.27600 |
+| MoonViT-V2 | `merged` | 0.00506 | 0.38818 | 0.25745 |
+| MoonViT-V2 | `projected` | 0.00510 | 0.39244 | 0.26140 |
+| Kimi K2.6 | `tower` | 0.00483 | 0.36458 | 0.17821 |
+| Kimi K2.6 | `merged` | 0.00333 | 0.23138 | 0.06944 |
+| Kimi K2.6 | `projected` | 0.00535 | 0.42111 | 0.29184 |
+
+The paired Projector intervals are:
+
+| Tower | column | `projected` minus `tower` | paired 95% interval |
+| --- | --- | ---: | ---: |
+| MoonViT-V2 | ScanNet recall@10px | +0.001139 | [+0.000889, +0.001398] |
+| MoonViT-V2 | NAVI recall@2cm | +0.059020 | [+0.054193, +0.063709] |
+| MoonViT-V2 | SPair PCK@0.1 | **-0.014355** | **[-0.021642, -0.007021]** |
+| Kimi K2.6 | ScanNet recall@10px | +0.000524 | [+0.000278, +0.000769] |
+| Kimi K2.6 | NAVI recall@2cm | +0.056532 | [+0.052110, +0.060899] |
+| Kimi K2.6 | SPair PCK@0.1 | +0.114964 | [+0.106328, +0.123475] |
+
+Both completed Projectors improve on both geometric correspondence columns. NAVI is the
+useful result: absolute recall is substantial, both intervals exclude zero, and every
+viewpoint-bin interval is positive. ScanNet also resolves in the Projector's favour, but
+absolute recall is below one percent for every Stage. The shared 64 by 64, square-crop
+adaptation is floor-limited there and must not be presented as a Probe3D reproduction.
+
+SPair contradicts a roster-wide preservation claim. Kimi K2.6 improves strongly, while
+MoonViT-V2 loses 0.01436 PCK and the interval excludes zero. Most of MoonViT-V2's loss
+appears at the `tower` to `merged` step: PCK falls from 0.27600 to 0.25745, then the
+Projector recovers slightly to 0.26140. Because the direct scorer treats each merged token
+as one spatial location, this separates the whole Connector outcome from the learned
+Projector imperfectly. It does not make the negative `projected` versus `tower` comparison
+go away.
+
+This is exactly the disagreement named by the run's stop condition. The narrower statement
+"the two completed Connectors preserve or improve geometric correspondence" is supported.
+The broader statement "the Projector preserves correspondence" is not supported across
+correspondence types or Projectors. The matrix was halted after 12 of 18 jobs, and
+workstreams B through D were not run pending the user's decision about the headline claim.

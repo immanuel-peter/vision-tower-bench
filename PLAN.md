@@ -11,9 +11,16 @@ the claim fails. That null result is still publishable.
 
 The roster run collected that null result over 448 cells, six Towers and four Projectors,
 at a validation-selected rate and three seeds. `projected` beats `tower` on depth and
-surface normals in every Projector and both capacity arms. These probes found no loss on
-either measured geometry task. Correspondence, the third task named above, is still
-unscoped.
+surface normals in every Projector and both capacity arms. The training-free
+correspondence run does not permit the same roster-wide statement. Both completed
+Projectors improve geometric correspondence on ScanNet and NAVI, with paired intervals
+excluding zero. Semantic correspondence on SPair splits: Kimi K2.6 improves by +0.11496
+PCK, interval [+0.10633, +0.12348], while MoonViT-V2 degrades by -0.01436, interval
+[-0.02164, -0.00702]. Most of the MoonViT-V2 loss occurs at the `tower` to `merged` step,
+and the Projector recovers only part of it. That resolved negative result fired the run's
+stop condition after 12 of 18 correspondence jobs. The narrower geometric result agrees
+with depth and surface normals; the headline cannot claim that every Connector preserves
+every kind of correspondence.
 
 The narrower claim, that the Projector's effect hides under the readout noise floor set by
 the lossless `tower` to `merged` step, held on MoonViT-V2 and fails on the other three. The
