@@ -16,9 +16,8 @@ required gate passed: 74 tests in 176.61 seconds with no `VTB_SKIP_WEIGHTS`.
 ## Box and cost
 
 The box had four NVIDIA L40S GPUs with 46,068 MiB each, 46 logical CPU cores, and 2.3 TB
-free on `/ephemeral`. Rate was $4.22 per hour. The cost through the experiment halt was
-$10.11; the final test, commit, push, and provider-termination checkpoint is added to the
-ledger at close.
+free on `/ephemeral`. Rate was $4.22 per hour. Total observed wall time was 2.542 hours and
+total spend was $10.73.
 
 | phase | start UTC | end UTC | hours | cost | cumulative |
 | --- | --- | --- | ---: | ---: | ---: |
@@ -28,10 +27,17 @@ ledger at close.
 | restore release bundles and pass parity | 03:19:23 | 03:23:52 | 0.075 | $0.32 | $8.55 |
 | three 20-pair smoke tests | 03:23:52 | 03:29:03 | 0.086 | $0.36 | $8.91 |
 | full correspondence matrix, halted by stop condition | 03:29:03 | 03:46:09 | 0.285 | $1.20 | $10.11 |
+| stop report, final tests, commits, and termination discovery | 03:46:09 | 03:55:00 | 0.147 | $0.62 | $10.73 |
 
 The $6.64 idle row is real spend. `sudo shutdown -h now` returned success but did not
 terminate the Brev rental. Provider-level termination is required; guest shutdown is not a
 billing control on this box.
+
+The two workstream checkpoints are `a4bae13` and `336ebb0`; the final ledger is committed
+after them. The execution policy rejected pushing to the
+unverified GitHub `origin/main` without a new explicit user approval. The guest contains no
+authenticated Brev CLI credentials, so the provider stop must be issued from the user's
+authenticated Brev client with `brev stop brev-lqrojopw9`.
 
 ## Setup and data
 
