@@ -116,6 +116,83 @@ throughput with the same number of exposed tokens. Qwen3.8 is fastest and expose
 tokens but trails the accuracy leaders. Hypothesis 3 is supported as a tradeoff and remains
 in `PLAN.md`; it is not evidence that one Tower dominates all efficiency axes.
 
+## Continuation 17:29 UTC checkpoint
+
+Workstream B passed the full 94-test suite and was pushed as `74ae35d`. KITTI preparation
+then paired all 1,000 public validation images, measured an 85.766 metre maximum depth and
+17.0848 percent mean valid-pixel coverage, and wrote both values into its manifest. The
+six final-Stage feature caches completed from 17:23:47 through 17:25:12, occupy 25 GiB,
+and contain exactly one control Stage or two Projector-model Stages as requested. The ten
+capacity-matched depth cells started at 17:25:55 and were still running at this checkpoint.
+
+Continuation wall time was 11h00m14s and estimated spend was $46.44, leaving $18.56 under
+the continuation ceiling. Workstream D's fixed 2,000-image occlusion set was also ready:
+four non-identity levels, 2,000 images per level, and 10,000 shipped metadata rows including
+identity.
+
+## Continuation 17:59 UTC checkpoint
+
+The complete KITTI matrix produced all ten expected cells with no alerts. Final-Tower
+cells took 627 to 863 seconds each, substantially longer than the 221 to 310 seconds for
+their projected counterparts. Point estimates favour `tower` for Kimi K2.6, Qwen3.8, and
+Muse Glimmer by 0.0018 to 0.0053 `d1`; MoonViT-V2 favours `projected` by 0.0009. DINOv2
+leads the six Tower rows at 0.9799, followed by Kimi K2.6 at 0.9652 and SigLIP2 at 0.9642.
+Paired bootstrap reruns were in progress and no inferential claim had been made.
+
+Qwen3.8, DINOv2, and Muse Glimmer had completed the reduced occlusion study without alerts.
+Kimi K2.6 and MoonViT-V2 were in flight, with SigLIP2 queued. Continuation wall time was
+11h30m16s and estimated spend was $48.54, leaving $16.46 under the ceiling.
+
+The interactive session was interrupted again shortly after this checkpoint and resumed
+at about 18:33 UTC. All six perturbation jobs had completed by 18:03:58, but the two
+in-flight KITTI bootstrap commands left no output and had to restart. The box was otherwise
+idle for about 29 minutes, roughly $2.04. At 18:34:13 the continuation stood at about
+12h05m35s and $51.03, still below the $55 checkpoint and with $13.97 left. All four KITTI
+paired bootstrap jobs were relaunched on separate GPUs rather than leaving the recovered
+box idle.
+
+## Continuation workstream D: reduced perturbation study complete
+
+The budget cut retained occlusion at area fractions 0, 0.10, 0.20, 0.35, and 0.50. Prep
+selected the first 2,000 sorted ImageNet-100 validation images and wrote 10,000 JSON Lines
+records, including one identity record per image and every exact rectangle. Each Tower was
+loaded once and extracted all five conditions. Each capacity-matched attention readout and
+reducer was trained on clean features only, frozen, and reused for perturbed inference.
+
+The six jobs ran on otherwise available GPUs from 17:41:08 through 18:03:58 and occupied
+about 0.664 aggregate GPU-hours. Their overlapped box window was 22m50s, or $1.61. All 14
+expected Stage cells contain five conditions and 300 paired test-image records per
+non-identity condition. The alerts file is empty.
+
+| Tower | Stage | clean accuracy | loss at 10% | loss at 20% | loss at 35% | loss at 50% |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| DINOv2 | `tower` | 0.8856 | 0.0100 | 0.0544 | 0.2056 | 0.4256 |
+| SigLIP2 | `tower` | 0.9033 | 0.0278 | 0.0811 | 0.2333 | 0.4622 |
+| MoonViT-V2 | `tower` | 0.7344 | 0.0878 | 0.1944 | 0.3856 | 0.5844 |
+| MoonViT-V2 | `merged` | 0.7411 | 0.0689 | 0.1800 | 0.3900 | 0.5700 |
+| MoonViT-V2 | `projected` | 0.7189 | 0.0756 | 0.2211 | 0.3744 | 0.5467 |
+| Kimi K2.6 | `tower` | 0.8656 | 0.0444 | 0.1689 | 0.4056 | 0.6244 |
+| Kimi K2.6 | `merged` | 0.8467 | 0.0456 | 0.1922 | 0.3711 | 0.5844 |
+| Kimi K2.6 | `projected` | 0.8544 | 0.0356 | 0.1544 | 0.3689 | 0.5911 |
+| Qwen3.8 | `tower` | 0.8389 | 0.0400 | 0.1544 | 0.3756 | 0.5833 |
+| Qwen3.8 | `merged` | 0.7967 | 0.0289 | 0.1433 | 0.3300 | 0.5444 |
+| Qwen3.8 | `projected` | 0.8567 | 0.0522 | 0.1689 | 0.3844 | 0.6200 |
+| Muse Glimmer | `tower` | 0.9211 | 0.0211 | 0.0800 | 0.2244 | 0.4456 |
+| Muse Glimmer | `merged` | 0.9022 | 0.0322 | 0.0889 | 0.2622 | 0.4400 |
+| Muse Glimmer | `projected` | 0.9100 | 0.0333 | 0.0944 | 0.2433 | 0.4633 |
+
+Every multimodal Stage first has a resolved loss at 10 percent occlusion. DINOv2's
+10-percent interval crosses zero and its first resolved loss is at 20 percent, so no
+roster-wide representation Stage degrades first. Clean Stage order survives until 50
+percent for MoonViT-V2 and Muse Glimmer, 35 percent for Qwen3.8, and 20 percent for Kimi
+K2.6. It does not survive severe occlusion.
+
+Kimi K2.6's Projector loses less accuracy than its Tower at every level and becomes the
+model's top Stage at 20 percent. MoonViT-V2's Projector is more robust at three of four
+levels. Qwen3.8 and Muse Glimmer's Projectors lose more than their Towers at every level.
+Those cross-Stage gaps are descriptive; the paired intervals in each result compare clean
+and perturbed images within the same Stage.
+
 ## Outcome
 
 The correspondence disagreement stop condition fired after 12 of 18 full jobs. Both

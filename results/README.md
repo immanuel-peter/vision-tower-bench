@@ -1671,3 +1671,49 @@ fastest and exposes the fewest tokens, but it gives up accuracy. The result supp
 hypothesis 3 as a Pareto tradeoff rather than selecting one best Tower.
 
 The 48 cell payloads and six throughput records are under `results/label-budget/`.
+
+## Perturbation Study, September 2 2026
+
+ADR-0003's budget cut reduces v1 to one factor: rectangles occluding 0, 10, 20, 35, or 50
+percent of each image. The fixed set is the first 2,000 sorted ImageNet-100 validation
+images. `results/perturbation/transforms.jsonl` ships 10,000 per-image records with the
+requested and actual area, rectangle coordinates, and fill value. Each matched attention
+readout and reducer trains once on clean features, then remains frozen across all four
+perturbed caches.
+
+Clean-minus-condition accuracy is the degradation measure. Positive values mean that
+occlusion hurts. The first interval below is the paired 95 percent image-bootstrap interval
+at 10 percent occlusion.
+
+| Tower | Stage | clean | loss at 10% (95% interval) | loss at 20% | loss at 35% | loss at 50% |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| DINOv2 | `tower` | 0.8856 | 0.0100 [-0.0011, 0.0211] | 0.0544 | 0.2056 | 0.4256 |
+| SigLIP2 | `tower` | 0.9033 | 0.0278 [0.0100, 0.0456] | 0.0811 | 0.2333 | 0.4622 |
+| MoonViT-V2 | `tower` | 0.7344 | 0.0878 [0.0556, 0.1211] | 0.1944 | 0.3856 | 0.5844 |
+| MoonViT-V2 | `merged` | 0.7411 | 0.0689 [0.0389, 0.1000] | 0.1800 | 0.3900 | 0.5700 |
+| MoonViT-V2 | `projected` | 0.7189 | 0.0756 [0.0422, 0.1100] | 0.2211 | 0.3744 | 0.5467 |
+| Kimi K2.6 | `tower` | 0.8656 | 0.0444 [0.0211, 0.0700] | 0.1689 | 0.4056 | 0.6244 |
+| Kimi K2.6 | `merged` | 0.8467 | 0.0456 [0.0222, 0.0700] | 0.1922 | 0.3711 | 0.5844 |
+| Kimi K2.6 | `projected` | 0.8544 | 0.0356 [0.0100, 0.0622] | 0.1544 | 0.3689 | 0.5911 |
+| Qwen3.8 | `tower` | 0.8389 | 0.0400 [0.0189, 0.0622] | 0.1544 | 0.3756 | 0.5833 |
+| Qwen3.8 | `merged` | 0.7967 | 0.0289 [0.0067, 0.0522] | 0.1433 | 0.3300 | 0.5444 |
+| Qwen3.8 | `projected` | 0.8567 | 0.0522 [0.0278, 0.0778] | 0.1689 | 0.3844 | 0.6200 |
+| Muse Glimmer | `tower` | 0.9211 | 0.0211 [0.0033, 0.0411] | 0.0800 | 0.2244 | 0.4456 |
+| Muse Glimmer | `merged` | 0.9022 | 0.0322 [0.0111, 0.0544] | 0.0889 | 0.2622 | 0.4400 |
+| Muse Glimmer | `projected` | 0.9100 | 0.0333 [0.0089, 0.0600] | 0.0944 | 0.2433 | 0.4633 |
+
+Every Connector Stage has a resolved loss at the first non-identity level. DINOv2's Tower
+is the exception across the full roster: its 10-percent interval crosses zero and its loss
+first resolves at 20 percent. There is no representation Stage that consistently degrades
+first.
+
+Clean Stage ordering holds through 35 percent occlusion for MoonViT-V2 and Muse Glimmer,
+through 20 percent for Qwen3.8, and only through 10 percent for Kimi K2.6. Kimi's Projector
+loses less accuracy than its Tower at every level and becomes the model's best Stage at 20
+percent. MoonViT-V2's Projector loses less at three of four levels and becomes best only at
+50 percent. Qwen3.8 and Muse Glimmer's Projectors lose more than their Towers at all four
+levels. Cross-Stage robustness gaps are descriptive because these intervals compare clean
+with perturbed images within each Stage.
+
+The full per-condition intervals and 300 paired test-image records are in each
+`results/perturbation/*_perturbation.json` payload.

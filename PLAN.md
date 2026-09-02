@@ -24,6 +24,14 @@ and the Projector recovers only part. The NAVI result agrees with depth and surf
 normals. The headline does not claim that every Connector improves every correspondence
 protocol.
 
+The fixed-readout occlusion study adds no universal semantic-robustness effect. Kimi K2.6's
+Projector degrades less than its own Tower at every measured level and becomes its best
+Stage at 20 percent occlusion. Qwen3.8 and Muse Glimmer's Projectors degrade more than their
+Towers at every level; MoonViT-V2 is mixed. Clean Stage ordering eventually changes in all
+four models. These are descriptive cross-Stage robustness gaps because the paired
+intervals compare clean with perturbed images within a Stage, not degradation between
+Stages.
+
 The narrower claim, that the Projector's effect hides under the readout noise floor set by
 the lossless `tower` to `merged` step, held on MoonViT-V2 and fails on the other three. The
 lossless-over-Projector ratio in the matched arm is 7.9 and 22.6 for MoonViT-V2 against 0.0
@@ -125,7 +133,11 @@ Notes:
 - Run ImageNet-100 first. Add ImageNet-1K if probes run fast enough, Places365 for scenes, and Stanford Cars for fine-grained recognition. iNaturalist backs up Cars.
 - ImageNet-100 source is [ilee0022/ImageNet100](https://huggingface.co/datasets/ilee0022/ImageNet100), 117k train / 13k validation / 5k test at native resolution, 17.4 GB. The more popular `clane9/imagenet-100` is unusable here because its images are pre-resized to 160 pixels on the short side and the canonical run is 448 square.
 - Use Probe3D's decoder and protocol for geometry, on DIODE rather than NYU (ADR-0011). The validation split is 771 images for 7.7 GB over direct S3 links with no login; the training split is 25,458 images for 222 GB and gets capped at 4,000. Report indoor and outdoor separately, which DIODE labels for free. Its outdoor scenes are tripod scans, not driving footage, so the AV-free rule in ADR-0001 holds and the writeup says so. The Transfer Probe is one KITTI depth column and nothing more (ADR-0001).
-- Apply programmatic transforms to a fixed subset of real photos for the Perturbation Study. Change object scale, occlusion, or motion blur one factor at a time, and record every transform value. Choose COCO or ADE20K during week 4 based on license and download size.
+- Apply programmatic transforms to a fixed 2,000-image subset of ImageNet-100 validation
+  for the Perturbation Study, preserving the label space of the clean semantic readout.
+  ADR-0003 reduced v1 to occlusion at area fractions 0, 0.10, 0.20, 0.35, and 0.50. Exact
+  rectangles are recorded per image. Scale and motion blur remain implemented but
+  unmeasured.
 
 ## Compute
 

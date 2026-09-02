@@ -1,0 +1,25 @@
+{
+  "source": "ImageNet-100 validation",
+  "source_root": "/ephemeral/data/imagenet100/validation",
+  "images": 2000,
+  "seed": 0,
+  "factors": {
+    "occlusion": [
+      0.0,
+      0.1,
+      0.2,
+      0.35,
+      0.5
+    ]
+  },
+  "identity_root": "/ephemeral/data/imagenet100/validation",
+  "condition_root": "/ephemeral/data/perturbations",
+  "conditions": [
+    "identity",
+    "occlusion_l1",
+    "occlusion_l2",
+    "occlusion_l3",
+    "occlusion_l4"
+  ],
+  "metadata_rows": 10000
+}
