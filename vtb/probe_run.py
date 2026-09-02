@@ -26,6 +26,48 @@ def split_indices(count: int, seed: int = 0, val: float = 0.15, test: float = 0.
     return Split(order[n_val + n_test:], order[:n_val], order[n_val:n_val + n_test])
 
 
+def subsample_train(
+    split: Split,
+    labels: torch.Tensor,
+    fraction: float,
+    seed: int = 0,
+) -> Split:
+    """Apply an exact, class-stratified budget to the training indices only.
+
+    The requested count is rounded from the full training split. When that count is
+    smaller than the number of represented classes, one example per class is retained.
+    Validation and test indices are returned unchanged.
+    """
+    if not 0 < fraction <= 1:
+        raise ValueError("label fraction must be in (0, 1]")
+    if fraction == 1:
+        return split
+
+    train_labels = labels[split.train]
+    classes, sizes = torch.unique(train_labels, sorted=True, return_counts=True)
+    target = max(len(classes), round(len(split.train) * fraction))
+    target = min(len(split.train), target)
+
+    exact = sizes.float() * (target / len(split.train))
+    quota = exact.floor().long().clamp_min(1)
+    quota = torch.minimum(quota, sizes)
+    while int(quota.sum()) < target:
+        available = quota < sizes
+        priority = exact - quota.float()
+        priority[~available] = -torch.inf
+        quota[priority.argmax()] += 1
+
+    generator = torch.Generator().manual_seed(seed)
+    selected = []
+    for class_id, count in zip(classes, quota):
+        candidates = split.train[train_labels == class_id]
+        order = torch.randperm(len(candidates), generator=generator)
+        selected.append(candidates[order[:int(count)]])
+    train = torch.cat(selected)
+    train = train[torch.randperm(len(train), generator=generator)]
+    return Split(train, split.val, split.test)
+
+
 def train_once(features, labels, split, num_classes, kind, lr, seed, device, epochs, batch_size):
     torch.manual_seed(seed)
     model = probe.build(kind, features.shape[-1], num_classes).to(device)
@@ -92,12 +134,19 @@ def run_cell(features, labels, split, num_classes, args) -> dict:
     }
 
 
-def selected_slices(run: Path, depth_points: list[int] | None) -> list[tuple[str, int]]:
+def selected_slices(
+    run: Path,
+    depth_points: list[int] | None,
+    stages: list[str] | None = None,
+) -> list[tuple[str, int]]:
     slices = cache.slices(run)
-    if depth_points is None:
-        return slices
-    selected = set(depth_points)
-    return [(stage, layer) for stage, layer in slices if layer in selected]
+    selected_depths = set(depth_points) if depth_points is not None else None
+    selected_stages = set(stages) if stages is not None else None
+    return [
+        (stage, layer) for stage, layer in slices
+        if (selected_depths is None or layer in selected_depths)
+        and (selected_stages is None or stage in selected_stages)
+    ]
 
 
 def fit_reducer(features: torch.Tensor, split: Split, width: int) -> probe.Reducer:
@@ -126,6 +175,13 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--seeds", type=int, default=3)
     parser.add_argument("--device", default="mps")
     parser.add_argument(
+        "--label-fraction",
+        type=float,
+        default=1.0,
+        help="class-stratified fraction of the training split to label; validation and "
+        "test splits remain unchanged",
+    )
+    parser.add_argument(
         "--learning-rates",
         type=float,
         nargs="+",
@@ -138,6 +194,13 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="only probe cache slices with these Tower layer indices (default: all)",
     )
+    parser.add_argument(
+        "--stages",
+        nargs="+",
+        choices=("tower", "merged", "projected"),
+        default=None,
+        help="only probe these Stages (default: all available Stages)",
+    )
     return parser
 
 
@@ -149,11 +212,12 @@ def main() -> None:
 
     cells = []
     image_count = 0
-    for stage, layer in selected_slices(args.run, args.depth_points):
+    for stage, layer in selected_slices(args.run, args.depth_points, args.stages):
         tokens, image_ids, meta = cache.load(args.run, stage, layer)
         image_count = len(image_ids)
         labels = torch.tensor([label_map[i] for i in image_ids])
-        split = split_indices(len(image_ids))
+        full_split = split_indices(len(image_ids))
+        split = subsample_train(full_split, labels, args.label_fraction)
 
         features = tokens.float()
         if args.match_capacity:
@@ -170,6 +234,9 @@ def main() -> None:
             "trainable_parameters": probe.parameter_count(
                 probe.build(args.readout, features.shape[-1], num_classes)
             ),
+            "label_fraction": args.label_fraction,
+            "train_images": len(split.train),
+            "full_train_images": len(full_split.train),
         }
         cells.append(result)
         print(
@@ -180,7 +247,13 @@ def main() -> None:
         )
 
     out = args.out or args.run / f"probe_{args.readout}_{'matched' if args.match_capacity else 'raw'}.json"
-    out.write_text(json.dumps({"images": image_count, "cells": cells}, indent=2) + "\n")
+    out.write_text(json.dumps({
+        "images": image_count,
+        "label_fraction": args.label_fraction,
+        "train_images": cells[0]["train_images"] if cells else 0,
+        "full_train_images": cells[0]["full_train_images"] if cells else 0,
+        "cells": cells,
+    }, indent=2) + "\n")
     print(f"\nwrote {out}")
 
 

@@ -58,6 +58,7 @@ def test_semantic_runner_filters_cache_slices_by_depth_point(monkeypatch):
         ("tower", 12),
     ]
     assert probe_run.selected_slices(args.run, None) == slices
+    assert probe_run.selected_slices(args.run, [12], ["tower"]) == [("tower", 12)]
 
 
 def test_semantic_capacity_reducer_is_deterministic_and_preserves_rng_state():
@@ -121,6 +122,39 @@ def test_splits_are_disjoint_and_cover_everything():
     joined = torch.cat([split.train, split.val, split.test])
     assert len(joined) == 1000
     assert len(set(joined.tolist())) == 1000
+
+
+def test_label_budget_is_stratified_and_keeps_evaluation_splits_fixed():
+    labels = torch.arange(100).repeat_interleave(130)
+    full = probe_run.split_indices(len(labels))
+
+    one_percent = probe_run.subsample_train(full, labels, 0.01, seed=17)
+    repeated = probe_run.subsample_train(full, labels, 0.01, seed=17)
+
+    assert len(one_percent.train) == 100
+    assert torch.equal(one_percent.train, repeated.train)
+    assert labels[one_percent.train].unique().tolist() == list(range(100))
+    assert torch.equal(one_percent.val, full.val)
+    assert torch.equal(one_percent.test, full.test)
+
+
+def test_label_budget_uses_the_requested_count_above_the_class_minimum():
+    labels = torch.arange(5).repeat_interleave(40)
+    full = probe_run.split_indices(len(labels))
+    budget = probe_run.subsample_train(full, labels, 0.20)
+
+    assert len(budget.train) == round(len(full.train) * 0.20)
+    counts = torch.bincount(labels[budget.train], minlength=5)
+    full_counts = torch.bincount(labels[full.train], minlength=5)
+    expected = full_counts * (len(budget.train) / len(full.train))
+    assert torch.all((counts - expected).abs() <= 1)
+
+
+@pytest.mark.parametrize("fraction", [0, -0.1, 1.01])
+def test_label_budget_rejects_invalid_fractions(fraction):
+    split = probe_run.split_indices(20)
+    with pytest.raises(ValueError, match="label fraction"):
+        probe_run.subsample_train(split, torch.arange(20) % 2, fraction)
 
 
 def test_shard_writer_groups_batches_into_fixed_size_files(tmp_path):

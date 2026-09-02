@@ -68,7 +68,11 @@ Supporting hypotheses:
    mean angular error, interval [4.304, 5.816]. The cross-task contrast between DINOv2 and
    Muse Glimmer is therefore inferential rather than only descriptive, while no ordering is
    claimed among the unresolved semantic Towers.
-3. Scale stops dominating once token count, latency, and label efficiency enter the comparison.
+3. Scale stops dominating once token count, latency, and label efficiency enter the
+   comparison. This remains unsupported. The label-budget implementation was completed,
+   but its caches, 48 probe cells, and idle-box latency pass did not run before the
+   correspondence stop condition fired. Drop this hypothesis if v1 ships without a resumed
+   run.
 
 ## Roster
 
