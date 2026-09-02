@@ -16,8 +16,8 @@ required gate passed: 74 tests in 176.61 seconds with no `VTB_SKIP_WEIGHTS`.
 ## Box and cost
 
 The box had four NVIDIA L40S GPUs with 46,068 MiB each, 46 logical CPU cores, and 2.3 TB
-free on `/ephemeral`. Rate was $4.22 per hour. Total observed wall time was 2.542 hours and
-total spend was $10.73.
+free on `/ephemeral`. Rate was $4.22 per hour. Through the approved push, total observed
+wall time was 3.860 hours and total spend was $16.29.
 
 | phase | start UTC | end UTC | hours | cost | cumulative |
 | --- | --- | --- | ---: | ---: | ---: |
@@ -28,15 +28,17 @@ total spend was $10.73.
 | three 20-pair smoke tests | 03:23:52 | 03:29:03 | 0.086 | $0.36 | $8.91 |
 | full correspondence matrix, halted by stop condition | 03:29:03 | 03:46:09 | 0.285 | $1.20 | $10.11 |
 | stop report, final tests, commits, and termination discovery | 03:46:09 | 03:55:00 | 0.147 | $0.62 | $10.73 |
+| idle awaiting explicit push approval, then push | 03:55:00 | 05:14:04 | 1.318 | $5.56 | $16.29 |
 
 The $6.64 idle row is real spend. `sudo shutdown -h now` returned success but did not
 terminate the Brev rental. Provider-level termination is required; guest shutdown is not a
 billing control on this box.
 
-The two workstream checkpoints are `a4bae13` and `336ebb0`; the final ledger is committed
-after them. The execution policy rejected pushing to the
-unverified GitHub `origin/main` without a new explicit user approval. The guest contains no
-authenticated Brev CLI credentials, so the provider stop must be issued from the user's
+The two workstream checkpoints are `a4bae13` and `336ebb0`; the first ledger checkpoint is
+`739fe39`. The execution policy initially rejected pushing to the unverified GitHub
+`origin/main` without a new explicit user approval. After approval, all three commits were
+pushed successfully. Waiting for that approval added 1h19m04s and $5.56. The guest contains
+no authenticated Brev CLI credentials, so the provider stop must be issued from the user's
 authenticated Brev client with `brev stop brev-lqrojopw9`.
 
 ## Setup and data
@@ -139,6 +141,8 @@ blocked them; the earlier correspondence disagreement did.
   cheap column, not a floor-limited one.
 - Guest shutdown was not equivalent to terminating the rented box. That mistaken
   assumption added 1.573 billed hours and $6.64, the largest cost in the run.
+- The remote-approval gate added another 1.318 billed hours and $5.56 before the push could
+  proceed.
 
 No timing or cache-size estimate for workstreams B through D can be checked against this
 run because the required stop condition prevented those experiments.
