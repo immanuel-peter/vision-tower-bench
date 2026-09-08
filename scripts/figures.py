@@ -16,6 +16,13 @@ TOWERS: tuple[str, ...] = (
 )
 COLOUR: dict[str, tuple] = dict(zip(TOWERS, plt.get_cmap("tab10").colors))
 
+# Report names. Plots and tables must agree, and the two Kimi Towers are named for
+# the model that ships them rather than for the encoder family.
+DISPLAY: dict[str, str] = {
+    "dinov2": "DINOv2", "siglip2": "SigLIP2", "muse_glimmer": "Muse Glimmer",
+    "kimi_k26": "Kimi K2.6", "qwen3_5": "Qwen3.8", "moonvit_v2": "Kimi K3",
+}
+
 
 def tower_name(label: str) -> str:
     """Perturbation results carry the cache directory name, not the roster key."""
@@ -68,7 +75,7 @@ def forest(out: Path) -> None:
                 markerfacecolor=COLOUR[model] if resolved else "white",
             )
         axis.axvline(0, color="0.3", linewidth=1, linestyle="--")
-        axis.set_yticks(range(len(rows)), [r[0] for r in rows], fontsize=8)
+        axis.set_yticks(range(len(rows)), [DISPLAY[r[0]] for r in rows], fontsize=8)
         axis.set_ylim(-0.6, len(rows) - 0.4)
         axis.set_title(PANELS[key], fontsize=9, loc="left")
         axis.tick_params(labelsize=8)
@@ -95,13 +102,12 @@ def label_budget(out: Path, readout: str = "attention") -> None:
         points = sorted(series[model].items())
         axis.plot(
             [f for f, _ in points], [a for _, a in points],
-            marker="o", markersize=4, color=COLOUR[model], label=model,
+            marker="o", markersize=4, color=COLOUR[model], label=DISPLAY[model],
         )
     axis.set_xscale("log")
     axis.set_xticks([0.01, 0.05, 0.20, 1.0], ["1%", "5%", "20%", "100%"])
-    axis.set_xlabel("labelled fraction of the training split")
-    axis.set_ylabel(f"top-1 accuracy, {readout} readout, matched")
-    axis.set_title("Label efficiency reorders the semantic ranking", fontsize=10)
+    axis.set_xlabel("labelled fraction of the training split (log scale)")
+    axis.set_ylabel(f"recognition top-1 ({readout}, matched)")
     axis.grid(alpha=0.25)
     axis.legend(fontsize=8)
     figure.tight_layout()
@@ -118,7 +124,7 @@ def relative_depth(out: Path, readout: str = "attention", arm: str = "matched") 
         cells.sort(key=lambda c: c["relative_depth"])
         axis.plot(
             [c["relative_depth"] for c in cells], [c["test_accuracy"] for c in cells],
-            marker="o", markersize=3, color=COLOUR[model], label=model,
+            marker="o", markersize=3, color=COLOUR[model], label=DISPLAY[model],
         )
     axis.set_xlabel("Relative Depth")
     axis.set_ylabel(f"top-1 accuracy, {readout} readout, {arm}")
@@ -140,7 +146,7 @@ def occlusion(out: Path) -> None:
         points = sorted((c["value"], c["accuracy"]) for c in cell["conditions"])
         axis.plot(
             [v for v, _ in points], [a for _, a in points],
-            marker="o", markersize=4, color=COLOUR[model], label=model,
+            marker="o", markersize=4, color=COLOUR[model], label=DISPLAY[model],
         )
     axis.set_xlabel("occluded fraction of the image")
     axis.set_ylabel("top-1 accuracy")
@@ -183,7 +189,7 @@ def capability_profile(out: Path) -> None:
 
     figure, axis = plt.subplots(figsize=(7, 4))
     for model in TOWERS:
-        axis.plot(range(len(axes_names)), ranks[model], marker="o", color=COLOUR[model], label=model)
+        axis.plot(range(len(axes_names)), ranks[model], marker="o", color=COLOUR[model], label=DISPLAY[model])
     axis.set_xticks(range(len(axes_names)), axes_names, fontsize=8)
     axis.set_yticks(range(1, len(TOWERS) + 1))
     axis.invert_yaxis()
@@ -208,7 +214,7 @@ def peaks(out: Path) -> None:
         cells.sort(key=lambda c: c["relative_depth"])
         top.plot(
             [c["relative_depth"] for c in cells], [c["test_accuracy"] for c in cells],
-            marker="o", markersize=3, color=COLOUR[model], label=model,
+            marker="o", markersize=3, color=COLOUR[model], label=DISPLAY[model],
         )
 
         cells = [
@@ -219,19 +225,19 @@ def peaks(out: Path) -> None:
         depths = [c["relative_depth"] for c in cells]
         scores = [c["d1"] for c in cells]
         bottom.plot(depths, scores, marker="o", markersize=3, color=COLOUR[model], label=model)
-        bottom.plot([depths[scores.index(max(scores))]], [max(scores)], "*", markersize=11,
-                    color=COLOUR[model], markeredgecolor="none")
+        bottom.plot([depths[scores.index(max(scores))]], [max(scores)], "*", markersize=15,
+                    color=COLOUR[model], markeredgecolor="white", markeredgewidth=0.6, zorder=5)
 
-    top.set_ylabel("semantic top-1")
-    top.set_title("Semantics rises to the last layer", fontsize=10, loc="left")
+    top.set_ylabel("recognition top-1")
+    top.set_title("Recognition", fontsize=9.5, loc="left")
     bottom.set_ylabel("DIODE depth (d1)")
     bottom.set_xlabel("Relative Depth")
-    bottom.set_title("Geometry peaks earlier; stars mark each Tower's peak", fontsize=10, loc="left")
+    bottom.set_title("Geometry, DIODE depth  \u00b7  stars mark each Tower's peak", fontsize=9.5, loc="left")
     for axis in (top, bottom):
+        axis.axvline(1.0, color="0.45", linewidth=1, linestyle=":")
         axis.grid(alpha=0.25)
     top.legend(fontsize=8, ncol=3)
-    figure.suptitle("Hypothesis 1, capacity-matched Tower Stage", fontsize=10.5)
-    figure.tight_layout(rect=(0, 0, 1, 0.97))
+    figure.tight_layout()
     figure.savefig(out, bbox_inches="tight")
     plt.close(figure)
 
@@ -284,7 +290,7 @@ def stage_levels(out: Path) -> None:
             if cell["relative_depth"] == 1.0:
                 deepest[cell["stage"]] = cell["d1"]
         values = [deepest[s] for s in stages if s in deepest]
-        axis.plot(range(len(values)), values, marker="o", color=COLOUR[model], label=model)
+        axis.plot(range(len(values)), values, marker="o", color=COLOUR[model], label=DISPLAY[model])
 
     axis.set_xticks(range(len(stages)), stages)
     axis.set_xlabel("Stage, at the deepest Relative Depth")
