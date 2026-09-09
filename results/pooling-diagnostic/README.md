@@ -1,8 +1,8 @@
 # Pooling attention diagnostic, August 31 2026
 
-These files preserve the Job 2 diagnostic that followed ADR-0019. They are not the full
+These files preserve the Job 2 diagnostic that followed the failed attention validation. They are not the full
 pooling re-check. The diagnostic probes the three collapsed full-token attention cells
-named by ADR-0019 on both pooled and full tokens under four configurations:
+named by that validation on both pooled and full tokens under four configurations:
 
 - 1,500 images, 20 epochs
 - 1,500 images, 100 epochs
@@ -33,7 +33,7 @@ also producing a usable validation curve. The full Job 3 re-check was not launch
 
 ## Reproducibility finding
 
-The raw 1,500-image/20-epoch cells reproduce ADR-0019 exactly. The original matched cells
+The raw 1,500-image/20-epoch cells reproduce the original run exactly. The original matched cells
 do not: `torch.svd_lowrank` randomized the capacity-matching PCA before any seed was set,
 so a single-cell process did not reproduce the matrix process's RNG history. Commit
 `8c82a96` seeds the semantic reducer without changing the readout RNG. The six corrected

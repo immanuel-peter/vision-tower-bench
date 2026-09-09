@@ -18,18 +18,18 @@ grid, so cell-to-cell comparisons hold even where absolute levels do not.
 
 Sections below name each Tower by the repository its adapter read at the time. Three of
 those have since been republished and the adapters now load the releases, so a later run
-will name `immanuelpeter/...` for the same weights (ADR-0018).
+will name `immanuelpeter/...` for the same weights.
 
 Geometry uses DIODE validation, 771 images, 325 indoors and 446 outdoor, prepared at native
 768 by 1024 and scored on the centre 768 square that `square_crop` feeds each Stage
-(ADR-0012). The split is 541 train, 115 val, 115 test, drawn once with a fixed seed. Depth
-bins span 0 to 299.83 m, read from the prep manifest (ADR-0011). Heads are the Probe3D
-multiscale decoder, 10 epochs, AdamW, batch 8. The grid is the six points ADR-0014 specifies,
+. The split is 541 train, 115 val, 115 test, drawn once with a fixed seed. Depth
+bins span 0 to 299.83 m, read from the prep manifest. Heads are the Probe3D
+multiscale decoder, 10 epochs, AdamW, batch 8. The grid is six points,
 `[1e-4, 3e-4, 1e-3, 3e-3, 1e-2, 3e-2]`, searched on validation per cell, then retrained under
 three seeds at the selected rate.
 
 Semantics use ImageNet-100 validation, 13,000 images and 100 classes, cached at 448 square
-and pooled to a 4x4 grid (ADR-0005). Each cell searches the eight points in
+and pooled to a 4x4 grid. Each cell searches the eight points in
 `vtb.probe_run.LEARNING_RATES`, `[3e-4 ... 1.0]`, over 20 epochs, and reports mean test
 accuracy over three seeds. Attention and mean readouts both run. (Amended August 31: the
 semantic cells were re-searched on the eleven points `[1e-5 ... 1.0]`; the re-run section at
@@ -39,7 +39,7 @@ Both pillars run both capacity arms. `raw` trains the head at full token width, 
 1,706,752 parameters at a 1024-wide geometry Stage up to 4,852,480 at 7168, and 2,152,036 up
 to 8,443,492 on the semantic side. `matched` fits a frozen PCA reduction to 512 on each
 cell's training split and trains 1,444,608 parameters everywhere for depth, 1,314,819 for
-normals, and 1,627,748 for semantics (ADR-0008).
+normals, and 1,627,748 for semantics.
 
 The original matched matrices used randomized PCA before fixing its seed, so their exact
 PCA draws cannot be reconstructed. The semantic matched arm has since been regenerated in
@@ -103,7 +103,7 @@ No other Projector behaves that way.
 | qwen3_5 | depth | matched | -0.0017 (0.2 sd) | +0.0737 (13.5 sd) | 0.0 |
 | qwen3_5 | normal | matched | +1.7134 (4.3 sd) | -6.2445 (22.2 sd) | 0.3 |
 
-ADR-0010 nominates the matched arm for the headline. In it, one Projector of four sits below
+The matched arm carries the headline. In it, one Projector of four sits below
 its own lossless yardstick. The other three move the metric three to twenty times further
 than the step that provably changes no information. The unmatched arm agrees on the shape
 and disagrees on which models: there kimi_k26 depth reads 14.0 and MoonViT-V2 reads 1.6.
@@ -208,7 +208,7 @@ cells lead by +0.01282, interval
 and matched-mean differences do not resolve: +0.00171, interval [-0.00632, +0.00957], and
 +0.00154, interval [-0.00564, +0.00855]. Qwen3.5 is therefore the only Tower with a
 resolved within-cache semantic decline into the last layer, but the evidence is specific to
-both raw readouts rather than all four arms. The mean pooling control passed; ADR-0019 still
+both raw readouts rather than all four arms. The mean pooling control passed; the failed attention control still
 leaves the attention Relative Depth shape unvalidated against full patch tokens.
 
 That is the result a reader can act on. It says which layer to tap for a spatial task, and
@@ -293,10 +293,10 @@ that it carried every previous conclusion in this repo.
 One caveat: DINOv2 trained on ImageNet, so its semantic column is not a clean comparison. It
 still does not win there.
 
-## 5. ADR-0013: the arms disagree in six pairs of eight, and MoonViT-V2 is still special
+## 5. The arms disagree in six pairs of eight, and MoonViT-V2 is still special
 
 The capacity arms disagree about Stage ranking in six of the eight model-task pairs that
-have a Projector, so the disagreement ADR-0013 recorded is general rather than a MoonViT-V2
+have a Projector, so the disagreement is general rather than a MoonViT-V2
 quirk. That is not the whole answer though, and the detail is what the ADR needs.
 
 | model | task | unmatched | matched | |
@@ -317,7 +317,7 @@ the whole point, because the top of the ranking is what decides whether the Proj
 harmful. Read against the roster, the disputed MoonViT-V2 gap is a property of MoonViT-V2
 and not of the readout in general.
 
-Rate selection still does not dissolve it, and the mechanism ADR-0013 proposed still shows.
+Rate selection still does not dissolve it, and the proposed mechanism still shows.
 Both unmatched MoonViT-V2 depth cells select 1e-3 while both matched ones select 1e-2, which
 reproduces the earlier finding that rate headroom shrinks as the head widens. The wider
 roster sharpens it: unmatched qwen3_5 `projected` selects 3e-2, the top of the widened grid,
@@ -326,7 +326,7 @@ and beats its own `merged` cell by 0.1945 there, while unmatched qwen3_5 `merged
 apart. Comparing them at any single rate would be meaningless, which is the argument for
 per-cell selection and against reading the unmatched arm as a like-for-like Stage comparison.
 
-ADR-0013 needs updating in two places. The disagreement is not unique to MoonViT-V2, so the
+Two corrections follow. The disagreement is not unique to MoonViT-V2, so the
 ADR should stop implying it is. But the specific swap that changes the top-ranked Stage, and
 therefore changes the Projector's verdict, is unique to MoonViT-V2 across four Projectors,
 and the ADR should say so and stop treating that swap as the general case.
@@ -364,7 +364,7 @@ then climbs to 0.5211 at 3e-2, so that curve is not even unimodal and the grid s
 is rising. The 1e-4 floor is selected five times and only twice with a live curve, so the
 bottom of the range is close to adequate and the top is not.
 
-ADR-0014 should record that six points fixed the problem it was written about, and that the
+Six points fixed the problem it was written about, and that the
 remaining truncation is one-sided. Extending the ceiling to 1e-1 for the geometry pillar is
 the cheap next change; extending the floor is not worth the cells.
 
@@ -399,7 +399,7 @@ was one of those truncated cells.)
 
 541 training images for a head of 1.3 to 4.9 million parameters is thin. Absolute geometry
 levels are noisy and should not be compared against published Probe3D numbers, and nobody has
-published Probe3D numbers on DIODE anyway (ADR-0011). Every comparison above is between cells
+published Probe3D numbers on DIODE anyway. Every comparison above is between cells
 that saw identical data, an identical head and an identical grid.
 
 The lossless yardstick is verified bit-exact for MoonViT-V2 and Kimi K2.6 only. The
@@ -417,8 +417,8 @@ the same grid.
 Three seeds size the seed spread; they do not shrink it. Six of 24 geometry peak positions
 are unresolved within that spread, and normals carry most of it.
 
-Correspondence is still unscoped, the multilayer consistency run in ADR-0010 has not been
-done, and the pooling validation ADR-0005 requires is still outstanding. The DIODE training
+Correspondence is still unscoped, the multilayer consistency run has not been
+done, and the pooling validation is still outstanding. The DIODE training
 split was not downloaded. At 222 GB it waited on this run's answer, and the answer is that
 the Stage question is now more interesting than it was, not less: three Projectors move
 geometry further than a lossless step does, and 541 training images cannot say why.
@@ -792,7 +792,7 @@ The roster run found 107 of the 112 attention cells selecting 3e-4, the floor of
 eight-point semantic grid, and none of the 112 mean cells doing so. This re-run re-searched
 all 224 semantic cells on the eleven-point grid `vtb.probe_run.LEARNING_RATES` now specifies,
 `[1e-5 3e-5 1e-4 3e-4 1e-3 3e-3 1e-2 3e-2 1e-1 3e-1 1]`, and replaced the semantic JSONs in
-`results/`. Same data (ImageNet-100 validation, 13,000 images, 4x4 pooled grid, ADR-0005),
+`results/`. Same data (ImageNet-100 validation, 13,000 images, 4x4 pooled grid),
 same heads, same three seeds, same two capacity arms. The geometry pillar is untouched.
 
 The August 31 matched arm used randomized PCA before the reducer seed was fixed. On
@@ -818,7 +818,7 @@ gone: **3 of 224 cells select an endpoint of the grid**, all mean-raw DINOv2 cel
 1.0 ceiling. The one 3e-5 attention cell is an interior peak, not an endpoint.
 
 The attention cells moved onto the two points just above the old floor. The split stayed by
-readout and not by arm, exactly as ADR-0014 predicted:
+readout and not by arm, exactly as predicted:
 
 | readout | arm | 1e-4 | 3e-4 | 1e-3 or above |
 |---|---|---|---|---|
@@ -1262,12 +1262,12 @@ rate search selected on.
 | `tower` | 0.889 | 1152 | 115,300 | 0.001 | 0.9065 ± 0.0006 | 0.9159 |
 | `tower` | 1.000 | 1152 | 115,300 | 0.001 | 0.9121 ± 0.0005 | 0.9241 |
 
-## Pooling validation (ADR-0005), August 31 2026
+## Pooling validation, August 31 2026
 
 SigLIP2 and Muse Glimmer were probed on both the 4x4 pooled grid and full patch tokens over
 the same 1,500 ImageNet-100 validation images - the first 1,500 in sorted order for both
 grids, image ids verified identical between the caches. 72 cells, both readouts, both arms,
-eleven-point grid. Full token JSONs live in `results/pooling/`; the verdict is ADR-0019.
+eleven-point grid. Full token JSONs live in `results/pooling/`; the verdict follows.
 
 Split outcome. The mean readout validates: rankings agree (SigLIP2 first on both Towers in
 every arm) and Relative Depth curves agree, with the raw cells identical to four decimals
@@ -1282,7 +1282,7 @@ The semantic pillar's attention readout therefore carries a caveat: its cross-mo
 rankings are measured on pooled features whose control did not validate. Mean-readout
 comparisons are unaffected. Within-model comparisons remain controlled because every cell
 uses the same pooled cache, but that does not establish that pooling preserves the absolute
-shape of an attention Relative Depth curve. Details in ADR-0019.
+shape of an attention Relative Depth curve. Details follow.
 
 ### Paired bootstrap on the semantic readout rankings
 
@@ -1560,7 +1560,7 @@ is shown.
 
 ## Correspondence, September 2 2026
 
-ADR-0020 confirms that Probe3D's ScanNet, NAVI, and SPair evaluations score frozen
+Probe3D's ScanNet, NAVI, and SPair evaluations score frozen
 features directly. No probe is trained. The bench uses full patch tokens at 448 square,
 resizes each Stage map to a shared 64 by 64 matching grid, and retains 1,000
 ratio-ranked matches for the geometric datasets. SPair samples at most 200 test pairs per
@@ -1674,7 +1674,7 @@ The 48 cell payloads and six throughput records are under `results/label-budget/
 
 ## Perturbation Study, September 2 2026
 
-ADR-0003's budget cut reduces v1 to one factor: rectangles occluding 0, 10, 20, 35, or 50
+A budget cut reduces v1 to one factor: rectangles occluding 0, 10, 20, 35, or 50
 percent of each image. The fixed set is the first 2,000 sorted ImageNet-100 validation
 images. `results/perturbation/transforms.jsonl` ships 10,000 per-image records with the
 requested and actual area, rectangle coordinates, and fill value. Each matched attention
@@ -1720,7 +1720,7 @@ The full per-condition intervals and 300 paired test-image records are in each
 
 ## KITTI Transfer Probe, September 2 2026
 
-This is the single driving transfer column ADR-0001 permits, not a driving benchmark. The
+This is the single driving transfer column the scope permits, not a driving benchmark. The
 public KITTI depth-completion selected validation set supplies 1,000 paired RGB and metric
 depth files. Targets are zero-masked and sparse: mean valid coverage is 17.0848 percent
 over the prepared set and 22.39 percent on the fixed 150-image test split. The observed

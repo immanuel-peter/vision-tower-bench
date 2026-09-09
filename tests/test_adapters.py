@@ -66,7 +66,7 @@ def test_adapter_yields_every_stage_at_the_expected_shape(adapter_class, image):
         assert tuple(only[0].tokens.shape) == (1, side**2, width)
 
 
-# Projectors group 2x2 grid squares, then flatten by position or channel (ADR-0013).
+# Projectors group 2x2 grid squares, then flatten by position or channel.
 MERGE_LAYOUT = {
     MoonViTV2Adapter: "position",
     KimiK26Adapter: "position",

@@ -56,7 +56,7 @@ def main() -> None:
         default=None,
         metavar="SIDE",
         help="average the patch grid to SIDE x SIDE tokens; use 4 for semantic probes, "
-        "omit for the geometry pillar and the pooling validation subset (ADR-0005)",
+        "omit for the geometry pillar and the pooling validation subset",
     )
     parser.add_argument(
         "--final-stages",

@@ -10,7 +10,7 @@ OUT="${1:?output dir}"; shift
 GPUS="${GPUS:-$(nvidia-smi --query-gpu=index --format=csv,noheader | paste -sd,)}"
 IFS=, read -ra GPU <<< "$GPUS"
 LANES="${LANES:-${#GPU[@]}}"
-GRID="${GRID:-1e-4 3e-4 1e-3 3e-3 1e-2 3e-2}"   # ADR-0014
+GRID="${GRID:-1e-4 3e-4 1e-3 3e-3 1e-2 3e-2}"
 SEEDS="${SEEDS:-3}"
 TASKS="${TASKS:-depth normal}"
 ARMS="${ARMS:-raw matched}"

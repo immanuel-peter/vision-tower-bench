@@ -3,7 +3,7 @@
 Ported from Probe3D (mbanani/probe3d, CVPR 2024) so the decoder matches the published
 protocol. The heads read a list of feature maps, one per Relative Depth point, which is
 why the geometry cache keeps full patch tokens instead of the 4x4 grid the semantic
-pillar uses (ADR-0005).
+pillar uses.
 """
 
 from math import isqrt
@@ -24,7 +24,7 @@ def dense_map(batch: FeatureBatch) -> torch.Tensor:
     tokens first; ours are patch-only already.
     """
     if batch.pooled_to is not None:
-        raise ValueError("geometry needs full patch tokens, not a pooled grid (ADR-0005)")
+        raise ValueError("geometry needs full patch tokens, not a pooled grid")
     count = batch.tokens.shape[1]
     side = isqrt(count)
     if side * side != count:

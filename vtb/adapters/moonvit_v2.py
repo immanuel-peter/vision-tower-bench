@@ -73,7 +73,7 @@ def load_projector(dtype: torch.dtype) -> nn.Module:
 
 
 class MoonViTV2Adapter:
-    """Kimi K3 adapter; use batch size 1 without flash attention, as measured in ADR-0009."""
+    """Kimi K3 adapter; use batch size 1 without flash attention, as measured."""
 
     model_id = MODEL_ID
     stages = ("tower", "merged", "projected")

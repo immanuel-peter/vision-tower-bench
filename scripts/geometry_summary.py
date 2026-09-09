@@ -1,4 +1,4 @@
-"""Compare geometry results against seed spread as specified by ADR-0013."""
+"""Compare geometry results against seed spread."""
 
 import argparse
 import json

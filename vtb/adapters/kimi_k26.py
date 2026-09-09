@@ -79,7 +79,7 @@ def load_parts(dtype: torch.dtype, attention: str = "eager"):
 
 
 class KimiK26Adapter:
-    """Use batch size 1 without flash attention, as measured in ADR-0009."""
+    """Use batch size 1 without flash attention, as measured."""
 
     model_id = MODEL_ID
     stages = ("tower", "merged", "projected")
