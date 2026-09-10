@@ -357,22 +357,32 @@ def protocol(out: Path) -> None:
     plt.close(figure)
 
 
+FIGURES = {
+    "protocol": protocol,
+    "projector-forest": forest,
+    "semantic-forest": semantic_forest,
+    "label-budget": label_budget,
+    "relative-depth-semantic": relative_depth,
+    "hypothesis-1-peaks": peaks,
+    "stage-levels": stage_levels,
+    "occlusion": occlusion,
+    "capability-profile": capability_profile,
+}
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=Path, default=Path("docs/figures"))
+    # SVG for the web report, PDF for pdflatex, which cannot embed SVG.
+    parser.add_argument("--format", dest="formats", nargs="+", default=["svg"],
+                        choices=("svg", "pdf", "png"))
     args = parser.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
 
-    protocol(args.out / "protocol.svg")
-    forest(args.out / "projector-forest.svg")
-    semantic_forest(args.out / "semantic-forest.svg")
-    label_budget(args.out / "label-budget.svg")
-    relative_depth(args.out / "relative-depth-semantic.svg")
-    peaks(args.out / "hypothesis-1-peaks.svg")
-    stage_levels(args.out / "stage-levels.svg")
-    occlusion(args.out / "occlusion.svg")
-    capability_profile(args.out / "capability-profile.svg")
-    print(f"wrote 9 figures to {args.out}")
+    for name, draw in FIGURES.items():
+        for suffix in args.formats:
+            draw(args.out / f"{name}.{suffix}")
+    print(f"wrote {len(FIGURES)} figures to {args.out} as {', '.join(args.formats)}")
 
 
 if __name__ == "__main__":
