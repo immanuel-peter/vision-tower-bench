@@ -95,7 +95,6 @@ def remote_class(name: str):
 
 
 def load_source_parts(dtype: torch.dtype = torch.bfloat16, attention: str = "eager"):
-    """Build both halves from Moonshot's own code, which the release must match."""
     settings = json.loads(
         Path(hf_hub_download(SOURCE_REPO, "config.json", revision=SOURCE_REVISION)).read_text()
     )["vision_config"]

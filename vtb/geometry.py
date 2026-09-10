@@ -1,10 +1,4 @@
-"""Dense readouts for the geometry pillar.
-
-Ported from Probe3D (mbanani/probe3d, CVPR 2024) so the decoder matches the published
-protocol. The heads read a list of feature maps, one per Relative Depth point, which is
-why the geometry cache keeps full patch tokens instead of the 4x4 grid the semantic
-pillar uses.
-"""
+"""Probe3D dense readouts. Heads take one feature map per Relative Depth point."""
 
 from math import isqrt
 
@@ -18,11 +12,7 @@ PROBE3D_COMMIT = "https://github.com/mbanani/probe3d"
 
 
 def dense_map(batch: FeatureBatch) -> torch.Tensor:
-    """Lay a batch's patch tokens back onto their grid as (images, dim, height, width).
-
-    Probe3D calls this the `dense` output type. Its backbones drop the CLS and register
-    tokens first; ours are patch-only already.
-    """
+    """Reshape patch tokens to (images, dim, height, width)."""
     if batch.pooled_to is not None:
         raise ValueError("geometry needs full patch tokens, not a pooled grid")
     count = batch.tokens.shape[1]
@@ -44,8 +34,6 @@ def make_conv(input_dim, hidden_dim, output_dim, num_layers, kernel_size=1):
 
 
 class Linear(nn.Module):
-    """The cheapest Probe3D head. One convolution over upsampled features."""
-
     def __init__(self, input_dims, output_dim: int, kernel_size: int = 1):
         super().__init__()
         width = input_dims if isinstance(input_dims, int) else sum(input_dims)
@@ -57,8 +45,6 @@ class Linear(nn.Module):
 
 
 class MultiscaleHead(nn.Module):
-    """Projects each feature map, joins them at the finest grid, then upsamples 8x."""
-
     def __init__(self, input_dims: list[int], output_dim: int, hidden_dim: int = 512, kernel_size: int = 1):
         super().__init__()
         self.convs = nn.ModuleList(
@@ -82,8 +68,6 @@ class MultiscaleHead(nn.Module):
 
 
 class DepthBins(nn.Module):
-    """Turns per-bin scores into a depth by taking their expected value, as AdaBins does."""
-
     def __init__(self, min_depth: float = 0.001, max_depth: float = 10.0, n_bins: int = 256):
         super().__init__()
         self.min_depth, self.max_depth, self.n_bins = min_depth, max_depth, n_bins
@@ -104,8 +88,7 @@ class DepthHead(nn.Module):
         max_depth: float = 10.0,
     ):
         super().__init__()
-        # NYU tops out near 10 m indoors. DIODE is metric and reaches 230 m outdoors, so
-        # a wrong range here silently clamps every far pixel to the last bin.
+        # Default 10 m is NYU indoor. DIODE outdoor goes to ~230 m; a short range clamps far pixels.
         self.predict = DepthBins(max_depth=max_depth)
         self.head = _build(head, input_dims, self.predict.n_bins, hidden_dim)
 

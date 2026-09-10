@@ -1,8 +1,4 @@
-"""Training-free correspondence scoring on frozen Stage features.
-
-The matching rule follows Probe3D: cosine nearest neighbours, Lowe's ratio test for
-geometric correspondence, and direct nearest-neighbour lookup for SPair keypoints.
-"""
+"""Training-free correspondence scoring on frozen Stage features."""
 
 from __future__ import annotations
 
@@ -21,7 +17,6 @@ class Matches:
 
 
 def dense_map(tokens: torch.Tensor) -> torch.Tensor:
-    """Convert one image's ``(tokens, width)`` patch sequence to ``(width, h, w)``."""
     if tokens.ndim != 2:
         raise ValueError(f"tokens must be (token, width), got {tuple(tokens.shape)}")
     side = isqrt(tokens.shape[0])
@@ -31,7 +26,6 @@ def dense_map(tokens: torch.Tensor) -> torch.Tensor:
 
 
 def resize_features(features: torch.Tensor, side: int) -> torch.Tensor:
-    """Interpolate a Stage map onto a shared square evaluation grid."""
     if features.shape[-2:] == (side, side):
         return features.float()
     return F.interpolate(
@@ -40,7 +34,6 @@ def resize_features(features: torch.Tensor, side: int) -> torch.Tensor:
 
 
 def grid_centres(side: int, resolution: int, *, device=None) -> torch.Tensor:
-    """Return ``(x, y)`` pixel centres for a square feature grid."""
     axis = (torch.arange(side, device=device, dtype=torch.float32) + 0.5) * (
         resolution / side
     )
@@ -49,11 +42,9 @@ def grid_centres(side: int, resolution: int, *, device=None) -> torch.Tensor:
 
 
 def sample_map(values: torch.Tensor, xy: torch.Tensor, resolution: int) -> torch.Tensor:
-    """Bilinearly sample a ``(channels, h, w)`` map at output-image pixel positions."""
     if values.ndim == 2:
         values = values[None]
-    # Stage features may be bfloat16, but grid_sample requires the sampling grid
-    # and input to have the same floating-point dtype.
+    # grid_sample needs matching float dtypes; Stage maps may be bfloat16.
     grid = xy.float().clone()
     grid[:, 0] = 2 * grid[:, 0] / resolution - 1
     grid[:, 1] = 2 * grid[:, 1] / resolution - 1
@@ -70,11 +61,7 @@ def ratio_matches(
     *,
     chunk_size: int = 256,
 ) -> Matches:
-    """Return the most distinctive cosine matches under Lowe's ratio test.
-
-    ``source`` and ``target`` are point-major matrices. The chunked matrix multiply keeps
-    wide Projector features from materialising a large query-by-target-by-width tensor.
-    """
+    """Cosine matches under Lowe's ratio test. Multiply in chunks to avoid a wide outer product."""
     if source.ndim != 2 or target.ndim != 2 or source.shape[1] != target.shape[1]:
         raise ValueError("source and target must be (points, shared_width) matrices")
     if len(source) == 0 or len(target) < 2:
@@ -138,7 +125,6 @@ def geometric_errors(
     evaluation_side: int = 32,
     num_correspondences: int = 256,
 ) -> tuple[torch.Tensor, torch.Tensor]:
-    """Return 3D metric and target-image projection errors for one geometric pair."""
     f0, xy0, d0 = _valid_points(features_0, depth_0, evaluation_side, resolution)
     f1, xy1, d1 = _valid_points(features_1, depth_1, evaluation_side, resolution)
     matches = ratio_matches(f0, f1, num_correspondences)
@@ -161,7 +147,6 @@ def semantic_errors(
     *,
     resolution: int = 448,
 ) -> torch.Tensor:
-    """Return SPair keypoint errors normalised by target bounding-box scale."""
     source_keypoints = source_keypoints[valid]
     target_keypoints = target_keypoints[valid]
     if len(source_keypoints) == 0:
@@ -193,7 +178,6 @@ def paired_bootstrap(
     seed: int = 0,
     batch_size: int = 256,
 ) -> dict[str, float | int | str]:
-    """Bootstrap a paired increasing metric. Positive values favour ``first``."""
     if first.shape != second.shape or first.ndim != 1:
         raise ValueError("paired measurements must have the same one-dimensional shape")
     if not len(first):

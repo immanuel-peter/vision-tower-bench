@@ -1,8 +1,4 @@
-"""Build a publishable MoonViT-V2 repository from the Kimi K3 shards.
-
-The Tower and the Projector ship as separate files so that the Tower keeps loading
-through ``AutoModel.from_pretrained`` exactly as it does from AI4Industry/MoonViT-V2.
-"""
+"""Build a publishable MoonViT-V2 repository from the Kimi K3 shards."""
 
 import argparse
 import json
@@ -41,7 +37,6 @@ def read_prefix(shard: str, prefix: str) -> dict[str, torch.Tensor]:
 
 
 def check_against_standalone(tower: dict[str, torch.Tensor]) -> None:
-    """Fail unless the extracted Tower is bit-identical to the published standalone one."""
     standalone = load_file(hf_hub_download(TOWER_REPO, "model.safetensors"))
     if set(standalone) != set(tower):
         missing = set(standalone) ^ set(tower)

@@ -1,4 +1,4 @@
-"""Render the geometry result JSONs as the markdown tables the writeup carries."""
+"""Render geometry result JSONs as Markdown tables."""
 
 import argparse
 import json
@@ -8,13 +8,11 @@ HEADLINE = {"depth": ("d1", "d2", "d3", "rmse"), "normal": ("mean_deg", "d1", "d
 
 
 def rows(cells: list[dict]) -> list[dict]:
-    """Tower depth points first, then the Stages that exist only at the deepest point."""
     order = {"tower": 0, "merged": 1, "projected": 2}
     return sorted(cells, key=lambda c: (order[c["stage"]], c["relative_depth"]))
 
 
 def spread(cell: dict, metric: str) -> str:
-    """The selection metric carries its seed spread; the rest stay plain to keep the table narrow."""
     if f"{metric}_std" in cell:
         return f"{cell[metric]:.4f} ± {cell[metric + '_std']:.4f}"
     return f"{cell[metric]:.4f}"

@@ -53,7 +53,6 @@ class DINOv2Adapter:
         return Preprocess(self.resolution)
 
     def depth_points(self, n: int = 8) -> list[int]:
-        """Return ``n`` evenly spaced layer indices, including the final layer."""
         return [round(self.num_layers * (k + 1) / n) for k in range(n)]
 
     @torch.inference_mode()

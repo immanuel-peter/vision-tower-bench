@@ -11,7 +11,6 @@ SHARD = re.compile(r"^(?P<stage>[a-z]+)_L(?P<layer>\d+)_(?P<shard>\d+)\.safetens
 
 
 def slices(run_dir: Path) -> list[tuple[str, int]]:
-    """Return each stage and layer pair in cache order."""
     found = {(m["stage"], int(m["layer"])) for p in Path(run_dir).iterdir() if (m := SHARD.match(p.name))}
     return sorted(found, key=lambda s: (s[0], s[1]))
 
@@ -22,7 +21,6 @@ def shards(run_dir: Path, stage: str, layer: int) -> Iterator[Path]:
 
 
 def load(run_dir: Path, stage: str, layer: int) -> tuple[torch.Tensor, list[str], dict[str, str]]:
-    """Load one stage and layer as an ``(images, tokens, dim)`` tensor."""
     parts: list[torch.Tensor] = []
     image_ids: list[str] = []
     metadata: dict[str, str] = {}
@@ -37,7 +35,6 @@ def load(run_dir: Path, stage: str, layer: int) -> tuple[torch.Tensor, list[str]
 
 
 def load_batch(run_dir: Path, stage: str, layer: int) -> FeatureBatch:
-    """Load one Stage at one depth point back into the batch the adapters produced."""
     tokens, image_ids, meta = load(run_dir, stage, layer)
     pooled = meta.get("pooled_to", "none")
     return FeatureBatch(
@@ -53,7 +50,6 @@ def load_batch(run_dir: Path, stage: str, layer: int) -> FeatureBatch:
 
 
 class ShardWriter:
-    """Buffer batches until a stage and layer pair reaches ``images`` rows."""
 
     def __init__(self, run_dir: Path, images: int = 512):
         self.run_dir = Path(run_dir)

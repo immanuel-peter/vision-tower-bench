@@ -32,7 +32,6 @@ def deepest(run: dict, stage: str) -> dict | None:
 
 
 def gap(left: dict, right: dict, metric: str) -> tuple[float, float]:
-    """Signed change from left to right, and its size in pooled seed deviations."""
     spread = ((left[f"{metric}_std"] ** 2 + right[f"{metric}_std"] ** 2) / 2) ** 0.5
     change = right[metric] - left[metric]
     return change, abs(change) / spread if spread else float("inf")

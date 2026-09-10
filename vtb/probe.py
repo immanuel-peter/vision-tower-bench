@@ -31,7 +31,6 @@ class MeanPool(nn.Module):
 
 @dataclass(frozen=True)
 class Reducer:
-    """Frozen PCA map fit on training features for capacity matching."""
 
     basis: torch.Tensor
     mean: torch.Tensor

@@ -32,12 +32,7 @@ def subsample_train(
     fraction: float,
     seed: int = 0,
 ) -> Split:
-    """Apply an exact, class-stratified budget to the training indices only.
-
-    The requested count is rounded from the full training split. When that count is
-    smaller than the number of represented classes, one example per class is retained.
-    Validation and test indices are returned unchanged.
-    """
+    """Keep a class-stratified training subset. Validation and test stay full."""
     if not 0 < fraction <= 1:
         raise ValueError("label fraction must be in (0, 1]")
     if fraction == 1:

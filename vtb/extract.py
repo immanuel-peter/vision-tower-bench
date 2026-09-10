@@ -123,7 +123,6 @@ def main() -> None:
 
 @dataclass(frozen=True)
 class Collate:
-    """Picklable adapter collator that separates image ids from model inputs."""
 
     batch: Callable
 

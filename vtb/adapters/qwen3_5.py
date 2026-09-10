@@ -21,11 +21,7 @@ MERGE_SIZE = 2
 
 @dataclass(frozen=True)
 class Preprocess:
-    """Flatten an image into the patch rows Qwen's tower reads.
-
-    Rows are grouped by 2x2 merge block rather than by raster row, which is the order
-    the merger expects. The adapter puts the `tower` Stage back into raster order.
-    """
+    """Flatten an image into merge-block patch rows. ``raster`` undoes that grouping."""
 
     resolution: int
     pipeline: transforms.Compose = field(init=False, repr=False)
@@ -65,7 +61,6 @@ def collate(samples: list[torch.Tensor]) -> dict[str, torch.Tensor]:
 
 
 def raster(tokens: torch.Tensor, rows: int) -> torch.Tensor:
-    """Undo the merge-block grouping so a Stage reshapes to a square grid."""
     width = tokens.shape[-1]
     side = int((tokens.numel() // (rows * width)) ** 0.5)
     blocks = side // MERGE_SIZE

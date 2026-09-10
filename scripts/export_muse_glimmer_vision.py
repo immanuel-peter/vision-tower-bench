@@ -28,7 +28,6 @@ PROJECTOR_TENSORS = 3
 def load_source_parts(
     dtype: torch.dtype = torch.bfloat16,
 ) -> tuple[MuseGlimmerVisionModel, Projector]:
-    """Build both halves from the pinned parent checkpoint, which the release must match."""
     config = AutoConfig.from_pretrained(SOURCE_REPO, revision=SOURCE_REVISION)
     tower = MuseGlimmerVisionModel._from_config(config.vision_config, dtype=dtype)
     tower_weights = load_prefixed(SOURCE_REPO, SHARDS, TOWER_PREFIX, revision=SOURCE_REVISION)

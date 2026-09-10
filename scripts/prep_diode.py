@@ -1,13 +1,4 @@
-"""Convert DIODE samples into images and targets the suite can read.
-
-DIODE ships a PNG plus three npy arrays per sample: metric depth, a depth validity mask,
-and surface normals. Normals arrive in a separate archive and cover only part of each
-image, so validity comes from their magnitude rather than from a shipped mask.
-
-Depth here is metric and reaches 230 m outdoors, against 10 m indoors on NYU. The depth
-head bins over a fixed range, so the range is written into the manifest and passed to the
-runner rather than assumed.
-"""
+"""Convert DIODE samples into images, metric depth, and optional normals."""
 
 import argparse
 import json
@@ -17,13 +8,11 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
-# Below this magnitude a normal vector carries no direction, which is how DIODE marks
-# pixels it could not annotate. Roughly half of an outdoor image is unannotated.
+# DIODE marks unannotated normals with near-zero magnitude.
 NORMAL_EPSILON = 1e-6
 
 
 def samples(root: Path) -> dict[str, dict[str, Path]]:
-    """Group the four files of each sample by its shared stem."""
     found: dict[str, dict[str, Path]] = {}
     for path in root.rglob("*.npy"):
         name = path.name
@@ -33,7 +22,6 @@ def samples(root: Path) -> dict[str, dict[str, Path]]:
                 break
     for path in root.rglob("*.png"):
         found.setdefault(path.stem, {})["image"] = path
-    # Normals ship in their own archive, so a depth-only run is a valid intermediate state.
     return {stem: parts for stem, parts in found.items() if {"image", "depth", "mask"} <= parts.keys()}
 
 
@@ -51,8 +39,6 @@ def read(parts: dict[str, Path]):
 
 
 def copy_image(source: Path, destination: Path) -> None:
-    """Copy the PNG rather than re-encode it. DIODE already ships RGB PNGs, and
-    re-encoding 771 of them is the only part of this step that works the CPU hard."""
     with Image.open(source) as probe:
         if probe.mode == "RGB":
             shutil.copyfile(source, destination)
@@ -89,8 +75,6 @@ def main() -> None:
         if normal is not None:
             targets[f"{image_id}_normal"] = normal.astype(np.float16)
             targets[f"{image_id}_valid"] = valid
-        # DIODE encodes the scene type in the file name, which gives the writeup an
-        # indoor against outdoor split for free.
         scenes[image_id] = "indoors" if "_indoors_" in stem else "outdoor"
         depth_max = max(depth_max, float(depth.max()))
         if position % 100 == 0:

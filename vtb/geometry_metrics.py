@@ -1,8 +1,4 @@
-"""Depth and surface normal metrics, matching Probe3D so numbers stay comparable.
-
-Both return per-image tensors. The caller averages, which keeps image-level and
-pixel-level averaging a decision the runner makes rather than one baked in here.
-"""
+"""Probe3D depth and surface-normal metrics. Functions return per-image tensors."""
 
 import torch
 
@@ -13,7 +9,6 @@ NYU_CROP = (slice(45, 471), slice(41, 601))
 
 
 def match_scale_and_shift(prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
-    """Least-squares fit of one scale and one offset per image, over valid pixels."""
     valid = (target > 0).float()
     flat_pr = prediction.flatten(1)
     flat_gt = target.flatten(1)
@@ -84,13 +79,7 @@ def evaluate_surface_normal(
 
 
 def depth_si_loss(prediction, target, alpha: float = 10.0, lambda_scale: float = 0.85, eps: float = 1e-5):
-    """Log-space depth loss from Eigen et al, as Probe3D applies it.
-
-    lambda_scale below 1 makes it only partly scale-invariant: a prediction scaled by two
-    still costs 2.68 at the default 0.85, and nothing at 1.0. Probe3D uses 0.85, so this
-    does. The square root runs per image before the mean, which Probe3D notes differs from
-    PixelFormer.
-    """
+    """Eigen log-space depth loss, Probe3D defaults (lambda 0.85, sqrt per image)."""
     valid = (target > 0).detach().float()
     count = valid.sum(dim=(-1, -2)).clamp(min=1)
     diff = (prediction.clamp(min=eps).log() - target.clamp(min=eps).log()) * valid
@@ -100,7 +89,6 @@ def depth_si_loss(prediction, target, alpha: float = 10.0, lambda_scale: float =
 
 
 def normal_loss(prediction, target, valid):
-    """One minus cosine similarity over valid pixels."""
     cosine = torch.cosine_similarity(prediction[:, :3], target, dim=1).clamp(-1.0, 1.0)
     valid = valid.squeeze(1).float()
     count = valid.sum(dim=(1, 2)).clamp(min=1)

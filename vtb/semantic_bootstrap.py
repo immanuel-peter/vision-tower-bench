@@ -12,13 +12,7 @@ def paired_image_bootstrap(
     seed: int = 0,
     batch_size: int = 256,
 ) -> dict[str, float | int]:
-    """Bootstrap the first-minus-second accuracy gap over paired test images.
-
-    Inputs are boolean correctness tensors shaped ``(seeds, images)``. Averaging
-    over seeds first makes the point estimate equal the difference between the
-    two headline mean accuracies; resampling the shared image axis preserves the
-    pairing between Towers.
-    """
+    """Paired bootstrap of first-minus-second accuracy over shared test images."""
     if first.shape != second.shape or first.ndim != 2:
         raise ValueError("correctness tensors must have the same (seeds, images) shape")
     if first.shape[1] == 0:

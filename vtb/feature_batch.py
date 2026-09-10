@@ -19,7 +19,6 @@ def concat(batches: list["FeatureBatch"]) -> "FeatureBatch":
 
 @dataclass(frozen=True)
 class FeatureBatch:
-    """Patch-only adapter output shared by the cache and probes."""
 
     tokens: torch.Tensor
     image_ids: list[str]
@@ -43,7 +42,6 @@ class FeatureBatch:
         return self.layer_index / self.num_layers
 
     def pooled(self, side: int) -> "FeatureBatch":
-        """Average a square patch grid down to ``side`` by ``side`` tokens."""
         count = self.tokens.shape[1]
         grid = isqrt(count)
         if grid * grid != count:
@@ -53,12 +51,10 @@ class FeatureBatch:
 
         rows, _, dim = self.tokens.shape
         spatial = self.tokens.transpose(1, 2).reshape(rows, dim, grid, grid)
-        # Pool in fp32 to preserve precision.
         small = F.adaptive_avg_pool2d(spatial.float(), side).to(self.tokens.dtype)
         return replace(self, tokens=small.flatten(2).transpose(1, 2), pooled_to=side)
 
     def with_tokens(self, tokens: torch.Tensor) -> "FeatureBatch":
-        """Same slice, different token values. Used when a probe reduces token width."""
         return replace(self, tokens=tokens)
 
     @property

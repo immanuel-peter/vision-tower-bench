@@ -26,15 +26,13 @@ DTYPES = {
 }
 HEADER_SIZE_BYTES = 8
 
-# One request per tensor gets rate limited, so neighbours closer than this ride along.
+# Neighbours closer than this share one request; one-tensor fetches get rate limited.
 STRIDE_GAP_BYTES = 8 * 1024 * 1024
-# Limit retry cost when the CDN resets a long transfer.
 MAX_SPAN_BYTES = 256 * 1024 * 1024
 ATTEMPTS = 6
 
 
 def _get(url: str, start: int, end: int) -> bytes:
-    """Read one byte span, backing off when the CDN throttles, fails, or drops the socket."""
     for attempt in range(ATTEMPTS):
         last = attempt == ATTEMPTS - 1
         try:
@@ -63,7 +61,6 @@ def _range(url: str, start: int, end: int) -> bytes:
 
 
 def _runs(entries: list[tuple[str, dict]]) -> list[tuple[int, int, list[tuple[str, dict]]]]:
-    """Group tensors into byte spans that one request can cover."""
     spans: list[tuple[int, int, list[tuple[str, dict]]]] = []
     for name, entry in sorted(entries, key=lambda pair: pair[1]["data_offsets"][0]):
         start, end = entry["data_offsets"]
@@ -77,7 +74,6 @@ def _runs(entries: list[tuple[str, dict]]) -> list[tuple[int, int, list[tuple[st
 
 
 def resolve(repo: str, filename: str, revision: str | None = None) -> tuple[str, str]:
-    """Return a download URL and the etag identifying the revision behind it."""
     meta = get_hf_file_metadata(hf_hub_url(repo, filename, revision=revision))
     return meta.location, meta.etag or ""
 
@@ -90,14 +86,12 @@ def _header_at(url: str) -> tuple[dict, int]:
 
 
 def read_header(repo: str, filename: str, revision: str | None = None) -> tuple[dict, str, int]:
-    """Return a shard's tensor index, its resolved URL, and where its data starts."""
     url, _ = resolve(repo, filename, revision)
     header, data_start = _header_at(url)
     return header, url, data_start
 
 
 def cache_root() -> Path:
-    """Return the configured cache or a directory beside the Hugging Face cache."""
     if override := os.environ.get("VTB_SHARD_CACHE"):
         return Path(override)
     home = os.environ.get("HF_HOME")
@@ -105,7 +99,6 @@ def cache_root() -> Path:
 
 
 def cache_path(repo: str, prefix: str, etags: Iterable[tuple[str, str]]) -> Path:
-    """Name a read by what it asks for and by the revision it would read."""
     identity = json.dumps([repo, prefix, sorted(etags)], sort_keys=True)
     return cache_root() / f"{hashlib.sha256(identity.encode()).hexdigest()[:32]}.safetensors"
 
@@ -117,7 +110,6 @@ def load_prefixed(
     *,
     revision: str | None = None,
 ) -> dict[str, torch.Tensor]:
-    """Load matching tensors and cache them locally."""
     filenames = list(filenames)
     resolved = {name: resolve(repo, name, revision) for name in filenames}
     path = cache_path(repo, prefix, ((name, etag) for name, (_, etag) in resolved.items()))
@@ -133,13 +125,11 @@ def load_prefixed(
             raw = _range(url, data_start + span_start, data_start + span_end)
             for name, entry in members:
                 start, end = entry["data_offsets"]
-                # frombuffer needs a writable copy, and safetensors stores row-major.
                 chunk = bytearray(raw[start - span_start : end - span_start])
                 flat = torch.frombuffer(chunk, dtype=DTYPES[entry["dtype"]])
                 weights[name.removeprefix(prefix)] = flat.reshape(entry["shape"])
 
     path.parent.mkdir(parents=True, exist_ok=True)
-    # Write beside the target so a killed process cannot leave a half-written cache entry.
     scratch = path.with_suffix(f".{os.getpid()}.partial")
     save_file(weights, scratch)
     scratch.replace(path)
@@ -153,7 +143,6 @@ def prefix_bytes(
     *,
     revision: str | None = None,
 ) -> int:
-    """Report what ``load_prefixed`` would download, without downloading it."""
     total = 0
     for filename in filenames:
         header, _, _ = read_header(repo, filename, revision)

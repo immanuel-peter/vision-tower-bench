@@ -54,7 +54,6 @@ class Frame:
 
 
 def canonical(image: Image.Image, resolution: int) -> tuple[Image.Image, Frame]:
-    """Apply the bench's shorter-side resize and centre crop, retaining its affine map."""
     image = ImageOps.exif_transpose(image).convert("RGB")
     original_width, original_height = image.size
     resized = tv_F.resize(image, resolution, InterpolationMode.BICUBIC, antialias=True)
@@ -77,7 +76,6 @@ def read_depth(path: Path, divisor: float = 1000.0) -> torch.Tensor:
 
 
 def align_rgb_to_depth(image: Image.Image, depth: torch.Tensor) -> Image.Image:
-    """Put ScanNet RGB into the pixel frame used by its depth and intrinsics."""
     size = [depth.shape[-2], depth.shape[-1]]
     if image.size == (size[1], size[0]):
         return image

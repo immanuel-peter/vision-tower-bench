@@ -25,7 +25,6 @@ DISPLAY: dict[str, str] = {
 
 
 def tower_name(label: str) -> str:
-    """Perturbation results carry the cache directory name, not the roster key."""
     return next(t for t in TOWERS if label.startswith(t))
 
 # Panel order and axis label for every Projector comparison, keyed by the slug that sits
@@ -43,7 +42,6 @@ PANELS = {
 
 
 def projector_intervals() -> dict[str, list[tuple[str, float, float, float]]]:
-    """Read every projected-against-tower interval, grouped by panel."""
     panels = defaultdict(list)
     for path in sorted(RESULTS.glob("bootstrap/*-projected-vs-tower.json")):
         stem = path.stem.removesuffix("-projected-vs-tower")
@@ -58,7 +56,6 @@ def projector_intervals() -> dict[str, list[tuple[str, float, float, float]]]:
 
 
 def forest(out: Path) -> None:
-    """One row per Projector per task. Positive means the Projector wins."""
     panels = projector_intervals()
     keys = [k for k in PANELS if k in panels]
     figure, axes = plt.subplots(
@@ -90,7 +87,6 @@ def forest(out: Path) -> None:
 
 
 def label_budget(out: Path, readout: str = "attention") -> None:
-    """Accuracy against labelled training images, where the ranking changes."""
     series = defaultdict(dict)
     for path in sorted(RESULTS.glob(f"label-budget/*_probe_{readout}_matched_f*.json")):
         model = path.stem.split("_probe_")[0]
@@ -116,7 +112,6 @@ def label_budget(out: Path, readout: str = "attention") -> None:
 
 
 def relative_depth(out: Path, readout: str = "attention", arm: str = "matched") -> None:
-    """Semantic accuracy along the Tower, the axis Relative Depth exists for."""
     figure, axis = plt.subplots(figsize=(6, 4))
     for model in TOWERS:
         path = RESULTS / f"{model}_probe_{readout}_{arm}.json"
@@ -137,7 +132,6 @@ def relative_depth(out: Path, readout: str = "attention", arm: str = "matched") 
 
 
 def occlusion(out: Path) -> None:
-    """Perturbation Study: accuracy against occluded image area, Tower Stage only."""
     figure, axis = plt.subplots(figsize=(6, 4))
     for path in sorted(RESULTS.glob("perturbation/*_perturbation.json")):
         payload = json.loads(path.read_text())
@@ -159,7 +153,6 @@ def occlusion(out: Path) -> None:
 
 
 def capability_profile(out: Path) -> None:
-    """Rank per axis, to show that no Tower wins everywhere."""
     axes_names = ["semantic 1%", "semantic 100%", "NAVI", "ScanNet", "SPair", "occlusion 50%"]
     scores: dict[str, list[float]] = {m: [] for m in TOWERS}
 
@@ -180,7 +173,6 @@ def capability_profile(out: Path) -> None:
         worst = max(cell["conditions"], key=lambda c: c["value"])
         scores[model].append(worst["accuracy"])
 
-    # Rank 1 is best on every axis, so a flat line would mean one Tower wins everywhere.
     ranks: dict[str, list[int]] = {m: [] for m in TOWERS}
     for column in range(len(axes_names)):
         order = sorted(TOWERS, key=lambda m: -scores[m][column])
@@ -203,7 +195,6 @@ def capability_profile(out: Path) -> None:
 
 
 def peaks(out: Path) -> None:
-    """Hypothesis 1 on shared axes: geometry peaks before semantics in every Tower."""
     figure, (top, bottom) = plt.subplots(2, 1, figsize=(6.5, 6.4), sharex=True)
 
     for model in TOWERS:
@@ -243,7 +234,6 @@ def peaks(out: Path) -> None:
 
 
 def semantic_forest(out: Path) -> None:
-    """The cross-model semantic intervals, four of which cross zero."""
     rows = []
     for path in sorted(RESULTS.glob("bootstrap/semantic-*-vs-*.json")):
         payload = json.loads(path.read_text())
@@ -278,7 +268,6 @@ def semantic_forest(out: Path) -> None:
 
 
 def stage_levels(out: Path) -> None:
-    """Depth d1 at each Stage, so the forest plot's differences have absolute values."""
     stages = ["tower", "merged", "projected"]
     projectors = [m for m in TOWERS if m not in ("dinov2", "siglip2")]
 
@@ -304,7 +293,6 @@ def stage_levels(out: Path) -> None:
 
 
 def protocol(out: Path) -> None:
-    """Where the bench taps a model and what reads each Stage. Drawn, not measured."""
     figure, axis = plt.subplots(figsize=(9.4, 5.2))
     axis.set_xlim(0, 100)
     axis.set_ylim(2, 56)

@@ -6,7 +6,6 @@ from pathlib import Path
 
 
 def rows(cells: list[dict]) -> list[dict]:
-    """Tower depth points first, then the Stages that exist only at the deepest point."""
     order = {"tower": 0, "merged": 1, "projected": 2}
     return sorted(cells, key=lambda c: (order[c["stage"]], c["relative_depth"]))
 

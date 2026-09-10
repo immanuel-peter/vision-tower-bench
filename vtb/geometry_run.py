@@ -1,9 +1,4 @@
-"""Train the dense readouts on a cached run and report one geometry column.
-
-Mirrors probe_run.py, with two differences. The features are full patch tokens laid back
-onto their grid rather than a pooled vector, and the head predicts a map, so predictions
-get resized to the target before the loss sees them.
-"""
+"""Train dense readouts on a cached run and report one geometry column."""
 
 import argparse
 import json
@@ -33,13 +28,11 @@ LEARNING_RATES = (1e-4, 3e-4, 1e-3, 3e-3, 1e-2, 3e-2)
 
 
 def manifest(targets: Path) -> dict:
-    """Read the prep manifest beside the target archive."""
     path = targets.with_name(targets.name.replace("_targets.npz", "_manifest.json"))
     return json.loads(path.read_text()) if path.exists() else {}
 
 
 def depth_range(targets: Path, override: float | None) -> float:
-    """Depth bin ceiling, from the flag, else the manifest the prep step wrote."""
     if override:
         return override
     return float(manifest(targets).get("max_depth_metres") or 10.0)
@@ -67,7 +60,6 @@ def selected_slices(
 
 
 def centre_square(target):
-    """Crop a target to the field of view passed through square_crop."""
     height, width = target.shape[-2:]
     side = min(height, width)
     top, left = (height - side) // 2, (width - side) // 2
@@ -75,12 +67,6 @@ def centre_square(target):
 
 
 def load_targets(path: Path, image_ids: list[str], task: str):
-    """Read targets written by the dataset prep step, ordered to match the cache.
-
-    The prep step writes one npz holding a target per image id, and a validity mask per
-    image id for normals. Keeping targets keyed by image id rather than by position means
-    the cache and the labels cannot silently drift out of order.
-    """
     store = np.load(path)
 
     def stack(suffix: str) -> torch.Tensor:
@@ -92,7 +78,6 @@ def load_targets(path: Path, image_ids: list[str], task: str):
 
 
 def coverage_of(targets: torch.Tensor, valid: torch.Tensor | None) -> torch.Tensor:
-    """Treat zero vectors as unannotated when no validity mask exists."""
     mask = valid if valid is not None else (targets > 0).float()
     return mask.flatten(1).mean(dim=1)
 
@@ -132,7 +117,6 @@ def _loss(model, features, targets, valid, index, task, device):
 
 @torch.inference_mode()
 def score(model, features, targets, valid, index, task, args) -> dict[str, torch.Tensor]:
-    """Metrics for each test image, left unaveraged so the caller can split by scene."""
     model.eval()
     totals: dict[str, list[torch.Tensor]] = {}
     for start in range(0, len(index), args.batch_size):
@@ -149,11 +133,9 @@ def score(model, features, targets, valid, index, task, args) -> dict[str, torch
 
 
 def summarise(metrics, coverage, image_ids, index, scenes) -> dict:
-    """Average every metric over the test split, then again within each scene type."""
     rows: dict[str, list[int]] = {}
     for position, image_id in enumerate(index.tolist()):
         rows.setdefault(scenes.get(image_ids[image_id], "unknown"), []).append(position)
-    # Reorder image-keyed coverage to match test-split metrics.
     coverage = coverage[index]
 
     def block(chosen: torch.Tensor) -> dict:
@@ -167,7 +149,6 @@ def summarise(metrics, coverage, image_ids, index, scenes) -> dict:
 
 
 def select_learning_rate(features, targets, valid, split, task, args) -> tuple[float, dict]:
-    """Train once per rate and keep the one that scores best on the validation split."""
     metric, higher_is_better = SELECTION[task]
     searched: dict[str, float] = {}
     best_rate, best_score = None, None
@@ -191,7 +172,6 @@ def _mean_std(values: list[float]) -> tuple[float, float]:
 
 
 def aggregate(runs: list[dict]) -> dict:
-    """Leave split metadata unchanged while aggregating fitted metrics over seeds."""
     out: dict = {}
     for key, value in runs[0].items():
         if key == "by_scene":
@@ -210,7 +190,6 @@ def build_head(width: int, task: str, args) -> torch.nn.Module:
 
 
 def match_capacity(batch, split, width: int):
-    """Apply the same deterministic, train-split-only reduction as semantics."""
     reducer = fit_reducer(batch.tokens.float(), split, width)
     return batch.with_tokens(reducer(batch.tokens.float()))
 

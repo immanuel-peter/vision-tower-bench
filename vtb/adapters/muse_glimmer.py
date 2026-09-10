@@ -70,8 +70,6 @@ def collate(samples: list[torch.Tensor]) -> dict[str, torch.Tensor]:
 
 
 class Projector(nn.Module):
-    """Muse Glimmer maps merged tokens to the text width in two learned steps."""
-
     def __init__(self, config):
         super().__init__()
         self.adapter = MuseGlimmerVisionAdapter(config)
@@ -83,7 +81,6 @@ class Projector(nn.Module):
 
 
 def projector_shapes(settings: dict) -> SimpleNamespace:
-    """Describe the released Projector the way its parent config did."""
     return SimpleNamespace(
         out_hidden_size=settings["input_size"],
         projector_hidden_size=settings["hidden_size"],
@@ -124,7 +121,6 @@ class MuseGlimmerAdapter:
         return [round(self.num_layers * (k + 1) / n) for k in range(n)]
 
     def _unwindow(self, grid_thw: torch.Tensor) -> torch.Tensor:
-        """The tower reorders tokens into attention windows; this reverses that."""
         config = self.model.config
         window_index, _ = get_vision_window_index(
             grid_thw,

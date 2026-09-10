@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
-"""Render per-Stage PCA maps for one image, so the Connector can be seen rather than tabulated.
-
-Each Stage gets its own three-component PCA mapped to RGB. Bases are fitted per Stage
-because the widths differ, so component signs are aligned against the `tower` map to keep
-the panels comparable. Colour is still arbitrary; structure is the readable part.
-"""
+"""Render per-Stage three-component PCA maps for one image."""
 
 import argparse
 from math import isqrt
@@ -18,7 +13,6 @@ from vtb.extract import ADAPTERS
 
 
 def component_maps(tokens: torch.Tensor) -> torch.Tensor:
-    """Project one image's patch tokens onto three components, shaped (3, grid, grid)."""
     centred = tokens.float() - tokens.float().mean(0)
     _, _, basis = torch.pca_lowrank(centred, q=3)
     grid = isqrt(centred.shape[0])
@@ -28,7 +22,6 @@ def component_maps(tokens: torch.Tensor) -> torch.Tensor:
 
 
 def align_signs(maps: torch.Tensor, reference: torch.Tensor) -> torch.Tensor:
-    """Flip components that anti-correlate with the reference Stage at the same grid."""
     resampled = F.interpolate(reference.unsqueeze(0), size=maps.shape[-2:], mode="area")[0]
     for index in range(maps.shape[0]):
         a, b = maps[index].flatten(), resampled[index].flatten()
@@ -58,7 +51,6 @@ def main() -> None:
     picture = Image.open(args.image).convert("RGB")
     pixels = adapter.collate([adapter.preprocess()(picture)])
 
-    # Keep the deepest layer of every Stage the adapter offers.
     final = {
         batch.stage: batch.tokens[0]
         for batch in adapter.extract(pixels, ["sample"])
@@ -77,7 +69,6 @@ def main() -> None:
         to_image(maps, args.resolution).save(args.out / f"pca_{stem}_{stage}.png")
         print(f"{stage:<10} {tuple(maps.shape[-2:])}")
 
-    # The source is model-independent, so it is named per image rather than per Tower.
     picture.resize((args.resolution, args.resolution)).save(
         args.out / f"pca_{args.image.stem}_source.png"
     )

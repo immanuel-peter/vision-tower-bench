@@ -17,7 +17,6 @@ TOWER_TENSORS = 333
 
 
 def load_source_tower(dtype: torch.dtype = torch.bfloat16) -> Qwen3_5VisionModel:
-    """Build the Tower from the pinned parent checkpoint, which the release must match."""
     config = AutoConfig.from_pretrained(SOURCE_REPO, revision=SOURCE_REVISION).vision_config
     tower = Qwen3_5VisionModel._from_config(config, dtype=dtype)
     weights = load_prefixed(SOURCE_REPO, [VISION_SHARD], VISION_PREFIX, revision=SOURCE_REVISION)

@@ -13,13 +13,7 @@ def paired_metric_bootstrap(
     seed: int = 0,
     batch_size: int = 256,
 ) -> dict[str, float | int | str]:
-    """Bootstrap the first cell's advantage over paired test images.
-
-    Inputs contain one metric value per seed and image, shaped ``(seeds, images)``.
-    Seed means are formed before resampling. The reported difference is positive when
-    the first cell is better: first-minus-second for increasing metrics and
-    second-minus-first for decreasing metrics.
-    """
+    """Paired bootstrap of first-minus-second (or the reverse if lower is better)."""
     if first.shape != second.shape or first.ndim != 2:
         raise ValueError("metric tensors must have the same (seeds, images) shape")
     if first.shape[1] == 0:
