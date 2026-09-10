@@ -1,0 +1,27 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  suite:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - run: uv sync --group dev --group figures
+
+      - name: Run suite
+        env:
+          VTB_SKIP_WEIGHTS: "1"
+        run: uv run pytest -q
+
+      - name: Figures regenerate from committed results
+        run: uv run --group figures python scripts/figures.py --out "${{ runner.temp }}/figures"
