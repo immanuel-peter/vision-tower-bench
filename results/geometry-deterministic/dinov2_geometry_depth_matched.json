@@ -1,0 +1,158 @@
+{
+  "task": "depth",
+  "images": 771,
+  "train_images": 541,
+  "capacity_matched": true,
+  "head": "multiscale",
+  "epochs": 10,
+  "seeds": 3,
+  "learning_rates": [
+    0.0001,
+    0.0003,
+    0.001,
+    0.003,
+    0.01,
+    0.03
+  ],
+  "cells": [
+    {
+      "d1": 0.6767,
+      "d1_std": 0.0004,
+      "d2": 0.8775,
+      "d2_std": 0.0018,
+      "d3": 0.9464,
+      "d3_std": 0.001,
+      "rmse": 3.6574,
+      "rmse_std": 0.0246,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.6902,
+          "d1_std": 0.0016,
+          "d2": 0.9086,
+          "d2_std": 0.0021,
+          "d3": 0.9784,
+          "d3_std": 0.0012,
+          "rmse": 0.72,
+          "rmse_std": 0.005,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.6659,
+          "d1_std": 0.0005,
+          "d2": 0.8528,
+          "d2_std": 0.0016,
+          "d3": 0.921,
+          "d3_std": 0.0011,
+          "rmse": 5.9982,
+          "rmse_std": 0.0482,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.6881,
+      "learning_rate_search": {
+        "0.0001": 0.375,
+        "0.0003": 0.6188,
+        "0.001": 0.6795,
+        "0.003": 0.6841,
+        "0.01": 0.6881,
+        "0.03": 0.6001
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.6768,
+          "d2": 0.8757,
+          "d3": 0.9455,
+          "rmse": 3.6851,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6901,
+              "d2": 0.907,
+              "d3": 0.9777,
+              "rmse": 0.7142,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6662,
+              "d2": 0.8508,
+              "d3": 0.9198,
+              "rmse": 6.0525,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6771,
+          "d2": 0.8799,
+          "d3": 0.9479,
+          "rmse": 3.6253,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6922,
+              "d2": 0.9116,
+              "d3": 0.9801,
+              "rmse": 0.7264,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6651,
+              "d2": 0.8546,
+              "d3": 0.9224,
+              "rmse": 5.9354,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6761,
+          "d2": 0.8769,
+          "d3": 0.9459,
+          "rmse": 3.6619,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6884,
+              "d2": 0.9071,
+              "d3": 0.9773,
+              "rmse": 0.7193,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6663,
+              "d2": 0.8529,
+              "d3": 0.9209,
+              "rmse": 6.0068,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "facebook/dinov2-large",
+      "stage": "tower",
+      "layer_index": 24,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "grid": 32,
+      "trainable_parameters": 1444608,
+      "seconds": 449.6
+    }
+  ]
+}

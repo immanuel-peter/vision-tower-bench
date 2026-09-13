@@ -1,0 +1,173 @@
+{
+  "task": "normal",
+  "images": 771,
+  "train_images": 541,
+  "capacity_matched": true,
+  "head": "multiscale",
+  "epochs": 10,
+  "seeds": 3,
+  "learning_rates": [
+    0.0001,
+    0.0003,
+    0.001,
+    0.003,
+    0.01,
+    0.03
+  ],
+  "cells": [
+    {
+      "d1": 0.2392,
+      "d1_std": 0.0054,
+      "d2": 0.4487,
+      "d2_std": 0.0069,
+      "d3": 0.5619,
+      "d3_std": 0.0071,
+      "rmse": 37.9449,
+      "rmse_std": 0.2101,
+      "mean_deg": 30.8911,
+      "mean_deg_std": 0.2944,
+      "images": 115,
+      "coverage": 0.7751,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.1783,
+          "d1_std": 0.0048,
+          "d2": 0.4158,
+          "d2_std": 0.0062,
+          "d3": 0.5426,
+          "d3_std": 0.0062,
+          "rmse": 38.3646,
+          "rmse_std": 0.1813,
+          "mean_deg": 32.1817,
+          "mean_deg_std": 0.2553,
+          "images": 51,
+          "coverage": 0.9803
+        },
+        "outdoor": {
+          "d1": 0.2877,
+          "d1_std": 0.006,
+          "d2": 0.4749,
+          "d2_std": 0.0076,
+          "d3": 0.5773,
+          "d3_std": 0.0078,
+          "rmse": 37.6104,
+          "rmse_std": 0.2516,
+          "mean_deg": 29.8627,
+          "mean_deg_std": 0.337,
+          "images": 64,
+          "coverage": 0.6116
+        }
+      },
+      "learning_rate": 0.0003,
+      "val_metric": "mean_deg",
+      "val_score": 32.1396,
+      "learning_rate_search": {
+        "0.0001": 33.7015,
+        "0.0003": 32.1396,
+        "0.001": 32.1519,
+        "0.003": 33.5232,
+        "0.01": 45.4056,
+        "0.03": 45.4063
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.2435,
+          "d2": 0.4544,
+          "d3": 0.5677,
+          "rmse": 37.8032,
+          "mean_deg": 30.6552,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.1804,
+              "d2": 0.4204,
+              "d3": 0.5472,
+              "rmse": 38.3421,
+              "mean_deg": 32.0624,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.2938,
+              "d2": 0.4815,
+              "d3": 0.584,
+              "rmse": 37.3738,
+              "mean_deg": 29.5339,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.2424,
+          "d2": 0.4527,
+          "d3": 0.5661,
+          "rmse": 37.7895,
+          "mean_deg": 30.712,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.1828,
+              "d2": 0.4199,
+              "d3": 0.5468,
+              "rmse": 38.1547,
+              "mean_deg": 31.9463,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.2898,
+              "d2": 0.4788,
+              "d3": 0.5815,
+              "rmse": 37.4985,
+              "mean_deg": 29.7284,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.2316,
+          "d2": 0.4389,
+          "d3": 0.552,
+          "rmse": 38.2419,
+          "mean_deg": 31.3062,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.1716,
+              "d2": 0.407,
+              "d3": 0.5339,
+              "rmse": 38.597,
+              "mean_deg": 32.5365,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.2795,
+              "d2": 0.4643,
+              "d3": 0.5664,
+              "rmse": 37.9589,
+              "mean_deg": 30.3258,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "google/siglip2-so400m-patch14-384",
+      "stage": "tower",
+      "layer_index": 27,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "grid": 32,
+      "trainable_parameters": 1314819,
+      "seconds": 388.6
+    }
+  ]
+}

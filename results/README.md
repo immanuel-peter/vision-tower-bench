@@ -1761,3 +1761,19 @@ This result says only that the DIODE ordering fails to transfer to this one sele
 column. It does not evaluate a driving stack, other KITTI tasks or splits, or driving
 performance broadly. Matrix results are under `results/kitti/`; paired per-image records
 are the four `results/bootstrap/geometry-depth-kitti-*` files.
+
+## Addendum, September 13 2026: deterministic rerun and pooling roster
+
+Two limitations named above are now closed by reruns, archived beside the
+originals without overwriting them.
+
+`results/geometry-deterministic/` reruns the matched-arm headline cells
+(deepest `tower`/`merged`/`projected`) with the seeded reducer. All eight
+`projected`-vs-`tower` directions hold; MoonViT-V2 stays the lone Projector
+below its lossless yardstick. Use that directory's table instead of the old
+randomized-PCA matched magnitudes.
+
+`results/pooling-roster/` validates the mean readout pooled-vs-full on every
+Tower (all within 0.02 at matched batch size). Attention shapes stay
+exploratory. Kimi extracts must pin batch size 1; a `bs4` pooled cache
+included here for the record reads 0.21 low for procedural reasons.

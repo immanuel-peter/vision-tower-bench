@@ -1,0 +1,436 @@
+{
+  "task": "depth",
+  "images": 771,
+  "train_images": 541,
+  "capacity_matched": true,
+  "head": "multiscale",
+  "epochs": 10,
+  "seeds": 3,
+  "learning_rates": [
+    0.0001,
+    0.0003,
+    0.001,
+    0.003,
+    0.01,
+    0.03
+  ],
+  "cells": [
+    {
+      "d1": 0.5359,
+      "d1_std": 0.0064,
+      "d2": 0.7909,
+      "d2_std": 0.0054,
+      "d3": 0.894,
+      "d3_std": 0.0047,
+      "rmse": 4.5581,
+      "rmse_std": 0.0309,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.5588,
+          "d1_std": 0.0072,
+          "d2": 0.8096,
+          "d2_std": 0.006,
+          "d3": 0.9117,
+          "d3_std": 0.0072,
+          "rmse": 1.0379,
+          "rmse_std": 0.0159,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.5178,
+          "d1_std": 0.0058,
+          "d2": 0.7759,
+          "d2_std": 0.005,
+          "d3": 0.8799,
+          "d3_std": 0.003,
+          "rmse": 7.3632,
+          "rmse_std": 0.0433,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.001,
+      "val_metric": "d1",
+      "val_score": 0.5295,
+      "learning_rate_search": {
+        "0.0001": 0.1308,
+        "0.0003": 0.3409,
+        "0.001": 0.5295,
+        "0.003": 0.4834,
+        "0.01": 0.216,
+        "0.03": 0.1244
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.5407,
+          "d2": 0.7944,
+          "d3": 0.8974,
+          "rmse": 4.5364,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5639,
+              "d2": 0.8133,
+              "d3": 0.9158,
+              "rmse": 1.0312,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5223,
+              "d2": 0.7793,
+              "d3": 0.8827,
+              "rmse": 7.3295,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5402,
+          "d2": 0.795,
+          "d3": 0.8973,
+          "rmse": 4.536,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5639,
+              "d2": 0.8144,
+              "d3": 0.9176,
+              "rmse": 1.0227,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5214,
+              "d2": 0.7795,
+              "d3": 0.8812,
+              "rmse": 7.3357,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5269,
+          "d2": 0.7832,
+          "d3": 0.8873,
+          "rmse": 4.6018,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5486,
+              "d2": 0.8012,
+              "d3": 0.9016,
+              "rmse": 1.0598,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5096,
+              "d2": 0.7689,
+              "d3": 0.8758,
+              "rmse": 7.4244,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/Qwen3.8-27B-Vision",
+      "stage": "merged",
+      "layer_index": 27,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "grid": 14,
+      "trainable_parameters": 1444608,
+      "seconds": 115.6
+    },
+    {
+      "d1": 0.5982,
+      "d1_std": 0.0032,
+      "d2": 0.8337,
+      "d2_std": 0.0005,
+      "d3": 0.9218,
+      "d3_std": 0.0003,
+      "rmse": 4.2728,
+      "rmse_std": 0.0123,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.6276,
+          "d1_std": 0.0034,
+          "d2": 0.8648,
+          "d2_std": 0.001,
+          "d3": 0.9536,
+          "d3_std": 0.0007,
+          "rmse": 0.8858,
+          "rmse_std": 0.0113,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.5747,
+          "d1_std": 0.0034,
+          "d2": 0.8089,
+          "d2_std": 0.0017,
+          "d3": 0.8964,
+          "d3_std": 0.0009,
+          "rmse": 6.9719,
+          "rmse_std": 0.0229,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.5923,
+      "learning_rate_search": {
+        "0.0001": 0.2687,
+        "0.0003": 0.4888,
+        "0.001": 0.5806,
+        "0.003": 0.5922,
+        "0.01": 0.5923,
+        "0.03": 0.5769
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.5976,
+          "d2": 0.8337,
+          "d3": 0.9222,
+          "rmse": 4.2862,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6286,
+              "d2": 0.8645,
+              "d3": 0.9538,
+              "rmse": 0.877,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5729,
+              "d2": 0.8092,
+              "d3": 0.897,
+              "rmse": 7.003,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5945,
+          "d2": 0.833,
+          "d3": 0.9214,
+          "rmse": 4.2757,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6231,
+              "d2": 0.8661,
+              "d3": 0.9543,
+              "rmse": 0.9017,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5717,
+              "d2": 0.8066,
+              "d3": 0.8951,
+              "rmse": 6.9643,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6024,
+          "d2": 0.8343,
+          "d3": 0.9218,
+          "rmse": 4.2566,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6312,
+              "d2": 0.8638,
+              "d3": 0.9526,
+              "rmse": 0.8786,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5795,
+              "d2": 0.8108,
+              "d3": 0.8972,
+              "rmse": 6.9484,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/Qwen3.8-27B-Vision",
+      "stage": "projected",
+      "layer_index": 27,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "grid": 14,
+      "trainable_parameters": 1444608,
+      "seconds": 107.8
+    },
+    {
+      "d1": 0.527,
+      "d1_std": 0.0123,
+      "d2": 0.7884,
+      "d2_std": 0.0089,
+      "d3": 0.895,
+      "d3_std": 0.0065,
+      "rmse": 4.4356,
+      "rmse_std": 0.0911,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.5424,
+          "d1_std": 0.0118,
+          "d2": 0.8066,
+          "d2_std": 0.0099,
+          "d3": 0.9091,
+          "d3_std": 0.0092,
+          "rmse": 1.0357,
+          "rmse_std": 0.0417,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.5147,
+          "d1_std": 0.0129,
+          "d2": 0.774,
+          "d2_std": 0.0086,
+          "d3": 0.8837,
+          "d3_std": 0.0048,
+          "rmse": 7.1448,
+          "rmse_std": 0.1307,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.003,
+      "val_metric": "d1",
+      "val_score": 0.5501,
+      "learning_rate_search": {
+        "0.0001": 0.1258,
+        "0.0003": 0.315,
+        "0.001": 0.523,
+        "0.003": 0.5501,
+        "0.01": 0.1244,
+        "0.03": 0.1244
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.5437,
+          "d2": 0.8,
+          "d3": 0.9033,
+          "rmse": 4.3088,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5574,
+              "d2": 0.8175,
+              "d3": 0.9195,
+              "rmse": 0.9789,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5328,
+              "d2": 0.7861,
+              "d3": 0.8904,
+              "rmse": 6.9622,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5226,
+          "d2": 0.7868,
+          "d3": 0.8943,
+          "rmse": 4.4791,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5413,
+              "d2": 0.8088,
+              "d3": 0.9108,
+              "rmse": 1.0505,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5078,
+              "d2": 0.7693,
+              "d3": 0.8812,
+              "rmse": 7.2113,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5146,
+          "d2": 0.7785,
+          "d3": 0.8873,
+          "rmse": 4.5188,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5286,
+              "d2": 0.7935,
+              "d3": 0.8971,
+              "rmse": 1.0777,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5036,
+              "d2": 0.7666,
+              "d3": 0.8794,
+              "rmse": 7.2609,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/Qwen3.8-27B-Vision",
+      "stage": "tower",
+      "layer_index": 27,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "grid": 28,
+      "trainable_parameters": 1444608,
+      "seconds": 332.6
+    }
+  ]
+}

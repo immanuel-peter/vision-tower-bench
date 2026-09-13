@@ -1,0 +1,436 @@
+{
+  "task": "depth",
+  "images": 771,
+  "train_images": 541,
+  "capacity_matched": true,
+  "head": "multiscale",
+  "epochs": 10,
+  "seeds": 3,
+  "learning_rates": [
+    0.0001,
+    0.0003,
+    0.001,
+    0.003,
+    0.01,
+    0.03
+  ],
+  "cells": [
+    {
+      "d1": 0.5228,
+      "d1_std": 0.0026,
+      "d2": 0.7887,
+      "d2_std": 0.0012,
+      "d3": 0.9006,
+      "d3_std": 0.0003,
+      "rmse": 4.5266,
+      "rmse_std": 0.0107,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.5575,
+          "d1_std": 0.004,
+          "d2": 0.8171,
+          "d2_std": 0.0007,
+          "d3": 0.9297,
+          "d3_std": 0.0014,
+          "rmse": 1.014,
+          "rmse_std": 0.0058,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.4952,
+          "d1_std": 0.0026,
+          "d2": 0.766,
+          "d2_std": 0.0026,
+          "d3": 0.8774,
+          "d3_std": 0.0009,
+          "rmse": 7.3257,
+          "rmse_std": 0.0177,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.003,
+      "val_metric": "d1",
+      "val_score": 0.5101,
+      "learning_rate_search": {
+        "0.0001": 0.1889,
+        "0.0003": 0.3452,
+        "0.001": 0.4882,
+        "0.003": 0.5101,
+        "0.01": 0.4697,
+        "0.03": 0.3216
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.5265,
+          "d2": 0.7889,
+          "d3": 0.9003,
+          "rmse": 4.5211,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5621,
+              "d2": 0.8177,
+              "d3": 0.9301,
+              "rmse": 1.0059,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.4981,
+              "d2": 0.766,
+              "d3": 0.8765,
+              "rmse": 7.3223,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5211,
+          "d2": 0.7871,
+          "d3": 0.901,
+          "rmse": 4.5415,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.558,
+              "d2": 0.8175,
+              "d3": 0.9311,
+              "rmse": 1.0187,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.4917,
+              "d2": 0.7628,
+              "d3": 0.877,
+              "rmse": 7.3488,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5208,
+          "d2": 0.79,
+          "d3": 0.9004,
+          "rmse": 4.5171,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5524,
+              "d2": 0.8162,
+              "d3": 0.9278,
+              "rmse": 1.0175,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.4957,
+              "d2": 0.7692,
+              "d3": 0.8786,
+              "rmse": 7.3059,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/Muse-Glimmer-Vision",
+      "stage": "merged",
+      "layer_index": 50,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "grid": 16,
+      "trainable_parameters": 1444608,
+      "seconds": 136.1
+    },
+    {
+      "d1": 0.5866,
+      "d1_std": 0.0005,
+      "d2": 0.8253,
+      "d2_std": 0.0004,
+      "d3": 0.9185,
+      "d3_std": 0.0006,
+      "rmse": 4.2198,
+      "rmse_std": 0.0116,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.6103,
+          "d1_std": 0.0007,
+          "d2": 0.8521,
+          "d2_std": 0.0016,
+          "d3": 0.9508,
+          "d3_std": 0.0014,
+          "rmse": 0.8721,
+          "rmse_std": 0.0039,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.5678,
+          "d1_std": 0.0005,
+          "d2": 0.804,
+          "d2_std": 0.0011,
+          "d3": 0.8927,
+          "d3_std": 0.0002,
+          "rmse": 6.8875,
+          "rmse_std": 0.0177,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.003,
+      "val_metric": "d1",
+      "val_score": 0.5894,
+      "learning_rate_search": {
+        "0.0001": 0.2862,
+        "0.0003": 0.501,
+        "0.001": 0.5746,
+        "0.003": 0.5894,
+        "0.01": 0.5649,
+        "0.03": 0.5573
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.5867,
+          "d2": 0.825,
+          "d3": 0.9187,
+          "rmse": 4.2335,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.611,
+              "d2": 0.8528,
+              "d3": 0.9516,
+              "rmse": 0.8768,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5674,
+              "d2": 0.8029,
+              "d3": 0.8925,
+              "rmse": 6.9083,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.586,
+          "d2": 0.8258,
+          "d3": 0.9191,
+          "rmse": 4.2051,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6094,
+              "d2": 0.8536,
+              "d3": 0.952,
+              "rmse": 0.8672,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5674,
+              "d2": 0.8036,
+              "d3": 0.8929,
+              "rmse": 6.865,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5872,
+          "d2": 0.8251,
+          "d3": 0.9176,
+          "rmse": 4.2207,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6106,
+              "d2": 0.8499,
+              "d3": 0.9489,
+              "rmse": 0.8723,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5685,
+              "d2": 0.8054,
+              "d3": 0.8927,
+              "rmse": 6.8891,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/Muse-Glimmer-Vision",
+      "stage": "projected",
+      "layer_index": 50,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "grid": 16,
+      "trainable_parameters": 1444608,
+      "seconds": 130.4
+    },
+    {
+      "d1": 0.5649,
+      "d1_std": 0.0031,
+      "d2": 0.8135,
+      "d2_std": 0.0023,
+      "d3": 0.913,
+      "d3_std": 0.0023,
+      "rmse": 4.2088,
+      "rmse_std": 0.0128,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.5812,
+          "d1_std": 0.0047,
+          "d2": 0.8286,
+          "d2_std": 0.0041,
+          "d3": 0.9371,
+          "d3_std": 0.0044,
+          "rmse": 0.9111,
+          "rmse_std": 0.0125,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.5519,
+          "d1_std": 0.0026,
+          "d2": 0.8014,
+          "d2_std": 0.0016,
+          "d3": 0.8938,
+          "d3_std": 0.001,
+          "rmse": 6.8367,
+          "rmse_std": 0.0208,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.003,
+      "val_metric": "d1",
+      "val_score": 0.5516,
+      "learning_rate_search": {
+        "0.0001": 0.1739,
+        "0.0003": 0.3621,
+        "0.001": 0.5107,
+        "0.003": 0.5516,
+        "0.01": 0.5458,
+        "0.03": 0.5243
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.5674,
+          "d2": 0.8141,
+          "d3": 0.9132,
+          "rmse": 4.1947,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5827,
+              "d2": 0.8275,
+              "d3": 0.9363,
+              "rmse": 0.9151,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5553,
+              "d2": 0.8034,
+              "d3": 0.8947,
+              "rmse": 6.8081,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5667,
+          "d2": 0.816,
+          "d3": 0.9158,
+          "rmse": 4.2062,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5861,
+              "d2": 0.8341,
+              "d3": 0.9429,
+              "rmse": 0.8942,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5512,
+              "d2": 0.8015,
+              "d3": 0.8943,
+              "rmse": 6.8454,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5605,
+          "d2": 0.8104,
+          "d3": 0.9101,
+          "rmse": 4.2256,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5748,
+              "d2": 0.8242,
+              "d3": 0.9321,
+              "rmse": 0.9239,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5491,
+              "d2": 0.7994,
+              "d3": 0.8925,
+              "rmse": 6.8567,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/Muse-Glimmer-Vision",
+      "stage": "tower",
+      "layer_index": 50,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "grid": 32,
+      "trainable_parameters": 1444608,
+      "seconds": 443.1
+    }
+  ]
+}
