@@ -1,0 +1,1559 @@
+{
+  "task": "normal",
+  "images": 771,
+  "train_images": 541,
+  "capacity_matched": true,
+  "head": "multiscale",
+  "epochs": 10,
+  "seeds": 3,
+  "learning_rates": [
+    0.0001,
+    0.0003,
+    0.001,
+    0.003,
+    0.01,
+    0.03
+  ],
+  "cells": [
+    {
+      "d1": 0.2718,
+      "d1_std": 0.0088,
+      "d2": 0.5006,
+      "d2_std": 0.01,
+      "d3": 0.6132,
+      "d3_std": 0.0075,
+      "rmse": 36.6229,
+      "rmse_std": 0.1942,
+      "mean_deg": 29.0385,
+      "mean_deg_std": 0.332,
+      "images": 115,
+      "coverage": 0.7751,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.2339,
+          "d1_std": 0.0101,
+          "d2": 0.509,
+          "d2_std": 0.0136,
+          "d3": 0.637,
+          "d3_std": 0.0095,
+          "rmse": 35.2197,
+          "rmse_std": 0.1999,
+          "mean_deg": 28.48,
+          "mean_deg_std": 0.3695,
+          "images": 51,
+          "coverage": 0.9803
+        },
+        "outdoor": {
+          "d1": 0.3021,
+          "d1_std": 0.0079,
+          "d2": 0.4938,
+          "d2_std": 0.0071,
+          "d3": 0.5942,
+          "d3_std": 0.0059,
+          "rmse": 37.741,
+          "rmse_std": 0.1935,
+          "mean_deg": 29.4836,
+          "mean_deg_std": 0.3026,
+          "images": 64,
+          "coverage": 0.6116
+        }
+      },
+      "learning_rate": 0.0003,
+      "val_metric": "mean_deg",
+      "val_score": 29.3265,
+      "learning_rate_search": {
+        "0.0001": 30.8233,
+        "0.0003": 29.3265,
+        "0.001": 29.4072,
+        "0.003": 33.716,
+        "0.01": 45.4056,
+        "0.03": 45.4063
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.2813,
+          "d2": 0.5107,
+          "d3": 0.6204,
+          "rmse": 36.4032,
+          "mean_deg": 28.6706,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.2446,
+              "d2": 0.523,
+              "d3": 0.647,
+              "rmse": 35.0241,
+              "mean_deg": 28.0844,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.3106,
+              "d2": 0.5008,
+              "d3": 0.5992,
+              "rmse": 37.5021,
+              "mean_deg": 29.1378,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.2741,
+          "d2": 0.504,
+          "d3": 0.6163,
+          "rmse": 36.5901,
+          "mean_deg": 28.9698,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.2366,
+              "d2": 0.5135,
+              "d3": 0.6396,
+              "rmse": 35.1407,
+              "mean_deg": 28.3821,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.304,
+              "d2": 0.4965,
+              "d3": 0.5976,
+              "rmse": 37.745,
+              "mean_deg": 29.4381,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.26,
+          "d2": 0.487,
+          "d3": 0.6029,
+          "rmse": 36.8754,
+          "mean_deg": 29.4751,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.2204,
+              "d2": 0.4906,
+              "d3": 0.6243,
+              "rmse": 35.4943,
+              "mean_deg": 28.9735,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.2916,
+              "d2": 0.484,
+              "d3": 0.5859,
+              "rmse": 37.976,
+              "mean_deg": 29.8749,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/Gemma4-31B-Vision",
+      "stage": "merged",
+      "layer_index": 27,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "grid": 10,
+      "trainable_parameters": 1314819,
+      "seconds": 119.1
+    },
+    {
+      "d1": 0.2656,
+      "d1_std": 0.0099,
+      "d2": 0.4877,
+      "d2_std": 0.0102,
+      "d3": 0.6025,
+      "d3_std": 0.0081,
+      "rmse": 36.9717,
+      "rmse_std": 0.1167,
+      "mean_deg": 29.4862,
+      "mean_deg_std": 0.2714,
+      "images": 115,
+      "coverage": 0.7751,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.2257,
+          "d1_std": 0.0109,
+          "d2": 0.4883,
+          "d2_std": 0.012,
+          "d3": 0.6219,
+          "d3_std": 0.0095,
+          "rmse": 35.7663,
+          "rmse_std": 0.1155,
+          "mean_deg": 29.1453,
+          "mean_deg_std": 0.2977,
+          "images": 51,
+          "coverage": 0.9803
+        },
+        "outdoor": {
+          "d1": 0.2973,
+          "d1_std": 0.0097,
+          "d2": 0.4872,
+          "d2_std": 0.0088,
+          "d3": 0.5871,
+          "d3_std": 0.0069,
+          "rmse": 37.9321,
+          "rmse_std": 0.118,
+          "mean_deg": 29.7578,
+          "mean_deg_std": 0.2512,
+          "images": 64,
+          "coverage": 0.6116
+        }
+      },
+      "learning_rate": 0.0003,
+      "val_metric": "mean_deg",
+      "val_score": 30.1933,
+      "learning_rate_search": {
+        "0.0001": 31.584,
+        "0.0003": 30.1933,
+        "0.001": 30.4269,
+        "0.003": 33.9839,
+        "0.01": 45.4053,
+        "0.03": 45.4056
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.2723,
+          "d2": 0.4947,
+          "d3": 0.6088,
+          "rmse": 36.8449,
+          "mean_deg": 29.2782,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.2296,
+              "d2": 0.4951,
+              "d3": 0.6292,
+              "rmse": 35.6341,
+              "mean_deg": 28.9392,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.3064,
+              "d2": 0.4944,
+              "d3": 0.5926,
+              "rmse": 37.8097,
+              "mean_deg": 29.5484,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.2729,
+          "d2": 0.495,
+          "d3": 0.6076,
+          "rmse": 36.9436,
+          "mean_deg": 29.3108,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.2367,
+              "d2": 0.4983,
+              "d3": 0.6281,
+              "rmse": 35.7494,
+              "mean_deg": 28.9304,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.3017,
+              "d2": 0.4925,
+              "d3": 0.5913,
+              "rmse": 37.8952,
+              "mean_deg": 29.614,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.2515,
+          "d2": 0.4733,
+          "d3": 0.5911,
+          "rmse": 37.1265,
+          "mean_deg": 29.8695,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.2109,
+              "d2": 0.4715,
+              "d3": 0.6085,
+              "rmse": 35.9155,
+              "mean_deg": 29.5662,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.2839,
+              "d2": 0.4748,
+              "d3": 0.5773,
+              "rmse": 38.0915,
+              "mean_deg": 30.1111,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/Gemma4-31B-Vision",
+      "stage": "projected",
+      "layer_index": 27,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "grid": 10,
+      "trainable_parameters": 1314819,
+      "seconds": 124.1
+    },
+    {
+      "d1": 0.1976,
+      "d1_std": 0.0151,
+      "d2": 0.3902,
+      "d2_std": 0.02,
+      "d3": 0.5104,
+      "d3_std": 0.0144,
+      "rmse": 40.2972,
+      "rmse_std": 0.5049,
+      "mean_deg": 33.6416,
+      "mean_deg_std": 0.7196,
+      "images": 115,
+      "coverage": 0.7751,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.115,
+          "d1_std": 0.029,
+          "d2": 0.3292,
+          "d2_std": 0.0368,
+          "d3": 0.4764,
+          "d3_std": 0.0263,
+          "rmse": 40.1829,
+          "rmse_std": 0.9129,
+          "mean_deg": 35.1083,
+          "mean_deg_std": 1.2962,
+          "images": 51,
+          "coverage": 0.9803
+        },
+        "outdoor": {
+          "d1": 0.2635,
+          "d1_std": 0.004,
+          "d2": 0.4388,
+          "d2_std": 0.0067,
+          "d3": 0.5374,
+          "d3_std": 0.005,
+          "rmse": 40.3884,
+          "rmse_std": 0.1808,
+          "mean_deg": 32.4727,
+          "mean_deg_std": 0.2615,
+          "images": 64,
+          "coverage": 0.6116
+        }
+      },
+      "learning_rate": 0.001,
+      "val_metric": "mean_deg",
+      "val_score": 33.5302,
+      "learning_rate_search": {
+        "0.0001": 34.6988,
+        "0.0003": 33.5681,
+        "0.001": 33.5302,
+        "0.003": 36.3318,
+        "0.01": 37.4413,
+        "0.03": 38.7631
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.2087,
+          "d2": 0.404,
+          "d3": 0.5199,
+          "rmse": 39.9734,
+          "mean_deg": 33.1629,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.1365,
+              "d2": 0.3542,
+              "d3": 0.4948,
+              "rmse": 39.5706,
+              "mean_deg": 34.2089,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.2663,
+              "d2": 0.4436,
+              "d3": 0.5398,
+              "rmse": 40.2944,
+              "mean_deg": 32.3293,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.2079,
+          "d2": 0.4048,
+          "d3": 0.5213,
+          "rmse": 39.908,
+          "mean_deg": 33.1031,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.1344,
+              "d2": 0.3562,
+              "d3": 0.4953,
+              "rmse": 39.5046,
+              "mean_deg": 34.1746,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.2664,
+              "d2": 0.4435,
+              "d3": 0.542,
+              "rmse": 40.2294,
+              "mean_deg": 32.2492,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.1763,
+          "d2": 0.3619,
+          "d3": 0.49,
+          "rmse": 41.0103,
+          "mean_deg": 34.6587,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.074,
+              "d2": 0.2772,
+              "d3": 0.4392,
+              "rmse": 41.4734,
+              "mean_deg": 36.9413,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.2579,
+              "d2": 0.4294,
+              "d3": 0.5304,
+              "rmse": 40.6413,
+              "mean_deg": 32.8397,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/Gemma4-31B-Vision",
+      "stage": "tower",
+      "layer_index": 3,
+      "relative_depth": 0.1111111111111111,
+      "token_width": 512,
+      "grid": 30,
+      "trainable_parameters": 1314819,
+      "seconds": 232.1
+    },
+    {
+      "d1": 0.2482,
+      "d1_std": 0.0087,
+      "d2": 0.468,
+      "d2_std": 0.0104,
+      "d3": 0.5816,
+      "d3_std": 0.0101,
+      "rmse": 37.2078,
+      "rmse_std": 0.288,
+      "mean_deg": 30.1986,
+      "mean_deg_std": 0.388,
+      "images": 115,
+      "coverage": 0.7751,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.1933,
+          "d1_std": 0.0116,
+          "d2": 0.4488,
+          "d2_std": 0.017,
+          "d3": 0.5801,
+          "d3_std": 0.0157,
+          "rmse": 36.1364,
+          "rmse_std": 0.4144,
+          "mean_deg": 30.3329,
+          "mean_deg_std": 0.5744,
+          "images": 51,
+          "coverage": 0.9803
+        },
+        "outdoor": {
+          "d1": 0.292,
+          "d1_std": 0.0068,
+          "d2": 0.4834,
+          "d2_std": 0.0059,
+          "d3": 0.5829,
+          "d3_std": 0.006,
+          "rmse": 38.0616,
+          "rmse_std": 0.1892,
+          "mean_deg": 30.0916,
+          "mean_deg_std": 0.2506,
+          "images": 64,
+          "coverage": 0.6116
+        }
+      },
+      "learning_rate": 0.0003,
+      "val_metric": "mean_deg",
+      "val_score": 30.6365,
+      "learning_rate_search": {
+        "0.0001": 31.8649,
+        "0.0003": 30.6365,
+        "0.001": 30.7412,
+        "0.003": 34.761,
+        "0.01": 45.3958,
+        "0.03": 45.4062
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.2496,
+          "d2": 0.4681,
+          "d3": 0.5823,
+          "rmse": 37.2072,
+          "mean_deg": 30.1707,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.1917,
+              "d2": 0.4441,
+              "d3": 0.5776,
+              "rmse": 36.1745,
+              "mean_deg": 30.3978,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.2958,
+              "d2": 0.4872,
+              "d3": 0.586,
+              "rmse": 38.0302,
+              "mean_deg": 29.9898,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.2581,
+          "d2": 0.4807,
+          "d3": 0.5936,
+          "rmse": 36.8554,
+          "mean_deg": 29.738,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.2082,
+              "d2": 0.4716,
+              "d3": 0.6005,
+              "rmse": 35.6108,
+              "mean_deg": 29.5993,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.2978,
+              "d2": 0.4879,
+              "d3": 0.5881,
+              "rmse": 37.8472,
+              "mean_deg": 29.8485,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.237,
+          "d2": 0.4553,
+          "d3": 0.569,
+          "rmse": 37.5608,
+          "mean_deg": 30.6871,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.18,
+              "d2": 0.4307,
+              "d3": 0.5622,
+              "rmse": 36.6238,
+              "mean_deg": 31.0017,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.2824,
+              "d2": 0.475,
+              "d3": 0.5745,
+              "rmse": 38.3075,
+              "mean_deg": 30.4365,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/Gemma4-31B-Vision",
+      "stage": "tower",
+      "layer_index": 7,
+      "relative_depth": 0.25925925925925924,
+      "token_width": 512,
+      "grid": 30,
+      "trainable_parameters": 1314819,
+      "seconds": 247.7
+    },
+    {
+      "d1": 0.2464,
+      "d1_std": 0.0135,
+      "d2": 0.4585,
+      "d2_std": 0.0187,
+      "d3": 0.5739,
+      "d3_std": 0.0157,
+      "rmse": 37.3409,
+      "rmse_std": 0.4848,
+      "mean_deg": 30.3733,
+      "mean_deg_std": 0.659,
+      "images": 115,
+      "coverage": 0.7751,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.1833,
+          "d1_std": 0.0234,
+          "d2": 0.432,
+          "d2_std": 0.0328,
+          "d3": 0.5686,
+          "d3_std": 0.0281,
+          "rmse": 36.3867,
+          "rmse_std": 0.7744,
+          "mean_deg": 30.6863,
+          "mean_deg_std": 1.1012,
+          "images": 51,
+          "coverage": 0.9803
+        },
+        "outdoor": {
+          "d1": 0.2967,
+          "d1_std": 0.0057,
+          "d2": 0.4795,
+          "d2_std": 0.0078,
+          "d3": 0.578,
+          "d3_std": 0.006,
+          "rmse": 38.1012,
+          "rmse_std": 0.2545,
+          "mean_deg": 30.1238,
+          "mean_deg_std": 0.3068,
+          "images": 64,
+          "coverage": 0.6116
+        }
+      },
+      "learning_rate": 0.001,
+      "val_metric": "mean_deg",
+      "val_score": 30.6343,
+      "learning_rate_search": {
+        "0.0001": 31.9942,
+        "0.0003": 30.8169,
+        "0.001": 30.6343,
+        "0.003": 34.5445,
+        "0.01": 45.4053,
+        "0.03": 45.4056
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.2511,
+          "d2": 0.4653,
+          "d3": 0.5792,
+          "rmse": 37.1911,
+          "mean_deg": 30.1555,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.1911,
+              "d2": 0.441,
+              "d3": 0.5762,
+              "rmse": 36.1252,
+              "mean_deg": 30.3393,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.299,
+              "d2": 0.4847,
+              "d3": 0.5815,
+              "rmse": 38.0405,
+              "mean_deg": 30.009,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.2601,
+          "d2": 0.4772,
+          "d3": 0.5899,
+          "rmse": 36.8363,
+          "mean_deg": 29.6975,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.2072,
+              "d2": 0.467,
+              "d3": 0.5985,
+              "rmse": 35.5964,
+              "mean_deg": 29.5451,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.3023,
+              "d2": 0.4854,
+              "d3": 0.583,
+              "rmse": 37.8244,
+              "mean_deg": 29.8189,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.228,
+          "d2": 0.4329,
+          "d3": 0.5525,
+          "rmse": 37.9952,
+          "mean_deg": 31.2669,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.1516,
+              "d2": 0.3881,
+              "d3": 0.531,
+              "rmse": 37.4385,
+              "mean_deg": 32.1746,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.2889,
+              "d2": 0.4685,
+              "d3": 0.5696,
+              "rmse": 38.4388,
+              "mean_deg": 30.5436,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/Gemma4-31B-Vision",
+      "stage": "tower",
+      "layer_index": 10,
+      "relative_depth": 0.37037037037037035,
+      "token_width": 512,
+      "grid": 30,
+      "trainable_parameters": 1314819,
+      "seconds": 233.1
+    },
+    {
+      "d1": 0.2468,
+      "d1_std": 0.0147,
+      "d2": 0.47,
+      "d2_std": 0.0216,
+      "d3": 0.5905,
+      "d3_std": 0.0165,
+      "rmse": 36.5784,
+      "rmse_std": 0.4563,
+      "mean_deg": 29.6397,
+      "mean_deg_std": 0.6658,
+      "images": 115,
+      "coverage": 0.7751,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.1792,
+          "d1_std": 0.0218,
+          "d2": 0.441,
+          "d2_std": 0.0359,
+          "d3": 0.5875,
+          "d3_std": 0.0276,
+          "rmse": 35.6438,
+          "rmse_std": 0.7073,
+          "mean_deg": 29.9403,
+          "mean_deg_std": 1.0354,
+          "images": 51,
+          "coverage": 0.9803
+        },
+        "outdoor": {
+          "d1": 0.3007,
+          "d1_std": 0.0092,
+          "d2": 0.4931,
+          "d2_std": 0.0105,
+          "d3": 0.5929,
+          "d3_std": 0.0078,
+          "rmse": 37.3232,
+          "rmse_std": 0.2563,
+          "mean_deg": 29.4002,
+          "mean_deg_std": 0.3733,
+          "images": 64,
+          "coverage": 0.6116
+        }
+      },
+      "learning_rate": 0.001,
+      "val_metric": "mean_deg",
+      "val_score": 30.2574,
+      "learning_rate_search": {
+        "0.0001": 31.8402,
+        "0.0003": 30.308,
+        "0.001": 30.2574,
+        "0.003": 34.8326,
+        "0.01": 45.4047,
+        "0.03": 45.4053
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.245,
+          "d2": 0.4693,
+          "d3": 0.5902,
+          "rmse": 36.5776,
+          "mean_deg": 29.6501,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.1737,
+              "d2": 0.4374,
+              "d3": 0.5852,
+              "rmse": 35.6334,
+              "mean_deg": 30.0138,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.3018,
+              "d2": 0.4947,
+              "d3": 0.5941,
+              "rmse": 37.3301,
+              "mean_deg": 29.3603,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.2656,
+          "d2": 0.4969,
+          "d3": 0.6109,
+          "rmse": 36.02,
+          "mean_deg": 28.8192,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.2082,
+              "d2": 0.4866,
+              "d3": 0.6223,
+              "rmse": 34.7828,
+              "mean_deg": 28.637,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.3114,
+              "d2": 0.5051,
+              "d3": 0.6019,
+              "rmse": 37.0058,
+              "mean_deg": 28.9643,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.2298,
+          "d2": 0.4439,
+          "d3": 0.5704,
+          "rmse": 37.1376,
+          "mean_deg": 30.4499,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.1556,
+              "d2": 0.399,
+              "d3": 0.5549,
+              "rmse": 36.5152,
+              "mean_deg": 31.17,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.289,
+              "d2": 0.4796,
+              "d3": 0.5828,
+              "rmse": 37.6336,
+              "mean_deg": 29.8761,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/Gemma4-31B-Vision",
+      "stage": "tower",
+      "layer_index": 14,
+      "relative_depth": 0.5185185185185185,
+      "token_width": 512,
+      "grid": 30,
+      "trainable_parameters": 1314819,
+      "seconds": 239.8
+    },
+    {
+      "d1": 0.2896,
+      "d1_std": 0.0093,
+      "d2": 0.5351,
+      "d2_std": 0.0078,
+      "d3": 0.6465,
+      "d3_std": 0.0061,
+      "rmse": 34.4975,
+      "rmse_std": 0.2054,
+      "mean_deg": 27.2467,
+      "mean_deg_std": 0.2895,
+      "images": 115,
+      "coverage": 0.7751,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.2467,
+          "d1_std": 0.014,
+          "d2": 0.5383,
+          "d2_std": 0.0135,
+          "d3": 0.6692,
+          "d3_std": 0.0095,
+          "rmse": 32.7738,
+          "rmse_std": 0.3258,
+          "mean_deg": 26.5403,
+          "mean_deg_std": 0.4393,
+          "images": 51,
+          "coverage": 0.9803
+        },
+        "outdoor": {
+          "d1": 0.3238,
+          "d1_std": 0.0057,
+          "d2": 0.5326,
+          "d2_std": 0.0034,
+          "d3": 0.6283,
+          "d3_std": 0.0036,
+          "rmse": 35.871,
+          "rmse_std": 0.1111,
+          "mean_deg": 27.8095,
+          "mean_deg_std": 0.1732,
+          "images": 64,
+          "coverage": 0.6116
+        }
+      },
+      "learning_rate": 0.001,
+      "val_metric": "mean_deg",
+      "val_score": 27.5478,
+      "learning_rate_search": {
+        "0.0001": 29.0599,
+        "0.0003": 27.664,
+        "0.001": 27.5478,
+        "0.003": 32.6193,
+        "0.01": 45.4049,
+        "0.03": 45.4053
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.2906,
+          "d2": 0.5369,
+          "d3": 0.6481,
+          "rmse": 34.4656,
+          "mean_deg": 27.1898,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.2465,
+              "d2": 0.5404,
+              "d3": 0.6704,
+              "rmse": 32.7504,
+              "mean_deg": 26.5011,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.3258,
+              "d2": 0.5341,
+              "d3": 0.6303,
+              "rmse": 35.8324,
+              "mean_deg": 27.7386,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.3004,
+          "d2": 0.5436,
+          "d3": 0.653,
+          "rmse": 34.2633,
+          "mean_deg": 26.924,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.264,
+              "d2": 0.5536,
+              "d3": 0.6802,
+              "rmse": 32.387,
+              "mean_deg": 26.023,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.3295,
+              "d2": 0.5357,
+              "d3": 0.6313,
+              "rmse": 35.7585,
+              "mean_deg": 27.642,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.2777,
+          "d2": 0.5248,
+          "d3": 0.6383,
+          "rmse": 34.7635,
+          "mean_deg": 27.6262,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.2297,
+              "d2": 0.5208,
+              "d3": 0.6571,
+              "rmse": 33.1841,
+              "mean_deg": 27.0969,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.316,
+              "d2": 0.5279,
+              "d3": 0.6232,
+              "rmse": 36.0222,
+              "mean_deg": 28.048,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/Gemma4-31B-Vision",
+      "stage": "tower",
+      "layer_index": 17,
+      "relative_depth": 0.6296296296296297,
+      "token_width": 512,
+      "grid": 30,
+      "trainable_parameters": 1314819,
+      "seconds": 245.4
+    },
+    {
+      "d1": 0.2874,
+      "d1_std": 0.0025,
+      "d2": 0.5239,
+      "d2_std": 0.0033,
+      "d3": 0.6353,
+      "d3_std": 0.0021,
+      "rmse": 35.1344,
+      "rmse_std": 0.0222,
+      "mean_deg": 27.7007,
+      "mean_deg_std": 0.0604,
+      "images": 115,
+      "coverage": 0.7751,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.2405,
+          "d1_std": 0.0028,
+          "d2": 0.515,
+          "d2_std": 0.0043,
+          "d3": 0.6468,
+          "d3_std": 0.0027,
+          "rmse": 33.8089,
+          "rmse_std": 0.0829,
+          "mean_deg": 27.4009,
+          "mean_deg_std": 0.1024,
+          "images": 51,
+          "coverage": 0.9803
+        },
+        "outdoor": {
+          "d1": 0.3247,
+          "d1_std": 0.0031,
+          "d2": 0.5311,
+          "d2_std": 0.0035,
+          "d3": 0.6261,
+          "d3_std": 0.0025,
+          "rmse": 36.1907,
+          "rmse_std": 0.0263,
+          "mean_deg": 27.9395,
+          "mean_deg_std": 0.0863,
+          "images": 64,
+          "coverage": 0.6116
+        }
+      },
+      "learning_rate": 0.0003,
+      "val_metric": "mean_deg",
+      "val_score": 28.1439,
+      "learning_rate_search": {
+        "0.0001": 29.5129,
+        "0.0003": 28.1439,
+        "0.001": 28.2078,
+        "0.003": 45.3183,
+        "0.01": 45.4053,
+        "0.03": 45.4058
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.2861,
+          "d2": 0.5224,
+          "d3": 0.6345,
+          "rmse": 35.1624,
+          "mean_deg": 27.7322,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.2371,
+              "d2": 0.5102,
+              "d3": 0.6438,
+              "rmse": 33.916,
+              "mean_deg": 27.5397,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.3251,
+              "d2": 0.5322,
+              "d3": 0.6272,
+              "rmse": 36.1556,
+              "mean_deg": 27.8856,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.2909,
+          "d2": 0.5285,
+          "d3": 0.6382,
+          "rmse": 35.1328,
+          "mean_deg": 27.6162,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.244,
+              "d2": 0.5207,
+              "d3": 0.6503,
+              "rmse": 33.7965,
+              "mean_deg": 27.2957,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.3282,
+              "d2": 0.5347,
+              "d3": 0.6285,
+              "rmse": 36.1976,
+              "mean_deg": 27.8717,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.2852,
+          "d2": 0.5209,
+          "d3": 0.6332,
+          "rmse": 35.1081,
+          "mean_deg": 27.7536,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.2405,
+              "d2": 0.514,
+              "d3": 0.6463,
+              "rmse": 33.7141,
+              "mean_deg": 27.3674,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.3207,
+              "d2": 0.5263,
+              "d3": 0.6227,
+              "rmse": 36.2189,
+              "mean_deg": 28.0613,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/Gemma4-31B-Vision",
+      "stage": "tower",
+      "layer_index": 20,
+      "relative_depth": 0.7407407407407407,
+      "token_width": 512,
+      "grid": 30,
+      "trainable_parameters": 1314819,
+      "seconds": 238.8
+    },
+    {
+      "d1": 0.2414,
+      "d1_std": 0.0036,
+      "d2": 0.455,
+      "d2_std": 0.0033,
+      "d3": 0.5738,
+      "d3_std": 0.0029,
+      "rmse": 37.3309,
+      "rmse_std": 0.0994,
+      "mean_deg": 30.3101,
+      "mean_deg_std": 0.1198,
+      "images": 115,
+      "coverage": 0.7751,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.186,
+          "d1_std": 0.004,
+          "d2": 0.4351,
+          "d2_std": 0.0054,
+          "d3": 0.5712,
+          "d3_std": 0.0049,
+          "rmse": 36.4709,
+          "rmse_std": 0.1813,
+          "mean_deg": 30.4675,
+          "mean_deg_std": 0.2054,
+          "images": 51,
+          "coverage": 0.9803
+        },
+        "outdoor": {
+          "d1": 0.2855,
+          "d1_std": 0.0036,
+          "d2": 0.4709,
+          "d2_std": 0.0026,
+          "d3": 0.5758,
+          "d3_std": 0.0019,
+          "rmse": 38.0163,
+          "rmse_std": 0.0389,
+          "mean_deg": 30.1847,
+          "mean_deg_std": 0.0788,
+          "images": 64,
+          "coverage": 0.6116
+        }
+      },
+      "learning_rate": 0.001,
+      "val_metric": "mean_deg",
+      "val_score": 30.9457,
+      "learning_rate_search": {
+        "0.0001": 32.5288,
+        "0.0003": 30.9676,
+        "0.001": 30.9457,
+        "0.003": 35.113,
+        "0.01": 45.4058,
+        "0.03": 45.4068
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.2462,
+          "d2": 0.4587,
+          "d3": 0.576,
+          "rmse": 37.2752,
+          "mean_deg": 30.1929,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.1916,
+              "d2": 0.4389,
+              "d3": 0.5731,
+              "rmse": 36.3976,
+              "mean_deg": 30.3424,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.2897,
+              "d2": 0.4745,
+              "d3": 0.5783,
+              "rmse": 37.9746,
+              "mean_deg": 30.0737,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.2402,
+          "d2": 0.4507,
+          "d3": 0.5696,
+          "rmse": 37.4705,
+          "mean_deg": 30.4746,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.1828,
+              "d2": 0.4275,
+              "d3": 0.5645,
+              "rmse": 36.7203,
+              "mean_deg": 30.7571,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.2859,
+              "d2": 0.4691,
+              "d3": 0.5738,
+              "rmse": 38.0683,
+              "mean_deg": 30.2495,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.2377,
+          "d2": 0.4556,
+          "d3": 0.5757,
+          "rmse": 37.247,
+          "mean_deg": 30.2628,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.1836,
+              "d2": 0.4389,
+              "d3": 0.5761,
+              "rmse": 36.2947,
+              "mean_deg": 30.303,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.2808,
+              "d2": 0.469,
+              "d3": 0.5754,
+              "rmse": 38.0059,
+              "mean_deg": 30.2308,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/Gemma4-31B-Vision",
+      "stage": "tower",
+      "layer_index": 24,
+      "relative_depth": 0.8888888888888888,
+      "token_width": 512,
+      "grid": 30,
+      "trainable_parameters": 1314819,
+      "seconds": 244.0
+    },
+    {
+      "d1": 0.212,
+      "d1_std": 0.0024,
+      "d2": 0.4174,
+      "d2_std": 0.0024,
+      "d3": 0.538,
+      "d3_std": 0.0019,
+      "rmse": 39.122,
+      "rmse_std": 0.0589,
+      "mean_deg": 32.1994,
+      "mean_deg_std": 0.075,
+      "images": 115,
+      "coverage": 0.7751,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.1557,
+          "d1_std": 0.002,
+          "d2": 0.3916,
+          "d2_std": 0.0015,
+          "d3": 0.5299,
+          "d3_std": 0.0017,
+          "rmse": 38.7155,
+          "rmse_std": 0.1128,
+          "mean_deg": 32.7405,
+          "mean_deg_std": 0.0875,
+          "images": 51,
+          "coverage": 0.9803
+        },
+        "outdoor": {
+          "d1": 0.2567,
+          "d1_std": 0.0026,
+          "d2": 0.438,
+          "d2_std": 0.0032,
+          "d3": 0.5444,
+          "d3_std": 0.0027,
+          "rmse": 39.446,
+          "rmse_std": 0.0489,
+          "mean_deg": 31.7683,
+          "mean_deg_std": 0.0909,
+          "images": 64,
+          "coverage": 0.6116
+        }
+      },
+      "learning_rate": 0.0003,
+      "val_metric": "mean_deg",
+      "val_score": 32.7614,
+      "learning_rate_search": {
+        "0.0001": 33.9811,
+        "0.0003": 32.7614,
+        "0.001": 32.9731,
+        "0.003": 37.7466,
+        "0.01": 45.4062,
+        "0.03": 45.4071
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.2134,
+          "d2": 0.4173,
+          "d3": 0.5367,
+          "rmse": 39.1834,
+          "mean_deg": 32.2361,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.1567,
+              "d2": 0.3908,
+              "d3": 0.5276,
+              "rmse": 38.8696,
+              "mean_deg": 32.8459,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.2585,
+              "d2": 0.4383,
+              "d3": 0.544,
+              "rmse": 39.4335,
+              "mean_deg": 31.7502,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.2139,
+          "d2": 0.4204,
+          "d3": 0.5407,
+          "rmse": 39.0426,
+          "mean_deg": 32.0949,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.1576,
+              "d2": 0.3937,
+              "d3": 0.5316,
+              "rmse": 38.6025,
+              "mean_deg": 32.6316,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.2587,
+              "d2": 0.4417,
+              "d3": 0.5479,
+              "rmse": 39.3934,
+              "mean_deg": 31.6671,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.2086,
+          "d2": 0.4145,
+          "d3": 0.5365,
+          "rmse": 39.1401,
+          "mean_deg": 32.2673,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.1529,
+              "d2": 0.3903,
+              "d3": 0.5304,
+              "rmse": 38.6745,
+              "mean_deg": 32.744,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.253,
+              "d2": 0.4339,
+              "d3": 0.5414,
+              "rmse": 39.5111,
+              "mean_deg": 31.8875,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/Gemma4-31B-Vision",
+      "stage": "tower",
+      "layer_index": 27,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "grid": 30,
+      "trainable_parameters": 1314819,
+      "seconds": 245.8
+    }
+  ]
+}

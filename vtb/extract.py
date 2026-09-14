@@ -9,6 +9,7 @@ from torch.utils.data import DataLoader
 
 from vtb.cache import ShardWriter
 from vtb.adapters.dinov2 import DINOv2Adapter
+from vtb.adapters.gemma4 import Gemma4Adapter
 from vtb.adapters.kimi_k26 import KimiK26Adapter
 from vtb.adapters.moonvit_v2 import MoonViTV2Adapter
 from vtb.adapters.muse_glimmer import MuseGlimmerAdapter
@@ -18,6 +19,7 @@ from vtb.images import ImageFolder
 
 ADAPTERS = {
     "dinov2": DINOv2Adapter,
+    "gemma4": Gemma4Adapter,
     "kimi_k26": KimiK26Adapter,
     "moonvit_v2": MoonViTV2Adapter,
     "muse_glimmer": MuseGlimmerAdapter,

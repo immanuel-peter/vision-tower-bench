@@ -11,7 +11,7 @@ import os
 import pytest
 import torch
 
-from vtb.adapters import kimi_k26, muse_glimmer, qwen3_5, siglip2
+from vtb.adapters import gemma4, kimi_k26, muse_glimmer, qwen3_5, siglip2
 from vtb.shards import load_prefixed
 
 pytestmark = pytest.mark.skipif(
@@ -57,6 +57,27 @@ def test_muse_tower_and_projector_match_parent_checkpoint():
     ):
         checkpoint_weights = load_prefixed(muse_glimmer.SOURCE_REPO, muse_glimmer.SHARDS, prefix)
         assert_bit_exact(module.state_dict(), checkpoint_weights, count)
+
+
+def test_gemma4_tower_and_projector_match_parent_checkpoint():
+    tower, projector = gemma4.load_source_parts(torch.bfloat16)
+    checkpoint_weights = load_prefixed(
+        gemma4.SOURCE_REPO,
+        [gemma4.VISION_SHARD],
+        gemma4.TOWER_PREFIX,
+        revision=gemma4.SOURCE_REVISION,
+    )
+    loaded = {k: v for k, v in tower.state_dict().items() if k in checkpoint_weights}
+    assert_bit_exact(loaded, checkpoint_weights, 355)
+
+    checkpoint_weights = load_prefixed(
+        gemma4.SOURCE_REPO,
+        [gemma4.VISION_SHARD],
+        gemma4.PROJECTOR_PREFIX,
+        revision=gemma4.SOURCE_REVISION,
+    )
+    loaded = {k: v for k, v in projector.state_dict().items() if k in checkpoint_weights}
+    assert_bit_exact(loaded, checkpoint_weights, 1)
 
 
 def test_kimi_k26_republished_weights_match_parent_checkpoint():

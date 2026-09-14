@@ -1,0 +1,37 @@
+{
+  "images": 13000,
+  "label_fraction": 0.05,
+  "train_images": 455,
+  "full_train_images": 9100,
+  "cells": [
+    {
+      "learning_rate": 0.001,
+      "learning_rate_search": {
+        "1e-05": 0.0221,
+        "3e-05": 0.1082,
+        "0.0001": 0.4287,
+        "0.0003": 0.6472,
+        "0.001": 0.7026,
+        "0.003": 0.679,
+        "0.01": 0.6021,
+        "0.03": 0.4549,
+        "0.1": 0.2446,
+        "0.3": 0.1031,
+        "1": 0.0092
+      },
+      "val_accuracy": 0.7026,
+      "test_accuracy": 0.6916,
+      "test_std": 0.0062,
+      "seeds": 3,
+      "model_id": "immanuelpeter/Gemma4-31B-Vision",
+      "stage": "tower",
+      "layer_index": 27,
+      "relative_depth": 1.0,
+      "token_width": 1152,
+      "trainable_parameters": 1627748,
+      "label_fraction": 0.05,
+      "train_images": 455,
+      "full_train_images": 9100
+    }
+  ]
+}

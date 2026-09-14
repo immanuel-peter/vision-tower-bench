@@ -1,0 +1,31 @@
+{
+  "architectures": [
+    "Gemma4VisionModel"
+  ],
+  "attention_bias": false,
+  "attention_dropout": 0.0,
+  "default_output_length": 280,
+  "dtype": "bfloat16",
+  "global_head_dim": 72,
+  "head_dim": 72,
+  "hidden_activation": "gelu_pytorch_tanh",
+  "hidden_size": 1152,
+  "initializer_range": 0.02,
+  "intermediate_size": 4304,
+  "max_position_embeddings": 131072,
+  "model_type": "gemma4_vision",
+  "num_attention_heads": 16,
+  "num_hidden_layers": 27,
+  "num_key_value_heads": 16,
+  "patch_size": 16,
+  "pooling_kernel_size": 3,
+  "position_embedding_size": 10240,
+  "rms_norm_eps": 1e-06,
+  "rope_parameters": {
+    "rope_theta": 100.0,
+    "rope_type": "default"
+  },
+  "standardize": true,
+  "transformers_version": "5.15.1",
+  "use_clipped_linears": false
+}

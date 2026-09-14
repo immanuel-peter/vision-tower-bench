@@ -9,6 +9,7 @@ import torch
 from PIL import Image
 
 from vtb.adapters.dinov2 import DINOv2Adapter
+from vtb.adapters.gemma4 import Gemma4Adapter
 from vtb.adapters.kimi_k26 import KimiK26Adapter
 from vtb.adapters.moonvit_v2 import MoonViTV2Adapter
 from vtb.adapters.muse_glimmer import MuseGlimmerAdapter
@@ -26,6 +27,7 @@ EXPECTED = {
     KimiK26Adapter: (32, 16, 1152, 4608, 7168),
     Qwen3_5Adapter: (28, 14, 1152, 4608, 5120),
     MuseGlimmerAdapter: (32, 16, 1536, 6144, 6656),
+    Gemma4Adapter: (30, 10, 1152, 1152, 5376),
 }
 
 pytestmark = pytest.mark.skipif(
