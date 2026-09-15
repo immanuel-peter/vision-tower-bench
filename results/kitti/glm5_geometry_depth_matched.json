@@ -1,0 +1,225 @@
+{
+  "task": "depth",
+  "images": 1000,
+  "train_images": 700,
+  "capacity_matched": true,
+  "head": "multiscale",
+  "epochs": 10,
+  "seeds": 3,
+  "learning_rates": [
+    0.0001,
+    0.0003,
+    0.001,
+    0.003,
+    0.01,
+    0.03
+  ],
+  "cells": [
+    {
+      "d1": 0.9505,
+      "d1_std": 0.0013,
+      "d2": 0.993,
+      "d2_std": 0.0002,
+      "d3": 0.9981,
+      "d3_std": 0.0001,
+      "rmse": 3.1507,
+      "rmse_std": 0.0229,
+      "images": 150,
+      "coverage": 0.2239,
+      "by_scene": {
+        "driving": {
+          "d1": 0.9505,
+          "d1_std": 0.0013,
+          "d2": 0.993,
+          "d2_std": 0.0002,
+          "d3": 0.9981,
+          "d3_std": 0.0001,
+          "rmse": 3.1507,
+          "rmse_std": 0.0229,
+          "images": 150,
+          "coverage": 0.2239
+        }
+      },
+      "learning_rate": 0.03,
+      "val_metric": "d1",
+      "val_score": 0.9589,
+      "learning_rate_search": {
+        "0.0001": 0.8823,
+        "0.0003": 0.9308,
+        "0.001": 0.9527,
+        "0.003": 0.9571,
+        "0.01": 0.9563,
+        "0.03": 0.9589
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.9506,
+          "d2": 0.9932,
+          "d3": 0.9982,
+          "rmse": 3.1216,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9506,
+              "d2": 0.9932,
+              "d3": 0.9982,
+              "rmse": 3.1216,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        },
+        {
+          "d1": 0.952,
+          "d2": 0.9931,
+          "d3": 0.9981,
+          "rmse": 3.1531,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.952,
+              "d2": 0.9931,
+              "d3": 0.9981,
+              "rmse": 3.1531,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        },
+        {
+          "d1": 0.9488,
+          "d2": 0.9928,
+          "d3": 0.9979,
+          "rmse": 3.1775,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9488,
+              "d2": 0.9928,
+              "d3": 0.9979,
+              "rmse": 3.1775,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        }
+      ],
+      "max_depth": 85.766,
+      "model_id": "immanuelpeter/GLM-5.3-Flash-Vision",
+      "stage": "projected",
+      "layer_index": 24,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "grid": 16,
+      "trainable_parameters": 1444608,
+      "seconds": 125.0
+    },
+    {
+      "d1": 0.953,
+      "d1_std": 0.0003,
+      "d2": 0.9945,
+      "d2_std": 0.0001,
+      "d3": 0.9986,
+      "d3_std": 0.0,
+      "rmse": 2.8333,
+      "rmse_std": 0.0072,
+      "images": 150,
+      "coverage": 0.2239,
+      "by_scene": {
+        "driving": {
+          "d1": 0.953,
+          "d1_std": 0.0003,
+          "d2": 0.9945,
+          "d2_std": 0.0001,
+          "d3": 0.9986,
+          "d3_std": 0.0,
+          "rmse": 2.8333,
+          "rmse_std": 0.0072,
+          "images": 150,
+          "coverage": 0.2239
+        }
+      },
+      "learning_rate": 0.003,
+      "val_metric": "d1",
+      "val_score": 0.9584,
+      "learning_rate_search": {
+        "0.0001": 0.8858,
+        "0.0003": 0.9281,
+        "0.001": 0.9528,
+        "0.003": 0.9584,
+        "0.01": 0.8845,
+        "0.03": 0.8494
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.9533,
+          "d2": 0.9946,
+          "d3": 0.9986,
+          "rmse": 2.8248,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9533,
+              "d2": 0.9946,
+              "d3": 0.9986,
+              "rmse": 2.8248,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        },
+        {
+          "d1": 0.9532,
+          "d2": 0.9946,
+          "d3": 0.9986,
+          "rmse": 2.8327,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9532,
+              "d2": 0.9946,
+              "d3": 0.9986,
+              "rmse": 2.8327,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        },
+        {
+          "d1": 0.9526,
+          "d2": 0.9943,
+          "d3": 0.9985,
+          "rmse": 2.8425,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9526,
+              "d2": 0.9943,
+              "d3": 0.9985,
+              "rmse": 2.8425,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        }
+      ],
+      "max_depth": 85.766,
+      "model_id": "immanuelpeter/GLM-5.3-Flash-Vision",
+      "stage": "tower",
+      "layer_index": 24,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "grid": 32,
+      "trainable_parameters": 1444608,
+      "seconds": 354.1
+    }
+  ]
+}

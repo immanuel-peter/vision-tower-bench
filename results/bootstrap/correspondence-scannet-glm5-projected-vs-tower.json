@@ -1,0 +1,66 @@
+{
+  "protocol": {
+    "dataset": "scannet",
+    "metric": "recall_10px",
+    "pairing": "paired over image pairs",
+    "resolution": 448,
+    "evaluation_side": 64,
+    "num_correspondences": 1000
+  },
+  "model": "glm5",
+  "model_id": "immanuelpeter/GLM-5.3-Flash-Vision",
+  "first": "projected:24",
+  "second": "tower:24",
+  "first_advantage": {
+    "point_estimate": -0.0027220002375543118,
+    "confidence": 0.95,
+    "lower": -0.00422533368691802,
+    "upper": -0.001248616143129766,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second",
+    "pairs": 1500
+  },
+  "by_difficulty": {
+    "[0,15)": {
+      "point_estimate": -0.006341003812849522,
+      "confidence": 0.95,
+      "lower": -0.009882898069918156,
+      "upper": -0.002740320283919573,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 478
+    },
+    "[15,30)": {
+      "point_estimate": -0.0012198442127555609,
+      "confidence": 0.95,
+      "lower": -0.0036031620111316442,
+      "upper": 0.001204329077154398,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 514
+    },
+    "[30,60)": {
+      "point_estimate": -0.001958333421498537,
+      "confidence": 0.95,
+      "lower": -0.0034500001929700375,
+      "upper": -0.00047777791041880846,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 360
+    },
+    "[60,180)": {
+      "point_estimate": 0.001891892054118216,
+      "confidence": 0.95,
+      "lower": 4.054065720993094e-05,
+      "upper": 0.004013685043901205,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 148
+    }
+  }
+}

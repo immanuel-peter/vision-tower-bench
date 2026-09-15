@@ -1,0 +1,37 @@
+{
+  "images": 13000,
+  "label_fraction": 0.05,
+  "train_images": 455,
+  "full_train_images": 9100,
+  "cells": [
+    {
+      "learning_rate": 0.01,
+      "learning_rate_search": {
+        "1e-05": 0.0282,
+        "3e-05": 0.0318,
+        "0.0001": 0.0467,
+        "0.0003": 0.1426,
+        "0.001": 0.7338,
+        "0.003": 0.8513,
+        "0.01": 0.859,
+        "0.03": 0.8415,
+        "0.1": 0.8108,
+        "0.3": 0.8103,
+        "1": 0.8164
+      },
+      "val_accuracy": 0.859,
+      "test_accuracy": 0.8638,
+      "test_std": 0.0057,
+      "seeds": 3,
+      "model_id": "immanuelpeter/GLM-5.3-Flash-Vision",
+      "stage": "tower",
+      "layer_index": 24,
+      "relative_depth": 1.0,
+      "token_width": 1024,
+      "trainable_parameters": 51300,
+      "label_fraction": 0.05,
+      "train_images": 455,
+      "full_train_images": 9100
+    }
+  ]
+}
