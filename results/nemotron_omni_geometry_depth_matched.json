@@ -1,0 +1,1409 @@
+{
+  "task": "depth",
+  "images": 771,
+  "train_images": 541,
+  "capacity_matched": true,
+  "head": "multiscale",
+  "epochs": 10,
+  "seeds": 3,
+  "learning_rates": [
+    0.0001,
+    0.0003,
+    0.001,
+    0.003,
+    0.01,
+    0.03
+  ],
+  "cells": [
+    {
+      "d1": 0.6003,
+      "d1_std": 0.0012,
+      "d2": 0.826,
+      "d2_std": 0.0008,
+      "d3": 0.9185,
+      "d3_std": 0.001,
+      "rmse": 4.1125,
+      "rmse_std": 0.0202,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.6056,
+          "d1_std": 0.0051,
+          "d2": 0.8399,
+          "d2_std": 0.0024,
+          "d3": 0.9449,
+          "d3_std": 0.0011,
+          "rmse": 0.8703,
+          "rmse_std": 0.0038,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.5961,
+          "d1_std": 0.0019,
+          "d2": 0.8149,
+          "d2_std": 0.0004,
+          "d3": 0.8975,
+          "d3_std": 0.001,
+          "rmse": 6.6962,
+          "rmse_std": 0.0353,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.001,
+      "val_metric": "d1",
+      "val_score": 0.6211,
+      "learning_rate_search": {
+        "0.0001": 0.3204,
+        "0.0003": 0.5509,
+        "0.001": 0.6211,
+        "0.003": 0.6197,
+        "0.01": 0.4516,
+        "0.03": 0.1244
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.5987,
+          "d2": 0.8248,
+          "d3": 0.9179,
+          "rmse": 4.1408,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5987,
+              "d2": 0.8366,
+              "d3": 0.9439,
+              "rmse": 0.873,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5987,
+              "d2": 0.8153,
+              "d3": 0.8972,
+              "rmse": 6.7448,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6006,
+          "d2": 0.8264,
+          "d3": 0.9199,
+          "rmse": 4.0947,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.607,
+              "d2": 0.8409,
+              "d3": 0.9464,
+              "rmse": 0.8729,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5954,
+              "d2": 0.8149,
+              "d3": 0.8989,
+              "rmse": 6.662,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6017,
+          "d2": 0.8267,
+          "d3": 0.9177,
+          "rmse": 4.1021,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.611,
+              "d2": 0.8421,
+              "d3": 0.9444,
+              "rmse": 0.8649,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5943,
+              "d2": 0.8144,
+              "d3": 0.8965,
+              "rmse": 6.6817,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/Nemotron-Omni-Vision",
+      "stage": "merged",
+      "layer_index": 32,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "grid": 14,
+      "trainable_parameters": 1444608,
+      "seconds": 91.1
+    },
+    {
+      "d1": 0.6106,
+      "d1_std": 0.0015,
+      "d2": 0.8376,
+      "d2_std": 0.002,
+      "d3": 0.9275,
+      "d3_std": 0.0008,
+      "rmse": 4.0793,
+      "rmse_std": 0.0037,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.6249,
+          "d1_std": 0.0031,
+          "d2": 0.8617,
+          "d2_std": 0.0055,
+          "d3": 0.9642,
+          "d3_std": 0.0022,
+          "rmse": 0.8227,
+          "rmse_std": 0.005,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.5991,
+          "d1_std": 0.0007,
+          "d2": 0.8183,
+          "d2_std": 0.0008,
+          "d3": 0.8982,
+          "d3_std": 0.0006,
+          "rmse": 6.6744,
+          "rmse_std": 0.0056,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.6224,
+      "learning_rate_search": {
+        "0.0001": 0.2772,
+        "0.0003": 0.4818,
+        "0.001": 0.6004,
+        "0.003": 0.6146,
+        "0.01": 0.6224,
+        "0.03": 0.1244
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.6122,
+          "d2": 0.8353,
+          "d3": 0.9271,
+          "rmse": 4.0741,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6274,
+              "d2": 0.855,
+              "d3": 0.9622,
+              "rmse": 0.8194,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6,
+              "d2": 0.8195,
+              "d3": 0.8991,
+              "rmse": 6.6677,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6086,
+          "d2": 0.8402,
+          "d3": 0.9286,
+          "rmse": 4.0823,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6205,
+              "d2": 0.8684,
+              "d3": 0.9673,
+              "rmse": 0.8298,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5991,
+              "d2": 0.8177,
+              "d3": 0.8977,
+              "rmse": 6.6741,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.611,
+          "d2": 0.8373,
+          "d3": 0.9268,
+          "rmse": 4.0815,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6268,
+              "d2": 0.8617,
+              "d3": 0.963,
+              "rmse": 0.8188,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5983,
+              "d2": 0.8178,
+              "d3": 0.8979,
+              "rmse": 6.6814,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/Nemotron-Omni-Vision",
+      "stage": "projected",
+      "layer_index": 32,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "grid": 14,
+      "trainable_parameters": 1444608,
+      "seconds": 81.5
+    },
+    {
+      "d1": 0.4496,
+      "d1_std": 0.0049,
+      "d2": 0.7375,
+      "d2_std": 0.0053,
+      "d3": 0.8686,
+      "d3_std": 0.0016,
+      "rmse": 4.8859,
+      "rmse_std": 0.0121,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.3935,
+          "d1_std": 0.0043,
+          "d2": 0.7189,
+          "d2_std": 0.012,
+          "d3": 0.8769,
+          "d3_std": 0.0041,
+          "rmse": 1.4458,
+          "rmse_std": 0.0051,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.4943,
+          "d1_std": 0.0053,
+          "d2": 0.7524,
+          "d2_std": 0.0015,
+          "d3": 0.8621,
+          "d3_std": 0.0011,
+          "rmse": 7.6274,
+          "rmse_std": 0.0237,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.4668,
+      "learning_rate_search": {
+        "0.0001": 0.2003,
+        "0.0003": 0.298,
+        "0.001": 0.428,
+        "0.003": 0.4526,
+        "0.01": 0.4668,
+        "0.03": 0.3639
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.4445,
+          "d2": 0.7398,
+          "d3": 0.8705,
+          "rmse": 4.8926,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.3886,
+              "d2": 0.7267,
+              "d3": 0.8824,
+              "rmse": 1.4385,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.489,
+              "d2": 0.7503,
+              "d3": 0.861,
+              "rmse": 7.6451,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.4481,
+          "d2": 0.7302,
+          "d3": 0.8666,
+          "rmse": 4.8962,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.3928,
+              "d2": 0.7019,
+              "d3": 0.8728,
+              "rmse": 1.4491,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.4922,
+              "d2": 0.7528,
+              "d3": 0.8617,
+              "rmse": 7.6432,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.4562,
+          "d2": 0.7425,
+          "d3": 0.8688,
+          "rmse": 4.869,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.3991,
+              "d2": 0.7281,
+              "d3": 0.8754,
+              "rmse": 1.4497,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5016,
+              "d2": 0.754,
+              "d3": 0.8635,
+              "rmse": 7.5938,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/Nemotron-Omni-Vision",
+      "stage": "tower",
+      "layer_index": 4,
+      "relative_depth": 0.125,
+      "token_width": 512,
+      "grid": 28,
+      "trainable_parameters": 1444608,
+      "seconds": 226.7
+    },
+    {
+      "d1": 0.5482,
+      "d1_std": 0.0099,
+      "d2": 0.8033,
+      "d2_std": 0.0069,
+      "d3": 0.9065,
+      "d3_std": 0.0036,
+      "rmse": 4.2268,
+      "rmse_std": 0.0276,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.521,
+          "d1_std": 0.0154,
+          "d2": 0.797,
+          "d2_std": 0.0123,
+          "d3": 0.92,
+          "d3_std": 0.0056,
+          "rmse": 1.0781,
+          "rmse_std": 0.0237,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.5698,
+          "d1_std": 0.0087,
+          "d2": 0.8083,
+          "d2_std": 0.0029,
+          "d3": 0.8959,
+          "d3_std": 0.0022,
+          "rmse": 6.736,
+          "rmse_std": 0.0417,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.5264,
+      "learning_rate_search": {
+        "0.0001": 0.221,
+        "0.0003": 0.3785,
+        "0.001": 0.4762,
+        "0.003": 0.5016,
+        "0.01": 0.5264,
+        "0.03": 0.1244
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.5427,
+          "d2": 0.8032,
+          "d3": 0.907,
+          "rmse": 4.254,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5221,
+              "d2": 0.7986,
+              "d3": 0.922,
+              "rmse": 1.0719,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5591,
+              "d2": 0.8068,
+              "d3": 0.8951,
+              "rmse": 6.7897,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5398,
+          "d2": 0.7949,
+          "d3": 0.9019,
+          "rmse": 4.2376,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5016,
+              "d2": 0.7813,
+              "d3": 0.9123,
+              "rmse": 1.1097,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5701,
+              "d2": 0.8058,
+              "d3": 0.8937,
+              "rmse": 6.7302,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5621,
+          "d2": 0.8118,
+          "d3": 0.9107,
+          "rmse": 4.1889,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5392,
+              "d2": 0.8112,
+              "d3": 0.9256,
+              "rmse": 1.0527,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5803,
+              "d2": 0.8123,
+              "d3": 0.8989,
+              "rmse": 6.6881,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/Nemotron-Omni-Vision",
+      "stage": "tower",
+      "layer_index": 8,
+      "relative_depth": 0.25,
+      "token_width": 512,
+      "grid": 28,
+      "trainable_parameters": 1444608,
+      "seconds": 225.7
+    },
+    {
+      "d1": 0.5827,
+      "d1_std": 0.0066,
+      "d2": 0.8282,
+      "d2_std": 0.0074,
+      "d3": 0.9229,
+      "d3_std": 0.0039,
+      "rmse": 4.0266,
+      "rmse_std": 0.0345,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.5615,
+          "d1_std": 0.0089,
+          "d2": 0.8314,
+          "d2_std": 0.0131,
+          "d3": 0.9435,
+          "d3_std": 0.0072,
+          "rmse": 0.9409,
+          "rmse_std": 0.0159,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.5995,
+          "d1_std": 0.0089,
+          "d2": 0.8256,
+          "d2_std": 0.0032,
+          "d3": 0.9064,
+          "d3_std": 0.0014,
+          "rmse": 6.4854,
+          "rmse_std": 0.0545,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.5547,
+      "learning_rate_search": {
+        "0.0001": 0.2419,
+        "0.0003": 0.4076,
+        "0.001": 0.5008,
+        "0.003": 0.5342,
+        "0.01": 0.5547,
+        "0.03": 0.1244
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.587,
+          "d2": 0.8298,
+          "d3": 0.9239,
+          "rmse": 4.0317,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5738,
+              "d2": 0.8363,
+              "d3": 0.9464,
+              "rmse": 0.9256,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5975,
+              "d2": 0.8246,
+              "d3": 0.906,
+              "rmse": 6.5069,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5733,
+          "d2": 0.8184,
+          "d3": 0.9177,
+          "rmse": 4.066,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5528,
+              "d2": 0.8134,
+              "d3": 0.9336,
+              "rmse": 0.9628,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5897,
+              "d2": 0.8223,
+              "d3": 0.905,
+              "rmse": 6.5388,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5877,
+          "d2": 0.8363,
+          "d3": 0.927,
+          "rmse": 3.982,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.558,
+              "d2": 0.8444,
+              "d3": 0.9504,
+              "rmse": 0.9344,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6113,
+              "d2": 0.8299,
+              "d3": 0.9083,
+              "rmse": 6.4106,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/Nemotron-Omni-Vision",
+      "stage": "tower",
+      "layer_index": 12,
+      "relative_depth": 0.375,
+      "token_width": 512,
+      "grid": 28,
+      "trainable_parameters": 1444608,
+      "seconds": 227.9
+    },
+    {
+      "d1": 0.6346,
+      "d1_std": 0.0039,
+      "d2": 0.8489,
+      "d2_std": 0.0037,
+      "d3": 0.9304,
+      "d3_std": 0.0012,
+      "rmse": 3.774,
+      "rmse_std": 0.0054,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.6242,
+          "d1_std": 0.0084,
+          "d2": 0.8551,
+          "d2_std": 0.0081,
+          "d3": 0.9507,
+          "d3_std": 0.0029,
+          "rmse": 0.8233,
+          "rmse_std": 0.0129,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.6428,
+          "d1_std": 0.0008,
+          "d2": 0.8439,
+          "d2_std": 0.0004,
+          "d3": 0.9141,
+          "d3_std": 0.0002,
+          "rmse": 6.1254,
+          "rmse_std": 0.005,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.6232,
+      "learning_rate_search": {
+        "0.0001": 0.2888,
+        "0.0003": 0.5194,
+        "0.001": 0.6002,
+        "0.003": 0.6149,
+        "0.01": 0.6232,
+        "0.03": 0.5745
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.6356,
+          "d2": 0.8493,
+          "d3": 0.9317,
+          "rmse": 3.7687,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.625,
+              "d2": 0.8554,
+              "d3": 0.954,
+              "rmse": 0.8186,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.644,
+              "d2": 0.8444,
+              "d3": 0.9139,
+              "rmse": 6.1196,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6294,
+          "d2": 0.8442,
+          "d3": 0.9288,
+          "rmse": 3.7815,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6136,
+              "d2": 0.8451,
+              "d3": 0.947,
+              "rmse": 0.841,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.642,
+              "d2": 0.8434,
+              "d3": 0.9143,
+              "rmse": 6.1247,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6388,
+          "d2": 0.8532,
+          "d3": 0.9306,
+          "rmse": 3.7719,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6341,
+              "d2": 0.8649,
+              "d3": 0.9511,
+              "rmse": 0.8104,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6425,
+              "d2": 0.8439,
+              "d3": 0.9142,
+              "rmse": 6.1319,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/Nemotron-Omni-Vision",
+      "stage": "tower",
+      "layer_index": 16,
+      "relative_depth": 0.5,
+      "token_width": 512,
+      "grid": 28,
+      "trainable_parameters": 1444608,
+      "seconds": 228.1
+    },
+    {
+      "d1": 0.6412,
+      "d1_std": 0.0006,
+      "d2": 0.8559,
+      "d2_std": 0.0018,
+      "d3": 0.9338,
+      "d3_std": 0.0014,
+      "rmse": 3.7145,
+      "rmse_std": 0.0206,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.6362,
+          "d1_std": 0.0034,
+          "d2": 0.8681,
+          "d2_std": 0.0061,
+          "d3": 0.9559,
+          "d3_std": 0.0028,
+          "rmse": 0.8167,
+          "rmse_std": 0.0019,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.6451,
+          "d1_std": 0.0038,
+          "d2": 0.8462,
+          "d2_std": 0.0023,
+          "d3": 0.9162,
+          "d3_std": 0.0012,
+          "rmse": 6.0237,
+          "rmse_std": 0.0385,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.6357,
+      "learning_rate_search": {
+        "0.0001": 0.3037,
+        "0.0003": 0.5389,
+        "0.001": 0.607,
+        "0.003": 0.6175,
+        "0.01": 0.6357,
+        "0.03": 0.5899
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.6408,
+          "d2": 0.8549,
+          "d3": 0.9321,
+          "rmse": 3.7377,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6366,
+              "d2": 0.8678,
+              "d3": 0.954,
+              "rmse": 0.8141,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6441,
+              "d2": 0.8446,
+              "d3": 0.9147,
+              "rmse": 6.0674,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6407,
+          "d2": 0.8584,
+          "d3": 0.9356,
+          "rmse": 3.7182,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6402,
+              "d2": 0.8758,
+              "d3": 0.9598,
+              "rmse": 0.8171,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6411,
+              "d2": 0.8446,
+              "d3": 0.9164,
+              "rmse": 6.0299,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.642,
+          "d2": 0.8544,
+          "d3": 0.9337,
+          "rmse": 3.6876,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6318,
+              "d2": 0.8608,
+              "d3": 0.9539,
+              "rmse": 0.8188,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6502,
+              "d2": 0.8494,
+              "d3": 0.9175,
+              "rmse": 5.9737,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/Nemotron-Omni-Vision",
+      "stage": "tower",
+      "layer_index": 20,
+      "relative_depth": 0.625,
+      "token_width": 512,
+      "grid": 28,
+      "trainable_parameters": 1444608,
+      "seconds": 225.9
+    },
+    {
+      "d1": 0.6326,
+      "d1_std": 0.0031,
+      "d2": 0.8554,
+      "d2_std": 0.0026,
+      "d3": 0.9352,
+      "d3_std": 0.0011,
+      "rmse": 3.7616,
+      "rmse_std": 0.0218,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.6217,
+          "d1_std": 0.0082,
+          "d2": 0.8653,
+          "d2_std": 0.0062,
+          "d3": 0.9596,
+          "d3_std": 0.0027,
+          "rmse": 0.8247,
+          "rmse_std": 0.0136,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.6412,
+          "d1_std": 0.001,
+          "d2": 0.8475,
+          "d2_std": 0.0004,
+          "d3": 0.9158,
+          "d3_std": 0.0002,
+          "rmse": 6.1019,
+          "rmse_std": 0.0378,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.6668,
+      "learning_rate_search": {
+        "0.0001": 0.3462,
+        "0.0003": 0.6012,
+        "0.001": 0.6591,
+        "0.003": 0.6658,
+        "0.01": 0.6668,
+        "0.03": 0.1244
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.6315,
+          "d2": 0.8549,
+          "d3": 0.9353,
+          "rmse": 3.7924,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6193,
+              "d2": 0.8645,
+              "d3": 0.9598,
+              "rmse": 0.8285,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6412,
+              "d2": 0.8473,
+              "d3": 0.9158,
+              "rmse": 6.1542,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6368,
+          "d2": 0.8588,
+          "d3": 0.9365,
+          "rmse": 3.7444,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6327,
+              "d2": 0.8733,
+              "d3": 0.9628,
+              "rmse": 0.8065,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.64,
+              "d2": 0.8472,
+              "d3": 0.9156,
+              "rmse": 6.0856,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6295,
+          "d2": 0.8525,
+          "d3": 0.9339,
+          "rmse": 3.7479,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6131,
+              "d2": 0.8581,
+              "d3": 0.9562,
+              "rmse": 0.8391,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6425,
+              "d2": 0.8481,
+              "d3": 0.9161,
+              "rmse": 6.0659,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/Nemotron-Omni-Vision",
+      "stage": "tower",
+      "layer_index": 24,
+      "relative_depth": 0.75,
+      "token_width": 512,
+      "grid": 28,
+      "trainable_parameters": 1444608,
+      "seconds": 227.1
+    },
+    {
+      "d1": 0.6194,
+      "d1_std": 0.004,
+      "d2": 0.8413,
+      "d2_std": 0.001,
+      "d3": 0.9285,
+      "d3_std": 0.0008,
+      "rmse": 3.8519,
+      "rmse_std": 0.0227,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.6071,
+          "d1_std": 0.0042,
+          "d2": 0.8422,
+          "d2_std": 0.0015,
+          "d3": 0.9486,
+          "d3_std": 0.0012,
+          "rmse": 0.8577,
+          "rmse_std": 0.0038,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.6292,
+          "d1_std": 0.0038,
+          "d2": 0.8406,
+          "d2_std": 0.0006,
+          "d3": 0.9126,
+          "d3_std": 0.0007,
+          "rmse": 6.2379,
+          "rmse_std": 0.0384,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.003,
+      "val_metric": "d1",
+      "val_score": 0.6341,
+      "learning_rate_search": {
+        "0.0001": 0.3256,
+        "0.0003": 0.5562,
+        "0.001": 0.6234,
+        "0.003": 0.6341,
+        "0.01": 0.6226,
+        "0.03": 0.4832
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.6237,
+          "d2": 0.8426,
+          "d3": 0.9294,
+          "rmse": 3.8199,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6117,
+              "d2": 0.8439,
+              "d3": 0.9492,
+              "rmse": 0.8531,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6333,
+              "d2": 0.8415,
+              "d3": 0.9135,
+              "rmse": 6.184,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6141,
+          "d2": 0.8412,
+          "d3": 0.9288,
+          "rmse": 3.8657,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6016,
+              "d2": 0.8425,
+              "d3": 0.9496,
+              "rmse": 0.8624,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6241,
+              "d2": 0.8401,
+              "d3": 0.9123,
+              "rmse": 6.2589,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6204,
+          "d2": 0.8402,
+          "d3": 0.9274,
+          "rmse": 3.8701,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6079,
+              "d2": 0.8403,
+              "d3": 0.9469,
+              "rmse": 0.8576,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6303,
+              "d2": 0.8402,
+              "d3": 0.9119,
+              "rmse": 6.2707,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/Nemotron-Omni-Vision",
+      "stage": "tower",
+      "layer_index": 28,
+      "relative_depth": 0.875,
+      "token_width": 512,
+      "grid": 28,
+      "trainable_parameters": 1444608,
+      "seconds": 225.7
+    },
+    {
+      "d1": 0.6177,
+      "d1_std": 0.0009,
+      "d2": 0.8414,
+      "d2_std": 0.0028,
+      "d3": 0.9269,
+      "d3_std": 0.0023,
+      "rmse": 3.8932,
+      "rmse_std": 0.0142,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.6179,
+          "d1_std": 0.0014,
+          "d2": 0.8544,
+          "d2_std": 0.0061,
+          "d3": 0.9523,
+          "d3_std": 0.0051,
+          "rmse": 0.8414,
+          "rmse_std": 0.0081,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.6175,
+          "d1_std": 0.0011,
+          "d2": 0.8311,
+          "d2_std": 0.0007,
+          "d3": 0.9067,
+          "d3_std": 0.0007,
+          "rmse": 6.325,
+          "rmse_std": 0.0197,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.003,
+      "val_metric": "d1",
+      "val_score": 0.6438,
+      "learning_rate_search": {
+        "0.0001": 0.3112,
+        "0.0003": 0.552,
+        "0.001": 0.6285,
+        "0.003": 0.6438,
+        "0.01": 0.586,
+        "0.03": 0.4647
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.6185,
+          "d2": 0.8433,
+          "d3": 0.9288,
+          "rmse": 3.8734,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6199,
+              "d2": 0.8596,
+              "d3": 0.9575,
+              "rmse": 0.8316,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6174,
+              "d2": 0.8303,
+              "d3": 0.9059,
+              "rmse": 6.2972,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6181,
+          "d2": 0.8435,
+          "d3": 0.9282,
+          "rmse": 3.9002,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6172,
+              "d2": 0.8578,
+              "d3": 0.9541,
+              "rmse": 0.8411,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6188,
+              "d2": 0.832,
+              "d3": 0.9076,
+              "rmse": 6.3379,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6164,
+          "d2": 0.8375,
+          "d3": 0.9237,
+          "rmse": 3.9059,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6167,
+              "d2": 0.8458,
+              "d3": 0.9453,
+              "rmse": 0.8514,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6162,
+              "d2": 0.8309,
+              "d3": 0.9065,
+              "rmse": 6.34,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/Nemotron-Omni-Vision",
+      "stage": "tower",
+      "layer_index": 32,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "grid": 28,
+      "trainable_parameters": 1444608,
+      "seconds": 225.9
+    }
+  ]
+}

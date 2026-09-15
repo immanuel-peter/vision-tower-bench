@@ -1,0 +1,37 @@
+{
+  "images": 13000,
+  "label_fraction": 1.0,
+  "train_images": 9100,
+  "full_train_images": 9100,
+  "cells": [
+    {
+      "learning_rate": 0.0003,
+      "learning_rate_search": {
+        "1e-05": 0.0446,
+        "3e-05": 0.2815,
+        "0.0001": 0.8344,
+        "0.0003": 0.899,
+        "0.001": 0.899,
+        "0.003": 0.8928,
+        "0.01": 0.88,
+        "0.03": 0.8749,
+        "0.1": 0.8718,
+        "0.3": 0.8626,
+        "1": 0.8738
+      },
+      "val_accuracy": 0.899,
+      "test_accuracy": 0.8897,
+      "test_std": 0.0023,
+      "seeds": 3,
+      "model_id": "immanuelpeter/Nemotron-Omni-Vision",
+      "stage": "tower",
+      "layer_index": 32,
+      "relative_depth": 1.0,
+      "token_width": 1280,
+      "trainable_parameters": 51300,
+      "label_fraction": 1.0,
+      "train_images": 9100,
+      "full_train_images": 9100
+    }
+  ]
+}
