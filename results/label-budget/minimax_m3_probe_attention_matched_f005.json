@@ -1,0 +1,37 @@
+{
+  "images": 13000,
+  "label_fraction": 0.05,
+  "train_images": 455,
+  "full_train_images": 9100,
+  "cells": [
+    {
+      "learning_rate": 0.001,
+      "learning_rate_search": {
+        "1e-05": 0.0149,
+        "3e-05": 0.0251,
+        "0.0001": 0.0533,
+        "0.0003": 0.0795,
+        "0.001": 0.0841,
+        "0.003": 0.0728,
+        "0.01": 0.0621,
+        "0.03": 0.0436,
+        "0.1": 0.0338,
+        "0.3": 0.0231,
+        "1": 0.0246
+      },
+      "val_accuracy": 0.0841,
+      "test_accuracy": 0.0764,
+      "test_std": 0.0007,
+      "seeds": 3,
+      "model_id": "immanuelpeter/MiniMax-M3-Vision",
+      "stage": "tower",
+      "layer_index": 32,
+      "relative_depth": 1.0,
+      "token_width": 1280,
+      "trainable_parameters": 1627748,
+      "label_fraction": 0.05,
+      "train_images": 455,
+      "full_train_images": 9100
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "protocol": {
+    "dataset": "navi",
+    "metric": "recall_2cm",
+    "pairing": "paired over image pairs",
+    "resolution": 448,
+    "evaluation_side": 64,
+    "num_correspondences": 1000
+  },
+  "model": "minimax_m3",
+  "model_id": "immanuelpeter/MiniMax-M3-Vision",
+  "first": "projected:32",
+  "second": "tower:32",
+  "first_advantage": {
+    "point_estimate": -0.008706798776984215,
+    "confidence": 0.95,
+    "lower": -0.01253359392285347,
+    "upper": -0.0046797338873147964,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second",
+    "pairs": 555
+  },
+  "by_difficulty": {
+    "[0,30)": {
+      "point_estimate": -0.037105411291122437,
+      "confidence": 0.95,
+      "lower": -0.049544356763362885,
+      "upper": -0.025138214230537415,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 74
+    },
+    "[30,60)": {
+      "point_estimate": -0.014938526786863804,
+      "confidence": 0.95,
+      "lower": -0.023131271824240685,
+      "upper": -0.006688893772661686,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 141
+    },
+    "[60,90)": {
+      "point_estimate": -0.0016383748734369874,
+      "confidence": 0.95,
+      "lower": -0.009178437292575836,
+      "upper": 0.006255262065678835,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 149
+    },
+    "[90,120)": {
+      "point_estimate": 0.0013820825843140483,
+      "confidence": 0.95,
+      "lower": -0.00397306215018034,
+      "upper": 0.00670694001019001,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 191
+    }
+  }
+}
