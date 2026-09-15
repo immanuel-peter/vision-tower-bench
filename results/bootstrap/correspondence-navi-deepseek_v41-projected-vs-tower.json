@@ -1,0 +1,66 @@
+{
+  "protocol": {
+    "dataset": "navi",
+    "metric": "recall_2cm",
+    "pairing": "paired over image pairs",
+    "resolution": 448,
+    "evaluation_side": 64,
+    "num_correspondences": 1000
+  },
+  "model": "deepseek_v41",
+  "model_id": "immanuelpeter/DeepSeek-V4.1-Vision",
+  "first": "projected:32",
+  "second": "tower:32",
+  "first_advantage": {
+    "point_estimate": 0.01187673956155777,
+    "confidence": 0.95,
+    "lower": 0.0075338310562074184,
+    "upper": 0.016149604693055153,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second",
+    "pairs": 555
+  },
+  "by_difficulty": {
+    "[0,30)": {
+      "point_estimate": 0.03395240381360054,
+      "confidence": 0.95,
+      "lower": 0.02146073989570141,
+      "upper": 0.04704810678958893,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 74
+    },
+    "[30,60)": {
+      "point_estimate": 0.02286403998732567,
+      "confidence": 0.95,
+      "lower": 0.013652592897415161,
+      "upper": 0.032209739089012146,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 141
+    },
+    "[60,90)": {
+      "point_estimate": 0.010770050808787346,
+      "confidence": 0.95,
+      "lower": 0.003361947601661086,
+      "upper": 0.018258392810821533,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 149
+    },
+    "[90,120)": {
+      "point_estimate": -0.003923840820789337,
+      "confidence": 0.95,
+      "lower": -0.010135337710380554,
+      "upper": 0.00238464935682714,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 191
+    }
+  }
+}

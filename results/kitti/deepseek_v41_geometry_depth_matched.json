@@ -1,0 +1,225 @@
+{
+  "task": "depth",
+  "images": 1000,
+  "train_images": 700,
+  "capacity_matched": true,
+  "head": "multiscale",
+  "epochs": 10,
+  "seeds": 3,
+  "learning_rates": [
+    0.0001,
+    0.0003,
+    0.001,
+    0.003,
+    0.01,
+    0.03
+  ],
+  "cells": [
+    {
+      "d1": 0.9533,
+      "d1_std": 0.0008,
+      "d2": 0.9915,
+      "d2_std": 0.0,
+      "d3": 0.9974,
+      "d3_std": 0.0002,
+      "rmse": 3.2256,
+      "rmse_std": 0.0205,
+      "images": 150,
+      "coverage": 0.2239,
+      "by_scene": {
+        "driving": {
+          "d1": 0.9533,
+          "d1_std": 0.0008,
+          "d2": 0.9915,
+          "d2_std": 0.0,
+          "d3": 0.9974,
+          "d3_std": 0.0002,
+          "rmse": 3.2256,
+          "rmse_std": 0.0205,
+          "images": 150,
+          "coverage": 0.2239
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.9633,
+      "learning_rate_search": {
+        "0.0001": 0.9219,
+        "0.0003": 0.9477,
+        "0.001": 0.959,
+        "0.003": 0.9612,
+        "0.01": 0.9633,
+        "0.03": 0.9626
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.9529,
+          "d2": 0.9916,
+          "d3": 0.9973,
+          "rmse": 3.2372,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9529,
+              "d2": 0.9916,
+              "d3": 0.9973,
+              "rmse": 3.2372,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        },
+        {
+          "d1": 0.9525,
+          "d2": 0.9915,
+          "d3": 0.9976,
+          "rmse": 3.1968,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9525,
+              "d2": 0.9915,
+              "d3": 0.9976,
+              "rmse": 3.1968,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        },
+        {
+          "d1": 0.9544,
+          "d2": 0.9915,
+          "d3": 0.9972,
+          "rmse": 3.2427,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9544,
+              "d2": 0.9915,
+              "d3": 0.9972,
+              "rmse": 3.2427,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        }
+      ],
+      "max_depth": 85.766,
+      "model_id": "immanuelpeter/DeepSeek-V4.1-Vision",
+      "stage": "projected",
+      "layer_index": 32,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "grid": 11,
+      "trainable_parameters": 1444608,
+      "seconds": 77.5
+    },
+    {
+      "d1": 0.9617,
+      "d1_std": 0.0005,
+      "d2": 0.9949,
+      "d2_std": 0.0001,
+      "d3": 0.9987,
+      "d3_std": 0.0,
+      "rmse": 2.7867,
+      "rmse_std": 0.0105,
+      "images": 150,
+      "coverage": 0.2239,
+      "by_scene": {
+        "driving": {
+          "d1": 0.9617,
+          "d1_std": 0.0005,
+          "d2": 0.9949,
+          "d2_std": 0.0001,
+          "d3": 0.9987,
+          "d3_std": 0.0,
+          "rmse": 2.7867,
+          "rmse_std": 0.0105,
+          "images": 150,
+          "coverage": 0.2239
+        }
+      },
+      "learning_rate": 0.003,
+      "val_metric": "d1",
+      "val_score": 0.9703,
+      "learning_rate_search": {
+        "0.0001": 0.8921,
+        "0.0003": 0.9209,
+        "0.001": 0.9587,
+        "0.003": 0.9703,
+        "0.01": 0.9544,
+        "0.03": 0.9596
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.961,
+          "d2": 0.9949,
+          "d3": 0.9987,
+          "rmse": 2.7971,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.961,
+              "d2": 0.9949,
+              "d3": 0.9987,
+              "rmse": 2.7971,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        },
+        {
+          "d1": 0.9623,
+          "d2": 0.995,
+          "d3": 0.9987,
+          "rmse": 2.7723,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9623,
+              "d2": 0.995,
+              "d3": 0.9987,
+              "rmse": 2.7723,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        },
+        {
+          "d1": 0.9617,
+          "d2": 0.9948,
+          "d3": 0.9986,
+          "rmse": 2.7907,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9617,
+              "d2": 0.9948,
+              "d3": 0.9986,
+              "rmse": 2.7907,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        }
+      ],
+      "max_depth": 85.766,
+      "model_id": "immanuelpeter/DeepSeek-V4.1-Vision",
+      "stage": "tower",
+      "layer_index": 32,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "grid": 32,
+      "trainable_parameters": 1444608,
+      "seconds": 356.9
+    }
+  ]
+}

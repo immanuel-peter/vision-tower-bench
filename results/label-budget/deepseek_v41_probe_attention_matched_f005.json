@@ -1,0 +1,37 @@
+{
+  "images": 13000,
+  "label_fraction": 0.05,
+  "train_images": 455,
+  "full_train_images": 9100,
+  "cells": [
+    {
+      "learning_rate": 0.001,
+      "learning_rate_search": {
+        "1e-05": 0.0221,
+        "3e-05": 0.0287,
+        "0.0001": 0.1292,
+        "0.0003": 0.5133,
+        "0.001": 0.6636,
+        "0.003": 0.0574,
+        "0.01": 0.0149,
+        "0.03": 0.0174,
+        "0.1": 0.0051,
+        "0.3": 0.0123,
+        "1": 0.0092
+      },
+      "val_accuracy": 0.6636,
+      "test_accuracy": 0.6614,
+      "test_std": 0.0054,
+      "seeds": 3,
+      "model_id": "immanuelpeter/DeepSeek-V4.1-Vision",
+      "stage": "tower",
+      "layer_index": 32,
+      "relative_depth": 1.0,
+      "token_width": 1024,
+      "trainable_parameters": 1627748,
+      "label_fraction": 0.05,
+      "train_images": 455,
+      "full_train_images": 9100
+    }
+  ]
+}
