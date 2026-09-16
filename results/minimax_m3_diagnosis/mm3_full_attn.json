@@ -1,0 +1,35 @@
+{
+  "images": 13000,
+  "cells": [
+    {
+      "learning_rate": 0.0003,
+      "learning_rate_search": {
+        "1e-05": 0.1041,
+        "3e-05": 0.1677,
+        "0.0001": 0.3215,
+        "0.0003": 0.3959,
+        "0.001": 0.3779,
+        "0.003": 0.359,
+        "0.01": 0.2036,
+        "0.03": 0.0728,
+        "0.1": 0.0292,
+        "0.3": 0.0092,
+        "1": 0.0092
+      },
+      "val_accuracy": 0.3959,
+      "test_accuracy": 0.4043,
+      "test_std": 0.0112,
+      "seeds": 3,
+      "model_id": "immanuelpeter/MiniMax-M3-Vision",
+      "stage": "tower",
+      "layer_index": 32,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "trainable_parameters": 1627748,
+      "train_images": 9100,
+      "pca": "subsampled_train_tokens"
+    }
+  ],
+  "wall_seconds": 1581.85,
+  "note": "PCA fitted on a seeded subsample of train tokens to fit in 70 GB RAM"
+}

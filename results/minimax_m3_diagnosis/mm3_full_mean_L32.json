@@ -1,0 +1,31 @@
+{
+  "images": 13000,
+  "cells": [
+    {
+      "learning_rate": 0.01,
+      "learning_rate_search": {
+        "1e-05": 0.0103,
+        "3e-05": 0.0226,
+        "0.0001": 0.0795,
+        "0.0003": 0.1374,
+        "0.001": 0.1872,
+        "0.003": 0.2077,
+        "0.01": 0.2097,
+        "0.03": 0.1923,
+        "0.1": 0.1754,
+        "0.3": 0.1605,
+        "1": 0.1554
+      },
+      "val_accuracy": 0.2097,
+      "test_accuracy": 0.2077,
+      "test_std": 0.0015,
+      "seeds": 3,
+      "model_id": "immanuelpeter/MiniMax-M3-Vision",
+      "stage": "tower",
+      "layer_index": 32,
+      "n_tokens_before_mean": "1024_mean_pooled_in_shards",
+      "train_images": 9100,
+      "wall_seconds": 22.95
+    }
+  ]
+}
