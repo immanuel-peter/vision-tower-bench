@@ -1,0 +1,225 @@
+{
+  "task": "depth",
+  "images": 1000,
+  "train_images": 700,
+  "capacity_matched": true,
+  "head": "multiscale",
+  "epochs": 10,
+  "seeds": 3,
+  "learning_rates": [
+    0.0001,
+    0.0003,
+    0.001,
+    0.003,
+    0.01,
+    0.03
+  ],
+  "cells": [
+    {
+      "d1": 0.9407,
+      "d1_std": 0.0004,
+      "d2": 0.9878,
+      "d2_std": 0.0003,
+      "d3": 0.9968,
+      "d3_std": 0.0001,
+      "rmse": 3.5768,
+      "rmse_std": 0.0105,
+      "images": 150,
+      "coverage": 0.2239,
+      "by_scene": {
+        "driving": {
+          "d1": 0.9407,
+          "d1_std": 0.0004,
+          "d2": 0.9878,
+          "d2_std": 0.0003,
+          "d3": 0.9968,
+          "d3_std": 0.0001,
+          "rmse": 3.5768,
+          "rmse_std": 0.0105,
+          "images": 150,
+          "coverage": 0.2239
+        }
+      },
+      "learning_rate": 0.003,
+      "val_metric": "d1",
+      "val_score": 0.9494,
+      "learning_rate_search": {
+        "0.0001": 0.9074,
+        "0.0003": 0.9283,
+        "0.001": 0.946,
+        "0.003": 0.9494,
+        "0.01": 0.9445,
+        "0.03": 0.9324
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.9407,
+          "d2": 0.9876,
+          "d3": 0.9969,
+          "rmse": 3.5641,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9407,
+              "d2": 0.9876,
+              "d3": 0.9969,
+              "rmse": 3.5641,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        },
+        {
+          "d1": 0.9413,
+          "d2": 0.9882,
+          "d3": 0.9969,
+          "rmse": 3.5898,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9413,
+              "d2": 0.9882,
+              "d3": 0.9969,
+              "rmse": 3.5898,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        },
+        {
+          "d1": 0.9402,
+          "d2": 0.9876,
+          "d3": 0.9967,
+          "rmse": 3.5764,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9402,
+              "d2": 0.9876,
+              "d3": 0.9967,
+              "rmse": 3.5764,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        }
+      ],
+      "max_depth": 85.766,
+      "model_id": "immanuelpeter/Gemma4-31B-Vision",
+      "stage": "projected",
+      "layer_index": 27,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "grid": 10,
+      "trainable_parameters": 1444608,
+      "seconds": 68.1
+    },
+    {
+      "d1": 0.9149,
+      "d1_std": 0.0002,
+      "d2": 0.9823,
+      "d2_std": 0.0003,
+      "d3": 0.9948,
+      "d3_std": 0.0001,
+      "rmse": 3.9325,
+      "rmse_std": 0.0107,
+      "images": 150,
+      "coverage": 0.2239,
+      "by_scene": {
+        "driving": {
+          "d1": 0.9149,
+          "d1_std": 0.0002,
+          "d2": 0.9823,
+          "d2_std": 0.0003,
+          "d3": 0.9948,
+          "d3_std": 0.0001,
+          "rmse": 3.9325,
+          "rmse_std": 0.0107,
+          "images": 150,
+          "coverage": 0.2239
+        }
+      },
+      "learning_rate": 0.001,
+      "val_metric": "d1",
+      "val_score": 0.9156,
+      "learning_rate_search": {
+        "0.0001": 0.8638,
+        "0.0003": 0.8951,
+        "0.001": 0.9156,
+        "0.003": 0.9102,
+        "0.01": 0.8733,
+        "0.03": 0.9035
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.9149,
+          "d2": 0.9825,
+          "d3": 0.9948,
+          "rmse": 3.9173,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9149,
+              "d2": 0.9825,
+              "d3": 0.9948,
+              "rmse": 3.9173,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        },
+        {
+          "d1": 0.9146,
+          "d2": 0.9819,
+          "d3": 0.9946,
+          "rmse": 3.9399,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9146,
+              "d2": 0.9819,
+              "d3": 0.9946,
+              "rmse": 3.9399,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        },
+        {
+          "d1": 0.9151,
+          "d2": 0.9826,
+          "d3": 0.9949,
+          "rmse": 3.9402,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9151,
+              "d2": 0.9826,
+              "d3": 0.9949,
+              "rmse": 3.9402,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        }
+      ],
+      "max_depth": 85.766,
+      "model_id": "immanuelpeter/Gemma4-31B-Vision",
+      "stage": "tower",
+      "layer_index": 27,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "grid": 30,
+      "trainable_parameters": 1444608,
+      "seconds": 324.4
+    }
+  ]
+}

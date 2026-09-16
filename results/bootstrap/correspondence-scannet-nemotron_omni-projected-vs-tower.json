@@ -1,0 +1,66 @@
+{
+  "protocol": {
+    "dataset": "scannet",
+    "metric": "recall_10px",
+    "pairing": "paired over image pairs",
+    "resolution": 448,
+    "evaluation_side": 64,
+    "num_correspondences": 1000
+  },
+  "model": "nemotron_omni",
+  "model_id": "immanuelpeter/Nemotron-Omni-Vision",
+  "first": "projected:32",
+  "second": "tower:32",
+  "first_advantage": {
+    "point_estimate": -0.021232668310403824,
+    "confidence": 0.95,
+    "lower": -0.022711334750056267,
+    "upper": -0.019782651215791702,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second",
+    "pairs": 1500
+  },
+  "by_difficulty": {
+    "[0,15)": {
+      "point_estimate": -0.031407952308654785,
+      "confidence": 0.95,
+      "lower": -0.034786611795425415,
+      "upper": -0.028121342882514,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 478
+    },
+    "[15,30)": {
+      "point_estimate": -0.02452918514609337,
+      "confidence": 0.95,
+      "lower": -0.026972811669111252,
+      "upper": -0.022132297977805138,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 514
+    },
+    "[30,60)": {
+      "point_estimate": -0.01006944477558136,
+      "confidence": 0.95,
+      "lower": -0.011752848513424397,
+      "upper": -0.008447221480309963,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 360
+    },
+    "[60,180)": {
+      "point_estimate": -0.004074324853718281,
+      "confidence": 0.95,
+      "lower": -0.0060472977347671986,
+      "upper": -0.0023108108434826136,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 148
+    }
+  }
+}

@@ -21,8 +21,9 @@ mkdir -p "$CACHE" "$OUT"
 
 batch_for() {
     case "$1" in
-        dinov2|siglip2) echo 16 ;;
+        dinov2|siglip2|gemma4|glm5) echo 16 ;;
         moonvit_v2|kimi_k26) echo 1 ;;
+        minimax_m3|nemotron_omni|deepseek_v41) echo 8 ;;
         qwen3_5) echo 8 ;;
         muse_glimmer) echo 4 ;;
     esac

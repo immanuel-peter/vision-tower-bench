@@ -1,0 +1,56 @@
+{
+  "protocol": {
+    "dataset": "spair",
+    "metric": "pck_0.1",
+    "pairing": "paired over image pairs",
+    "resolution": 448,
+    "evaluation_side": 64,
+    "num_correspondences": 1000
+  },
+  "model": "gemma4",
+  "model_id": "immanuelpeter/Gemma4-31B-Vision",
+  "first": "projected:27",
+  "second": "tower:27",
+  "first_advantage": {
+    "point_estimate": 0.011824623681604862,
+    "confidence": 0.95,
+    "lower": 0.004633889067918062,
+    "upper": 0.018809454515576363,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second",
+    "pairs": 3408
+  },
+  "by_difficulty": {
+    "0": {
+      "point_estimate": 0.017217250540852547,
+      "confidence": 0.95,
+      "lower": 0.00757739320397377,
+      "upper": 0.026757128536701202,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 1802
+    },
+    "1": {
+      "point_estimate": 0.006335365120321512,
+      "confidence": 0.95,
+      "lower": -0.0047095902264118195,
+      "upper": 0.017726272344589233,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 1323
+    },
+    "2": {
+      "point_estimate": 0.003148918505758047,
+      "confidence": 0.95,
+      "lower": -0.024850089102983475,
+      "upper": 0.03037121146917343,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 283
+    }
+  }
+}

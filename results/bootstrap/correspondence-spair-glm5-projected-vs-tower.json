@@ -1,0 +1,56 @@
+{
+  "protocol": {
+    "dataset": "spair",
+    "metric": "pck_0.1",
+    "pairing": "paired over image pairs",
+    "resolution": 448,
+    "evaluation_side": 64,
+    "num_correspondences": 1000
+  },
+  "model": "glm5",
+  "model_id": "immanuelpeter/GLM-5.3-Flash-Vision",
+  "first": "projected:24",
+  "second": "tower:24",
+  "first_advantage": {
+    "point_estimate": 0.014935563318431377,
+    "confidence": 0.95,
+    "lower": 0.005684633739292622,
+    "upper": 0.024084633216261864,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second",
+    "pairs": 3408
+  },
+  "by_difficulty": {
+    "0": {
+      "point_estimate": 0.027511116117239,
+      "confidence": 0.95,
+      "lower": 0.015470767393708229,
+      "upper": 0.03964237868785858,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 1802
+    },
+    "1": {
+      "point_estimate": -0.005399010144174099,
+      "confidence": 0.95,
+      "lower": -0.020384151488542557,
+      "upper": 0.009497987106442451,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 1323
+    },
+    "2": {
+      "point_estimate": 0.02992315962910652,
+      "confidence": 0.95,
+      "lower": -0.004649701993912458,
+      "upper": 0.06544476002454758,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 283
+    }
+  }
+}

@@ -1,0 +1,225 @@
+{
+  "task": "depth",
+  "images": 1000,
+  "train_images": 700,
+  "capacity_matched": true,
+  "head": "multiscale",
+  "epochs": 10,
+  "seeds": 3,
+  "learning_rates": [
+    0.0001,
+    0.0003,
+    0.001,
+    0.003,
+    0.01,
+    0.03
+  ],
+  "cells": [
+    {
+      "d1": 0.9589,
+      "d1_std": 0.0004,
+      "d2": 0.9921,
+      "d2_std": 0.0001,
+      "d3": 0.9977,
+      "d3_std": 0.0,
+      "rmse": 3.1096,
+      "rmse_std": 0.0241,
+      "images": 150,
+      "coverage": 0.2239,
+      "by_scene": {
+        "driving": {
+          "d1": 0.9589,
+          "d1_std": 0.0004,
+          "d2": 0.9921,
+          "d2_std": 0.0001,
+          "d3": 0.9977,
+          "d3_std": 0.0,
+          "rmse": 3.1096,
+          "rmse_std": 0.0241,
+          "images": 150,
+          "coverage": 0.2239
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.9664,
+      "learning_rate_search": {
+        "0.0001": 0.9295,
+        "0.0003": 0.9496,
+        "0.001": 0.9616,
+        "0.003": 0.9658,
+        "0.01": 0.9664,
+        "0.03": 0.9648
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.9589,
+          "d2": 0.9921,
+          "d3": 0.9977,
+          "rmse": 3.1023,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9589,
+              "d2": 0.9921,
+              "d3": 0.9977,
+              "rmse": 3.1023,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        },
+        {
+          "d1": 0.9594,
+          "d2": 0.9922,
+          "d3": 0.9978,
+          "rmse": 3.0845,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9594,
+              "d2": 0.9922,
+              "d3": 0.9978,
+              "rmse": 3.0845,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        },
+        {
+          "d1": 0.9584,
+          "d2": 0.9919,
+          "d3": 0.9977,
+          "rmse": 3.1421,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9584,
+              "d2": 0.9919,
+              "d3": 0.9977,
+              "rmse": 3.1421,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        }
+      ],
+      "max_depth": 85.766,
+      "model_id": "immanuelpeter/Nemotron-Omni-Vision",
+      "stage": "projected",
+      "layer_index": 32,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "grid": 14,
+      "trainable_parameters": 1444608,
+      "seconds": 101.4
+    },
+    {
+      "d1": 0.9706,
+      "d1_std": 0.0002,
+      "d2": 0.9951,
+      "d2_std": 0.0,
+      "d3": 0.9986,
+      "d3_std": 0.0,
+      "rmse": 2.673,
+      "rmse_std": 0.0192,
+      "images": 150,
+      "coverage": 0.2239,
+      "by_scene": {
+        "driving": {
+          "d1": 0.9706,
+          "d1_std": 0.0002,
+          "d2": 0.9951,
+          "d2_std": 0.0,
+          "d3": 0.9986,
+          "d3_std": 0.0,
+          "rmse": 2.673,
+          "rmse_std": 0.0192,
+          "images": 150,
+          "coverage": 0.2239
+        }
+      },
+      "learning_rate": 0.003,
+      "val_metric": "d1",
+      "val_score": 0.9762,
+      "learning_rate_search": {
+        "0.0001": 0.9416,
+        "0.0003": 0.9601,
+        "0.001": 0.9725,
+        "0.003": 0.9762,
+        "0.01": 0.9719,
+        "0.03": 0.9592
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.9709,
+          "d2": 0.9951,
+          "d3": 0.9986,
+          "rmse": 2.65,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9709,
+              "d2": 0.9951,
+              "d3": 0.9986,
+              "rmse": 2.65,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        },
+        {
+          "d1": 0.9706,
+          "d2": 0.9951,
+          "d3": 0.9987,
+          "rmse": 2.672,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9706,
+              "d2": 0.9951,
+              "d3": 0.9987,
+              "rmse": 2.672,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        },
+        {
+          "d1": 0.9703,
+          "d2": 0.9951,
+          "d3": 0.9986,
+          "rmse": 2.6971,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9703,
+              "d2": 0.9951,
+              "d3": 0.9986,
+              "rmse": 2.6971,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        }
+      ],
+      "max_depth": 85.766,
+      "model_id": "immanuelpeter/Nemotron-Omni-Vision",
+      "stage": "tower",
+      "layer_index": 32,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "grid": 28,
+      "trainable_parameters": 1444608,
+      "seconds": 281.8
+    }
+  ]
+}
