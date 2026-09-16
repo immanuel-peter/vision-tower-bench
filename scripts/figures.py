@@ -7,37 +7,70 @@ from collections import defaultdict
 from pathlib import Path
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.colors import ListedColormap
+from matplotlib.patches import Patch
 
 RESULTS = Path("results")
 TOWERS: tuple[str, ...] = (
-    "dinov2", "siglip2", "muse_glimmer", "kimi_k26", "qwen3_5", "moonvit_v2",
+    "dinov2",
+    "siglip2",
+    "muse_glimmer",
+    "glm5",
+    "nemotron_omni",
+    "kimi_k26",
+    "qwen3_5",
+    "deepseek_v41",
+    "gemma4",
+    "moonvit_v2",
+    "minimax_m3",
 )
-COLOUR: dict[str, tuple] = dict(zip(TOWERS, plt.get_cmap("tab10").colors))
+PROJECTORS: tuple[str, ...] = tuple(
+    model for model in TOWERS if model not in ("dinov2", "siglip2")
+)
+PALETTE: tuple[str, ...] = (
+    "#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b",
+    "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#393b79",
+)
+COLOUR: dict[str, str] = dict(zip(TOWERS, PALETTE, strict=True))
 
 # Report names. Plots and tables must agree, and the two Kimi Towers are named for
 # the model that ships them rather than for the encoder family.
 DISPLAY: dict[str, str] = {
-    "dinov2": "DINOv2", "siglip2": "SigLIP2", "muse_glimmer": "Muse Glimmer",
-    "kimi_k26": "Kimi K2.6", "qwen3_5": "Qwen3.8", "moonvit_v2": "Kimi K3",
+    "dinov2": "DINOv2",
+    "siglip2": "SigLIP2",
+    "muse_glimmer": "Muse Glimmer",
+    "glm5": "GLM 5.3 Flash",
+    "nemotron_omni": "Nemotron Omni",
+    "kimi_k26": "Kimi K2.6",
+    "qwen3_5": "Qwen3.8",
+    "deepseek_v41": "DeepSeek V4.1",
+    "gemma4": "Gemma 4",
+    "moonvit_v2": "Kimi K3",
+    "minimax_m3": "MiniMax M3",
 }
 
 
 def tower_name(label: str) -> str:
-    return next(t for t in TOWERS if label.startswith(t))
+    matches = [tower for tower in TOWERS if label.startswith(tower)]
+    if len(matches) != 1:
+        raise ValueError(f"cannot map {label!r} to one Tower")
+    return matches[0]
 
 # Panel order and axis label for every Projector comparison, keyed by the slug that sits
 # between "geometry-"/"correspondence-" and the model name in results/bootstrap.
 PANELS = {
-    "depth-matched": "DIODE depth, matched (d1)",
-    "depth-raw": "DIODE depth, raw (d1)",
-    "normal-matched": "DIODE normals, matched (degrees)",
-    "normal-raw": "DIODE normals, raw (degrees)",
-    "depth-kitti-matched": "KITTI depth, matched (d1)",
-    "navi": "NAVI correspondence (recall@2cm)",
-    "scannet": "ScanNet correspondence (recall@10px)",
-    "spair": "SPair-71k correspondence (PCK@0.1)",
+    "depth-matched": "DIODE depth\nmatched",
+    "depth-raw": "DIODE depth\nraw",
+    "normal-matched": "DIODE normals\nmatched",
+    "normal-raw": "DIODE normals\nraw",
+    "depth-kitti-matched": "KITTI depth\nmatched",
+    "navi": "NAVI",
+    "scannet": "ScanNet",
+    "spair": "SPair",
 }
 
 
@@ -46,7 +79,10 @@ def projector_intervals() -> dict[str, list[tuple[str, float, float, float]]]:
     for path in sorted(RESULTS.glob("bootstrap/*-projected-vs-tower.json")):
         stem = path.stem.removesuffix("-projected-vs-tower")
         rest = stem.split("-", 1)[1]
-        model = next(t for t in TOWERS if rest.endswith(t))
+        matches = [tower for tower in PROJECTORS if rest.endswith(tower)]
+        if len(matches) != 1:
+            raise ValueError(f"cannot map {path} to one Projector")
+        model = matches[0]
         slug = rest.removesuffix(f"-{model}").rstrip("-")
         advantage = json.loads(path.read_text())["first_advantage"]
         panels[slug].append(
@@ -55,35 +91,79 @@ def projector_intervals() -> dict[str, list[tuple[str, float, float, float]]]:
     return panels
 
 
-def forest(out: Path) -> None:
+def projector_matrix(out: Path) -> None:
     panels = projector_intervals()
     keys = [k for k in PANELS if k in panels]
-    figure, axes = plt.subplots(
-        len(keys), 1, figsize=(7, 1.1 * sum(len(panels[k]) for k in keys) + 1.6),
-        gridspec_kw={"height_ratios": [len(panels[k]) for k in keys]},
+    by_panel = {key: {row[0]: row[1:] for row in panels[key]} for key in keys}
+    missing = [
+        (key, model)
+        for key in keys
+        for model in PROJECTORS
+        if model not in by_panel[key]
+    ]
+    if missing:
+        raise ValueError(f"missing Projector intervals: {missing}")
+
+    states = np.zeros((len(PROJECTORS), len(keys)), dtype=int)
+    points = np.zeros_like(states, dtype=float)
+    for x, key in enumerate(keys):
+        for y, model in enumerate(PROJECTORS):
+            point, low, high = by_panel[key][model]
+            points[y, x] = point
+            states[y, x] = 1 if low > 0 else -1 if high < 0 else 0
+
+    figure, axis = plt.subplots(figsize=(10.8, 5.6))
+    axis.imshow(
+        states,
+        aspect="auto",
+        vmin=-1,
+        vmax=1,
+        cmap=ListedColormap(("#f3ddd6", "#e6e8eb", "#dcebe4")),
     )
-    for axis, key in zip(axes, keys):
-        rows = sorted(panels[key], key=lambda r: r[1])
-        for y, (model, point, low, high) in enumerate(rows):
-            resolved = low > 0 or high < 0
-            axis.plot([low, high], [y, y], color=COLOUR[model], linewidth=2)
-            axis.plot(
-                [point], [y], "o", color=COLOUR[model], markersize=6,
-                markerfacecolor=COLOUR[model] if resolved else "white",
+    for y, model in enumerate(PROJECTORS):
+        for x, key in enumerate(keys):
+            suffix = "°" if "normal" in key else ""
+            precision = 2 if suffix else 3
+            axis.text(
+                x,
+                y,
+                f"{points[y, x]:+.{precision}f}{suffix}",
+                ha="center",
+                va="center",
+                fontsize=7.5,
             )
-        axis.axvline(0, color="0.3", linewidth=1, linestyle="--")
-        axis.set_yticks(range(len(rows)), [DISPLAY[r[0]] for r in rows], fontsize=8)
-        axis.set_ylim(-0.6, len(rows) - 0.4)
-        axis.set_title(PANELS[key], fontsize=9, loc="left")
-        axis.tick_params(labelsize=8)
-    figure.suptitle(
-        "Projector advantage over the final Tower layer\n"
-        "95% paired bootstrap intervals; hollow markers cross zero",
+
+    axis.set_xticks(range(len(keys)), [PANELS[key] for key in keys], fontsize=8)
+    axis.set_yticks(range(len(PROJECTORS)), [DISPLAY[model] for model in PROJECTORS], fontsize=8)
+    axis.tick_params(length=0)
+    axis.set_title(
+        "Projector effect relative to the final Tower layer\n"
+        "95% paired bootstrap intervals; positive values favor the Projector",
         fontsize=10,
     )
-    figure.tight_layout(rect=(0, 0, 1, 0.97))
+    axis.legend(
+        handles=(
+            Patch(facecolor="#dcebe4", label="Projector favored"),
+            Patch(facecolor="#e6e8eb", label="Unresolved"),
+            Patch(facecolor="#f3ddd6", label="Tower favored"),
+        ),
+        loc="upper center",
+        bbox_to_anchor=(0.5, -0.11),
+        ncol=3,
+        frameon=False,
+        fontsize=8,
+    )
+    figure.tight_layout()
     figure.savefig(out, bbox_inches="tight")
     plt.close(figure)
+
+
+def occlusion_conditions(cell: dict) -> list[dict]:
+    return [
+        condition
+        for condition in cell["conditions"]
+        if condition["factor"] in ("identity", "occlusion")
+    ]
 
 
 def label_budget(out: Path, readout: str = "attention") -> None:
@@ -105,7 +185,7 @@ def label_budget(out: Path, readout: str = "attention") -> None:
     axis.set_xlabel("labelled fraction of the training split (log scale)")
     axis.set_ylabel(f"recognition top-1 ({readout}, matched)")
     axis.grid(alpha=0.25)
-    axis.legend(fontsize=8)
+    axis.legend(fontsize=7, ncol=2)
     figure.tight_layout()
     figure.savefig(out, bbox_inches="tight")
     plt.close(figure)
@@ -123,9 +203,9 @@ def relative_depth(out: Path, readout: str = "attention", arm: str = "matched") 
         )
     axis.set_xlabel("Relative Depth")
     axis.set_ylabel(f"top-1 accuracy, {readout} readout, {arm}")
-    axis.set_title("Semantic decodability rises toward the last layers", fontsize=10)
+    axis.set_title("Recognition across Relative Depth", fontsize=10)
     axis.grid(alpha=0.25)
-    axis.legend(fontsize=8)
+    axis.legend(fontsize=7, ncol=2)
     figure.tight_layout()
     figure.savefig(out, bbox_inches="tight")
     plt.close(figure)
@@ -137,16 +217,16 @@ def occlusion(out: Path) -> None:
         payload = json.loads(path.read_text())
         model = tower_name(payload["model"])
         cell = next(c for c in payload["cells"] if c["stage"] == "tower")
-        points = sorted((c["value"], c["accuracy"]) for c in cell["conditions"])
+        points = sorted((c["value"], c["accuracy"]) for c in occlusion_conditions(cell))
         axis.plot(
             [v for v, _ in points], [a for _, a in points],
             marker="o", markersize=4, color=COLOUR[model], label=DISPLAY[model],
         )
     axis.set_xlabel("occluded fraction of the image")
     axis.set_ylabel("top-1 accuracy")
-    axis.set_title("Occlusion splits the roster into two robustness groups", fontsize=10)
+    axis.set_title("Recognition under occlusion", fontsize=10)
     axis.grid(alpha=0.25)
-    axis.legend(fontsize=8)
+    axis.legend(fontsize=7, ncol=2)
     figure.tight_layout()
     figure.savefig(out, bbox_inches="tight")
     plt.close(figure)
@@ -170,7 +250,7 @@ def capability_profile(out: Path) -> None:
     for model in TOWERS:
         payload = json.loads((RESULTS / f"perturbation/{model}_perturbation.json").read_text())
         cell = next(c for c in payload["cells"] if c["stage"] == "tower")
-        worst = max(cell["conditions"], key=lambda c: c["value"])
+        worst = max(occlusion_conditions(cell), key=lambda c: c["value"])
         scores[model].append(worst["accuracy"])
 
     ranks: dict[str, list[int]] = {m: [] for m in TOWERS}
@@ -186,9 +266,9 @@ def capability_profile(out: Path) -> None:
     axis.set_yticks(range(1, len(TOWERS) + 1))
     axis.invert_yaxis()
     axis.set_ylabel("rank (1 is best)")
-    axis.set_title("Capability Profile: the ranking depends on the axis", fontsize=10)
+    axis.set_title("Capability Profile ranks", fontsize=10)
     axis.grid(alpha=0.25)
-    axis.legend(fontsize=8, ncol=2)
+    axis.legend(fontsize=7, ncol=3)
     figure.tight_layout()
     figure.savefig(out, bbox_inches="tight")
     plt.close(figure)
@@ -227,7 +307,7 @@ def peaks(out: Path) -> None:
     for axis in (top, bottom):
         axis.axvline(1.0, color="0.45", linewidth=1, linestyle=":")
         axis.grid(alpha=0.25)
-    top.legend(fontsize=8, ncol=3)
+    top.legend(fontsize=7, ncol=4)
     figure.tight_layout()
     figure.savefig(out, bbox_inches="tight")
     plt.close(figure)
@@ -269,10 +349,9 @@ def semantic_forest(out: Path) -> None:
 
 def stage_levels(out: Path) -> None:
     stages = ["tower", "merged", "projected"]
-    projectors = [m for m in TOWERS if m not in ("dinov2", "siglip2")]
 
     figure, axis = plt.subplots(figsize=(5.6, 4.2))
-    for model in projectors:
+    for model in PROJECTORS:
         cells = json.loads((RESULTS / f"{model}_geometry_depth_matched.json").read_text())["cells"]
         deepest = {}
         for cell in cells:
@@ -284,9 +363,9 @@ def stage_levels(out: Path) -> None:
     axis.set_xticks(range(len(stages)), stages)
     axis.set_xlabel("Stage, at the deepest Relative Depth")
     axis.set_ylabel("DIODE depth (d1), matched")
-    axis.set_title("The Connector raises depth decodability", fontsize=10)
+    axis.set_title("Deepest-stage DIODE depth", fontsize=10)
     axis.grid(alpha=0.25, axis="y")
-    axis.legend(fontsize=8)
+    axis.legend(fontsize=7, ncol=3)
     figure.tight_layout()
     figure.savefig(out, bbox_inches="tight")
     plt.close(figure)
@@ -359,7 +438,7 @@ def protocol(out: Path) -> None:
 
 FIGURES = {
     "protocol": protocol,
-    "projector-forest": forest,
+    "projector-matrix": projector_matrix,
     "semantic-forest": semantic_forest,
     "label-budget": label_budget,
     "relative-depth-semantic": relative_depth,
