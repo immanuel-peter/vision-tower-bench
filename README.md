@@ -1,6 +1,6 @@
 # Vision Tower Bench
 
-Adding vision to a text-only LLM means picking a Tower, a layer, and usually a Projector, which full-model VLM benchmarks never isolate. This bench probes six frozen Towers. Instead of the Projector tossing away spatial information, 15 of 16 paired intervals across two geometry tasks and two probe capacities went the other way.
+Adding vision to a text-only LLM means picking a Tower, a layer, and usually a Projector, which full-model VLM benchmarks never isolate. This bench probes eleven frozen Towers. The published report covers six of them: 15 of 16 paired intervals across two geometry tasks and two probe capacities went against the idea that the Projector tosses away spatial information.
 
 **[Report](https://ipeter.dev/blog/vision-tower-bench)** · **[Towers](https://huggingface.co/collections/immanuelpeter/vision-towers)** · **Paper (coming soon)**
 
@@ -21,12 +21,17 @@ Four capability axes:
 |---|---|---|
 | DINOv2 ViT-L/14 | self-supervised control | [facebook/dinov2-large](https://huggingface.co/facebook/dinov2-large) |
 | SigLIP2-SO400M | contrastive control | [google/siglip2-so400m-patch14-384](https://huggingface.co/google/siglip2-so400m-patch14-384) |
-| Muse Glimmer PE | multimodal | [immanuelpeter/Muse-Glimmer-Vision](https://huggingface.co/immanuelpeter/Muse-Glimmer-Vision) |
+| Muse Glimmer | multimodal | [immanuelpeter/Muse-Glimmer-Vision](https://huggingface.co/immanuelpeter/Muse-Glimmer-Vision) |
 | Kimi K2.6 | multimodal | [immanuelpeter/MoonViT-K2.6](https://huggingface.co/immanuelpeter/MoonViT-K2.6) |
 | Qwen3.8-27B | multimodal | [immanuelpeter/Qwen3.8-27B-Vision](https://huggingface.co/immanuelpeter/Qwen3.8-27B-Vision) |
 | Kimi K3 | multimodal | [immanuelpeter/MoonViT-V2](https://huggingface.co/immanuelpeter/MoonViT-V2) |
+| Gemma 4 31B | multimodal | [immanuelpeter/Gemma4-31B-Vision](https://huggingface.co/immanuelpeter/Gemma4-31B-Vision) |
+| GLM-5.3 Flash | multimodal | [immanuelpeter/GLM-5.3-Flash-Vision](https://huggingface.co/immanuelpeter/GLM-5.3-Flash-Vision) |
+| MiniMax M3 | multimodal | [immanuelpeter/MiniMax-M3-Vision](https://huggingface.co/immanuelpeter/MiniMax-M3-Vision) |
+| Nemotron 3 Nano Omni | multimodal | [immanuelpeter/C-RADIOv4-H](https://huggingface.co/immanuelpeter/C-RADIOv4-H) |
+| DeepSeek V4.1 Flash | multimodal | [immanuelpeter/DeepSeek-ViT](https://huggingface.co/immanuelpeter/DeepSeek-ViT) |
 
-The four multimodal Towers are standalone extracts of their parents. The model cards record counts and tolerances.
+The multimodal Towers are standalone extracts of their parents. The model cards record counts and tolerances.
 
 ## Results
 
@@ -76,10 +81,10 @@ CONTEXT.md    # project vocabulary
 ## Tests
 
 ```bash
-uv run pytest -q                      # full suite, downloads about 6 GB of weights
+uv run pytest -q                      # full suite, downloads Tower weights
 VTB_SKIP_WEIGHTS=1 uv run pytest -q   # 73 tests, no downloads
 ```
 
 ## License
 
-MIT covers code and results here, not weights. Published Towers keep parent terms. Apache-2.0 for Qwen3.8 and Muse Glimmer, Kimi License for both Kimi Towers. Each release ships its license and third-party notices.
+MIT covers code and results here, not weights. Published Towers keep parent terms. Apache-2.0 for Qwen3.8, Muse Glimmer, and Gemma 4. MIT for GLM-5.3 Flash and DeepSeek-ViT. Kimi License for both Kimi Towers. NVIDIA Open Model Agreement for C-RADIOv4-H. MiniMax Community License for MiniMax M3. Each release ships its license.
