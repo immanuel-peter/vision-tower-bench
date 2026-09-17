@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import shutil
 from pathlib import Path
 
 import torch
@@ -68,6 +69,10 @@ def write_bundle(tower: Gemma4VisionModel, projector: Projector, out: Path) -> N
     image_processor = processor["image_processor"]
     image_processor["processor_class"] = "AutoImageProcessor"
     (out / "preprocessor_config.json").write_text(json.dumps(image_processor, indent=2) + "\n")
+    license_src = Path(__file__).resolve().parents[1] / "hf/Gemma4-31B-Vision/LICENSE"
+    dest = out / "LICENSE"
+    if license_src.exists() and license_src.resolve() != dest.resolve():
+        shutil.copyfile(license_src, dest)
 
 
 def export(out: Path) -> None:

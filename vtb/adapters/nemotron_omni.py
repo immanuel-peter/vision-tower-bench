@@ -12,8 +12,8 @@ from vtb.feature_batch import FeatureBatch
 from vtb.images import square_crop
 from vtb.shards import load_prefixed
 
-MODEL_ID = "immanuelpeter/Nemotron-Omni-Vision"
-BUNDLE = Path(__file__).resolve().parents[2] / "hf/Nemotron-Omni-Vision"
+MODEL_ID = "immanuelpeter/C-RADIOv4-H"
+BUNDLE = Path(__file__).resolve().parents[2] / "hf/C-RADIOv4-H"
 
 SOURCE_REPO = "nvidia/Nemotron-3-Nano-Omni-30B-A3B-Reasoning-BF16"
 SOURCE_REVISION = "e5e9932441de940c9a62185c870ea5bcd4cd24e2"

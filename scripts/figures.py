@@ -37,17 +37,17 @@ PALETTE: tuple[str, ...] = (
 )
 COLOUR: dict[str, str] = dict(zip(TOWERS, PALETTE, strict=True))
 
-# Report names. Plots and tables must agree, and the two Kimi Towers are named for
-# the model that ships them rather than for the encoder family.
+# Report names. Plots and tables must agree. Named encoders use the encoder name;
+# the two Kimi Towers keep the host-model names because both are MoonViT variants.
 DISPLAY: dict[str, str] = {
     "dinov2": "DINOv2",
     "siglip2": "SigLIP2",
     "muse_glimmer": "Muse Glimmer",
     "glm5": "GLM 5.3 Flash",
-    "nemotron_omni": "Nemotron Omni",
+    "nemotron_omni": "C-RADIOv4-H",
     "kimi_k26": "Kimi K2.6",
     "qwen3_5": "Qwen3.8",
-    "deepseek_v41": "DeepSeek V4.1",
+    "deepseek_v41": "DeepSeek-ViT",
     "gemma4": "Gemma 4",
     "moonvit_v2": "Kimi K3",
     "minimax_m3": "MiniMax M3",

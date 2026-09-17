@@ -32,6 +32,8 @@ def test_roster_covers_the_eleven_tower_suite():
     assert set(FIGURE_SCRIPT.COLOUR) == set(FIGURE_SCRIPT.TOWERS)
     assert set(FIGURE_SCRIPT.DISPLAY) == set(FIGURE_SCRIPT.TOWERS)
     assert FIGURE_SCRIPT.DISPLAY["glm5"] == "GLM 5.3 Flash"
+    assert FIGURE_SCRIPT.DISPLAY["nemotron_omni"] == "C-RADIOv4-H"
+    assert FIGURE_SCRIPT.DISPLAY["deepseek_v41"] == "DeepSeek-ViT"
     assert FIGURE_SCRIPT.DISPLAY["minimax_m3"] == "MiniMax M3"
 
 

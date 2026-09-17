@@ -1,4 +1,4 @@
-"""Build a standalone DeepSeek V4.1 Flash vision repository."""
+"""Build a standalone DeepSeek-ViT repository."""
 
 import argparse
 import json
@@ -65,9 +65,10 @@ def export(out: Path) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--out", type=Path, default=Path("hf/DeepSeek-V4.1-Vision"))
+    parser.add_argument("--out", type=Path, default=Path("hf/DeepSeek-ViT"))
     args = parser.parse_args()
     export(args.out)
+    print(f"\nUpload with:\n  hf upload immanuelpeter/DeepSeek-ViT {args.out}")
 
 
 if __name__ == "__main__":

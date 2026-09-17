@@ -1,7 +1,8 @@
-"""Build a standalone Nemotron Omni C-RADIOv4-H vision repository."""
+"""Build a standalone C-RADIOv4-H vision repository."""
 
 import argparse
 import json
+import shutil
 from pathlib import Path
 
 from safetensors.torch import save_file
@@ -44,15 +45,20 @@ def export(out: Path) -> None:
         json.dumps({"type": "internvl_mlp1", "vit_hidden": 1280, "projector_hidden": 20480, "llm_hidden": 2688}, indent=2)
         + "\n"
     )
+    license_src = Path(__file__).resolve().parents[1] / "hf/C-RADIOv4-H/LICENSE"
+    dest = out / "LICENSE"
+    if license_src.exists() and license_src.resolve() != dest.resolve():
+        shutil.copyfile(license_src, dest)
     for path in sorted(out.iterdir()):
         print(f"{path.stat().st_size / 1e6:9.2f} MB  {path.name}")
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--out", type=Path, default=Path("hf/Nemotron-Omni-Vision"))
+    parser.add_argument("--out", type=Path, default=Path("hf/C-RADIOv4-H"))
     args = parser.parse_args()
     export(args.out)
+    print(f"\nUpload with:\n  hf upload immanuelpeter/C-RADIOv4-H {args.out}")
 
 
 if __name__ == "__main__":

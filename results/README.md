@@ -1,5 +1,14 @@
 # Roster run: six Towers, four Projectors
 
+> **Historical run record.** This file contains successive analyses, including superseded
+> interpretations. The current paper is in [paper/main.pdf](../paper/main.pdf).
+> Older names `Qwen3.5` / `qwen3_5` and `MoonViT-V2` / `moonvit_v2` correspond to the
+> evaluated Qwen3.8 and Kimi K3 checkpoints identified in the result JSONs. Stage-score
+> changes measure recoverability under a readout, not added or lost image information.
+> The original recognition grid had 107 lower-limit selections and three upper-limit
+> selections. Corrected results have three upper-limit selections. Later correction and
+> bootstrap sections supersede earlier point-estimate claims.
+
 Every number here is new. The previous file reported two Towers, one of them a control with
 no Projector, so every claim about the Projector rested on MoonViT-V2 alone. This run has
 six Towers and four Projectors, 224 geometry cells and 224 semantic cells, and it does not

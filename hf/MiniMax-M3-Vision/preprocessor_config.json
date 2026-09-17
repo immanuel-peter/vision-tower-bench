@@ -1,10 +1,6 @@
 {
   "processor_class": "AutoImageProcessor",
-  "auto_map": {
-    "AutoImageProcessor": "image_processor.MiniMaxM3VLImageProcessor",
-    "AutoProcessor": "processing_minimax.MiniMaxVLProcessor",
-    "AutoVideoProcessor": "video_processor.MiniMaxM3VLVideoProcessor"
-  },
+  "image_processor_type": "MiniMaxM3VLImageProcessor",
   "process_image_mode": "dynamic_res",
   "image_mean": [
     0.48145466,

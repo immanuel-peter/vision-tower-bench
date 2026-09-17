@@ -14,8 +14,8 @@ from vtb.feature_batch import FeatureBatch
 from vtb.images import square_crop
 from vtb.shards import load_prefixed
 
-MODEL_ID = "immanuelpeter/DeepSeek-V4.1-Vision"
-BUNDLE = Path(__file__).resolve().parents[2] / "hf/DeepSeek-V4.1-Vision"
+MODEL_ID = "immanuelpeter/DeepSeek-ViT"
+BUNDLE = Path(__file__).resolve().parents[2] / "hf/DeepSeek-ViT"
 
 SOURCE_REPO = "deepseek-ai/DeepSeek-V4.1-Flash"
 SOURCE_REVISION = "dba1be0a40aa45a94ad051997016db3960a90277"
