@@ -4,7 +4,7 @@ import sys
 
 from PIL import Image
 import torch
-from transformers import MiniMaxM3VLImageProcessor, AutoModel
+from transformers import MiniMaxM3VLImageProcessor, MiniMaxM3VLVisionModel
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from projector import load_projector
@@ -21,7 +21,7 @@ def main() -> None:
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     dtype = torch.bfloat16 if device.type == "cuda" else torch.float32
-    tower = AutoModel.from_pretrained(args.model, dtype=dtype).to(device).eval()
+    tower = MiniMaxM3VLVisionModel.from_pretrained(args.model, dtype=dtype).to(device).eval()
     processor = MiniMaxM3VLImageProcessor.from_pretrained(args.model)
     projector = load_projector(args.model)
     projector.to(device=device, dtype=dtype).eval()

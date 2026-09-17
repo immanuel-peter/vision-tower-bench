@@ -56,8 +56,15 @@ def main() -> None:
             generator.embed_dim,
             bias=False,
         )
-    radio.load_state_dict(load_file(bundle_file(args.model, "model.safetensors")), strict=False)
-    radio = radio.to(device=device, dtype=dtype).eval()
+    radio.load_state_dict(
+        {name: tensor.to(dtype=dtype) for name, tensor in load_file(bundle_file(args.model, "model.safetensors")).items()},
+        strict=False,
+    )
+    radio = radio.to(device=device, dtype=dtype)
+    conditioner = radio.radio_model.input_conditioner
+    if hasattr(conditioner, "dtype"):
+        conditioner.dtype = dtype
+    radio = radio.eval()
     projector = load_projector(args.model).to(device=device, dtype=dtype).eval()
 
     image = Image.open(args.image).convert("RGB")
@@ -71,7 +78,8 @@ def main() -> None:
         features = radio(pixels).features
         height = pixels.shape[-2] // PATCH_SIZE
         width = pixels.shape[-1] // PATCH_SIZE
-        merged = pixel_shuffle(features.reshape(1, height, width, -1)).reshape(1, -1, -1)
+        merged = pixel_shuffle(features.reshape(1, height, width, -1))
+        merged = merged.reshape(1, -1, merged.shape[-1])
         projected = projector(merged)
 
     print("merged", merged.shape)
