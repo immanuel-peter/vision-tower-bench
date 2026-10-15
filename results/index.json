@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "path_base": "results/",
+  "cohorts": {
+    "v1_six": {
+      "models": [
+        "dinov2",
+        "siglip2",
+        "muse_glimmer",
+        "kimi_k26",
+        "qwen3_5",
+        "moonvit_v2"
+      ],
+      "description": "Original six-Tower v1 report cohort. Also identifies the scope of older diagnostics, corrections and completion manifests."
+    },
+    "v2_eleven": {
+      "models": [
+        "dinov2",
+        "siglip2",
+        "muse_glimmer",
+        "glm5",
+        "nemotron_omni",
+        "kimi_k26",
+        "qwen3_5",
+        "deepseek_v41",
+        "gemma4",
+        "moonvit_v2",
+        "minimax_m3"
+      ],
+      "description": "Published eleven-Tower v2 report cohort and default figure roster; includes the original six."
+    }
+  },
+  "experiments": {
+    "recognition": {
+      "path": "recognition/",
+      "protocol": "ImageNet-100; 4x4 pooled tokens; attention/mean readouts; raw/matched capacities; eleven learning rates and three seeds.",
+      "status": "Corrected extended-grid matrices.",
+      "cohort": "v2_eleven"
+    },
+    "geometry": {
+      "path": "geometry/",
+      "protocol": "DIODE; full native patch tokens; depth/normals; raw/matched capacities; six learning rates, ten epochs and three seeds.",
+      "status": "Full layer sweeps. Original six-Tower matched PCA draws were unseeded; deepest-stage values are superseded only within the correction scope below.",
+      "cohort": "v2_eleven"
+    },
+    "geometry_deterministic": {
+      "path": "geometry/deterministic/",
+      "protocol": "DIODE matched arm; seeded training-split PCA; six learning rates, ten epochs and three seeds.",
+      "status": "Corrected deepest-stage point estimates; no full layer sweep and no paired intervals.",
+      "cohort": "v1_six",
+      "supersedes": {
+        "experiment": "geometry",
+        "models": [
+          "dinov2",
+          "siglip2",
+          "muse_glimmer",
+          "kimi_k26",
+          "qwen3_5",
+          "moonvit_v2"
+        ],
+        "tasks": [
+          "depth",
+          "normal"
+        ],
+        "capacity": "matched",
+        "relative_depth": 1.0,
+        "stages": [
+          "tower",
+          "merged",
+          "projected"
+        ],
+        "scope": "Available stages only. Other layers, raw arms and the five added Towers are not replaced."
+      }
+    },
+    "bootstrap": {
+      "path": "bootstrap/",
+      "protocol": "Paired image or pair resampling; each payload records its comparison and protocol.",
+      "status": "Use the point estimates and intervals from the same payload. Geometry/recognition paired reruns are separate from the sweep and deterministic matrix runs.",
+      "cohort": "v2_eleven"
+    },
+    "correspondence": {
+      "path": "correspondence/",
+      "protocol": "Training-free cosine matching on NAVI, ScanNet and SPair; aggregate scores and per-pair measurements.",
+      "status": "ScanNet is a declared bench adaptation, not a Probe3D reproduction.",
+      "cohort": "v2_eleven"
+    },
+    "label_budget": {
+      "path": "label-budget/",
+      "protocol": "ImageNet-100 final Tower layer; matched capacity; attention/mean at 1%, 5%, 20% and 100% labels; fixed validation/test splits.",
+      "status": "Includes throughput records for the original six Towers.",
+      "cohort": "v2_eleven"
+    },
+    "perturbation": {
+      "path": "perturbation/",
+      "protocol": "Frozen clean-trained matched attention readout; per-condition and per-image records.",
+      "status": "Occlusion across the roster; added-model payloads also contain scale and motion blur. Shared transforms.jsonl and transforms.manifest.json describe the original occlusion experiment.",
+      "cohort": "v2_eleven"
+    },
+    "kitti": {
+      "path": "kitti/",
+      "protocol": "KITTI selected depth-completion validation set; matched depth readout at final Tower and Projector stages.",
+      "status": "Single transfer column. Paired intervals are under bootstrap/.",
+      "cohort": "v2_eleven"
+    },
+    "pooling": {
+      "path": "diagnostics/pooling/",
+      "protocol": "Pooled versus full tokens; attention/mean and raw/matched arms for SigLIP2 and Muse Glimmer.",
+      "status": "Initial controls; see follow-up diagnostics."
+    },
+    "pooling_diagnostic": {
+      "path": "diagnostics/pooling-diagnostic/",
+      "protocol": "Three selected attention cells, two token grids, two sample budgets and two epoch budgets; independent baseline repeats.",
+      "status": "Full-token attention validation remains inconclusive. Preserve repeats even when identical."
+    },
+    "pooling_roster": {
+      "path": "diagnostics/pooling-roster/",
+      "protocol": "Mean readout pooled versus full tokens for the remaining original Towers; includes both Kimi pooled extraction batch sizes.",
+      "status": "Use Kimi bs1 for the matched-batch comparison. bs4 is retained as a procedural diagnostic."
+    },
+    "grid_search": {
+      "path": "diagnostics/grid_search/",
+      "protocol": "Targeted wider geometry learning-rate searches.",
+      "status": "Diagnostic only; does not replace the complete matrices."
+    }
+  },
+  "cell_manifests": [
+    {
+      "path": "manifests/expected_cells_semantic_v2.tsv",
+      "results_directory": "recognition/",
+      "cohort": "v1_six"
+    },
+    {
+      "path": "manifests/expected_cells_geometry_raw.tsv",
+      "results_directory": "geometry/",
+      "cohort": "v1_six"
+    },
+    {
+      "path": "manifests/expected_cells_geometry_matched.tsv",
+      "results_directory": "geometry/",
+      "cohort": "v1_six"
+    }
+  ],
+  "figure_sources": {
+    "recognition": "recognition/{model}_probe_{readout}_{arm}.json",
+    "geometry_layer_sweep": "geometry/{model}_geometry_depth_matched.json",
+    "geometry_stage_levels": {
+      "dinov2": "geometry/deterministic/dinov2_geometry_depth_matched.json",
+      "siglip2": "geometry/deterministic/siglip2_geometry_depth_matched.json",
+      "muse_glimmer": "geometry/deterministic/muse_glimmer_geometry_depth_matched.json",
+      "glm5": "geometry/glm5_geometry_depth_matched.json",
+      "nemotron_omni": "geometry/nemotron_omni_geometry_depth_matched.json",
+      "kimi_k26": "geometry/deterministic/kimi_k26_geometry_depth_matched.json",
+      "qwen3_5": "geometry/deterministic/qwen3_5_geometry_depth_matched.json",
+      "deepseek_v41": "geometry/deepseek_v41_geometry_depth_matched.json",
+      "gemma4": "geometry/gemma4_geometry_depth_matched.json",
+      "moonvit_v2": "geometry/deterministic/moonvit_v2_geometry_depth_matched.json",
+      "minimax_m3": "geometry/minimax_m3_geometry_depth_matched.json"
+    }
+  },
+  "history": "history/roster-run.md"
+}

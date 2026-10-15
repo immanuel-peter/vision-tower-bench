@@ -72,3 +72,39 @@ def test_default_figures_render(tmp_path):
         path = tmp_path / f"{name}.png"
         draw(path)
         assert path.stat().st_size > 0
+
+
+def test_geometry_figures_separate_corrected_stages_from_historical_sweeps(monkeypatch, tmp_path):
+    figures = []
+    subplots = FIGURE_SCRIPT.plt.subplots
+
+    def capture(*args, **kwargs):
+        figure, axes = subplots(*args, **kwargs)
+        figures.append(figure)
+        return figure, axes
+
+    monkeypatch.setattr(FIGURE_SCRIPT.plt, "subplots", capture)
+    FIGURE_SCRIPT.stage_levels(tmp_path / "stages.png")
+    FIGURE_SCRIPT.peaks(tmp_path / "peaks.png")
+
+    corrected = {"muse_glimmer", "kimi_k26", "qwen3_5", "moonvit_v2"}
+    stage_lines = figures[0].axes[0].lines
+    assert len(stage_lines) == len(FIGURE_SCRIPT.PROJECTORS)
+    for model, line in zip(FIGURE_SCRIPT.PROJECTORS, stage_lines, strict=True):
+        directory = "geometry/deterministic" if model in corrected else "geometry"
+        path = ROOT / "results" / directory / f"{model}_geometry_depth_matched.json"
+        cells = json.loads(path.read_text())["cells"]
+        deepest = {cell["stage"]: cell["d1"] for cell in cells if cell["relative_depth"] == 1.0}
+        assert list(line.get_ydata()) == pytest.approx([
+            deepest[stage] for stage in ("tower", "merged", "projected") if stage in deepest
+        ])
+
+    sweep_lines = {line.get_label(): line for line in figures[1].axes[1].lines}
+    for model in FIGURE_SCRIPT.TOWERS:
+        path = ROOT / "results/geometry" / f"{model}_geometry_depth_matched.json"
+        cells = sorted(
+            (cell for cell in json.loads(path.read_text())["cells"] if cell["stage"] == "tower"),
+            key=lambda cell: cell["relative_depth"],
+        )
+        assert len(cells) == 8
+        assert list(sweep_lines[model].get_ydata()) == pytest.approx([cell["d1"] for cell in cells])
