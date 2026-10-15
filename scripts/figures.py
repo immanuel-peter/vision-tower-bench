@@ -14,7 +14,8 @@ import numpy as np
 from matplotlib.colors import ListedColormap
 from matplotlib.patches import Patch
 
-RESULTS = Path("results")
+RESULTS = Path(__file__).resolve().parents[1] / "results"
+SOURCES = json.loads((RESULTS / "index.json").read_text())["figure_sources"]
 TOWERS: tuple[str, ...] = (
     "dinov2",
     "siglip2",
@@ -194,7 +195,7 @@ def label_budget(out: Path, readout: str = "attention") -> None:
 def relative_depth(out: Path, readout: str = "attention", arm: str = "matched") -> None:
     figure, axis = plt.subplots(figsize=(6, 4))
     for model in TOWERS:
-        path = RESULTS / f"{model}_probe_{readout}_{arm}.json"
+        path = RESULTS / SOURCES["recognition"].format(model=model, readout=readout, arm=arm)
         cells = [c for c in json.loads(path.read_text())["cells"] if c["stage"] == "tower"]
         cells.sort(key=lambda c: c["relative_depth"])
         axis.plot(
@@ -278,8 +279,11 @@ def peaks(out: Path) -> None:
     figure, (top, bottom) = plt.subplots(2, 1, figsize=(6.5, 6.4), sharex=True)
 
     for model in TOWERS:
+        path = RESULTS / SOURCES["recognition"].format(
+            model=model, readout="attention", arm="matched",
+        )
         cells = [
-            c for c in json.loads((RESULTS / f"{model}_probe_attention_matched.json").read_text())["cells"]
+            c for c in json.loads(path.read_text())["cells"]
             if c["stage"] == "tower"
         ]
         cells.sort(key=lambda c: c["relative_depth"])
@@ -288,8 +292,9 @@ def peaks(out: Path) -> None:
             marker="o", markersize=3, color=COLOUR[model], label=DISPLAY[model],
         )
 
+        path = RESULTS / SOURCES["geometry_layer_sweep"].format(model=model)
         cells = [
-            c for c in json.loads((RESULTS / f"{model}_geometry_depth_matched.json").read_text())["cells"]
+            c for c in json.loads(path.read_text())["cells"]
             if c["stage"] == "tower"
         ]
         cells.sort(key=lambda c: c["relative_depth"])
@@ -303,7 +308,10 @@ def peaks(out: Path) -> None:
     top.set_title("Recognition", fontsize=9.5, loc="left")
     bottom.set_ylabel("DIODE depth (d1)")
     bottom.set_xlabel("Relative Depth")
-    bottom.set_title("Geometry, DIODE depth  \u00b7  stars mark each Tower's peak", fontsize=9.5, loc="left")
+    bottom.set_title(
+        "Geometry, DIODE depth  \u00b7  stars mark each Tower's peak\n"
+        "Original six-Tower matched sweeps used unseeded PCA", fontsize=9.5, loc="left",
+    )
     for axis in (top, bottom):
         axis.axvline(1.0, color="0.45", linewidth=1, linestyle=":")
         axis.grid(alpha=0.25)
@@ -352,7 +360,8 @@ def stage_levels(out: Path) -> None:
 
     figure, axis = plt.subplots(figsize=(5.6, 4.2))
     for model in PROJECTORS:
-        cells = json.loads((RESULTS / f"{model}_geometry_depth_matched.json").read_text())["cells"]
+        path = RESULTS / SOURCES["geometry_stage_levels"][model]
+        cells = json.loads(path.read_text())["cells"]
         deepest = {}
         for cell in cells:
             if cell["relative_depth"] == 1.0:
@@ -363,7 +372,7 @@ def stage_levels(out: Path) -> None:
     axis.set_xticks(range(len(stages)), stages)
     axis.set_xlabel("Stage, at the deepest Relative Depth")
     axis.set_ylabel("DIODE depth (d1), matched")
-    axis.set_title("Deepest-stage DIODE depth", fontsize=10)
+    axis.set_title("Deepest-stage DIODE depth\nOriginal six Towers use the deterministic rerun", fontsize=10)
     axis.grid(alpha=0.25, axis="y")
     axis.legend(fontsize=7, ncol=3)
     figure.tight_layout()

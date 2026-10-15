@@ -35,18 +35,14 @@ The multimodal Towers are standalone extracts of their parents. The model cards 
 
 ## Results
 
-Source files live in `results/`:
+The [results index](results/README.md) links each experiment, its evidence, and
+its correction status. Recognition and geometry matrices are grouped by task;
+diagnostics and historical run notes are separate. All measurements remain in Git.
 
-| Path | Contents |
-|---|---|
-| `results/*_probe_*.json` | recognition cells: 2 readouts, 2 capacity arms |
-| `results/*_geometry_*.json` | depth and surface normals on DIODE |
-| `results/correspondence/` | NAVI, ScanNet and SPair scores per stage |
-| `results/bootstrap/` | paired intervals, with the per-image records behind them |
-| `results/label-budget/` | recognition at 1%, 5%, 20% and 100% of labels |
-| `results/perturbation/` | occlusion, fixed readout evaluated on perturbed features |
-| `results/kitti/` | the transfer column |
-| `results/README.md` | protocol notes and run-by-run findings |
+The [machine-readable index](results/index.json) distinguishes the published
+six-Tower cohort from the expanded eleven-Tower suite and selects corrected
+deepest-stage geometry sources. Full layer sweeps and paired-bootstrap reruns
+remain separate records.
 
 ## Reproducing the figures
 
@@ -54,6 +50,10 @@ Source files live in `results/`:
 uv sync --group figures
 uv run --group figures python scripts/figures.py
 ```
+
+This renders the expanded eleven-Tower suite. See the
+[source-selection notes](results/README.md#choose-the-right-source) for the
+scope of the geometry corrections and the historical layer sweeps.
 
 ## Evaluating a new Tower
 

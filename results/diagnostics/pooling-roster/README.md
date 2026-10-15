@@ -21,9 +21,9 @@ Kimi rows use same-batch-size (`bs1`) extracts on both grids
 0.4711/0.6385 and is a batch-size artifact, not a pooling effect: Kimi
 extraction is batch-size sensitive, so all Kimi extracts must pin `bs1` as
 both Kimi adapter docstrings already require. SigLIP2 and Muse Glimmer
-agreement was established earlier under `results/pooling/`.
+agreement was established earlier under [the initial pooling check](../pooling/).
 
 The mean readout is validated roster-wide. The attention readout's
 full-token control remains inconclusive (see
-`results/pooling-diagnostic/README.md`); attention Relative Depth shapes
+[the attention diagnostic](../pooling-diagnostic/README.md)); attention Relative Depth shapes
 stay exploratory.
