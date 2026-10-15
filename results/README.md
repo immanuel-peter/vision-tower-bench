@@ -1,8 +1,8 @@
 # Results
 
-Start with the [published report](https://ipeter.dev/blog/vision-tower-bench) for
-the six-Tower study. This directory also contains the expanded eleven-Tower
-suite, supporting measurements, corrections, and failed controls.
+Start with the [published v2 report](https://ipeter.dev/blog/vision-tower-bench),
+which covers all eleven Towers. This directory contains the v2 measurements,
+the original six-Tower v1 records, supporting evidence, corrections, and failed controls.
 [index.json](index.json) records both cohorts, experiment protocols, and the
 source files used for deepest-stage geometry figures. Paths in that index are
 relative to this directory. Model IDs inside the JSONs identify the checkpoints;
@@ -26,10 +26,11 @@ historical filename slugs `qwen3_5` and `moonvit_v2` mean Qwen3.8 and Kimi K3.
 
 ## Choose the right source
 
-The published cohort is DINOv2, SigLIP2, Muse Glimmer, Kimi K2.6, Qwen3.8, and
-Kimi K3. The expanded suite adds GLM 5.3 Flash, C-RADIOv4-H, DeepSeek-ViT,
-Gemma 4, and MiniMax M3. The default figure command currently draws the expanded
-suite; it is not an immutable reproduction of the six-Tower publication.
+The v1 cohort is DINOv2, SigLIP2, Muse Glimmer, Kimi K2.6, Qwen3.8, and
+Kimi K3. The published v2 report adds GLM 5.3 Flash, C-RADIOv4-H, DeepSeek-ViT,
+Gemma 4, and MiniMax M3. The default figure command draws this eleven-Tower
+v2 cohort. The six-Tower grouping identifies the scope of older runs and
+corrections, not the limits of the current publication.
 
 For matched DIODE comparisons at the deepest layer, use
 `geometry/deterministic/` for the original six Towers. The other five use

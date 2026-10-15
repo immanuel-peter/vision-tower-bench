@@ -1,7 +1,7 @@
 # Matrix completion records
 
 These TSVs preserve the expected cell counts for the original six-Tower runs.
-They are historical completion records, not inventories of the expanded suite.
+They are historical completion records, not inventories of the v2 suite.
 Each filename is relative to the corresponding result directory:
 
 | Manifest | Result directory |

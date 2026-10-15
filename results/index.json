@@ -2,7 +2,7 @@
   "schema_version": 1,
   "path_base": "results/",
   "cohorts": {
-    "published_six": {
+    "v1_six": {
       "models": [
         "dinov2",
         "siglip2",
@@ -11,9 +11,9 @@
         "qwen3_5",
         "moonvit_v2"
       ],
-      "description": "Original six-Tower published study. Membership does not imply every later diagnostic or rerun appeared in the publication."
+      "description": "Original six-Tower v1 report cohort. Also identifies the scope of older diagnostics, corrections and completion manifests."
     },
-    "expanded_eleven": {
+    "v2_eleven": {
       "models": [
         "dinov2",
         "siglip2",
@@ -27,7 +27,7 @@
         "moonvit_v2",
         "minimax_m3"
       ],
-      "description": "Current result suite and default figure roster; includes the original six."
+      "description": "Published eleven-Tower v2 report cohort and default figure roster; includes the original six."
     }
   },
   "experiments": {
@@ -35,19 +35,19 @@
       "path": "recognition/",
       "protocol": "ImageNet-100; 4x4 pooled tokens; attention/mean readouts; raw/matched capacities; eleven learning rates and three seeds.",
       "status": "Corrected extended-grid matrices.",
-      "cohort": "expanded_eleven"
+      "cohort": "v2_eleven"
     },
     "geometry": {
       "path": "geometry/",
       "protocol": "DIODE; full native patch tokens; depth/normals; raw/matched capacities; six learning rates, ten epochs and three seeds.",
       "status": "Full layer sweeps. Original six-Tower matched PCA draws were unseeded; deepest-stage values are superseded only within the correction scope below.",
-      "cohort": "expanded_eleven"
+      "cohort": "v2_eleven"
     },
     "geometry_deterministic": {
       "path": "geometry/deterministic/",
       "protocol": "DIODE matched arm; seeded training-split PCA; six learning rates, ten epochs and three seeds.",
       "status": "Corrected deepest-stage point estimates; no full layer sweep and no paired intervals.",
-      "cohort": "published_six",
+      "cohort": "v1_six",
       "supersedes": {
         "experiment": "geometry",
         "models": [
@@ -76,31 +76,31 @@
       "path": "bootstrap/",
       "protocol": "Paired image or pair resampling; each payload records its comparison and protocol.",
       "status": "Use the point estimates and intervals from the same payload. Geometry/recognition paired reruns are separate from the sweep and deterministic matrix runs.",
-      "cohort": "expanded_eleven"
+      "cohort": "v2_eleven"
     },
     "correspondence": {
       "path": "correspondence/",
       "protocol": "Training-free cosine matching on NAVI, ScanNet and SPair; aggregate scores and per-pair measurements.",
       "status": "ScanNet is a declared bench adaptation, not a Probe3D reproduction.",
-      "cohort": "expanded_eleven"
+      "cohort": "v2_eleven"
     },
     "label_budget": {
       "path": "label-budget/",
       "protocol": "ImageNet-100 final Tower layer; matched capacity; attention/mean at 1%, 5%, 20% and 100% labels; fixed validation/test splits.",
       "status": "Includes throughput records for the original six Towers.",
-      "cohort": "expanded_eleven"
+      "cohort": "v2_eleven"
     },
     "perturbation": {
       "path": "perturbation/",
       "protocol": "Frozen clean-trained matched attention readout; per-condition and per-image records.",
       "status": "Occlusion across the roster; added-model payloads also contain scale and motion blur. Shared transforms.jsonl and transforms.manifest.json describe the original occlusion experiment.",
-      "cohort": "expanded_eleven"
+      "cohort": "v2_eleven"
     },
     "kitti": {
       "path": "kitti/",
       "protocol": "KITTI selected depth-completion validation set; matched depth readout at final Tower and Projector stages.",
       "status": "Single transfer column. Paired intervals are under bootstrap/.",
-      "cohort": "expanded_eleven"
+      "cohort": "v2_eleven"
     },
     "pooling": {
       "path": "diagnostics/pooling/",
@@ -127,17 +127,17 @@
     {
       "path": "manifests/expected_cells_semantic_v2.tsv",
       "results_directory": "recognition/",
-      "cohort": "published_six"
+      "cohort": "v1_six"
     },
     {
       "path": "manifests/expected_cells_geometry_raw.tsv",
       "results_directory": "geometry/",
-      "cohort": "published_six"
+      "cohort": "v1_six"
     },
     {
       "path": "manifests/expected_cells_geometry_matched.tsv",
       "results_directory": "geometry/",
-      "cohort": "published_six"
+      "cohort": "v1_six"
     }
   ],
   "figure_sources": {
