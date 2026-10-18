@@ -20,6 +20,7 @@ Four capability axes:
 | Tower | Role | Source |
 |---|---|---|
 | DINOv2 ViT-L/14 | self-supervised control | [facebook/dinov2-large](https://huggingface.co/facebook/dinov2-large) |
+| DINOv3 ViT-L/16 | self-supervised control | [facebook/dinov3-vitl16-pretrain-lvd1689m](https://huggingface.co/facebook/dinov3-vitl16-pretrain-lvd1689m) |
 | SigLIP2-SO400M | contrastive control | [google/siglip2-so400m-patch14-384](https://huggingface.co/google/siglip2-so400m-patch14-384) |
 | Muse Glimmer | multimodal | [immanuelpeter/Muse-Glimmer-Vision](https://huggingface.co/immanuelpeter/Muse-Glimmer-Vision) |
 | Kimi K2.6 | multimodal | [immanuelpeter/MoonViT-K2.6](https://huggingface.co/immanuelpeter/MoonViT-K2.6) |
