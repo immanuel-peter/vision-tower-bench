@@ -107,7 +107,7 @@ def main() -> None:
                 batch = batch.pooled(args.pool)
             writer.add(batch)
             written_bytes += batch.nbytes
-            if batch.stage == "tower":
+            if batch.stage == "tower" or token_count == 0:
                 token_count = batch.tokens.shape[1]
         image_count += len(image_ids)
         elapsed = time.perf_counter() - start
@@ -163,7 +163,7 @@ def report(run_dir, adapter, pool, tokens, slice_count, images, written_bytes, e
     print("\n" + json.dumps(summary, indent=2))
 
     total = per_image * IMAGENET_100
-    print(f"\nImageNet-100 at {tokens} tower tokens per image: {scale(total)} for this model.")
+    print(f"\nImageNet-100 at {tokens} tokens per image: {scale(total)} for this model.")
     print("  Measure each model. Token width and stage count both vary.")
 
     if pool is None:
