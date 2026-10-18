@@ -26,7 +26,7 @@ batch_for() {
         minimax_m3|nemotron_omni|deepseek_v41) echo 8 ;;
         qwen3_5) echo 8 ;;
         muse_glimmer) echo 4 ;;
-        nemotron35_super|nemotron35_bolt|dinov3) echo 8 ;;
+        nemotron35_super|nemotron35_bolt|dinov3|mimo26_pro|mimo26_flash) echo 8 ;;
     esac
 }
 

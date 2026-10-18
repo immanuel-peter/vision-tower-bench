@@ -16,8 +16,9 @@ from scripts.export_muse_glimmer_vision import SOURCE_REVISION as MUSE_REVISION
 from scripts.export_muse_glimmer_vision import load_source_parts as load_muse_source
 from scripts.export_qwen3_8_vision import SOURCE_REVISION as QWEN_REVISION
 from scripts.export_qwen3_8_vision import load_source_tower as load_qwen_source
+from scripts.validate_mimo26 import assert_parity as assert_mimo26_parity, validate as validate_mimo26
 from scripts.validate_nemotron35 import assert_parity, validate as validate_nemotron35
-from vtb.adapters import kimi_k26, muse_glimmer, nemotron35, qwen3_5
+from vtb.adapters import kimi_k26, mimo26, muse_glimmer, nemotron35, qwen3_5
 from vtb.shards import load_prefixed
 
 ROOT = Path(__file__).parents[1]
@@ -190,3 +191,13 @@ def test_nemotron35_release_matches_the_independent_parent(name):
     assert len(report["cells"]) == 10
     assert set(report["release_cells"]) == {"tower", "merged", "projected"}
     assert_parity(report, DTYPE)
+
+
+@pytest.mark.parametrize("name", sorted(mimo26.CHECKPOINTS))
+def test_mimo26_release_matches_the_zero_completed_parent(name):
+    report = validate_mimo26(name, mimo26.CHECKPOINTS[name].release_dir, DEVICE, dtype=DTYPE)
+
+    assert report["weights_bit_exact"]
+    assert report["zero_completed_biases"] == ["merger.ln_q.bias", "merger.mlp.0.bias", "merger.mlp.2.bias"]
+    assert [len(case["features"]) for case in report["cases"]] == [10, 10]
+    assert_mimo26_parity(report, DTYPE)
