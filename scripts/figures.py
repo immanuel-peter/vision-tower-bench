@@ -15,7 +15,9 @@ from matplotlib.colors import ListedColormap
 from matplotlib.patches import Patch
 
 RESULTS = Path(__file__).resolve().parents[1] / "results"
-SOURCES = json.loads((RESULTS / "index.json").read_text())["figure_sources"]
+INDEX = json.loads((RESULTS / "index.json").read_text())
+SOURCES = INDEX["figure_sources"]
+LATER_COHORT = frozenset(INDEX["cohorts"]["v3"]["models"])
 TOWERS: tuple[str, ...] = (
     "dinov2",
     "siglip2",
@@ -326,6 +328,8 @@ def semantic_forest(out: Path) -> None:
     rows = []
     for path in sorted(RESULTS.glob("bootstrap/semantic-*-vs-*.json")):
         payload = json.loads(path.read_text())
+        if {payload["first"]["name"], payload["second"]["name"]} & LATER_COHORT:
+            continue
         protocol, difference = payload["protocol"], payload["difference"]
         label = (
             f"{payload['first']['name']} - {payload['second']['name']}\n"
