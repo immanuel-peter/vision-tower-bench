@@ -26,13 +26,20 @@ batch_for() {
         minimax_m3|nemotron_omni|deepseek_v41) echo 8 ;;
         qwen3_5) echo 8 ;;
         muse_glimmer) echo 4 ;;
-        nemotron35_super|nemotron35_bolt) echo 8 ;;
+        nemotron35_super|nemotron35_bolt|dinov3) echo 8 ;;
+    esac
+}
+
+resolution_for() {
+    case "$1" in
+        dinov3) echo 512 ;;
+        *) echo 448 ;;
     esac
 }
 
 expected_for() {
     case "$1" in
-        dinov2|siglip2) echo 1 ;;
+        dinov2|dinov3|siglip2) echo 1 ;;
         nemotron35_bolt) echo 2 ;;
         *) echo 3 ;;
     esac
@@ -46,16 +53,17 @@ for i in "${!jobs[@]}"; do
 done
 
 lane() {
-    local index="$1" gpu="$2" model batch rc
+    local index="$1" gpu="$2" model batch resolution rc
     while read -r model; do
         [ -n "$model" ] || continue
         batch=$(batch_for "$model")
+        resolution=$(resolution_for "$model")
         rc=0
         echo "[$(date -u +%T)] start $model extraction on gpu $gpu" >> "$OUT/lane$index.log"
         CUDA_VISIBLE_DEVICES="$gpu" OMP_NUM_THREADS="$THREADS" MKL_NUM_THREADS="$THREADS" \
         uv run python scripts/perturbation_extract.py \
             --model "$model" --identity-images "$IDENTITY" --condition-images "$CONDITIONS" \
-            --transform-manifest "$MANIFEST" --out "$CACHE" --batch-size "$batch" \
+            --transform-manifest "$MANIFEST" --out "$CACHE" --batch-size "$batch" --resolution "$resolution" \
             --workers "$WORKERS" --device cuda > "$OUT/${model}_extract.log" 2>&1 || rc=$?
         echo "[$(date -u +%T)] done $model extraction rc=$rc" >> "$OUT/lane$index.log"
         [ "$rc" -eq 0 ] || { echo "$model extraction exited rc=$rc" >> "$OUT/alerts.log"; continue; }
@@ -64,8 +72,8 @@ lane() {
         echo "[$(date -u +%T)] start $model fixed-readout scoring" >> "$OUT/lane$index.log"
         CUDA_VISIBLE_DEVICES="$gpu" OMP_NUM_THREADS="$THREADS" MKL_NUM_THREADS="$THREADS" \
         uv run python scripts/perturbation_run.py \
-            --clean-run "$CACHE/identity/${model}_448_pool4" --features-root "$CACHE" \
-            --model-dir "${model}_448_pool4" --labels "$LABELS" \
+            --clean-run "$CACHE/identity/${model}_${resolution}_pool4" --features-root "$CACHE" \
+            --model-dir "${model}_${resolution}_pool4" --labels "$LABELS" \
             --transform-manifest "$MANIFEST" --out "$OUT/${model}_perturbation.json" \
             --device cuda > "$OUT/${model}_probe.log" 2>&1 || rc=$?
         echo "[$(date -u +%T)] done $model scoring rc=$rc" >> "$OUT/lane$index.log"
