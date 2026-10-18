@@ -28,6 +28,13 @@
         "minimax_m3"
       ],
       "description": "Published eleven-Tower v2 report cohort and default figure roster; includes the original six."
+    },
+    "v3": {
+      "models": [
+        "nemotron35_super",
+        "nemotron35_bolt"
+      ],
+      "description": "Nemotron Super and Nemotron Bolt, measured after the v2 report and not in the default figures. Super follows the v2 protocols with all three Stages. Bolt covers only the merged and projected Stages, plus one final Tower sanity cell under diagnostics/nemotron35-bolt-tower/."
     }
   },
   "experiments": {
@@ -121,6 +128,12 @@
       "path": "diagnostics/grid_search/",
       "protocol": "Targeted wider geometry learning-rate searches.",
       "status": "Diagnostic only; does not replace the complete matrices."
+    },
+    "nemotron35_bolt_tower": {
+      "path": "diagnostics/nemotron35-bolt-tower/",
+      "protocol": "ImageNet-100; 4x4 pooled tokens; final Tower layer; mean readout; raw capacity; eleven learning rates and three seeds.",
+      "status": "Single Bolt sanity cell, compared with Super's matching recognition cell.",
+      "cohort": "v3"
     }
   },
   "cell_manifests": [

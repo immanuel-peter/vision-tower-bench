@@ -1,0 +1,66 @@
+{
+  "images": 13000,
+  "label_fraction": 1.0,
+  "train_images": 9100,
+  "full_train_images": 9100,
+  "cells": [
+    {
+      "learning_rate": 0.0001,
+      "learning_rate_search": {
+        "1e-05": 0.8872,
+        "3e-05": 0.9015,
+        "0.0001": 0.9036,
+        "0.0003": 0.9036,
+        "0.001": 0.8995,
+        "0.003": 0.8662,
+        "0.01": 0.0774,
+        "0.03": 0.0062,
+        "0.1": 0.0092,
+        "0.3": 0.0092,
+        "1": 0.0092
+      },
+      "val_accuracy": 0.9036,
+      "test_accuracy": 0.8928,
+      "test_std": 0.0019,
+      "seeds": 3,
+      "model_id": "nvidia/NVIDIA-Nemotron-3.5-Bolt-74B-A9B-BF16",
+      "stage": "merged",
+      "layer_index": 32,
+      "relative_depth": 1.0,
+      "token_width": 5120,
+      "trainable_parameters": 6346340,
+      "label_fraction": 1.0,
+      "train_images": 9100,
+      "full_train_images": 9100
+    },
+    {
+      "learning_rate": 0.0001,
+      "learning_rate_search": {
+        "1e-05": 0.8564,
+        "3e-05": 0.8938,
+        "0.0001": 0.8979,
+        "0.0003": 0.8908,
+        "0.001": 0.8723,
+        "0.003": 0.8415,
+        "0.01": 0.4959,
+        "0.03": 0.0092,
+        "0.1": 0.0092,
+        "0.3": 0.0092,
+        "1": 0.0092
+      },
+      "val_accuracy": 0.8979,
+      "test_accuracy": 0.8899,
+      "test_std": 0.0017,
+      "seeds": 3,
+      "model_id": "nvidia/NVIDIA-Nemotron-3.5-Bolt-74B-A9B-BF16",
+      "stage": "projected",
+      "layer_index": 32,
+      "relative_depth": 1.0,
+      "token_width": 4096,
+      "trainable_parameters": 5297764,
+      "label_fraction": 1.0,
+      "train_images": 9100,
+      "full_train_images": 9100
+    }
+  ]
+}
