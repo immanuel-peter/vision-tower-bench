@@ -1,0 +1,32 @@
+{
+  "vllm_revision": "03ee2e134d6cc60c4cc84096c8492fcc971f0526",
+  "source_sha256": {
+    "kernel": "82f3ba37c24feed5ce8eaddc398f81a36fb3bdf7446c812570eb5eab88765be7",
+    "model": "2b210c434a5cd9e9e4ce86aaa79d83167eccd4871df983db94fc4cbc357f7aa8"
+  },
+  "import_glue_only": true,
+  "cases": [
+    {
+      "length": 36,
+      "batch_size": 2,
+      "dtype": "bfloat16",
+      "max_abs": 0.015625,
+      "rms": 0.000650920846965164
+    },
+    {
+      "length": 196,
+      "batch_size": 2,
+      "dtype": "bfloat16",
+      "max_abs": 0.01171875,
+      "rms": 0.00027967547066509724
+    },
+    {
+      "length": 784,
+      "batch_size": 2,
+      "dtype": "bfloat16",
+      "max_abs": 0.0078125,
+      "rms": 0.00021087699860800058
+    }
+  ],
+  "finding": "HF vision key-0 bias and inclusive \u00b164 mask agree with the pinned vLLM MiMo vision path; separate-column LLM sink semantics differ."
+}
