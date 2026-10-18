@@ -1,0 +1,173 @@
+{
+  "task": "normal",
+  "images": 771,
+  "train_images": 541,
+  "capacity_matched": true,
+  "head": "multiscale",
+  "epochs": 10,
+  "seeds": 3,
+  "learning_rates": [
+    0.0001,
+    0.0003,
+    0.001,
+    0.003,
+    0.01,
+    0.03
+  ],
+  "cells": [
+    {
+      "d1": 0.4481,
+      "d1_std": 0.0173,
+      "d2": 0.6726,
+      "d2_std": 0.0089,
+      "d3": 0.7513,
+      "d3_std": 0.0054,
+      "rmse": 29.4006,
+      "rmse_std": 0.3089,
+      "mean_deg": 21.4612,
+      "mean_deg_std": 0.4287,
+      "images": 115,
+      "coverage": 0.7751,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.5129,
+          "d1_std": 0.0226,
+          "d2": 0.7547,
+          "d2_std": 0.0089,
+          "d3": 0.82,
+          "d3_std": 0.0044,
+          "rmse": 25.7914,
+          "rmse_std": 0.3188,
+          "mean_deg": 18.2274,
+          "mean_deg_std": 0.4333,
+          "images": 51,
+          "coverage": 0.9803
+        },
+        "outdoor": {
+          "d1": 0.3966,
+          "d1_std": 0.0139,
+          "d2": 0.6072,
+          "d2_std": 0.0088,
+          "d3": 0.6966,
+          "d3_std": 0.0062,
+          "rmse": 32.2767,
+          "rmse_std": 0.3009,
+          "mean_deg": 24.0382,
+          "mean_deg_std": 0.4261,
+          "images": 64,
+          "coverage": 0.6116
+        }
+      },
+      "learning_rate": 0.001,
+      "val_metric": "mean_deg",
+      "val_score": 21.3013,
+      "learning_rate_search": {
+        "0.0001": 24.8947,
+        "0.0003": 22.2536,
+        "0.001": 21.3013,
+        "0.003": 22.7776,
+        "0.01": 31.3773,
+        "0.03": 45.4058
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.4564,
+          "d2": 0.6783,
+          "d3": 0.7554,
+          "rmse": 29.1586,
+          "mean_deg": 21.192,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.529,
+              "d2": 0.7601,
+              "d3": 0.8226,
+              "rmse": 25.5443,
+              "mean_deg": 17.9249,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.3985,
+              "d2": 0.6131,
+              "d3": 0.7018,
+              "rmse": 32.0388,
+              "mean_deg": 23.7955,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.464,
+          "d2": 0.6795,
+          "d3": 0.7549,
+          "rmse": 29.2067,
+          "mean_deg": 21.1254,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5287,
+              "d2": 0.7619,
+              "d3": 0.8236,
+              "rmse": 25.5883,
+              "mean_deg": 17.9172,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.4125,
+              "d2": 0.6138,
+              "d3": 0.7002,
+              "rmse": 32.0901,
+              "mean_deg": 23.682,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.424,
+          "d2": 0.6601,
+          "d3": 0.7437,
+          "rmse": 29.8365,
+          "mean_deg": 22.0663,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.481,
+              "d2": 0.7421,
+              "d3": 0.8138,
+              "rmse": 26.2415,
+              "mean_deg": 18.8402,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.3787,
+              "d2": 0.5948,
+              "d3": 0.6879,
+              "rmse": 32.7013,
+              "mean_deg": 24.6372,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "facebook/dinov3-vitl16-pretrain-lvd1689m",
+      "stage": "tower",
+      "layer_index": 24,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "grid": 28,
+      "trainable_parameters": 1314819,
+      "seconds": 566.5
+    }
+  ]
+}

@@ -32,9 +32,10 @@
     "v3": {
       "models": [
         "nemotron35_super",
-        "nemotron35_bolt"
+        "nemotron35_bolt",
+        "dinov3"
       ],
-      "description": "Nemotron Super and Nemotron Bolt, measured after the v2 report and not in the default figures. Super follows the v2 protocols with all three Stages. Bolt covers only the merged and projected Stages, plus one final Tower sanity cell under diagnostics/nemotron35-bolt-tower/."
+      "description": "Nemotron Super, Nemotron Bolt and the DINOv3 ViT-L/16 control, measured after the v2 report and not in the default figures. Super follows the v2 protocols with all three Stages. Bolt covers only the merged and projected Stages, plus one final Tower sanity cell under diagnostics/nemotron35-bolt-tower/. DINOv3 runs at 512 px for a 32x32 grid, equal to DINOv2 at 448 px, with DINOv2's bicubic crop and ImageNet normalization; its 448 px equal-pixel check is under diagnostics/dinov3-equal-pixels/."
     }
   },
   "experiments": {
@@ -82,7 +83,7 @@
     "bootstrap": {
       "path": "bootstrap/",
       "protocol": "Paired image or pair resampling; each payload records its comparison and protocol.",
-      "status": "Use the point estimates and intervals from the same payload. Geometry/recognition paired reruns are separate from the sweep and deterministic matrix runs.",
+      "status": "Use the point estimates and intervals from the same payload. Geometry/recognition paired reruns are separate from the sweep and deterministic matrix runs. The DINOv3 occlusion interval pairs against a fresh DINOv2 rerun stored beside it, not perturbation/dinov2_perturbation.json.",
       "cohort": "v2_eleven"
     },
     "correspondence": {
@@ -133,6 +134,18 @@
       "path": "diagnostics/nemotron35-bolt-tower/",
       "protocol": "ImageNet-100; 4x4 pooled tokens; final Tower layer; mean readout; raw capacity; eleven learning rates and three seeds.",
       "status": "Single Bolt sanity cell, compared with Super's matching recognition cell.",
+      "cohort": "v3"
+    },
+    "dinov3_equal_pixels": {
+      "path": "diagnostics/dinov3-equal-pixels/",
+      "protocol": "DINOv3 at 448 px (28x28 grid); final Tower layer; matched capacity; ImageNet-100 attention readout and DIODE depth and normals under the primary protocols.",
+      "status": "Equal-pixel sensitivity for the 512 px primary run. Point estimates only; no paired intervals.",
+      "cohort": "v3"
+    },
+    "dinov3_conditioning": {
+      "path": "diagnostics/dinov3-conditioning/",
+      "protocol": "Token norm, channel spread and spectrum statistics at eight Tower depths for DINOv3 at 512 px and DINOv2 at 448 px on twelve fixed DIODE validation images.",
+      "status": "Descriptive only; no benchmark arm or normalization changed.",
       "cohort": "v3"
     }
   },
