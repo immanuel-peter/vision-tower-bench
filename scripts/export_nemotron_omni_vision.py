@@ -45,7 +45,7 @@ def export(out: Path) -> None:
         json.dumps({"type": "internvl_mlp1", "vit_hidden": 1280, "projector_hidden": 20480, "llm_hidden": 2688}, indent=2)
         + "\n"
     )
-    license_src = Path(__file__).resolve().parents[1] / "hf/C-RADIOv4-H/LICENSE"
+    license_src = Path(__file__).resolve().parents[1] / "hf/C-RADIOv4-H-3-Omni/LICENSE"
     dest = out / "LICENSE"
     if license_src.exists() and license_src.resolve() != dest.resolve():
         shutil.copyfile(license_src, dest)
@@ -55,10 +55,10 @@ def export(out: Path) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--out", type=Path, default=Path("hf/C-RADIOv4-H"))
+    parser.add_argument("--out", type=Path, default=Path("hf/C-RADIOv4-H-3-Omni"))
     args = parser.parse_args()
     export(args.out)
-    print(f"\nUpload with:\n  hf upload immanuelpeter/C-RADIOv4-H {args.out}")
+    print(f"\nUpload with:\n  hf upload immanuelpeter/C-RADIOv4-H-3-Omni {args.out}")
 
 
 if __name__ == "__main__":

@@ -27,7 +27,7 @@ historical filename slugs `qwen3_5` and `moonvit_v2` mean Qwen3.8 and Kimi K3.
 ## Choose the right source
 
 The v1 cohort is DINOv2, SigLIP2, Muse Glimmer, Kimi K2.6, Qwen3.8, and
-Kimi K3. The published v2 report adds GLM 5.3 Flash, C-RADIOv4-H, DeepSeek-ViT,
+Kimi K3. The published v2 report adds GLM 5.3 Flash, Nemotron Omni, DeepSeek V4.1,
 Gemma 4, and MiniMax M3. The default figure command draws this eleven-Tower
 v2 cohort. The six-Tower grouping identifies the scope of older runs and
 corrections, not the limits of the current publication.
