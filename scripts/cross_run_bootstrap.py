@@ -49,6 +49,30 @@ def stage_cell(payload: dict, stage: str) -> dict:
     return cells[0]
 
 
+def class_macro_bootstrap(rows: list[dict], names: tuple[str, str], args) -> dict:
+    """Equal weight per class; paired rows are resampled within their class."""
+    classes = sorted({row["class"] for row in rows})
+    differences = []
+    for name in classes:
+        paired = torch.tensor([[row[names[0]], row[names[1]]] for row in rows if row["class"] == name])
+        differences.append(paired[:, 0] - paired[:, 1])
+    generator = torch.Generator().manual_seed(args.bootstrap_seed)
+    draws = []
+    for start in range(0, args.resamples, 256):
+        count = min(256, args.resamples - start)
+        means = [values[torch.randint(len(values), (count, len(values)), generator=generator)].mean(dim=1)
+                 for values in differences]
+        draws.append(torch.stack(means).mean(dim=0))
+    tail = (1 - args.confidence) / 2
+    lower, upper = torch.quantile(torch.cat(draws), torch.tensor([tail, 1 - tail]))
+    return {
+        "point_estimate": torch.stack([values.mean() for values in differences]).mean().item(),
+        "confidence": args.confidence, "lower": lower.item(), "upper": upper.item(),
+        "resamples": args.resamples, "bootstrap_seed": args.bootstrap_seed,
+        "difference": "first_minus_second", "classes": len(classes),
+    }
+
+
 def correspondence(first: dict, second: dict, names: tuple[str, str], args) -> dict:
     for key in ("dataset", "evaluation_side", "num_correspondences"):
         if first[key] != second[key]:
@@ -61,7 +85,12 @@ def correspondence(first: dict, second: dict, names: tuple[str, str], args) -> d
         if not all(math.isfinite(value) for value in values):
             excluded.append(a["pair_id"])
             continue
-        rows.append({"pair_id": a["pair_id"], names[0]: values[0], names[1]: values[1]})
+        row = {"pair_id": a["pair_id"], names[0]: values[0], names[1]: values[1]}
+        if "class" in a:
+            if a["class"] != b["class"]:
+                raise ValueError(f"paired class labels differ: {a['pair_id']}")
+            row["class"] = a["class"]
+        rows.append(row)
     difference = paired_bootstrap(
         torch.tensor([row[names[0]] for row in rows]),
         torch.tensor([row[names[1]] for row in rows]),
@@ -69,10 +98,13 @@ def correspondence(first: dict, second: dict, names: tuple[str, str], args) -> d
         confidence=args.confidence,
         seed=args.bootstrap_seed,
     )
-    return {
+    result = {
         "metric": metric, "difference": difference, "finite_pairs": len(rows),
         "excluded_nonfinite_pair_ids": excluded, "measurements": rows,
     }
+    if rows and all("class" in row for row in rows):
+        result["class_macro_difference"] = class_macro_bootstrap(rows, names, args)
+    return result
 
 
 def perturbation(first: dict, second: dict, names: tuple[str, str], args) -> dict:
@@ -81,7 +113,7 @@ def perturbation(first: dict, second: dict, names: tuple[str, str], args) -> dic
     a, b = stage_cell(first, args.stage), stage_cell(second, args.stage)
     if a["measurements"].keys() != b["measurements"].keys():
         raise ValueError("perturbation conditions differ")
-    conditions = {}
+    conditions, clean = {}, None
     for condition in sorted(a["measurements"]):
         rows = []
         for x, y in pair_rows(a["measurements"][condition], b["measurements"][condition], "image_id"):
@@ -100,7 +132,19 @@ def perturbation(first: dict, second: dict, names: tuple[str, str], args) -> dic
             "metric": "perturbed_accuracy", "difference": difference,
             "test_images": len(rows), "measurements": rows,
         }
-    return {"conditions": conditions}
+        clean_rows = [(row[f"{names[0]}_clean"], row[f"{names[1]}_clean"]) for row in rows]
+        if clean is not None and clean_rows != clean:
+            raise ValueError(f"clean correctness differs across conditions: {condition}")
+        clean = clean_rows
+    difference = paired_image_bootstrap(
+        torch.tensor([x for x, _ in clean]).T,
+        torch.tensor([y for _, y in clean]).T,
+        resamples=args.resamples,
+        confidence=args.confidence,
+        seed=args.bootstrap_seed,
+    )
+    return {"clean": {"metric": "clean_accuracy", "difference": difference, "test_images": len(clean)},
+            "conditions": conditions}
 
 
 def main() -> None:
