@@ -17,6 +17,7 @@ from vtb.adapters.minimax_m3 import MiniMaxM3Adapter
 from vtb.adapters.moonvit_v2 import MoonViTV2Adapter
 from vtb.adapters.muse_glimmer import MuseGlimmerAdapter
 from vtb.adapters.nemotron_omni import NemotronOmniAdapter
+from vtb.adapters.nemotron35 import Nemotron35BoltAdapter, Nemotron35SuperAdapter
 from vtb.adapters.qwen3_5 import Qwen3_5Adapter
 from vtb.adapters.siglip2 import SigLIP2Adapter
 from vtb.images import ImageFolder
@@ -31,6 +32,8 @@ ADAPTERS = {
     "moonvit_v2": MoonViTV2Adapter,
     "muse_glimmer": MuseGlimmerAdapter,
     "nemotron_omni": NemotronOmniAdapter,
+    "nemotron35_super": Nemotron35SuperAdapter,
+    "nemotron35_bolt": Nemotron35BoltAdapter,
     "qwen3_5": Qwen3_5Adapter,
     "siglip2": SigLIP2Adapter,
 }
@@ -69,6 +72,13 @@ def main() -> None:
         "omit for the geometry pillar and the pooling validation subset",
     )
     parser.add_argument(
+        "--stages",
+        nargs="+",
+        choices=("tower", "merged", "projected"),
+        default=None,
+        help="Stages for adapters that select them, such as Tower for nemotron35_bolt",
+    )
+    parser.add_argument(
         "--final-stages",
         nargs="+",
         choices=("tower", "merged", "projected"),
@@ -77,7 +87,8 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    adapter = ADAPTERS[args.model](resolution=args.resolution, device=args.device)
+    options = {"stages": args.stages} if args.stages else {}
+    adapter = ADAPTERS[args.model](resolution=args.resolution, device=args.device, **options)
     dataset = ImageFolder(args.images, adapter.preprocess(), args.limit)
     loader = DataLoader(
         dataset,

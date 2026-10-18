@@ -26,12 +26,14 @@ batch_for() {
         minimax_m3|nemotron_omni|deepseek_v41) echo 8 ;;
         qwen3_5) echo 8 ;;
         muse_glimmer) echo 4 ;;
+        nemotron35_super|nemotron35_bolt) echo 8 ;;
     esac
 }
 
 expected_for() {
     case "$1" in
         dinov2|siglip2) echo 1 ;;
+        nemotron35_bolt) echo 2 ;;
         *) echo 3 ;;
     esac
 }
