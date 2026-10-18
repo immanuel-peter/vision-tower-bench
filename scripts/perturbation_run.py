@@ -70,7 +70,6 @@ def main() -> None:
     num_classes = len(set(label_map.values()))
 
     slices = cache.slices(args.clean_run)
-    # Some families intentionally evaluate only merged/projected caches.
     deepest = max(layer for _stage, layer in slices)
     selected = [cell for cell in slices if cell[1] == deepest]
     cells = []

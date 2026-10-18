@@ -3,6 +3,8 @@
 import json
 import sys
 
+import pytest
+
 from scripts import perturbation_run
 
 
@@ -25,7 +27,6 @@ def test_merged_projected_only_cache_reaches_scoring(monkeypatch, tmp_path):
         "--model-dir", "bolt", "--labels", str(labels), "--transform-manifest", str(manifest),
         "--out", str(tmp_path / "unused.json"),
     ])
-    import pytest
     with pytest.raises(StopIteration, match="scoring reached"):
         perturbation_run.main()
     assert visited == [("merged", 32)]
