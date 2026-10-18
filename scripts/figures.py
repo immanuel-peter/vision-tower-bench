@@ -214,6 +214,8 @@ def relative_depth(out: Path, readout: str = "attention", arm: str = "matched") 
 def occlusion(out: Path) -> None:
     figure, axis = plt.subplots(figsize=(6, 4))
     for path in sorted(RESULTS.glob("perturbation/*_perturbation.json")):
+        if path.name.removesuffix("_perturbation.json") not in TOWERS:
+            continue
         payload = json.loads(path.read_text())
         model = tower_name(payload["model"])
         cell = next(c for c in payload["cells"] if c["stage"] == "tower")
