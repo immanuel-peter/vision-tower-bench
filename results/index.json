@@ -103,7 +103,7 @@
     "perturbation": {
       "path": "perturbation/",
       "protocol": "Frozen clean-trained matched attention readout; per-condition and per-image records.",
-      "status": "Occlusion across the roster; added-model payloads also contain scale and motion blur. Shared transforms.jsonl and transforms.manifest.json describe the original occlusion experiment.",
+      "status": "Occlusion across the roster; added-model payloads also contain scale and motion blur. Shared transforms.jsonl and transforms.manifest.json describe all 13 conditions: identity plus four levels each of scale, occlusion and motion blur. Their occlusion rows are byte-identical to the original occlusion experiment's.",
       "cohort": "v2_eleven"
     },
     "kitti": {
