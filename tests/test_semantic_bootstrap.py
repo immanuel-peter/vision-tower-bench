@@ -17,6 +17,7 @@ def test_bootstrap_runner_defaults_to_the_headline_arm():
 
     assert args.readout == "attention"
     assert args.arm == "matched"
+    assert (args.first_stage, args.second_stage) == ("tower", "tower")
 
 
 def test_paired_bootstrap_uses_seed_mean_correctness_and_is_reproducible():

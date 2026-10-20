@@ -44,6 +44,7 @@ def main() -> None:
     parser.add_argument("--out", type=Path, default=Path("docs/figures"))
     parser.add_argument("--resolution", type=int, default=448)
     parser.add_argument("--device", default="mps")
+    parser.add_argument("--all-depths", action="store_true", help="also render every sampled Tower depth")
     args = parser.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
 
@@ -51,16 +52,18 @@ def main() -> None:
     picture = Image.open(args.image).convert("RGB")
     pixels = adapter.collate([adapter.preprocess()(picture)])
 
-    final = {
-        batch.stage: batch.tokens[0]
-        for batch in adapter.extract(pixels, ["sample"])
-        if batch.layer_index == adapter.num_layers
-    }
+    batches = list(adapter.extract(pixels, ["sample"]))
+    final = {batch.stage: batch.tokens[0] for batch in batches if batch.layer_index == adapter.num_layers}
 
     stem = f"{args.model}_{args.image.stem}"
     reference = component_maps(final["tower"])
     to_image(reference, args.resolution).save(args.out / f"pca_{stem}_tower.png")
     print(f"tower      {tuple(reference.shape[-2:])}")
+
+    depths = [b for b in batches if b.stage == "tower" and b.layer_index != adapter.num_layers] if args.all_depths else []
+    for batch in depths:
+        maps = align_signs(component_maps(batch.tokens[0]), reference)
+        to_image(maps, args.resolution).save(args.out / f"pca_{stem}_tower_L{batch.layer_index:02d}.png")
 
     for stage in ("merged", "projected"):
         if stage not in final:
@@ -72,7 +75,7 @@ def main() -> None:
     picture.resize((args.resolution, args.resolution)).save(
         args.out / f"pca_{args.image.stem}_source.png"
     )
-    print(f"wrote {len(final) + 1} panels to {args.out}")
+    print(f"wrote {len(final) + len(depths) + 1} panels to {args.out}")
 
 
 if __name__ == "__main__":

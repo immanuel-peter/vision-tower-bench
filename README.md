@@ -32,6 +32,8 @@ Four capability axes:
 | Nemotron 3 Nano Omni | multimodal | [immanuelpeter/C-RADIOv4-H-3-Omni](https://huggingface.co/immanuelpeter/C-RADIOv4-H-3-Omni) |
 | Nemotron 3.5 Super VL | multimodal | [immanuelpeter/C-RADIOv4-H-3.5-Super](https://huggingface.co/immanuelpeter/C-RADIOv4-H-3.5-Super) |
 | Nemotron 3.5 Bolt | multimodal | [immanuelpeter/C-RADIOv4-H-3.5-Bolt](https://huggingface.co/immanuelpeter/C-RADIOv4-H-3.5-Bolt) |
+| MiMo V2.6 Pro | multimodal | [immanuelpeter/MiMoViT-2.6-Pro](https://huggingface.co/immanuelpeter/MiMoViT-2.6-Pro) |
+| MiMo V2.6 Flash | multimodal | [immanuelpeter/MiMoViT-2.6-Flash](https://huggingface.co/immanuelpeter/MiMoViT-2.6-Flash) |
 | DeepSeek V4.1 Flash | multimodal | [immanuelpeter/DeepSeek-ViT](https://huggingface.co/immanuelpeter/DeepSeek-ViT) |
 
 The multimodal Towers are standalone extracts of their parents. The model cards record counts and tolerances.

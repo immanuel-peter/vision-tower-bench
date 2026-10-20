@@ -14,6 +14,7 @@ from vtb.adapters.dinov3 import DINOv3Adapter
 from vtb.adapters.gemma4 import Gemma4Adapter
 from vtb.adapters.glm5 import GLM5Adapter
 from vtb.adapters.kimi_k26 import KimiK26Adapter
+from vtb.adapters.mimo26 import MiMo26FlashAdapter, MiMo26ProAdapter
 from vtb.adapters.minimax_m3 import MiniMaxM3Adapter
 from vtb.adapters.moonvit_v2 import MoonViTV2Adapter
 from vtb.adapters.nemotron_omni import NemotronOmniAdapter
@@ -41,6 +42,8 @@ EXPECTED = {
     DeepSeekV41Adapter: (32, 11, 1024, 9216, 5120),
     Nemotron35SuperAdapter: (28, 14, 1280, 5120, 4096),
     Nemotron35BoltAdapter: (None, 14, None, 5120, 4096),
+    MiMo26ProAdapter: (28, 14, 1280, 5120, 6144),
+    MiMo26FlashAdapter: (28, 14, 1280, 5120, 4096),
 }
 
 pytestmark = pytest.mark.skipif(

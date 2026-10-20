@@ -57,3 +57,29 @@ def test_perturbation_interval_uses_seed_mean_correctness_on_paired_test_images(
     assert interval["test_images"] == 2
     assert interval["measurements"][0] == {"image_id": "a", "first": [1.0] * 3, "second": [0.0] * 3,
                                            "first_clean": [1.0] * 3, "second_clean": [1.0] * 3}
+
+
+def test_spair_macro_interval_weights_each_class_equally():
+    def payload(values):
+        return {"dataset": "spair", "evaluation_side": 64, "num_correspondences": 1000,
+                "cells": [{"stage": "tower", "layer_index": 28}],
+                "measurements": [{"pair_id": str(i), "class": cls, "cells": {"tower:28": {"pck_0.1": v}}}
+                                 for i, (cls, v) in enumerate(values)]}
+    first = payload([("cat", 1.0), ("cat", 1.0), ("cat", 1.0), ("dog", 0.0)])
+    second = payload([("cat", 0.0), ("cat", 0.0), ("cat", 0.0), ("dog", 0.0)])
+    result = correspondence(first, second, NAMES, args())
+    assert result["difference"]["point_estimate"] == pytest.approx(.75)
+    macro = result["class_macro_difference"]
+    assert macro["point_estimate"] == macro["lower"] == macro["upper"] == pytest.approx(.5)
+    assert result["measurements"][0]["class"] == "cat"
+
+
+def test_perturbation_also_pairs_clean_correctness_once():
+    def payload(clean):
+        return {"images": 2000, "protocol": {"seeds": 3}, "cells": [{
+            "stage": "tower", "layer_index": 24, "measurements": {condition: [
+                {"image_id": key, "clean": [clean] * 3, "perturbed": [0.0] * 3} for key in ("a", "b")
+            ] for condition in ("occlusion_l1", "scale_l1")}}]}
+    result = perturbation(payload(1.0), payload(0.0), NAMES, args())
+    assert result["clean"]["difference"]["point_estimate"] == 1
+    assert result["clean"]["test_images"] == 2

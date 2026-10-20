@@ -16,9 +16,11 @@ def parser() -> argparse.ArgumentParser:
     ap.add_argument("--first-run", type=Path, required=True)
     ap.add_argument("--first-name", required=True)
     ap.add_argument("--first-layer", type=int, required=True)
+    ap.add_argument("--first-stage", choices=("tower", "merged", "projected"), default="tower")
     ap.add_argument("--second-run", type=Path, required=True)
     ap.add_argument("--second-name", required=True)
     ap.add_argument("--second-layer", type=int, required=True)
+    ap.add_argument("--second-stage", choices=("tower", "merged", "projected"), default="tower")
     ap.add_argument("--labels", type=Path, required=True)
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--readout", choices=("attention", "mean"), default="attention")
@@ -47,8 +49,8 @@ def predict(model, features, index, device, batch_size=512) -> torch.Tensor:
     return torch.cat(predictions)
 
 
-def train_cell(run, layer, labels_by_id, args):
-    tokens, image_ids, metadata = cache.load(run, "tower", layer)
+def train_cell(run, stage, layer, labels_by_id, args):
+    tokens, image_ids, metadata = cache.load(run, stage, layer)
     labels = torch.tensor([labels_by_id[image_id] for image_id in image_ids])
     split = probe_run.split_indices(len(image_ids))
     features = tokens.float()
@@ -111,8 +113,8 @@ def train_cell(run, layer, labels_by_id, args):
 def main() -> None:
     args = parser().parse_args()
     labels_by_id = json.loads(args.labels.read_text())["labels"]
-    first = train_cell(args.first_run, args.first_layer, labels_by_id, args)
-    second = train_cell(args.second_run, args.second_layer, labels_by_id, args)
+    first = train_cell(args.first_run, args.first_stage, args.first_layer, labels_by_id, args)
+    second = train_cell(args.second_run, args.second_stage, args.second_layer, labels_by_id, args)
     if first["image_ids"] != second["image_ids"]:
         raise ValueError("the two cells do not have the same paired test images")
     if not torch.equal(first["labels"], second["labels"]):
@@ -149,6 +151,7 @@ def main() -> None:
         "first": {
             "name": args.first_name,
             "model_id": first["model_id"],
+            "stage": args.first_stage,
             "layer_index": args.first_layer,
             "relative_depth": first["relative_depth"],
             "learning_rate": first["learning_rate"],
@@ -160,6 +163,7 @@ def main() -> None:
         "second": {
             "name": args.second_name,
             "model_id": second["model_id"],
+            "stage": args.second_stage,
             "layer_index": args.second_layer,
             "relative_depth": second["relative_depth"],
             "learning_rate": second["learning_rate"],

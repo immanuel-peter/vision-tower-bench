@@ -4,22 +4,44 @@
   "images": 2000,
   "seed": 0,
   "factors": {
+    "scale": [
+      1.0,
+      1.15,
+      1.35,
+      1.65,
+      2.0
+    ],
     "occlusion": [
       0.0,
       0.1,
       0.2,
       0.35,
       0.5
+    ],
+    "motion_blur_radius_pixels": [
+      0,
+      2,
+      4,
+      8,
+      12
     ]
   },
   "identity_root": "/ephemeral/data/imagenet100/validation",
-  "condition_root": "/ephemeral/data/perturbations",
+  "condition_root": "/ephemeral/data/imagenet100/perturbation/images",
   "conditions": [
     "identity",
+    "scale_l1",
+    "scale_l2",
+    "scale_l3",
+    "scale_l4",
     "occlusion_l1",
     "occlusion_l2",
     "occlusion_l3",
-    "occlusion_l4"
+    "occlusion_l4",
+    "motion_blur_l1",
+    "motion_blur_l2",
+    "motion_blur_l3",
+    "motion_blur_l4"
   ],
-  "metadata_rows": 10000
+  "metadata_rows": 30000
 }

@@ -15,12 +15,12 @@ historical filename slugs `qwen3_5` and `moonvit_v2` mean Qwen3.8 and Kimi K3.
 | [recognition/](recognition/) | ImageNet-100 layer sweeps, attention and mean readouts, raw and matched capacities. Includes the corrected eleven-rate search. |
 | [geometry/](geometry/) | DIODE depth and normals, full layer sweeps in both capacities. Original six-Tower matched values used unseeded PCA; see the correction below. |
 | [geometry/deterministic/](geometry/deterministic/) | Corrected matched deepest-stage measurements for the original six Towers. Does not replace the full layer sweeps. |
-| [bootstrap/](bootstrap/) | Paired intervals and their per-image or per-pair evidence. Use these files for interval claims, including their own rerun point estimates. |
+| [bootstrap/](bootstrap/) | Paired intervals and their per-image or per-pair evidence. Use these files for interval claims, including their own rerun point estimates. Geometry refits are not bit-reproducible, because the GPU backward of bilinear interpolation is nondeterministic. A paired refit can therefore differ slightly from the matrix cell it repeats. |
 | [correspondence/](correspondence/) | NAVI, ScanNet, and SPair stage scores and per-pair measurements. |
 | [label-budget/](label-budget/) | Recognition at 1%, 5%, 20%, and 100% of training labels; throughput records for the original six Towers. |
 | [perturbation/](perturbation/) | Frozen-readout perturbation measurements. All Towers have occlusion; newer payloads also include scale and motion blur. The shared transform manifest describes the original occlusion run. |
 | [kitti/](kitti/) | Matched depth transfer measurements on KITTI. Paired intervals are in `bootstrap/`. |
-| [diagnostics/](diagnostics/) | Pooling checks, independent repeats, extended learning-rate searches, the Bolt Tower check, and the DINOv3 equal-pixel and conditioning checks. Includes failed and inconclusive controls. |
+| [diagnostics/](diagnostics/) | Pooling checks, independent repeats, extended learning-rate searches, the Bolt Tower check, the DINOv3 equal-pixel and conditioning checks, and the MiMo attention sink check. Includes failed and inconclusive controls. |
 | [manifests/](manifests/) | Original six-Tower matrix completion lists. Run-specific lists remain beside their measurements. |
 | [history/roster-run.md](history/roster-run.md) | Historical run narrative, including superseded interpretations and later corrections. |
 
@@ -33,10 +33,11 @@ v2 cohort. The six-Tower grouping identifies the scope of older runs and
 corrections, not the limits of the current publication.
 
 The v3 cohort adds Nemotron Super (`nemotron35_super`), Nemotron Bolt
-(`nemotron35_bolt`), and DINOv3 (`dinov3`). Their recognition, geometry,
+(`nemotron35_bolt`), DINOv3 (`dinov3`), MiMo 2.6 Pro (`mimo26_pro`), and MiMo
+2.6 Flash (`mimo26_flash`). Their recognition, geometry,
 correspondence, and perturbation files sit beside the v2 files but are not in
 the default figures, and they have no KITTI or label-budget records yet. Only
-DINOv3 has bootstrap records. Super has every
+DINOv3 and the MiMo pair have bootstrap records. Super has every
 Stage. Super's Tower cells precede its final LayerNorm, which runs before the
 merge. Bolt has no such LayerNorm and only `merged` and `projected` cells; its
 single final Tower cell is the
@@ -78,6 +79,48 @@ DINOv2 controls loaded `facebook/dinov2-large` at revision
 DINOv3 leads on matched recognition, matched depth and normals, and ScanNet.
 Its NAVI and SPair intervals include zero, although the DINOv3 paper reports
 gains on both. Under occlusion it trails DINOv2 by 3 to 15 points.
+
+MiMo 2.6 Pro and MiMo 2.6 Flash are the vision Towers of Xiaomi's MiMo V2.6 Pro
+and Flash (issue #5), loaded from `XiaomiMiMo/MiMo-V2.6-Pro-RL` at revision
+`b61f21852680ee02a29e946e18cf8697f4844061` and `XiaomiMiMo/MiMo-V2.6-Flash-RL`
+at `dcd3fd83fb181622fbc606fbb1709901982a62c2`. They share the architecture, 28
+blocks of width 1280, but not the weights, and their Projectors end at 6144 and
+4096. Both run at 448 px with every Stage. The common bicubic short-side resize
+and center crop replace the parent's dynamic resizing, normalization uses the
+parent's ImageNet mean and standard deviation, and each still image enters as
+two identical frames. Resolutions must be multiples of 32. Tower depths are 4,
+7, 10, 14, 18, 21, 24, and 28. Some windowed blocks reorder the 2x2 merge blocks
+column-major, so the adapter restores every captured depth to raster order.
+`merged` is the normalized 5120-wide input to the merger MLP. The weights are
+MIT. The unmodified parent vision class cannot strictly load either checkpoint:
+it creates three merger biases the checkpoint lacks. The releases omit them, and
+the parity reference in `scripts/validate_mimo26.py` sets only those biases to
+zero. The [Pro](../hf/MiMoViT-2.6-Pro/NOTICE) and
+[Flash](../hf/MiMoViT-2.6-Flash/NOTICE) notices record the change. The [attention sink check](diagnostics/mimo26-attention-sinks/README.md)
+compares the Hugging Face sink handling with vLLM.
+
+The MiMo intervals (`bootstrap/*-mimo26-pro-vs-flash*.json`) give Pro minus
+Flash at the same Stage. Recognition and geometry files are fresh paired reruns
+of one Stage, named by a Stage suffix, with their own point estimates. The
+recognition reruns match `semantic_bootstrap.py` with `--first-stage` and
+`--second-stage`; the geometry reruns used `geometry_bootstrap.py`. The
+correspondence and perturbation files hold all three Stages and pair the
+`correspondence/mimo26_*` and `perturbation/mimo26_*` files directly, listing
+them with their SHA256. `cross_run_bootstrap.py` reproduces every one of those
+intervals to within 4e-9, including the SPair class-macro PCK and the
+clean-accuracy intervals.
+
+Pro leads Flash on matched-attention recognition at the Tower, by 2.3 points;
+the merged and projected intervals include zero. Flash leads on matched depth
+and normals at merged and projected. At the Tower, Pro's normal error is 1.2
+degrees lower and the depth interval includes zero. Flash has higher NAVI and
+ScanNet recall at every Stage and higher SPair PCK at the Tower; its other SPair
+intervals include zero. The perturbation Tower readouts are near chance on
+clean images, 3.6% for Pro and 2.0% for Flash. Merged and projected readouts
+reach 69% to 70%, and the final Tower reaches 77.8% (Pro) and 75.5% (Flash) in
+the recognition sweep. The clean perturbation features match the recognition
+cache for the same images bit for bit. The cause is not established, so do not
+read Tower robustness from these files.
 
 For matched DIODE comparisons at the deepest layer, use
 `geometry/deterministic/` for the original six Towers. The other five use

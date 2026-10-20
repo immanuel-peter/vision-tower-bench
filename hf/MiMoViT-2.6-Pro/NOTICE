@@ -1,0 +1,7 @@
+Weights: XiaomiMiMo/MiMo-V2.6-Pro-RL at b61f21852680ee02a29e946e18cf8697f4844061.
+The pinned model card declares MIT; the upstream repository supplies no separate LICENSE file.
+LICENSE reproduces the standard MIT terms, with the Xiaomi copyright attribution.
+The extracted vision implementation retains its upstream Apache-2.0 header.
+See LICENSE-CODE for the Apache-2.0 terms.
+Only visual tensors are included. No language/audio weights.
+Standalone modification: omitted the three checkpoint-absent merger biases. All other vision arithmetic is preserved.

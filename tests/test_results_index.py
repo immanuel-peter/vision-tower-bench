@@ -1,5 +1,6 @@
 """Check that result navigation resolves to the intended experiment records."""
 
+import hashlib
 import json
 from pathlib import Path
 
@@ -59,7 +60,7 @@ def test_correction_scope_preserves_full_sweeps_and_cohort_membership():
 
 def test_v3_cohort_uses_the_standard_layout_outside_the_figures():
     models = INDEX["cohorts"]["v3"]["models"]
-    assert set(models) == {"nemotron35_super", "nemotron35_bolt", "dinov3"}
+    assert set(models) == {"nemotron35_super", "nemotron35_bolt", "dinov3", "mimo26_pro", "mimo26_flash"}
     assert not set(models) & set(INDEX["figure_sources"]["geometry_stage_levels"])
     for model in models:
         paths = [f"perturbation/{model}_perturbation.json"]
@@ -79,3 +80,11 @@ def test_dinov3_intervals_point_at_committed_sources():
         for key in ("first_source", "second_source"):
             if key in protocol:
                 assert (RESULTS.parent / protocol[key]).is_file(), (path.name, key)
+
+
+def test_mimo26_intervals_point_at_committed_sources():
+    paths = sorted(RESULTS.glob("bootstrap/*-mimo26-pro-vs-flash*.json"))
+    assert len(paths) == 13
+    for path in paths:
+        for source, digest in json.loads(path.read_text()).get("sources", {}).items():
+            assert hashlib.sha256((RESULTS.parent / source).read_bytes()).hexdigest() == digest, (path.name, source)
