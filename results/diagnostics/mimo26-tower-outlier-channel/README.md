@@ -69,7 +69,7 @@ variance.
 
 For this check, `vtb.extract` ran on 1,000 ImageNet-100 validation images, the
 first ten sorted ids of each class. It used 448 px and 4x4 pooling, and covered
-every tapped Tower depth plus merged and projected. Kimi K2.6 and MoonViT-V2
+every tapped Tower depth plus merged and projected. Kimi K2.6 and Kimi K3
 were extracted one image per batch. A slice is flagged when the first
 component's variance share after `fit_reducer` exceeds 0.5, or when its largest
 channel RMS exceeds 100 times the median.
@@ -88,22 +88,22 @@ the standardized value second.
   clean (23, 0.09). 1% labels 0.614 vs 0.597; L10 full labels 0.171 vs 0.180.
 - Muse Glimmer: flagged at L6 to L38, L50 and merged; final L50 ratio 102,
   share 0.69. 1% labels 0.373 vs 0.632; full labels 0.378 vs 0.740.
-- GLM-5: flagged at L3 (ratio 120) and L18 (share 0.63); the final layer is
-  clean. 1% labels 0.610 vs 0.592; L18 full labels 0.386 vs 0.391.
+- GLM 5.3 Flash: flagged at L3 (ratio 120) and L18 (share 0.63); the final
+  layer is clean. 1% labels 0.610 vs 0.592; L18 full labels 0.386 vs 0.391.
 - Nemotron Omni: flagged at L32 (ratio 316, share 0.69) and merged. 1% labels
   0.514 vs 0.516; full labels 0.618 vs 0.668.
 - Kimi K2.6: L3 to L24 have shares of 0.54 to 0.93 at ratio 10.3 or less, a
   dominant direction that is not channel-aligned. Also flagged at L27 (ratio
   216, share 0.59) and merged. 1% labels 0.283 vs 0.331; full labels 0.411 vs
   0.499; L7 full labels 0.069 vs 0.067.
-- Qwen3.5: flagged at L27 (ratio 348, share 0.99), merged and projected. 1%
+- Qwen3.8: flagged at L27 (ratio 348, share 0.99), merged and projected. 1%
   labels 0.301 vs 0.426; full labels 0.287 vs 0.559.
 - DeepSeek V4.1: flagged at L16 to L32 (ratio 146 to 487, share 0.90 to 0.996).
   1% labels 0.191 vs 0.318; full labels 0.228 vs 0.508.
 - Gemma 4: flagged at L3 to L24 (ratio 203 to 1,302); the final L27 has ratio
   91 and share 0.14. 1% labels 0.272 vs 0.282; full labels 0.497 vs 0.459; L3
   full labels 0.046 vs 0.083.
-- MoonViT-V2: flagged at L17 to L24 (share 0.57 to 0.76, ratio 39 or less); the
+- Kimi K3: flagged at L17 to L24 (share 0.57 to 0.76, ratio 39 or less); the
   final layer is clean. 1% labels 0.183 vs 0.183; L24 full labels 0.208 vs
   0.214.
 - MiniMax M3: flagged only at projected (ratio 113, share 0.76). 1% labels
@@ -111,10 +111,64 @@ the standardized value second.
   another cause.
 
 No v2 Tower collapses at its final layer the way MiMo does; MiMo reads 0.022
-and 0.016 at 1% labels here. Muse Glimmer, Qwen3.5, DeepSeek V4.1 and Kimi K2.6
+and 0.016 at 1% labels here. Muse Glimmer, Qwen3.8, DeepSeek V4.1 and Kimi K2.6
 have final-layer outliers, and standardization lifts their 1%-label cells by 5
-to 26 points. Their published 1%-label results are probably underestimated.
-Their published full-label cells train for 720 steps and were not rechecked.
+to 26 points. The full recognition split below confirms the low-label effect
+and finds full-label cells within 2 points.
+
+## Label budget on the full recognition split
+
+The final Tower layer of each v2 Tower was re-extracted on all 13,000
+ImageNet-100 recognition images: 448 px, 4x4 pooling, the released bundles, and
+batch 1 for Kimi K2.6 and Kimi K3. The attention-matched label-budget protocol
+then ran twice, once with unchanged code and once with the R2 patch. The
+settings match `scripts/label_budget_matrix.sh`: fractions 0.01, 0.05, 0.20
+and 1.0, 20 epochs, the full learning-rate search and 3 seeds. The unchanged
+run reproduces the published cells with a median difference of 0.2 points. The
+largest gap is Qwen3.8 at 1% labels: 0.212 against 0.245 published.
+
+Test accuracy, unchanged then standardized:
+
+| Tower | 1% | 5% | 20% | 100% |
+|---|---|---|---|---|
+| DINOv2 | 0.371 / 0.377 | 0.750 / 0.751 | 0.862 / 0.863 | 0.908 / 0.908 |
+| SigLIP2 | 0.649 / 0.656 | 0.863 / 0.863 | 0.897 / 0.899 | 0.916 / 0.917 |
+| Muse Glimmer | 0.432 / 0.703 | 0.842 / 0.878 | 0.898 / 0.907 | 0.922 / 0.918 |
+| GLM 5.3 Flash | 0.673 / 0.683 | 0.893 / 0.895 | 0.908 / 0.907 | 0.918 / 0.919 |
+| Nemotron Omni | 0.517 / 0.544 | 0.838 / 0.847 | 0.887 / 0.889 | 0.905 / 0.905 |
+| Kimi K2.6 | 0.347 / 0.388 | 0.731 / 0.756 | 0.846 / 0.839 | 0.886 / 0.888 |
+| Qwen3.8 | 0.212 / 0.463 | 0.596 / 0.791 | 0.858 / 0.853 | 0.879 / 0.878 |
+| DeepSeek V4.1 | 0.241 / 0.369 | 0.668 / 0.737 | 0.825 / 0.844 | 0.872 / 0.877 |
+| Gemma 4 | 0.325 / 0.329 | 0.691 / 0.692 | 0.828 / 0.833 | 0.876 / 0.876 |
+| Kimi K3 | 0.218 / 0.228 | 0.567 / 0.576 | 0.767 / 0.779 | 0.837 / 0.852 |
+| MiniMax M3 | 0.052 / 0.052 | 0.069 / 0.067 | 0.148 / 0.153 | 0.342 / 0.324 |
+
+The outlier mainly distorts the low-label end of the curve. At 1% labels,
+standardization adds 27 points to Muse Glimmer, 25 to Qwen3.8, 13 to DeepSeek
+V4.1, 4 to Kimi K2.6 and 3 to Nemotron Omni. At 5% labels, Qwen3.8 rises from
+0.596 to 0.791. By 20% the gaps are 2 points or less, and at full labels every
+Tower stays within 2 points (Kimi K3 +1.5, MiniMax M3 -1.8). The published 1%
+and 5% cells for those Towers understate what their features support, and they
+change the low-label ranking: with standardization, Muse Glimmer at 1% moves
+from fourth to first. MiniMax M3 stays near chance at low budgets either
+way.
+
+## Qwen3.8 depth
+
+The full-label attention probe ran on Qwen3.8 Tower L20, L24 and L27, matched
+and raw, under both arms (`qwen_depth/`). Test accuracy:
+
+| Arm | L20 | L24 | L27 |
+|---|---|---|---|
+| Matched, unchanged | 0.8860 | 0.8858 | 0.8795 |
+| Matched, standardized | 0.8800 | 0.8884 | 0.8778 |
+| Raw, unchanged | 0.8824 | 0.8868 | 0.8745 |
+
+L27 does not become the best layer: it is the lowest of the three in every arm.
+The patch touches only the reducer, so the standardized raw arm is identical to
+the unchanged one. With full labels, the L27 outlier (ratio 348, share 0.99)
+does not cost Qwen3.8 its final-layer accuracy. The decline from L24 to L27
+predates the patch and survives it.
 
 ## Files
 
@@ -127,3 +181,7 @@ Their published full-label cells train for 720 steps and were not rechecked.
   with the patch applied, on the 13-condition manifest.
 - `perturbation_standardized_pro_vs_flash_{tower,merged,projected}.json`:
   `cross_run_bootstrap.py perturbation` intervals on those files.
+- `label_budget/{unchanged,standardized}/`: `vtb.probe_run` outputs in the
+  `label-budget/` format, one file per Tower and fraction.
+- `qwen_depth/{unchanged,standardized}/`: Qwen3.8 matched and raw probes in
+  the `recognition/` format.

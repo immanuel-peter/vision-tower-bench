@@ -1,0 +1,37 @@
+{
+  "images": 13000,
+  "label_fraction": 0.2,
+  "train_images": 1820,
+  "full_train_images": 9100,
+  "cells": [
+    {
+      "learning_rate": 0.0003,
+      "learning_rate_search": {
+        "1e-05": 0.1882,
+        "3e-05": 0.6897,
+        "0.0001": 0.8774,
+        "0.0003": 0.8795,
+        "0.001": 0.8677,
+        "0.003": 0.8697,
+        "0.01": 0.8272,
+        "0.03": 0.821,
+        "0.1": 0.7523,
+        "0.3": 0.5867,
+        "1": 0.0092
+      },
+      "val_accuracy": 0.8795,
+      "test_accuracy": 0.8889,
+      "test_std": 0.0011,
+      "seeds": 3,
+      "model_id": "immanuelpeter/C-RADIOv4-H-3-Omni",
+      "stage": "tower",
+      "layer_index": 32,
+      "relative_depth": 1.0,
+      "token_width": 1280,
+      "trainable_parameters": 1627748,
+      "label_fraction": 0.2,
+      "train_images": 1820,
+      "full_train_images": 9100
+    }
+  ]
+}

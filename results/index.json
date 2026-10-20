@@ -158,7 +158,7 @@
     },
     "mimo26_tower_outlier_channel": {
       "path": "diagnostics/mimo26-tower-outlier-channel/",
-      "protocol": "MiMo 2.6 Tower L28 perturbation readout with the published reducer and with channels standardized before PCA, plus Pro-minus-Flash intervals from cross_run_bootstrap.py; channel and PCA statistics on 1,000 ImageNet-100 images at every tapped depth for MiMo and the eleven v2 Towers, with 1%-label readouts at the final Tower layer.",
+      "protocol": "MiMo 2.6 Tower L28 perturbation readout with the published reducer and with channels standardized before PCA, plus Pro-minus-Flash intervals from cross_run_bootstrap.py; channel and PCA statistics on 1,000 ImageNet-100 images at every tapped depth for MiMo and the eleven v2 Towers, with 1%-label readouts at the final Tower layer; the attention-matched label budget for the eleven v2 Towers on the full recognition split, unchanged and standardized; and Qwen3.8 Tower L20, L24 and L27 depth probes.",
       "status": "The published MiMo Tower L28 perturbation cells are a readout failure, not a robustness measurement. Standardized results are diagnostic only; no published file or benchmark arm changed.",
       "cohort": "v3"
     }

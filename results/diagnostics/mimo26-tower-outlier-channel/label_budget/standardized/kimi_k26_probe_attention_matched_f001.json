@@ -1,0 +1,37 @@
+{
+  "images": 13000,
+  "label_fraction": 0.01,
+  "train_images": 100,
+  "full_train_images": 9100,
+  "cells": [
+    {
+      "learning_rate": 0.003,
+      "learning_rate_search": {
+        "1e-05": 0.021,
+        "3e-05": 0.0344,
+        "0.0001": 0.14,
+        "0.0003": 0.3092,
+        "0.001": 0.3846,
+        "0.003": 0.3862,
+        "0.01": 0.2631,
+        "0.03": 0.1851,
+        "0.1": 0.0985,
+        "0.3": 0.0631,
+        "1": 0.0154
+      },
+      "val_accuracy": 0.3862,
+      "test_accuracy": 0.3879,
+      "test_std": 0.0069,
+      "seeds": 3,
+      "model_id": "immanuelpeter/MoonViT-K2.6",
+      "stage": "tower",
+      "layer_index": 27,
+      "relative_depth": 1.0,
+      "token_width": 1152,
+      "trainable_parameters": 1627748,
+      "label_fraction": 0.01,
+      "train_images": 100,
+      "full_train_images": 9100
+    }
+  ]
+}
