@@ -155,6 +155,12 @@
       "protocol": "Pinned vLLM Triton prefill kernel with sinks_bias_key0 against HF key-0 sink semantics in PyTorch SDPA; two packed BF16 images at 36, 196 and 784 tokens, 32 query and 8 KV heads, ±64-token window.",
       "status": "Agreement within BF16 rounding. Kernel-level check only; no benchmark arm changed.",
       "cohort": "v3"
+    },
+    "mimo26_tower_outlier_channel": {
+      "path": "diagnostics/mimo26-tower-outlier-channel/",
+      "protocol": "MiMo 2.6 Tower L28 perturbation readout with the published reducer and with channels standardized before PCA, plus Pro-minus-Flash intervals from cross_run_bootstrap.py; channel and PCA statistics on 1,000 ImageNet-100 images at every tapped depth for MiMo and the eleven v2 Towers, with 1%-label readouts at the final Tower layer.",
+      "status": "The published MiMo Tower L28 perturbation cells are a readout failure, not a robustness measurement. Standardized results are diagnostic only; no published file or benchmark arm changed.",
+      "cohort": "v3"
     }
   },
   "cell_manifests": [

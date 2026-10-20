@@ -1,0 +1,318 @@
+{
+  "protocol": {
+    "slice": "for each flagged Tower, its flagged slice with the largest pc1_share",
+    "readout": "label_full as in channel_statistics.json, unpatched against patched; same images, split and learning rate"
+  },
+  "cells": [
+    {
+      "model": "siglip2",
+      "stage": "tower",
+      "layer_index": 10,
+      "pc1_share": 0.934,
+      "max_to_median": 172.59,
+      "label_full": {
+        "learning_rate": 0.0001,
+        "train_images": 700,
+        "heldout_images": 300,
+        "patched": false,
+        "accuracy_by_seed": [
+          0.19,
+          0.1633,
+          0.16
+        ],
+        "accuracy": 0.1711
+      },
+      "label_full_patched": {
+        "learning_rate": 0.0001,
+        "train_images": 700,
+        "heldout_images": 300,
+        "patched": true,
+        "accuracy_by_seed": [
+          0.1667,
+          0.2033,
+          0.17
+        ],
+        "accuracy": 0.18
+      }
+    },
+    {
+      "model": "muse_glimmer",
+      "stage": "tower",
+      "layer_index": 50,
+      "pc1_share": 0.6937,
+      "max_to_median": 101.5,
+      "label_full": {
+        "learning_rate": 0.0001,
+        "train_images": 700,
+        "heldout_images": 300,
+        "patched": false,
+        "accuracy_by_seed": [
+          0.3367,
+          0.3767,
+          0.3433
+        ],
+        "accuracy": 0.3522
+      },
+      "label_full_patched": {
+        "learning_rate": 0.0001,
+        "train_images": 700,
+        "heldout_images": 300,
+        "patched": true,
+        "accuracy_by_seed": [
+          0.7467,
+          0.76,
+          0.7133
+        ],
+        "accuracy": 0.74
+      }
+    },
+    {
+      "model": "glm5",
+      "stage": "tower",
+      "layer_index": 18,
+      "pc1_share": 0.629,
+      "max_to_median": 3.99,
+      "label_full": {
+        "learning_rate": 0.0001,
+        "train_images": 700,
+        "heldout_images": 300,
+        "patched": false,
+        "accuracy_by_seed": [
+          0.41,
+          0.3733,
+          0.3733
+        ],
+        "accuracy": 0.3856
+      },
+      "label_full_patched": {
+        "learning_rate": 0.0001,
+        "train_images": 700,
+        "heldout_images": 300,
+        "patched": true,
+        "accuracy_by_seed": [
+          0.3967,
+          0.39,
+          0.3867
+        ],
+        "accuracy": 0.3911
+      }
+    },
+    {
+      "model": "nemotron_omni",
+      "stage": "tower",
+      "layer_index": 32,
+      "pc1_share": 0.6881,
+      "max_to_median": 315.96,
+      "label_full": {
+        "learning_rate": 0.0001,
+        "train_images": 700,
+        "heldout_images": 300,
+        "patched": false,
+        "accuracy_by_seed": [
+          0.6333,
+          0.6067,
+          0.6
+        ],
+        "accuracy": 0.6133
+      },
+      "label_full_patched": {
+        "learning_rate": 0.0001,
+        "train_images": 700,
+        "heldout_images": 300,
+        "patched": true,
+        "accuracy_by_seed": [
+          0.68,
+          0.66,
+          0.66
+        ],
+        "accuracy": 0.6667
+      }
+    },
+    {
+      "model": "kimi_k26",
+      "stage": "tower",
+      "layer_index": 7,
+      "pc1_share": 0.9324,
+      "max_to_median": 3.33,
+      "label_full": {
+        "learning_rate": 0.0001,
+        "train_images": 700,
+        "heldout_images": 300,
+        "patched": false,
+        "accuracy_by_seed": [
+          0.0767,
+          0.0767,
+          0.0533
+        ],
+        "accuracy": 0.0689
+      },
+      "label_full_patched": {
+        "learning_rate": 0.0001,
+        "train_images": 700,
+        "heldout_images": 300,
+        "patched": true,
+        "accuracy_by_seed": [
+          0.0633,
+          0.0833,
+          0.0533
+        ],
+        "accuracy": 0.0667
+      }
+    },
+    {
+      "model": "qwen3_5",
+      "stage": "tower",
+      "layer_index": 27,
+      "pc1_share": 0.9899,
+      "max_to_median": 348.25,
+      "label_full": {
+        "learning_rate": 0.0001,
+        "train_images": 700,
+        "heldout_images": 300,
+        "patched": false,
+        "accuracy_by_seed": [
+          0.4,
+          0.3033,
+          0.2733
+        ],
+        "accuracy": 0.3256
+      },
+      "label_full_patched": {
+        "learning_rate": 0.0001,
+        "train_images": 700,
+        "heldout_images": 300,
+        "patched": true,
+        "accuracy_by_seed": [
+          0.5667,
+          0.5833,
+          0.5467
+        ],
+        "accuracy": 0.5656
+      }
+    },
+    {
+      "model": "deepseek_v41",
+      "stage": "tower",
+      "layer_index": 16,
+      "pc1_share": 0.9956,
+      "max_to_median": 226.98,
+      "label_full": {
+        "learning_rate": 0.0001,
+        "train_images": 700,
+        "heldout_images": 300,
+        "patched": false,
+        "accuracy_by_seed": [
+          0.1967,
+          0.1833,
+          0.17
+        ],
+        "accuracy": 0.1833
+      },
+      "label_full_patched": {
+        "learning_rate": 0.0001,
+        "train_images": 700,
+        "heldout_images": 300,
+        "patched": true,
+        "accuracy_by_seed": [
+          0.27,
+          0.28,
+          0.2567
+        ],
+        "accuracy": 0.2689
+      }
+    },
+    {
+      "model": "gemma4",
+      "stage": "tower",
+      "layer_index": 3,
+      "pc1_share": 0.5767,
+      "max_to_median": 947.7,
+      "label_full": {
+        "learning_rate": 0.0001,
+        "train_images": 700,
+        "heldout_images": 300,
+        "patched": false,
+        "accuracy_by_seed": [
+          0.06,
+          0.04,
+          0.0367
+        ],
+        "accuracy": 0.0456
+      },
+      "label_full_patched": {
+        "learning_rate": 0.0001,
+        "train_images": 700,
+        "heldout_images": 300,
+        "patched": true,
+        "accuracy_by_seed": [
+          0.0767,
+          0.0867,
+          0.0867
+        ],
+        "accuracy": 0.0833
+      }
+    },
+    {
+      "model": "minimax_m3",
+      "stage": "projected",
+      "layer_index": 32,
+      "pc1_share": 0.7648,
+      "max_to_median": 112.5,
+      "label_full": {
+        "learning_rate": 0.0003,
+        "train_images": 700,
+        "heldout_images": 300,
+        "patched": false,
+        "accuracy_by_seed": [
+          0.0733,
+          0.05,
+          0.0567
+        ],
+        "accuracy": 0.06
+      },
+      "label_full_patched": {
+        "learning_rate": 0.0003,
+        "train_images": 700,
+        "heldout_images": 300,
+        "patched": true,
+        "accuracy_by_seed": [
+          0.08,
+          0.0767,
+          0.0867
+        ],
+        "accuracy": 0.0811
+      }
+    },
+    {
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer_index": 24,
+      "pc1_share": 0.7587,
+      "max_to_median": 39.22,
+      "label_full": {
+        "learning_rate": 0.0001,
+        "train_images": 700,
+        "heldout_images": 300,
+        "patched": false,
+        "accuracy_by_seed": [
+          0.2067,
+          0.2,
+          0.2167
+        ],
+        "accuracy": 0.2078
+      },
+      "label_full_patched": {
+        "learning_rate": 0.0001,
+        "train_images": 700,
+        "heldout_images": 300,
+        "patched": true,
+        "accuracy_by_seed": [
+          0.2,
+          0.2267,
+          0.2167
+        ],
+        "accuracy": 0.2144
+      }
+    }
+  ]
+}
