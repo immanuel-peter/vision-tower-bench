@@ -43,6 +43,9 @@ inclusive ±64 window agree with vLLM's MiMo vision path. At 784 tokens, the
 `test_sink_biases_key_zero_and_respects_window` in `tests/test_mimo26.py` checks
 the same key-0 and window semantics on CPU against an explicit softmax. The
 merger normalization is a separate cross-engine difference. vLLM uses RMSNorm
-where HF and SGLang use LayerNorm; the
-[Pro](../../../hf/MiMo-V2.6-Pro-Vision/README.md) and
-[Flash](../../../hf/MiMo-V2.6-Flash-Vision/README.md) cards give its size.
+where HF and SGLang use LayerNorm. Swapping only that norm on the parity images
+at 448 px moves projected outputs by up to 0.738 for Pro (RMS 0.0274, cosine
+0.9746) and 0.101 for Flash (RMS 0.0135, cosine 0.9735). The releases follow HF
+and SGLang; projected parity with vLLM is not established. The reference commits
+are SGLang `b234b5c32e0d65e04a61912f85fc09e95e74a328` (`mimo_vl.py`) and vLLM
+`03ee2e134d6cc60c4cc84096c8492fcc971f0526` (`mimo_v2_omni.py`).

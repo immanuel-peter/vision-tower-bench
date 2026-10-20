@@ -92,10 +92,11 @@ two identical frames. Resolutions must be multiples of 32. Tower depths are 4,
 7, 10, 14, 18, 21, 24, and 28. Some windowed blocks reorder the 2x2 merge blocks
 column-major, so the adapter restores every captured depth to raster order.
 `merged` is the normalized 5120-wide input to the merger MLP. The weights are
-MIT. The unmodified parent vision class cannot strictly load either checkpoint;
-the [Pro](../hf/MiMo-V2.6-Pro-Vision/README.md) and
-[Flash](../hf/MiMo-V2.6-Flash-Vision/README.md) release cards describe the defect
-and the parity reference. The [attention sink check](diagnostics/mimo26-attention-sinks/README.md)
+MIT. The unmodified parent vision class cannot strictly load either checkpoint:
+it creates three merger biases the checkpoint lacks. The releases omit them, and
+the parity reference in `scripts/validate_mimo26.py` sets only those biases to
+zero. The [Pro](../hf/MiMoViT-2.6-Pro/NOTICE) and
+[Flash](../hf/MiMoViT-2.6-Flash/NOTICE) notices record the change. The [attention sink check](diagnostics/mimo26-attention-sinks/README.md)
 compares the Hugging Face sink handling with vLLM.
 
 The MiMo intervals (`bootstrap/*-mimo26-pro-vs-flash*.json`) give Pro minus

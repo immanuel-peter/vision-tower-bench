@@ -6,7 +6,7 @@ import torch
 from transformers import AutoImageProcessor, AutoModel
 
 
-MODEL_ID = "immanuelpeter/MiMo-V2.6-Pro-Vision"
+MODEL_ID = "immanuelpeter/MiMoViT-2.6-Pro"
 
 
 def main() -> None:

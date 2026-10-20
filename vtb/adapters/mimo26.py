@@ -43,13 +43,13 @@ class Checkpoint:
 
 PRO = Checkpoint(
     "mimo26_pro",
-    "immanuelpeter/MiMo-V2.6-Pro-Vision",
+    "immanuelpeter/MiMoViT-2.6-Pro",
     "XiaomiMiMo/MiMo-V2.6-Pro-RL",
     "b61f21852680ee02a29e946e18cf8697f4844061",
 )
 FLASH = Checkpoint(
     "mimo26_flash",
-    "immanuelpeter/MiMo-V2.6-Flash-Vision",
+    "immanuelpeter/MiMoViT-2.6-Flash",
     "XiaomiMiMo/MiMo-V2.6-Flash-RL",
     "dcd3fd83fb181622fbc606fbb1709901982a62c2",
 )

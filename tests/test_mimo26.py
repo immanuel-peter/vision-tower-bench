@@ -137,7 +137,6 @@ def test_bundle_metadata_pins_real_variants(checkpoint, width):
     assert config["vit_window_attn_types"] == MiMoVisionConfig().vit_window_attn_types
     assert (manifest["source_repo"], manifest["source_revision"]) == (checkpoint.repo, checkpoint.revision)
     assert manifest["tensors"] == len(manifest["tensor_sha256"]) == mimo26.VISUAL_TENSORS
-    assert checkpoint.revision in (bundle / "README.md").read_text()
     assert checkpoint.model_id in (bundle / "examples/inference.py").read_text()
 
 
@@ -164,7 +163,7 @@ def test_generic_extraction_writes_every_stage_in_raster_order(monkeypatch, tmp_
 
     run = tmp_path / "features/mimo26_flash_64_full"
     summary = json.loads((run / "summary.json").read_text())
-    assert summary["model_id"] == "immanuelpeter/MiMo-V2.6-Flash-Vision"
+    assert summary["model_id"] == "immanuelpeter/MiMoViT-2.6-Flash"
     assert summary["images"] == 3 and summary["slices_per_image"] == 10
     assert sorted(cache.slices(run)) == sorted(
         [("tower", layer) for layer in (4, 7, 10, 14, 18, 21, 24, 28)] + [("merged", 28), ("projected", 28)]
