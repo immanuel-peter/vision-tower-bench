@@ -1,8 +1,8 @@
 # Vision Tower Bench
 
-Adding vision to a text-only LLM means picking a Tower, a layer, and usually a Projector, which full-model VLM benchmarks never isolate. This bench probes eleven frozen Towers. The published v2 report covers all eleven: no Tower wins everywhere, geometry often peaks before the final layer, and Projectors can help or hurt.
+Adding vision to a text-only LLM means picking a Tower, a layer, and usually a Projector, which full-model VLM benchmarks never isolate. This bench probes sixteen frozen Towers. The published v2 report covers eleven of them: no Tower wins everywhere, geometry often peaks before the final layer, and Projectors can help or hurt. The v3 cohort adds Nemotron Super and Bolt, DINOv3, and MiMo 2.6 Pro and Flash; their results are in this repository but not yet in the report.
 
-**[Report](https://ipeter.dev/blog/vision-tower-bench)** · **[Towers](https://huggingface.co/collections/immanuelpeter/vision-towers)** · **Paper (coming soon)**
+**[Report](https://ipeter.dev/blog/vision-tower-bench)** · **[Towers](https://huggingface.co/collections/immanuelpeter/vision-heads)** · **Paper (coming soon)**
 
 ## What it measures
 
@@ -44,8 +44,8 @@ The [results index](results/README.md) links each experiment, its evidence, and
 its correction status. Recognition and geometry matrices are grouped by task;
 diagnostics and historical run notes are separate. All measurements remain in Git.
 
-The [machine-readable index](results/index.json) records the v1 six-Tower
-and v2 eleven-Tower cohorts and selects corrected deepest-stage geometry sources.
+The [machine-readable index](results/index.json) records the v1 six-Tower,
+v2 eleven-Tower and v3 five-Tower cohorts and selects corrected deepest-stage geometry sources.
 Full layer sweeps and paired-bootstrap reruns remain separate records.
 
 ## Reproducing the figures
@@ -55,7 +55,7 @@ uv sync --group figures
 uv run --group figures python scripts/figures.py
 ```
 
-This renders the v2 eleven-Tower suite. See the
+This renders the v2 eleven-Tower suite; the v3 Towers are not in the default figures. See the
 [source-selection notes](results/README.md#choose-the-right-source) for the
 scope of the geometry corrections and the historical layer sweeps.
 
@@ -86,9 +86,9 @@ CONTEXT.md    # project vocabulary
 
 ```bash
 uv run pytest -q                      # full suite, downloads Tower weights
-VTB_SKIP_WEIGHTS=1 uv run pytest -q   # 73 tests, no downloads
+VTB_SKIP_WEIGHTS=1 uv run pytest -q   # 134 tests, no downloads
 ```
 
 ## License
 
-MIT covers code and results here, not weights. Published Towers keep parent terms. Apache-2.0 for Qwen3.8, Muse Glimmer, and Gemma 4. MIT for GLM-5.3 Flash and DeepSeek-ViT. Kimi License for both Kimi Towers. NVIDIA Open Model Agreement for C-RADIOv4-H. MiniMax Community License for MiniMax M3. Each release ships its license.
+MIT covers code and results here, not weights. Published Towers keep parent terms. Apache-2.0 for Qwen3.8, Muse Glimmer, and Gemma 4. MIT for GLM-5.3 Flash and DeepSeek-ViT. Kimi License for both Kimi Towers. NVIDIA Open Model Agreement for C-RADIOv4-H-3-Omni. OpenMDW-1.1 for C-RADIOv4-H-3.5 Super and Bolt. MIT for MiMoViT-2.6 Pro and Flash. MiniMax Community License for MiniMax M3. Each release ships its license.

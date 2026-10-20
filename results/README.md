@@ -1,7 +1,7 @@
 # Results
 
 Start with the [published v2 report](https://ipeter.dev/blog/vision-tower-bench),
-which covers all eleven Towers. This directory contains the v2 measurements,
+which covers all eleven Towers. This directory contains the v2 and v3 measurements,
 the original six-Tower v1 records, supporting evidence, corrections, and failed controls.
 [index.json](index.json) records each cohort, experiment protocols, and the
 source files used for deepest-stage geometry figures. Paths in that index are
@@ -18,9 +18,9 @@ historical filename slugs `qwen3_5` and `moonvit_v2` mean Qwen3.8 and Kimi K3.
 | [bootstrap/](bootstrap/) | Paired intervals and their per-image or per-pair evidence. Use these files for interval claims, including their own rerun point estimates. Geometry refits are not bit-reproducible, because the GPU backward of bilinear interpolation is nondeterministic. A paired refit can therefore differ slightly from the matrix cell it repeats. |
 | [correspondence/](correspondence/) | NAVI, ScanNet, and SPair stage scores and per-pair measurements. |
 | [label-budget/](label-budget/) | Recognition at 1%, 5%, 20%, and 100% of training labels; throughput records for the original six Towers. |
-| [perturbation/](perturbation/) | Frozen-readout perturbation measurements. All Towers have occlusion; newer payloads also include scale and motion blur. The shared transform manifest describes the original occlusion run. |
+| [perturbation/](perturbation/) | Frozen-readout perturbation measurements. All Towers have occlusion; newer payloads also include scale and motion blur. The shared transform manifest describes all 13 conditions; its occlusion rows are the original occlusion run's. |
 | [kitti/](kitti/) | Matched depth transfer measurements on KITTI. Paired intervals are in `bootstrap/`. |
-| [diagnostics/](diagnostics/) | Pooling checks, independent repeats, extended learning-rate searches, the Bolt Tower check, the DINOv3 equal-pixel and conditioning checks, and the MiMo attention sink check. Includes failed and inconclusive controls. |
+| [diagnostics/](diagnostics/) | Pooling checks, independent repeats, extended learning-rate searches, the Bolt Tower check, the DINOv3 equal-pixel and conditioning checks, the MiMo attention sink check, and the MiMo Tower outlier-channel check. Includes failed and inconclusive controls. |
 | [manifests/](manifests/) | Original six-Tower matrix completion lists. Run-specific lists remain beside their measurements. |
 | [history/roster-run.md](history/roster-run.md) | Historical run narrative, including superseded interpretations and later corrections. |
 
@@ -118,9 +118,11 @@ ScanNet recall at every Stage and higher SPair PCK at the Tower; its other SPair
 intervals include zero. The perturbation Tower readouts are near chance on
 clean images, 3.6% for Pro and 2.0% for Flash. Merged and projected readouts
 reach 69% to 70%, and the final Tower reaches 77.8% (Pro) and 75.5% (Flash) in
-the recognition sweep. The clean perturbation features match the recognition
-cache for the same images bit for bit. The cause is not established, so do not
-read Tower robustness from these files.
+the recognition sweep. The cause is one outlier channel at Tower L28 that
+dominates the unscaled PCA in the readout, which the short perturbation training
+cannot escape; standardizing channels restores 72%. These cells are a readout
+failure, so do not read Tower robustness from these files. See the
+[outlier-channel diagnostic](diagnostics/mimo26-tower-outlier-channel/README.md).
 
 For matched DIODE comparisons at the deepest layer, use
 `geometry/deterministic/` for the original six Towers. The other five use
