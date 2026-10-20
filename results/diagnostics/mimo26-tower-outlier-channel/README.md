@@ -156,7 +156,7 @@ way.
 ## Qwen3.8 depth
 
 The full-label attention probe ran on Qwen3.8 Tower L20, L24 and L27, matched
-and raw, under both arms (`qwen_depth/`). Test accuracy:
+and raw, under both arms ([qwen_depth.json](qwen_depth.json)). Test accuracy:
 
 | Arm | L20 | L24 | L27 |
 |---|---|---|---|
@@ -181,7 +181,8 @@ predates the patch and survives it.
   with the patch applied, on the 13-condition manifest.
 - `perturbation_standardized_pro_vs_flash_{tower,merged,projected}.json`:
   `cross_run_bootstrap.py perturbation` intervals on those files.
-- `label_budget/{unchanged,standardized}/`: `vtb.probe_run` outputs in the
-  `label-budget/` format, one file per Tower and fraction.
-- `qwen_depth/{unchanged,standardized}/`: Qwen3.8 matched and raw probes in
-  the `recognition/` format.
+- `label_budget_{unchanged,standardized}.json`: `vtb.probe_run` outputs, one
+  `label-budget/` file per Tower and fraction under `runs`, keyed by the
+  published file name.
+- [qwen_depth.json](qwen_depth.json): Qwen3.8 matched and raw probes, one
+  `recognition/` file per arm and readout under `arms`.
