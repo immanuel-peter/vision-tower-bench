@@ -1,7 +1,7 @@
 # Results
 
-Start with the [published v2 report](https://ipeter.dev/blog/vision-tower-bench),
-which covers all eleven Towers. This directory contains the v2 and v3 measurements,
+Start with the [published report](https://ipeter.dev/blog/vision-tower-bench).
+This directory contains the v2 and v3 measurements,
 the original six-Tower v1 records, supporting evidence, corrections, and failed controls.
 [index.json](index.json) records each cohort, experiment protocols, and the
 source files used for deepest-stage geometry figures. Paths in that index are

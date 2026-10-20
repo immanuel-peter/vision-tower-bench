@@ -1,6 +1,6 @@
 # Vision Tower Bench
 
-Adding vision to a text-only LLM means picking a Tower, a layer, and usually a Projector, which full-model VLM benchmarks never isolate. This bench probes sixteen frozen Towers. The published v2 report covers eleven of them: no Tower wins everywhere, geometry often peaks before the final layer, and Projectors can help or hurt. The v3 cohort adds Nemotron Super and Bolt, DINOv3, and MiMo 2.6 Pro and Flash; their results are in this repository but not yet in the report.
+Adding vision to a text-only LLM means picking a Tower, a layer, and usually a Projector, which full-model VLM benchmarks never isolate. This bench probes sixteen frozen Towers.
 
 **[Report](https://ipeter.dev/blog/vision-tower-bench)** · **[Towers](https://huggingface.co/collections/immanuelpeter/vision-heads)** · **Paper (coming soon)**
 
