@@ -10,7 +10,7 @@ base_model:
 - nvidia/Nemotron-3-Nano-Omni-30B-A3B-Reasoning-BF16
 ---
 
-# C-RADIOv4-H
+# C-RADIOv4-H-3-Omni
 
 This repository packages the C-RADIOv4-H copy inside
 [Nemotron 3 Nano Omni](https://huggingface.co/nvidia/Nemotron-3-Nano-Omni-30B-A3B-Reasoning-BF16).

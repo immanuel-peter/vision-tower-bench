@@ -28,7 +28,7 @@ Four capability axes:
 | Gemma 4 31B | multimodal | [immanuelpeter/Gemma4-31B-Vision](https://huggingface.co/immanuelpeter/Gemma4-31B-Vision) |
 | GLM-5.3 Flash | multimodal | [immanuelpeter/GLM-5.3-Flash-Vision](https://huggingface.co/immanuelpeter/GLM-5.3-Flash-Vision) |
 | MiniMax M3 | multimodal | [immanuelpeter/MiniMax-M3-Vision](https://huggingface.co/immanuelpeter/MiniMax-M3-Vision) |
-| Nemotron 3 Nano Omni | multimodal | [immanuelpeter/C-RADIOv4-H](https://huggingface.co/immanuelpeter/C-RADIOv4-H) |
+| Nemotron 3 Nano Omni | multimodal | [immanuelpeter/C-RADIOv4-H-3-Omni](https://huggingface.co/immanuelpeter/C-RADIOv4-H-3-Omni) |
 | DeepSeek V4.1 Flash | multimodal | [immanuelpeter/DeepSeek-ViT](https://huggingface.co/immanuelpeter/DeepSeek-ViT) |
 
 The multimodal Towers are standalone extracts of their parents. The model cards record counts and tolerances.

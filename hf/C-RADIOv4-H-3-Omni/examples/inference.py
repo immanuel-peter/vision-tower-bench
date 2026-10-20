@@ -14,7 +14,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from projector import load_projector
 
 
-MODEL_ID = "immanuelpeter/C-RADIOv4-H"
+MODEL_ID = "immanuelpeter/C-RADIOv4-H-3-Omni"
 PATCH_SIZE = 16
 
 
@@ -39,7 +39,7 @@ def pixel_shuffle(tokens: torch.Tensor, scale_factor: float = 0.5) -> torch.Tens
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Extract C-RADIOv4-H visual features.")
+    parser = argparse.ArgumentParser(description="Extract C-RADIOv4-H-3-Omni visual features.")
     parser.add_argument("image", type=Path)
     parser.add_argument("--model", default=MODEL_ID)
     args = parser.parse_args()
