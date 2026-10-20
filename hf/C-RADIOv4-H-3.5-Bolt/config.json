@@ -1,0 +1,22 @@
+{
+  "source": "nvidia/NVIDIA-Nemotron-3.5-Bolt-74B-A9B-BF16",
+  "revision": "a6a1e5030819a130a1ea08aadb1fe42f4cc86777",
+  "code_config_source": "nvidia/Nemotron-3-Nano-Omni-30B-A3B-Reasoning-BF16",
+  "code_config_revision": "e5e9932441de940c9a62185c870ea5bcd4cd24e2",
+  "radio_code_revision": "0057b339059c0b9e1b4ba996f975410ebbfdfcc8",
+  "vision_final_layernorm": false,
+  "patch_size": 16,
+  "num_layers": 32,
+  "num_prefix_tokens": 10,
+  "summary_idxs": [
+    0,
+    1
+  ],
+  "vit_hidden": 1280,
+  "downsample_ratio": 0.5,
+  "projector_hidden": 20480,
+  "llm_hidden": 4096,
+  "projector_activation": "relu2",
+  "projector_norm_eps": 1e-05,
+  "vision_final_layernorm_eps": 1e-06
+}

@@ -3,7 +3,7 @@
 Start with the [published v2 report](https://ipeter.dev/blog/vision-tower-bench),
 which covers all eleven Towers. This directory contains the v2 measurements,
 the original six-Tower v1 records, supporting evidence, corrections, and failed controls.
-[index.json](index.json) records both cohorts, experiment protocols, and the
+[index.json](index.json) records each cohort, experiment protocols, and the
 source files used for deepest-stage geometry figures. Paths in that index are
 relative to this directory. Model IDs inside the JSONs identify the checkpoints;
 historical filename slugs `qwen3_5` and `moonvit_v2` mean Qwen3.8 and Kimi K3.
@@ -20,7 +20,7 @@ historical filename slugs `qwen3_5` and `moonvit_v2` mean Qwen3.8 and Kimi K3.
 | [label-budget/](label-budget/) | Recognition at 1%, 5%, 20%, and 100% of training labels; throughput records for the original six Towers. |
 | [perturbation/](perturbation/) | Frozen-readout perturbation measurements. All Towers have occlusion; newer payloads also include scale and motion blur. The shared transform manifest describes the original occlusion run. |
 | [kitti/](kitti/) | Matched depth transfer measurements on KITTI. Paired intervals are in `bootstrap/`. |
-| [diagnostics/](diagnostics/) | Pooling checks, independent repeats, and extended learning-rate searches. Includes failed and inconclusive controls. |
+| [diagnostics/](diagnostics/) | Pooling checks, independent repeats, extended learning-rate searches, and the Bolt Tower check. Includes failed and inconclusive controls. |
 | [manifests/](manifests/) | Original six-Tower matrix completion lists. Run-specific lists remain beside their measurements. |
 | [history/roster-run.md](history/roster-run.md) | Historical run narrative, including superseded interpretations and later corrections. |
 
@@ -31,6 +31,15 @@ Kimi K3. The published v2 report adds GLM 5.3 Flash, Nemotron Omni, DeepSeek V4.
 Gemma 4, and MiniMax M3. The default figure command draws this eleven-Tower
 v2 cohort. The six-Tower grouping identifies the scope of older runs and
 corrections, not the limits of the current publication.
+
+The v3 cohort adds Nemotron Super (`nemotron35_super`) and Nemotron Bolt
+(`nemotron35_bolt`). Their recognition, geometry, correspondence, and
+perturbation files sit beside the v2 files but are not in the default figures,
+and they have no KITTI, label-budget, or bootstrap records yet. Super has every
+Stage. Super's Tower cells precede its final LayerNorm, which runs before the
+merge. Bolt has no such LayerNorm and only `merged` and `projected` cells; its
+single final Tower cell is the
+[Bolt Tower check](diagnostics/nemotron35-bolt-tower/README.md).
 
 For matched DIODE comparisons at the deepest layer, use
 `geometry/deterministic/` for the original six Towers. The other five use

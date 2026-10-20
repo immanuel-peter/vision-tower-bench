@@ -70,7 +70,7 @@ def main() -> None:
     num_classes = len(set(label_map.values()))
 
     slices = cache.slices(args.clean_run)
-    deepest = max(layer for stage, layer in slices if stage == "tower")
+    deepest = max(layer for _stage, layer in slices)
     selected = [cell for cell in slices if cell[1] == deepest]
     cells = []
     for stage, layer in selected:

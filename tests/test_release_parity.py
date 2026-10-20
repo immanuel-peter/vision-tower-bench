@@ -16,13 +16,18 @@ from scripts.export_muse_glimmer_vision import SOURCE_REVISION as MUSE_REVISION
 from scripts.export_muse_glimmer_vision import load_source_parts as load_muse_source
 from scripts.export_qwen3_8_vision import SOURCE_REVISION as QWEN_REVISION
 from scripts.export_qwen3_8_vision import load_source_tower as load_qwen_source
-from vtb.adapters import kimi_k26, muse_glimmer, qwen3_5
+from scripts.validate_nemotron35 import assert_parity, validate as validate_nemotron35
+from vtb.adapters import kimi_k26, muse_glimmer, nemotron35, qwen3_5
 from vtb.shards import load_prefixed
 
 ROOT = Path(__file__).parents[1]
 QWEN_BUNDLE = ROOT / "hf/Qwen3.8-27B-Vision"
 MUSE_BUNDLE = ROOT / "hf/Muse-Glimmer-Vision"
 KIMI_BUNDLE = ROOT / "hf/MoonViT-K2.6"
+NEMOTRON35_BUNDLES = {
+    nemotron35.SUPER.name: ROOT / "hf/C-RADIOv4-H-3.5-Super",
+    nemotron35.BOLT.name: ROOT / "hf/C-RADIOv4-H-3.5-Bolt",
+}
 DEVICE = torch.device(os.environ.get("VTB_RELEASE_DEVICE", "cpu"))
 DTYPE = torch.bfloat16 if DEVICE.type == "cuda" else torch.float32
 
@@ -175,3 +180,13 @@ def test_kimi_release_forward_matches_the_parent():
         assert torch.equal(actual, expected)
     for actual, expected in zip(actual_projected, expected_projected, strict=True):
         assert torch.equal(actual, expected)
+
+
+@pytest.mark.parametrize("name", sorted(NEMOTRON35_BUNDLES))
+def test_nemotron35_release_matches_the_independent_parent(name):
+    report = validate_nemotron35(name, NEMOTRON35_BUNDLES[name], DEVICE, dtype=DTYPE)
+
+    assert report["weights_bit_exact"]
+    assert len(report["cells"]) == 10
+    assert set(report["release_cells"]) == {"tower", "merged", "projected"}
+    assert_parity(report, DTYPE)

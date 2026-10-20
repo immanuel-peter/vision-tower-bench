@@ -1,0 +1,327 @@
+{
+  "task": "normal",
+  "images": 771,
+  "train_images": 541,
+  "capacity_matched": false,
+  "head": "multiscale",
+  "epochs": 10,
+  "seeds": 3,
+  "learning_rates": [
+    0.0001,
+    0.0003,
+    0.001,
+    0.003,
+    0.01,
+    0.03
+  ],
+  "cells": [
+    {
+      "d1": 0.2518,
+      "d1_std": 0.0034,
+      "d2": 0.4649,
+      "d2_std": 0.0051,
+      "d3": 0.5804,
+      "d3_std": 0.0053,
+      "rmse": 36.5469,
+      "rmse_std": 0.1068,
+      "mean_deg": 29.6612,
+      "mean_deg_std": 0.1641,
+      "images": 115,
+      "coverage": 0.7751,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.1994,
+          "d1_std": 0.0058,
+          "d2": 0.4591,
+          "d2_std": 0.008,
+          "d3": 0.5897,
+          "d3_std": 0.0053,
+          "rmse": 35.3901,
+          "rmse_std": 0.0595,
+          "mean_deg": 29.5906,
+          "mean_deg_std": 0.1472,
+          "images": 51,
+          "coverage": 0.9803
+        },
+        "outdoor": {
+          "d1": 0.2937,
+          "d1_std": 0.0021,
+          "d2": 0.4696,
+          "d2_std": 0.0032,
+          "d3": 0.5731,
+          "d3_std": 0.0052,
+          "rmse": 37.4687,
+          "rmse_std": 0.1572,
+          "mean_deg": 29.7174,
+          "mean_deg_std": 0.1893,
+          "images": 64,
+          "coverage": 0.6116
+        }
+      },
+      "learning_rate": 0.0001,
+      "val_metric": "mean_deg",
+      "val_score": 30.566,
+      "learning_rate_search": {
+        "0.0001": 30.566,
+        "0.0003": 31.805,
+        "0.001": 33.8975,
+        "0.003": 36.3171,
+        "0.01": 45.3865,
+        "0.03": 45.3864
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.2539,
+          "d2": 0.4666,
+          "d3": 0.5833,
+          "rmse": 36.5043,
+          "mean_deg": 29.5971,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.2006,
+              "d2": 0.4597,
+              "d3": 0.5926,
+              "rmse": 35.4208,
+              "mean_deg": 29.6058,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.2964,
+              "d2": 0.4721,
+              "d3": 0.576,
+              "rmse": 37.3677,
+              "mean_deg": 29.5901,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.2471,
+          "d2": 0.458,
+          "d3": 0.573,
+          "rmse": 36.6937,
+          "mean_deg": 29.8864,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.1918,
+              "d2": 0.449,
+              "d3": 0.5822,
+              "rmse": 35.4426,
+              "mean_deg": 29.7627,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.2913,
+              "d2": 0.4651,
+              "d3": 0.5657,
+              "rmse": 37.6907,
+              "mean_deg": 29.985,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.2545,
+          "d2": 0.4702,
+          "d3": 0.5849,
+          "rmse": 36.4426,
+          "mean_deg": 29.5,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.2058,
+              "d2": 0.4686,
+              "d3": 0.5942,
+              "rmse": 35.3069,
+              "mean_deg": 29.4032,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.2933,
+              "d2": 0.4716,
+              "d3": 0.5775,
+              "rmse": 37.3476,
+              "mean_deg": 29.5772,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "nvidia/NVIDIA-Nemotron-3.5-Bolt-74B-A9B-BF16",
+      "stage": "merged",
+      "layer_index": 32,
+      "relative_depth": 1.0,
+      "token_width": 5120,
+      "grid": 14,
+      "trainable_parameters": 3674115,
+      "seconds": 219.0
+    },
+    {
+      "d1": 0.2375,
+      "d1_std": 0.0162,
+      "d2": 0.445,
+      "d2_std": 0.021,
+      "d3": 0.5596,
+      "d3_std": 0.0213,
+      "rmse": 37.6109,
+      "rmse_std": 0.6529,
+      "mean_deg": 30.738,
+      "mean_deg_std": 0.8749,
+      "images": 115,
+      "coverage": 0.7751,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.1777,
+          "d1_std": 0.0211,
+          "d2": 0.4323,
+          "d2_std": 0.0308,
+          "d3": 0.5651,
+          "d3_std": 0.0308,
+          "rmse": 36.7234,
+          "rmse_std": 0.7974,
+          "mean_deg": 30.9041,
+          "mean_deg_std": 1.1131,
+          "images": 51,
+          "coverage": 0.9803
+        },
+        "outdoor": {
+          "d1": 0.2851,
+          "d1_std": 0.0126,
+          "d2": 0.4552,
+          "d2_std": 0.0135,
+          "d3": 0.5553,
+          "d3_std": 0.0139,
+          "rmse": 38.3182,
+          "rmse_std": 0.5434,
+          "mean_deg": 30.6057,
+          "mean_deg_std": 0.6909,
+          "images": 64,
+          "coverage": 0.6116
+        }
+      },
+      "learning_rate": 0.0001,
+      "val_metric": "mean_deg",
+      "val_score": 31.2198,
+      "learning_rate_search": {
+        "0.0001": 31.2198,
+        "0.0003": 31.4432,
+        "0.001": 33.9671,
+        "0.003": 34.834,
+        "0.01": 45.397,
+        "0.03": 45.3975
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.26,
+          "d2": 0.4742,
+          "d3": 0.5892,
+          "rmse": 36.7064,
+          "mean_deg": 29.5265,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.2063,
+              "d2": 0.474,
+              "d3": 0.6072,
+              "rmse": 35.6436,
+              "mean_deg": 29.3913,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.3029,
+              "d2": 0.4743,
+              "d3": 0.5749,
+              "rmse": 37.5533,
+              "mean_deg": 29.6343,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.2299,
+          "d2": 0.4356,
+          "d3": 0.5497,
+          "rmse": 37.9027,
+          "mean_deg": 31.126,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.1708,
+              "d2": 0.422,
+              "d3": 0.5537,
+              "rmse": 36.9816,
+              "mean_deg": 31.2838,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.2769,
+              "d2": 0.4464,
+              "d3": 0.5464,
+              "rmse": 38.6367,
+              "mean_deg": 31.0003,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.2226,
+          "d2": 0.4253,
+          "d3": 0.54,
+          "rmse": 38.2237,
+          "mean_deg": 31.5616,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.1561,
+              "d2": 0.4008,
+              "d3": 0.5343,
+              "rmse": 37.5449,
+              "mean_deg": 32.0372,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.2756,
+              "d2": 0.4449,
+              "d3": 0.5446,
+              "rmse": 38.7645,
+              "mean_deg": 31.1826,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "nvidia/NVIDIA-Nemotron-3.5-Bolt-74B-A9B-BF16",
+      "stage": "projected",
+      "layer_index": 32,
+      "relative_depth": 1.0,
+      "token_width": 4096,
+      "grid": 14,
+      "trainable_parameters": 3149827,
+      "seconds": 184.7
+    }
+  ]
+}

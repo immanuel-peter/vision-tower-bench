@@ -55,3 +55,17 @@ def test_correction_scope_preserves_full_sweeps_and_cohort_membership():
                 assert (RESULTS / sources["recognition"].format(
                     model=model, readout=readout, arm=arm,
                 )).is_file()
+
+
+def test_v3_cohort_uses_the_standard_layout_outside_the_figures():
+    models = INDEX["cohorts"]["v3"]["models"]
+    assert set(models) == {"nemotron35_super", "nemotron35_bolt"}
+    assert not set(models) & set(INDEX["figure_sources"]["geometry_stage_levels"])
+    for model in models:
+        paths = [f"perturbation/{model}_perturbation.json"]
+        paths += [f"recognition/{model}_probe_{r}_{a}.json" for r in ("attention", "mean") for a in ("raw", "matched")]
+        paths += [f"geometry/{model}_geometry_{t}_{a}.json" for t in ("depth", "normal") for a in ("raw", "matched")]
+        paths += [f"correspondence/{model}_correspondence_{d}.json" for d in ("navi", "scannet", "spair")]
+        for path in paths:
+            assert (RESULTS / path).is_file(), path
+    assert not (RESULTS / "v3").exists()

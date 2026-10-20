@@ -1,0 +1,1409 @@
+{
+  "task": "depth",
+  "images": 771,
+  "train_images": 541,
+  "capacity_matched": true,
+  "head": "multiscale",
+  "epochs": 10,
+  "seeds": 3,
+  "learning_rates": [
+    0.0001,
+    0.0003,
+    0.001,
+    0.003,
+    0.01,
+    0.03
+  ],
+  "cells": [
+    {
+      "d1": 0.6997,
+      "d1_std": 0.0028,
+      "d2": 0.8888,
+      "d2_std": 0.0028,
+      "d3": 0.944,
+      "d3_std": 0.0015,
+      "rmse": 3.7548,
+      "rmse_std": 0.0055,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.7314,
+          "d1_std": 0.0042,
+          "d2": 0.9436,
+          "d2_std": 0.0046,
+          "d3": 0.9841,
+          "d3_std": 0.0022,
+          "rmse": 0.6522,
+          "rmse_std": 0.0035,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.6743,
+          "d1_std": 0.0029,
+          "d2": 0.845,
+          "d2_std": 0.0013,
+          "d3": 0.912,
+          "d3_std": 0.0009,
+          "rmse": 6.2272,
+          "rmse_std": 0.0127,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.7021,
+      "learning_rate_search": {
+        "0.0001": 0.3372,
+        "0.0003": 0.5441,
+        "0.001": 0.6935,
+        "0.003": 0.7019,
+        "0.01": 0.7021,
+        "0.03": 0.1244
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.7004,
+          "d2": 0.8903,
+          "d3": 0.9451,
+          "rmse": 3.7625,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.7355,
+              "d2": 0.946,
+              "d3": 0.9861,
+              "rmse": 0.6473,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6724,
+              "d2": 0.8459,
+              "d3": 0.9124,
+              "rmse": 6.2449,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.7027,
+          "d2": 0.8911,
+          "d3": 0.945,
+          "rmse": 3.7521,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.733,
+              "d2": 0.9477,
+              "d3": 0.9853,
+              "rmse": 0.6539,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6785,
+              "d2": 0.846,
+              "d3": 0.9128,
+              "rmse": 6.2209,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6959,
+          "d2": 0.8849,
+          "d3": 0.9419,
+          "rmse": 3.7499,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.7256,
+              "d2": 0.9372,
+              "d3": 0.981,
+              "rmse": 0.6555,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6721,
+              "d2": 0.8432,
+              "d3": 0.9108,
+              "rmse": 6.2158,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "nvidia/NVIDIA-Nemotron-3.5-Super-VL-120B-A12B-BF16",
+      "stage": "merged",
+      "layer_index": 32,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "grid": 14,
+      "trainable_parameters": 1444608,
+      "seconds": 128.4
+    },
+    {
+      "d1": 0.6302,
+      "d1_std": 0.0026,
+      "d2": 0.8591,
+      "d2_std": 0.001,
+      "d3": 0.934,
+      "d3_std": 0.0008,
+      "rmse": 4.0381,
+      "rmse_std": 0.0338,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.6571,
+          "d1_std": 0.0085,
+          "d2": 0.8983,
+          "d2_std": 0.0037,
+          "d3": 0.9734,
+          "d3_std": 0.0007,
+          "rmse": 0.7699,
+          "rmse_std": 0.0081,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.6086,
+          "d1_std": 0.0059,
+          "d2": 0.8278,
+          "d2_std": 0.0033,
+          "d3": 0.9026,
+          "d3_std": 0.0018,
+          "rmse": 6.6424,
+          "rmse_std": 0.0561,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.6332,
+      "learning_rate_search": {
+        "0.0001": 0.2968,
+        "0.0003": 0.4953,
+        "0.001": 0.6135,
+        "0.003": 0.6286,
+        "0.01": 0.6332,
+        "0.03": 0.6241
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.6266,
+          "d2": 0.8578,
+          "d3": 0.9339,
+          "rmse": 4.0485,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6482,
+              "d2": 0.8955,
+              "d3": 0.9726,
+              "rmse": 0.7791,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6093,
+              "d2": 0.8278,
+              "d3": 0.9031,
+              "rmse": 6.6539,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.631,
+          "d2": 0.8592,
+          "d3": 0.9331,
+          "rmse": 4.0733,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6685,
+              "d2": 0.9036,
+              "d3": 0.9744,
+              "rmse": 0.7711,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6011,
+              "d2": 0.8238,
+              "d3": 0.9002,
+              "rmse": 6.7047,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6329,
+          "d2": 0.8603,
+          "d3": 0.935,
+          "rmse": 3.9924,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6547,
+              "d2": 0.8959,
+              "d3": 0.9732,
+              "rmse": 0.7594,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6155,
+              "d2": 0.8319,
+              "d3": 0.9046,
+              "rmse": 6.5687,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "nvidia/NVIDIA-Nemotron-3.5-Super-VL-120B-A12B-BF16",
+      "stage": "projected",
+      "layer_index": 32,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "grid": 14,
+      "trainable_parameters": 1444608,
+      "seconds": 121.0
+    },
+    {
+      "d1": 0.4583,
+      "d1_std": 0.0006,
+      "d2": 0.7424,
+      "d2_std": 0.0013,
+      "d3": 0.8735,
+      "d3_std": 0.0009,
+      "rmse": 4.8978,
+      "rmse_std": 0.0224,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.4006,
+          "d1_std": 0.0025,
+          "d2": 0.7256,
+          "d2_std": 0.0044,
+          "d3": 0.8865,
+          "d3_std": 0.003,
+          "rmse": 1.4181,
+          "rmse_std": 0.0123,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.5043,
+          "d1_std": 0.0022,
+          "d2": 0.7558,
+          "d2_std": 0.002,
+          "d3": 0.863,
+          "d3_std": 0.0012,
+          "rmse": 7.6708,
+          "rmse_std": 0.0335,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.477,
+      "learning_rate_search": {
+        "0.0001": 0.1981,
+        "0.0003": 0.2974,
+        "0.001": 0.4371,
+        "0.003": 0.4576,
+        "0.01": 0.477,
+        "0.03": 0.4305
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.4574,
+          "d2": 0.7439,
+          "d3": 0.8743,
+          "rmse": 4.9286,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.4001,
+              "d2": 0.7319,
+              "d3": 0.8905,
+              "rmse": 1.4281,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5031,
+              "d2": 0.7535,
+              "d3": 0.8614,
+              "rmse": 7.7181,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.4587,
+          "d2": 0.7425,
+          "d3": 0.8739,
+          "rmse": 4.8758,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.4039,
+              "d2": 0.7228,
+              "d3": 0.8857,
+              "rmse": 1.4008,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5024,
+              "d2": 0.7583,
+              "d3": 0.8644,
+              "rmse": 7.645,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.4587,
+          "d2": 0.7408,
+          "d3": 0.8722,
+          "rmse": 4.8891,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.3978,
+              "d2": 0.7222,
+              "d3": 0.8834,
+              "rmse": 1.4254,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5073,
+              "d2": 0.7556,
+              "d3": 0.8633,
+              "rmse": 7.6493,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "nvidia/NVIDIA-Nemotron-3.5-Super-VL-120B-A12B-BF16",
+      "stage": "tower",
+      "layer_index": 4,
+      "relative_depth": 0.125,
+      "token_width": 512,
+      "grid": 28,
+      "trainable_parameters": 1444608,
+      "seconds": 383.4
+    },
+    {
+      "d1": 0.5735,
+      "d1_std": 0.0102,
+      "d2": 0.8269,
+      "d2_std": 0.0052,
+      "d3": 0.9175,
+      "d3_std": 0.0022,
+      "rmse": 4.1639,
+      "rmse_std": 0.0334,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.5582,
+          "d1_std": 0.0086,
+          "d2": 0.8398,
+          "d2_std": 0.0067,
+          "d3": 0.9408,
+          "d3_std": 0.0023,
+          "rmse": 1.0091,
+          "rmse_std": 0.0157,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.5858,
+          "d1_std": 0.0115,
+          "d2": 0.8166,
+          "d2_std": 0.004,
+          "d3": 0.899,
+          "d3_std": 0.002,
+          "rmse": 6.678,
+          "rmse_std": 0.0474,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.5566,
+      "learning_rate_search": {
+        "0.0001": 0.2266,
+        "0.0003": 0.3713,
+        "0.001": 0.4956,
+        "0.003": 0.5341,
+        "0.01": 0.5566,
+        "0.03": 0.1244
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.5809,
+          "d2": 0.8298,
+          "d3": 0.9195,
+          "rmse": 4.141,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5632,
+              "d2": 0.843,
+              "d3": 0.9427,
+              "rmse": 0.9977,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.595,
+              "d2": 0.8193,
+              "d3": 0.9009,
+              "rmse": 6.6458,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5591,
+          "d2": 0.8196,
+          "d3": 0.9145,
+          "rmse": 4.2111,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5462,
+              "d2": 0.8304,
+              "d3": 0.9375,
+              "rmse": 1.0314,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5695,
+              "d2": 0.811,
+              "d3": 0.8963,
+              "rmse": 6.745,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5806,
+          "d2": 0.8312,
+          "d3": 0.9186,
+          "rmse": 4.1397,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5653,
+              "d2": 0.8459,
+              "d3": 0.9422,
+              "rmse": 0.9983,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5928,
+              "d2": 0.8195,
+              "d3": 0.8999,
+              "rmse": 6.6431,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "nvidia/NVIDIA-Nemotron-3.5-Super-VL-120B-A12B-BF16",
+      "stage": "tower",
+      "layer_index": 8,
+      "relative_depth": 0.25,
+      "token_width": 512,
+      "grid": 28,
+      "trainable_parameters": 1444608,
+      "seconds": 382.2
+    },
+    {
+      "d1": 0.6203,
+      "d1_std": 0.0013,
+      "d2": 0.8542,
+      "d2_std": 0.0007,
+      "d3": 0.9311,
+      "d3_std": 0.0004,
+      "rmse": 3.8958,
+      "rmse_std": 0.0294,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.6183,
+          "d1_std": 0.0051,
+          "d2": 0.8778,
+          "d2_std": 0.0032,
+          "d3": 0.9571,
+          "d3_std": 0.0002,
+          "rmse": 0.8801,
+          "rmse_std": 0.0102,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.6219,
+          "d1_std": 0.006,
+          "d2": 0.8354,
+          "d2_std": 0.0026,
+          "d3": 0.9103,
+          "d3_std": 0.0006,
+          "rmse": 6.2989,
+          "rmse_std": 0.0569,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.5737,
+      "learning_rate_search": {
+        "0.0001": 0.2401,
+        "0.0003": 0.4226,
+        "0.001": 0.5262,
+        "0.003": 0.5526,
+        "0.01": 0.5737,
+        "0.03": 0.4547
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.619,
+          "d2": 0.8536,
+          "d3": 0.9308,
+          "rmse": 3.9358,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6254,
+              "d2": 0.8809,
+              "d3": 0.9573,
+              "rmse": 0.8703,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6139,
+              "d2": 0.8319,
+              "d3": 0.9096,
+              "rmse": 6.3786,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6198,
+          "d2": 0.8552,
+          "d3": 0.9309,
+          "rmse": 3.8854,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6157,
+              "d2": 0.8792,
+              "d3": 0.9568,
+              "rmse": 0.8942,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6232,
+              "d2": 0.836,
+              "d3": 0.9103,
+              "rmse": 6.269,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.622,
+          "d2": 0.8538,
+          "d3": 0.9316,
+          "rmse": 3.8662,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6138,
+              "d2": 0.8734,
+              "d3": 0.9573,
+              "rmse": 0.8757,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6285,
+              "d2": 0.8382,
+              "d3": 0.9111,
+              "rmse": 6.2492,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "nvidia/NVIDIA-Nemotron-3.5-Super-VL-120B-A12B-BF16",
+      "stage": "tower",
+      "layer_index": 12,
+      "relative_depth": 0.375,
+      "token_width": 512,
+      "grid": 28,
+      "trainable_parameters": 1444608,
+      "seconds": 383.5
+    },
+    {
+      "d1": 0.6681,
+      "d1_std": 0.0082,
+      "d2": 0.8771,
+      "d2_std": 0.0043,
+      "d3": 0.9409,
+      "d3_std": 0.0025,
+      "rmse": 3.6791,
+      "rmse_std": 0.0155,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.6728,
+          "d1_std": 0.0169,
+          "d2": 0.9067,
+          "d2_std": 0.0085,
+          "d3": 0.9689,
+          "d3_std": 0.0046,
+          "rmse": 0.7252,
+          "rmse_std": 0.0202,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.6644,
+          "d1_std": 0.0016,
+          "d2": 0.8535,
+          "d2_std": 0.0009,
+          "d3": 0.9185,
+          "d3_std": 0.0009,
+          "rmse": 6.033,
+          "rmse_std": 0.0171,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.6643,
+      "learning_rate_search": {
+        "0.0001": 0.3099,
+        "0.0003": 0.5591,
+        "0.001": 0.6361,
+        "0.003": 0.6583,
+        "0.01": 0.6643,
+        "0.03": 0.63
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.6572,
+          "d2": 0.8717,
+          "d3": 0.9382,
+          "rmse": 3.6871,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6509,
+              "d2": 0.8961,
+              "d3": 0.9643,
+              "rmse": 0.7486,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6623,
+              "d2": 0.8523,
+              "d3": 0.9174,
+              "rmse": 6.0287,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6702,
+          "d2": 0.8774,
+          "d3": 0.9401,
+          "rmse": 3.6928,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6752,
+              "d2": 0.907,
+              "d3": 0.9671,
+              "rmse": 0.7275,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6662,
+              "d2": 0.8539,
+              "d3": 0.9186,
+              "rmse": 6.0558,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6769,
+          "d2": 0.8822,
+          "d3": 0.9443,
+          "rmse": 3.6574,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6922,
+              "d2": 0.917,
+              "d3": 0.9752,
+              "rmse": 0.6994,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6647,
+              "d2": 0.8544,
+              "d3": 0.9196,
+              "rmse": 6.0146,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "nvidia/NVIDIA-Nemotron-3.5-Super-VL-120B-A12B-BF16",
+      "stage": "tower",
+      "layer_index": 16,
+      "relative_depth": 0.5,
+      "token_width": 512,
+      "grid": 28,
+      "trainable_parameters": 1444608,
+      "seconds": 381.1
+    },
+    {
+      "d1": 0.6661,
+      "d1_std": 0.0018,
+      "d2": 0.874,
+      "d2_std": 0.0012,
+      "d3": 0.9421,
+      "d3_std": 0.0004,
+      "rmse": 3.6357,
+      "rmse_std": 0.009,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.664,
+          "d1_std": 0.0027,
+          "d2": 0.8993,
+          "d2_std": 0.002,
+          "d3": 0.9709,
+          "d3_std": 0.0001,
+          "rmse": 0.737,
+          "rmse_std": 0.0008,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.6678,
+          "d1_std": 0.005,
+          "d2": 0.8539,
+          "d2_std": 0.002,
+          "d3": 0.9191,
+          "d3_std": 0.0008,
+          "rmse": 5.9455,
+          "rmse_std": 0.0165,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.6635,
+      "learning_rate_search": {
+        "0.0001": 0.3281,
+        "0.0003": 0.5705,
+        "0.001": 0.6437,
+        "0.003": 0.6566,
+        "0.01": 0.6635,
+        "0.03": 0.1244
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.6669,
+          "d2": 0.8733,
+          "d3": 0.9424,
+          "rmse": 3.6322,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6606,
+              "d2": 0.8964,
+              "d3": 0.9708,
+              "rmse": 0.7362,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6718,
+              "d2": 0.8548,
+              "d3": 0.9198,
+              "rmse": 5.94,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6678,
+          "d2": 0.8757,
+          "d3": 0.9423,
+          "rmse": 3.648,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6641,
+              "d2": 0.9008,
+              "d3": 0.9708,
+              "rmse": 0.7367,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6708,
+              "d2": 0.8558,
+              "d3": 0.9195,
+              "rmse": 5.9679,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6636,
+          "d2": 0.8731,
+          "d3": 0.9415,
+          "rmse": 3.6268,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6672,
+              "d2": 0.9006,
+              "d3": 0.971,
+              "rmse": 0.7382,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6608,
+              "d2": 0.8512,
+              "d3": 0.918,
+              "rmse": 5.9286,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "nvidia/NVIDIA-Nemotron-3.5-Super-VL-120B-A12B-BF16",
+      "stage": "tower",
+      "layer_index": 20,
+      "relative_depth": 0.625,
+      "token_width": 512,
+      "grid": 28,
+      "trainable_parameters": 1444608,
+      "seconds": 382.1
+    },
+    {
+      "d1": 0.6616,
+      "d1_std": 0.0002,
+      "d2": 0.8699,
+      "d2_std": 0.0011,
+      "d3": 0.9415,
+      "d3_std": 0.0009,
+      "rmse": 3.6283,
+      "rmse_std": 0.0048,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.651,
+          "d1_std": 0.0018,
+          "d2": 0.8871,
+          "d2_std": 0.0029,
+          "d3": 0.9697,
+          "d3_std": 0.0019,
+          "rmse": 0.7424,
+          "rmse_std": 0.0102,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.67,
+          "d1_std": 0.0017,
+          "d2": 0.8561,
+          "d2_std": 0.0006,
+          "d3": 0.9191,
+          "d3_std": 0.0005,
+          "rmse": 5.9281,
+          "rmse_std": 0.0105,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.003,
+      "val_metric": "d1",
+      "val_score": 0.669,
+      "learning_rate_search": {
+        "0.0001": 0.346,
+        "0.0003": 0.5963,
+        "0.001": 0.6612,
+        "0.003": 0.669,
+        "0.01": 0.6601,
+        "0.03": 0.6173
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.6618,
+          "d2": 0.869,
+          "d3": 0.9412,
+          "rmse": 3.6281,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6485,
+              "d2": 0.884,
+              "d3": 0.9683,
+              "rmse": 0.7563,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6724,
+              "d2": 0.8569,
+              "d3": 0.9196,
+              "rmse": 5.9165,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6617,
+          "d2": 0.8714,
+          "d3": 0.9428,
+          "rmse": 3.6226,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6528,
+              "d2": 0.891,
+              "d3": 0.9723,
+              "rmse": 0.7322,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6689,
+              "d2": 0.8558,
+              "d3": 0.9194,
+              "rmse": 5.9259,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6613,
+          "d2": 0.8692,
+          "d3": 0.9406,
+          "rmse": 3.6343,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6518,
+              "d2": 0.8863,
+              "d3": 0.9684,
+              "rmse": 0.7386,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6688,
+              "d2": 0.8556,
+              "d3": 0.9184,
+              "rmse": 5.9419,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "nvidia/NVIDIA-Nemotron-3.5-Super-VL-120B-A12B-BF16",
+      "stage": "tower",
+      "layer_index": 24,
+      "relative_depth": 0.75,
+      "token_width": 512,
+      "grid": 28,
+      "trainable_parameters": 1444608,
+      "seconds": 381.1
+    },
+    {
+      "d1": 0.6475,
+      "d1_std": 0.0023,
+      "d2": 0.8624,
+      "d2_std": 0.0008,
+      "d3": 0.9391,
+      "d3_std": 0.0005,
+      "rmse": 3.6967,
+      "rmse_std": 0.026,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.6376,
+          "d1_std": 0.0022,
+          "d2": 0.8758,
+          "d2_std": 0.0029,
+          "d3": 0.9668,
+          "d3_std": 0.0016,
+          "rmse": 0.7742,
+          "rmse_std": 0.0042,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.6554,
+          "d1_std": 0.0045,
+          "d2": 0.8517,
+          "d2_std": 0.0012,
+          "d3": 0.9171,
+          "d3_std": 0.0005,
+          "rmse": 6.0256,
+          "rmse_std": 0.0452,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.003,
+      "val_metric": "d1",
+      "val_score": 0.6533,
+      "learning_rate_search": {
+        "0.0001": 0.3318,
+        "0.0003": 0.5264,
+        "0.001": 0.6415,
+        "0.003": 0.6533,
+        "0.01": 0.6203,
+        "0.03": 0.5808
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.6491,
+          "d2": 0.8624,
+          "d3": 0.939,
+          "rmse": 3.6865,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6348,
+              "d2": 0.8739,
+              "d3": 0.9656,
+              "rmse": 0.7784,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6604,
+              "d2": 0.8532,
+              "d3": 0.9178,
+              "rmse": 6.004,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6443,
+          "d2": 0.8634,
+          "d3": 0.9398,
+          "rmse": 3.7324,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6379,
+              "d2": 0.8799,
+              "d3": 0.9691,
+              "rmse": 0.7757,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6494,
+              "d2": 0.8502,
+              "d3": 0.9165,
+              "rmse": 6.0886,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6492,
+          "d2": 0.8614,
+          "d3": 0.9386,
+          "rmse": 3.6712,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6402,
+              "d2": 0.8736,
+              "d3": 0.9657,
+              "rmse": 0.7684,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6564,
+              "d2": 0.8517,
+              "d3": 0.917,
+              "rmse": 5.9843,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "nvidia/NVIDIA-Nemotron-3.5-Super-VL-120B-A12B-BF16",
+      "stage": "tower",
+      "layer_index": 28,
+      "relative_depth": 0.875,
+      "token_width": 512,
+      "grid": 28,
+      "trainable_parameters": 1444608,
+      "seconds": 381.4
+    },
+    {
+      "d1": 0.6901,
+      "d1_std": 0.0026,
+      "d2": 0.8877,
+      "d2_std": 0.0005,
+      "d3": 0.9466,
+      "d3_std": 0.0004,
+      "rmse": 3.5827,
+      "rmse_std": 0.0194,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.7031,
+          "d1_std": 0.0034,
+          "d2": 0.9282,
+          "d2_std": 0.0006,
+          "d3": 0.9815,
+          "d3_std": 0.0004,
+          "rmse": 0.6609,
+          "rmse_std": 0.0049,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.6796,
+          "d1_std": 0.0023,
+          "d2": 0.8554,
+          "d2_std": 0.0007,
+          "d3": 0.9188,
+          "d3_std": 0.0004,
+          "rmse": 5.911,
+          "rmse_std": 0.0329,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.001,
+      "val_metric": "d1",
+      "val_score": 0.7127,
+      "learning_rate_search": {
+        "0.0001": 0.4143,
+        "0.0003": 0.6548,
+        "0.001": 0.7127,
+        "0.003": 0.71,
+        "0.01": 0.1244,
+        "0.03": 0.1244
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.6908,
+          "d2": 0.8882,
+          "d3": 0.9471,
+          "rmse": 3.5675,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.7027,
+              "d2": 0.928,
+              "d3": 0.9819,
+              "rmse": 0.6634,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6814,
+              "d2": 0.8564,
+              "d3": 0.9193,
+              "rmse": 5.8817,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6866,
+          "d2": 0.8879,
+          "d3": 0.9467,
+          "rmse": 3.6101,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6992,
+              "d2": 0.929,
+              "d3": 0.9817,
+              "rmse": 0.6652,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6764,
+              "d2": 0.8551,
+              "d3": 0.9187,
+              "rmse": 5.9569,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6928,
+          "d2": 0.887,
+          "d3": 0.9461,
+          "rmse": 3.5704,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.7075,
+              "d2": 0.9275,
+              "d3": 0.981,
+              "rmse": 0.6541,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6811,
+              "d2": 0.8548,
+              "d3": 0.9183,
+              "rmse": 5.8943,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "nvidia/NVIDIA-Nemotron-3.5-Super-VL-120B-A12B-BF16",
+      "stage": "tower",
+      "layer_index": 32,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "grid": 28,
+      "trainable_parameters": 1444608,
+      "seconds": 382.2
+    }
+  ]
+}

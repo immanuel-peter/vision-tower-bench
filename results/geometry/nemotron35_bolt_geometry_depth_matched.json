@@ -1,0 +1,297 @@
+{
+  "task": "depth",
+  "images": 771,
+  "train_images": 541,
+  "capacity_matched": true,
+  "head": "multiscale",
+  "epochs": 10,
+  "seeds": 3,
+  "learning_rates": [
+    0.0001,
+    0.0003,
+    0.001,
+    0.003,
+    0.01,
+    0.03
+  ],
+  "cells": [
+    {
+      "d1": 0.6704,
+      "d1_std": 0.0016,
+      "d2": 0.8765,
+      "d2_std": 0.0012,
+      "d3": 0.9403,
+      "d3_std": 0.0006,
+      "rmse": 3.8236,
+      "rmse_std": 0.0103,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.6825,
+          "d1_std": 0.0025,
+          "d2": 0.9224,
+          "d2_std": 0.0023,
+          "d3": 0.9786,
+          "d3_std": 0.0005,
+          "rmse": 0.6974,
+          "rmse_std": 0.0049,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.6608,
+          "d1_std": 0.0019,
+          "d2": 0.8399,
+          "d2_std": 0.0004,
+          "d3": 0.9097,
+          "d3_std": 0.0008,
+          "rmse": 6.3148,
+          "rmse_std": 0.0174,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.001,
+      "val_metric": "d1",
+      "val_score": 0.6925,
+      "learning_rate_search": {
+        "0.0001": 0.4302,
+        "0.0003": 0.6399,
+        "0.001": 0.6925,
+        "0.003": 0.6905,
+        "0.01": 0.6612,
+        "0.03": 0.5646
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.6724,
+          "d2": 0.8781,
+          "d3": 0.9411,
+          "rmse": 3.8093,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6838,
+              "d2": 0.9254,
+              "d3": 0.9793,
+              "rmse": 0.6933,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6633,
+              "d2": 0.8404,
+              "d3": 0.9107,
+              "rmse": 6.2923,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6704,
+          "d2": 0.8761,
+          "d3": 0.9396,
+          "rmse": 3.8281,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6847,
+              "d2": 0.922,
+              "d3": 0.9784,
+              "rmse": 0.7043,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6589,
+              "d2": 0.8395,
+              "d3": 0.9088,
+              "rmse": 6.3173,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6685,
+          "d2": 0.8753,
+          "d3": 0.9401,
+          "rmse": 3.8334,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6791,
+              "d2": 0.9199,
+              "d3": 0.9782,
+              "rmse": 0.6946,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6601,
+              "d2": 0.8397,
+              "d3": 0.9097,
+              "rmse": 6.3347,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "nvidia/NVIDIA-Nemotron-3.5-Bolt-74B-A9B-BF16",
+      "stage": "merged",
+      "layer_index": 32,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "grid": 14,
+      "trainable_parameters": 1444608,
+      "seconds": 196.7
+    },
+    {
+      "d1": 0.621,
+      "d1_std": 0.0077,
+      "d2": 0.8472,
+      "d2_std": 0.0022,
+      "d3": 0.9302,
+      "d3_std": 0.0007,
+      "rmse": 4.0994,
+      "rmse_std": 0.018,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.6422,
+          "d1_std": 0.0117,
+          "d2": 0.8824,
+          "d2_std": 0.0065,
+          "d3": 0.9687,
+          "d3_std": 0.0021,
+          "rmse": 0.817,
+          "rmse_std": 0.0193,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.6041,
+          "d1_std": 0.0057,
+          "d2": 0.8191,
+          "d2_std": 0.0036,
+          "d3": 0.8994,
+          "d3_std": 0.0017,
+          "rmse": 6.715,
+          "rmse_std": 0.0229,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.6105,
+      "learning_rate_search": {
+        "0.0001": 0.3199,
+        "0.0003": 0.5271,
+        "0.001": 0.6022,
+        "0.003": 0.6097,
+        "0.01": 0.6105,
+        "0.03": 0.5747
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.6151,
+          "d2": 0.8456,
+          "d3": 0.93,
+          "rmse": 4.0892,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6296,
+              "d2": 0.8736,
+              "d3": 0.9658,
+              "rmse": 0.8248,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6036,
+              "d2": 0.8233,
+              "d3": 0.9014,
+              "rmse": 6.6905,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.616,
+          "d2": 0.8456,
+          "d3": 0.9294,
+          "rmse": 4.1247,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6393,
+              "d2": 0.8848,
+              "d3": 0.9697,
+              "rmse": 0.8357,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5974,
+              "d2": 0.8144,
+              "d3": 0.8973,
+              "rmse": 6.7457,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6319,
+          "d2": 0.8503,
+          "d3": 0.9311,
+          "rmse": 4.0843,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6578,
+              "d2": 0.8889,
+              "d3": 0.9707,
+              "rmse": 0.7905,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6113,
+              "d2": 0.8195,
+              "d3": 0.8995,
+              "rmse": 6.7089,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "nvidia/NVIDIA-Nemotron-3.5-Bolt-74B-A9B-BF16",
+      "stage": "projected",
+      "layer_index": 32,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "grid": 14,
+      "trainable_parameters": 1444608,
+      "seconds": 194.3
+    }
+  ]
+}

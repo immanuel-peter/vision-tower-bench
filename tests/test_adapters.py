@@ -16,6 +16,7 @@ from vtb.adapters.kimi_k26 import KimiK26Adapter
 from vtb.adapters.minimax_m3 import MiniMaxM3Adapter
 from vtb.adapters.moonvit_v2 import MoonViTV2Adapter
 from vtb.adapters.nemotron_omni import NemotronOmniAdapter
+from vtb.adapters.nemotron35 import Nemotron35BoltAdapter, Nemotron35SuperAdapter
 from vtb.adapters.muse_glimmer import MuseGlimmerAdapter
 from vtb.adapters.qwen3_5 import MERGE_SIZE, PATCH_SIZE, Qwen3_5Adapter, raster
 from vtb.adapters.siglip2 import SigLIP2Adapter
@@ -36,6 +37,8 @@ EXPECTED = {
     MiniMaxM3Adapter: (32, 16, 1280, 5120, 6144),
     NemotronOmniAdapter: (28, 14, 1280, 5120, 2688),
     DeepSeekV41Adapter: (32, 11, 1024, 9216, 5120),
+    Nemotron35SuperAdapter: (28, 14, 1280, 5120, 4096),
+    Nemotron35BoltAdapter: (None, 14, None, 5120, 4096),
 }
 
 pytestmark = pytest.mark.skipif(
@@ -61,8 +64,11 @@ def test_adapter_yields_every_stage_at_the_expected_shape(adapter_class, image):
 
     assert {b.stage for b in yielded} == set(adapter.stages)
     towers = [b for b in yielded if b.stage == "tower"]
-    assert [b.layer_index for b in towers] == adapter.depth_points()
-    assert towers[-1].relative_depth == 1.0
+    if tower_width is None:
+        assert not towers
+    else:
+        assert [b.layer_index for b in towers] == adapter.depth_points()
+        assert towers[-1].relative_depth == 1.0
 
     for batch_out in towers:
         assert tuple(batch_out.tokens.shape) == (1, tower_side**2, tower_width)

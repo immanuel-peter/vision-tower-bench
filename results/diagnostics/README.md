@@ -9,6 +9,7 @@ they fail or do not support a conclusion.
 | [pooling-diagnostic/](pooling-diagnostic/) | Attention failures, larger training budgets, and independent baseline repeats. Full-token attention validation remains inconclusive. |
 | [pooling-roster/](pooling-roster/) | Mean-readout checks for the remaining original Towers, including Kimi extraction batch-size variants. |
 | [grid_search/](grid_search/) | Targeted wider geometry learning-rate searches, not a replacement for the roster matrices. |
+| [nemotron35-bolt-tower/](nemotron35-bolt-tower/) | Final Tower recognition for Nemotron Bolt against Nemotron Super on the identical protocol. Bolt's matrices cover only `merged` and `projected`. |
 
 See the [results index](../README.md) for the primary measurements and correction
 scope. Repeated files are independent-run records, even when their bytes match.
