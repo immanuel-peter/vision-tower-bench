@@ -108,3 +108,13 @@ def test_geometry_figures_separate_corrected_stages_from_historical_sweeps(monke
         )
         assert len(cells) == 8
         assert list(sweep_lines[model].get_ydata()) == pytest.approx([cell["d1"] for cell in cells])
+
+
+def test_semantic_forest_leaves_out_the_v3_cohort(tmp_path):
+    path = tmp_path / "forest.svg"
+    FIGURE_SCRIPT.semantic_forest(path)
+    labels = path.read_text()
+
+    assert "siglip2 - dinov2" in labels
+    for model in FIGURE_SCRIPT.LATER_COHORT:
+        assert model not in labels

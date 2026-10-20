@@ -1,0 +1,833 @@
+{
+  "scope": "Conditioning diagnostics on twelve fixed natural DIODE validation images, not task performance or a normalization ablation.",
+  "source_indices": [
+    0,
+    70,
+    140,
+    210,
+    280,
+    350,
+    420,
+    490,
+    560,
+    630,
+    700,
+    770
+  ],
+  "image_ids": [
+    "val_000000",
+    "val_000070",
+    "val_000140",
+    "val_000210",
+    "val_000280",
+    "val_000350",
+    "val_000420",
+    "val_000490",
+    "val_000560",
+    "val_000630",
+    "val_000700",
+    "val_000770"
+  ],
+  "images": 12,
+  "tokens_per_image": 1024,
+  "sources": {
+    "dinov3": {
+      "model_id": "facebook/dinov3-vitl16-pretrain-lvd1689m",
+      "source_revision": "ea8dc2863c51be0a264bab82070e3e8836b02d51"
+    },
+    "dinov2": {
+      "model_id": "facebook/dinov2-large",
+      "source_revision": "47b73eefe95e8d44ec3623f8890bd894b6ea2d6c"
+    }
+  },
+  "cells": [
+    {
+      "control": "dinov3",
+      "layer_index": 3,
+      "relative_depth": 0.125,
+      "observed": {
+        "token_l2_mean": 23.223342895507812,
+        "token_l2_quantiles": [
+          15.037568092346191,
+          16.412120819091797,
+          23.355398178100586,
+          31.504201889038086,
+          39.22062683105469
+        ],
+        "channel_std_quantiles": [
+          0.1654922366142273,
+          0.2112903892993927,
+          0.23377206921577454,
+          0.7377791404724121,
+          3.9170212745666504
+        ],
+        "mean_direction_l2": 19.478458404541016,
+        "uncentered_energy_fraction_in_channel_mean": 0.6760441660881042,
+        "centered_spectrum_token_sample": 256,
+        "centered_pc1_energy_fraction": 0.33069273829460144,
+        "centered_first16_energy_fraction": 0.8218809366226196
+      },
+      "diagnostic_unlearned_layernorm": {
+        "token_l2_mean": 31.99995994567871,
+        "token_l2_quantiles": [
+          31.999919891357422,
+          31.99993324279785,
+          31.999963760375977,
+          31.999982833862305,
+          31.9999942779541
+        ],
+        "channel_std_quantiles": [
+          0.061691686511039734,
+          0.10555864870548248,
+          0.16197752952575684,
+          0.9458725452423096,
+          4.981259346008301
+        ],
+        "mean_direction_l2": 27.846691131591797,
+        "uncentered_energy_fraction_in_channel_mean": 0.7572658658027649,
+        "centered_spectrum_token_sample": 256,
+        "centered_pc1_energy_fraction": 0.23415982723236084,
+        "centered_first16_energy_fraction": 0.7746083736419678
+      }
+    },
+    {
+      "control": "dinov3",
+      "layer_index": 6,
+      "relative_depth": 0.25,
+      "observed": {
+        "token_l2_mean": 29.239517211914062,
+        "token_l2_quantiles": [
+          22.884592056274414,
+          23.71230125427246,
+          29.32259750366211,
+          34.586795806884766,
+          44.48439407348633
+        ],
+        "channel_std_quantiles": [
+          0.19492079317569733,
+          0.20121166110038757,
+          0.2596488296985626,
+          1.1044337749481201,
+          4.444099426269531
+        ],
+        "mean_direction_l2": 23.493019104003906,
+        "uncentered_energy_fraction_in_channel_mean": 0.6366039514541626,
+        "centered_spectrum_token_sample": 256,
+        "centered_pc1_energy_fraction": 0.2065400630235672,
+        "centered_first16_energy_fraction": 0.751369059085846
+      },
+      "diagnostic_unlearned_layernorm": {
+        "token_l2_mean": 31.999977111816406,
+        "token_l2_quantiles": [
+          31.999956130981445,
+          31.999967575073242,
+          31.99997901916504,
+          31.99998664855957,
+          31.999996185302734
+        ],
+        "channel_std_quantiles": [
+          0.04227708280086517,
+          0.05237983539700508,
+          0.18866050243377686,
+          1.1688801050186157,
+          4.879843711853027
+        ],
+        "mean_direction_l2": 26.296358108520508,
+        "uncentered_energy_fraction_in_channel_mean": 0.6752921342849731,
+        "centered_spectrum_token_sample": 256,
+        "centered_pc1_energy_fraction": 0.1720455437898636,
+        "centered_first16_energy_fraction": 0.7230614423751831
+      }
+    },
+    {
+      "control": "dinov3",
+      "layer_index": 9,
+      "relative_depth": 0.375,
+      "observed": {
+        "token_l2_mean": 42.40272903442383,
+        "token_l2_quantiles": [
+          35.808780670166016,
+          37.73600387573242,
+          42.09449768066406,
+          48.0269660949707,
+          62.79301452636719
+        ],
+        "channel_std_quantiles": [
+          0.21664832532405853,
+          0.2468167245388031,
+          0.38157421350479126,
+          1.5880661010742188,
+          12.48177433013916
+        ],
+        "mean_direction_l2": 28.422283172607422,
+        "uncentered_energy_fraction_in_channel_mean": 0.4467822015285492,
+        "centered_spectrum_token_sample": 256,
+        "centered_pc1_energy_fraction": 0.1844317466020584,
+        "centered_first16_energy_fraction": 0.7570676207542419
+      },
+      "diagnostic_unlearned_layernorm": {
+        "token_l2_mean": 31.999998092651367,
+        "token_l2_quantiles": [
+          31.999980926513672,
+          31.99998664855957,
+          31.999990463256836,
+          31.9999942779541,
+          32.000003814697266
+        ],
+        "channel_std_quantiles": [
+          0.08518906682729721,
+          0.12169880419969559,
+          0.2482382357120514,
+          1.1947848796844482,
+          9.553863525390625
+        ],
+        "mean_direction_l2": 21.604196548461914,
+        "uncentered_energy_fraction_in_channel_mean": 0.45580214262008667,
+        "centered_spectrum_token_sample": 256,
+        "centered_pc1_energy_fraction": 0.1899649202823639,
+        "centered_first16_energy_fraction": 0.7527740597724915
+      }
+    },
+    {
+      "control": "dinov3",
+      "layer_index": 12,
+      "relative_depth": 0.5,
+      "observed": {
+        "token_l2_mean": 64.3569107055664,
+        "token_l2_quantiles": [
+          54.19744110107422,
+          59.065853118896484,
+          63.72454071044922,
+          71.6793441772461,
+          85.90193939208984
+        ],
+        "channel_std_quantiles": [
+          0.29292547702789307,
+          0.430269330739975,
+          0.7509156465530396,
+          3.430176019668579,
+          13.589282035827637
+        ],
+        "mean_direction_l2": 39.90771484375,
+        "uncentered_energy_fraction_in_channel_mean": 0.3830806612968445,
+        "centered_spectrum_token_sample": 256,
+        "centered_pc1_energy_fraction": 0.14309222996234894,
+        "centered_first16_energy_fraction": 0.6034440398216248
+      },
+      "diagnostic_unlearned_layernorm": {
+        "token_l2_mean": 32.0,
+        "token_l2_quantiles": [
+          31.999988555908203,
+          31.99999237060547,
+          31.999996185302734,
+          32.0,
+          32.000003814697266
+        ],
+        "channel_std_quantiles": [
+          0.10324747860431671,
+          0.19453737139701843,
+          0.3600585460662842,
+          1.7018598318099976,
+          6.911089897155762
+        ],
+        "mean_direction_l2": 19.917770385742188,
+        "uncentered_energy_fraction_in_channel_mean": 0.3874194920063019,
+        "centered_spectrum_token_sample": 256,
+        "centered_pc1_energy_fraction": 0.14353890717029572,
+        "centered_first16_energy_fraction": 0.6027030348777771
+      }
+    },
+    {
+      "control": "dinov3",
+      "layer_index": 15,
+      "relative_depth": 0.625,
+      "observed": {
+        "token_l2_mean": 103.34658813476562,
+        "token_l2_quantiles": [
+          85.02656555175781,
+          93.94673156738281,
+          102.59584045410156,
+          115.52557373046875,
+          141.97618103027344
+        ],
+        "channel_std_quantiles": [
+          0.6200220584869385,
+          1.1098240613937378,
+          1.773988962173462,
+          5.983782768249512,
+          17.19187355041504
+        ],
+        "mean_direction_l2": 47.36833953857422,
+        "uncentered_energy_fraction_in_channel_mean": 0.20924270153045654,
+        "centered_spectrum_token_sample": 256,
+        "centered_pc1_energy_fraction": 0.10192696750164032,
+        "centered_first16_energy_fraction": 0.4987628161907196
+      },
+      "diagnostic_unlearned_layernorm": {
+        "token_l2_mean": 32.0,
+        "token_l2_quantiles": [
+          31.999990463256836,
+          31.9999942779541,
+          31.999998092651367,
+          32.0,
+          32.000003814697266
+        ],
+        "channel_std_quantiles": [
+          0.2102942168712616,
+          0.3337700366973877,
+          0.5448061227798462,
+          1.865343451499939,
+          5.433590888977051
+        ],
+        "mean_direction_l2": 14.547131538391113,
+        "uncentered_energy_fraction_in_channel_mean": 0.20665916800498962,
+        "centered_spectrum_token_sample": 256,
+        "centered_pc1_energy_fraction": 0.10288671404123306,
+        "centered_first16_energy_fraction": 0.4985131025314331
+      }
+    },
+    {
+      "control": "dinov3",
+      "layer_index": 18,
+      "relative_depth": 0.75,
+      "observed": {
+        "token_l2_mean": 187.1493377685547,
+        "token_l2_quantiles": [
+          148.18521118164062,
+          168.57534790039062,
+          185.91094970703125,
+          210.1566925048828,
+          245.2852783203125
+        ],
+        "channel_std_quantiles": [
+          0.7937934398651123,
+          1.8966032266616821,
+          3.6531522274017334,
+          9.766300201416016,
+          20.663049697875977
+        ],
+        "mean_direction_l2": 88.8311996459961,
+        "uncentered_energy_fraction_in_channel_mean": 0.2242593765258789,
+        "centered_spectrum_token_sample": 256,
+        "centered_pc1_energy_fraction": 0.08503446727991104,
+        "centered_first16_energy_fraction": 0.4702155292034149
+      },
+      "diagnostic_unlearned_layernorm": {
+        "token_l2_mean": 32.0,
+        "token_l2_quantiles": [
+          31.99999237060547,
+          31.999996185302734,
+          32.0,
+          32.000003814697266,
+          32.00000762939453
+        ],
+        "channel_std_quantiles": [
+          0.13971896469593048,
+          0.32226184010505676,
+          0.6268267631530762,
+          1.6772725582122803,
+          3.6675455570220947
+        ],
+        "mean_direction_l2": 14.759432792663574,
+        "uncentered_energy_fraction_in_channel_mean": 0.21273520588874817,
+        "centered_spectrum_token_sample": 256,
+        "centered_pc1_energy_fraction": 0.09201359003782272,
+        "centered_first16_energy_fraction": 0.4770466387271881
+      }
+    },
+    {
+      "control": "dinov3",
+      "layer_index": 21,
+      "relative_depth": 0.875,
+      "observed": {
+        "token_l2_mean": 462.7148742675781,
+        "token_l2_quantiles": [
+          350.4095153808594,
+          416.9027404785156,
+          461.69049072265625,
+          511.9762268066406,
+          652.9402465820312
+        ],
+        "channel_std_quantiles": [
+          1.6560791730880737,
+          4.750254154205322,
+          9.02957534790039,
+          17.3748779296875,
+          61.98949432373047
+        ],
+        "mean_direction_l2": 293.9809875488281,
+        "uncentered_energy_fraction_in_channel_mean": 0.4020279347896576,
+        "centered_spectrum_token_sample": 256,
+        "centered_pc1_energy_fraction": 0.09800374507904053,
+        "centered_first16_energy_fraction": 0.4946587383747101
+      },
+      "diagnostic_unlearned_layernorm": {
+        "token_l2_mean": 32.0,
+        "token_l2_quantiles": [
+          31.99999237060547,
+          31.999996185302734,
+          32.0,
+          32.000003814697266,
+          32.00000762939453
+        ],
+        "channel_std_quantiles": [
+          0.1147080659866333,
+          0.3304060697555542,
+          0.6253092288970947,
+          1.212797999382019,
+          4.3250885009765625
+        ],
+        "mean_direction_l2": 20.03618049621582,
+        "uncentered_energy_fraction_in_channel_mean": 0.39203962683677673,
+        "centered_spectrum_token_sample": 256,
+        "centered_pc1_energy_fraction": 0.09461712092161179,
+        "centered_first16_energy_fraction": 0.49342602491378784
+      }
+    },
+    {
+      "control": "dinov3",
+      "layer_index": 24,
+      "relative_depth": 1.0,
+      "observed": {
+        "token_l2_mean": 8.537017822265625,
+        "token_l2_quantiles": [
+          7.308496952056885,
+          7.864036560058594,
+          8.499842643737793,
+          9.37563705444336,
+          10.623302459716797
+        ],
+        "channel_std_quantiles": [
+          0.0001104073817259632,
+          0.1527407318353653,
+          0.21615831553936005,
+          0.3240554928779602,
+          1.5533527135849
+        ],
+        "mean_direction_l2": 3.56728458404541,
+        "uncentered_energy_fraction_in_channel_mean": 0.17409324645996094,
+        "centered_spectrum_token_sample": 256,
+        "centered_pc1_energy_fraction": 0.08302133530378342,
+        "centered_first16_energy_fraction": 0.5523474812507629
+      },
+      "diagnostic_unlearned_layernorm": {
+        "token_l2_mean": 31.99977684020996,
+        "token_l2_quantiles": [
+          31.999691009521484,
+          31.99973487854004,
+          31.999773025512695,
+          31.999813079833984,
+          31.999855041503906
+        ],
+        "channel_std_quantiles": [
+          0.007706931326538324,
+          0.5698001980781555,
+          0.8093341588973999,
+          1.2303187847137451,
+          5.750204563140869
+        ],
+        "mean_direction_l2": 13.365044593811035,
+        "uncentered_energy_fraction_in_channel_mean": 0.17444035410881042,
+        "centered_spectrum_token_sample": 256,
+        "centered_pc1_energy_fraction": 0.08359277993440628,
+        "centered_first16_energy_fraction": 0.5522335767745972
+      }
+    },
+    {
+      "control": "dinov2",
+      "layer_index": 3,
+      "relative_depth": 0.125,
+      "observed": {
+        "token_l2_mean": 1.799725890159607,
+        "token_l2_quantiles": [
+          1.1700036525726318,
+          1.2100611925125122,
+          1.759329080581665,
+          2.6091866493225098,
+          3.706909656524658
+        ],
+        "channel_std_quantiles": [
+          0.0203500185161829,
+          0.026729842647910118,
+          0.03472498804330826,
+          0.08910733461380005,
+          0.2698289752006531
+        ],
+        "mean_direction_l2": 0.9400843977928162,
+        "uncentered_energy_fraction_in_channel_mean": 0.25748854875564575,
+        "centered_spectrum_token_sample": 256,
+        "centered_pc1_energy_fraction": 0.1525762975215912,
+        "centered_first16_energy_fraction": 0.5792462825775146
+      },
+      "diagnostic_unlearned_layernorm": {
+        "token_l2_mean": 31.993408203125,
+        "token_l2_quantiles": [
+          31.987573623657227,
+          31.98828125,
+          31.994112014770508,
+          31.99748420715332,
+          31.998743057250977
+        ],
+        "channel_std_quantiles": [
+          0.2907986342906952,
+          0.3709532618522644,
+          0.5007187128067017,
+          1.5397762060165405,
+          5.108080863952637
+        ],
+        "mean_direction_l2": 17.920316696166992,
+        "uncentered_energy_fraction_in_channel_mean": 0.3137403726577759,
+        "centered_spectrum_token_sample": 256,
+        "centered_pc1_energy_fraction": 0.13659903407096863,
+        "centered_first16_energy_fraction": 0.5756770968437195
+      }
+    },
+    {
+      "control": "dinov2",
+      "layer_index": 6,
+      "relative_depth": 0.25,
+      "observed": {
+        "token_l2_mean": 1.6784032583236694,
+        "token_l2_quantiles": [
+          1.2335883378982544,
+          1.2918705940246582,
+          1.6901077032089233,
+          2.0559511184692383,
+          2.7809712886810303
+        ],
+        "channel_std_quantiles": [
+          0.022440439090132713,
+          0.023756520822644234,
+          0.030353417620062828,
+          0.08469861000776291,
+          0.22220033407211304
+        ],
+        "mean_direction_l2": 0.8215464353561401,
+        "uncentered_energy_fraction_in_channel_mean": 0.23467393219470978,
+        "centered_spectrum_token_sample": 256,
+        "centered_pc1_energy_fraction": 0.163486510515213,
+        "centered_first16_energy_fraction": 0.5577470064163208
+      },
+      "diagnostic_unlearned_layernorm": {
+        "token_l2_mean": 31.993261337280273,
+        "token_l2_quantiles": [
+          31.989078521728516,
+          31.989917755126953,
+          31.993589401245117,
+          31.995819091796875,
+          31.997697830200195
+        ],
+        "channel_std_quantiles": [
+          0.3303854763507843,
+          0.35727477073669434,
+          0.5050610303878784,
+          1.6057385206222534,
+          4.303584575653076
+        ],
+        "mean_direction_l2": 16.536270141601562,
+        "uncentered_energy_fraction_in_channel_mean": 0.26715174317359924,
+        "centered_spectrum_token_sample": 256,
+        "centered_pc1_energy_fraction": 0.12171411514282227,
+        "centered_first16_energy_fraction": 0.5333630442619324
+      }
+    },
+    {
+      "control": "dinov2",
+      "layer_index": 9,
+      "relative_depth": 0.375,
+      "observed": {
+        "token_l2_mean": 1.857709288597107,
+        "token_l2_quantiles": [
+          1.5140408277511597,
+          1.6088147163391113,
+          1.8533439636230469,
+          2.1262552738189697,
+          2.709652900695801
+        ],
+        "channel_std_quantiles": [
+          0.023834090679883957,
+          0.027389848604798317,
+          0.03673519194126129,
+          0.09609514474868774,
+          0.24982915818691254
+        ],
+        "mean_direction_l2": 0.7973771095275879,
+        "uncentered_energy_fraction_in_channel_mean": 0.18278443813323975,
+        "centered_spectrum_token_sample": 256,
+        "centered_pc1_energy_fraction": 0.12612153589725494,
+        "centered_first16_energy_fraction": 0.5056965947151184
+      },
+      "diagnostic_unlearned_layernorm": {
+        "token_l2_mean": 31.9947566986084,
+        "token_l2_quantiles": [
+          31.99272918701172,
+          31.993528366088867,
+          31.994792938232422,
+          31.9959774017334,
+          31.997615814208984
+        ],
+        "channel_std_quantiles": [
+          0.3545105457305908,
+          0.41737231612205505,
+          0.5988600254058838,
+          1.6877955198287964,
+          4.384810447692871
+        ],
+        "mean_direction_l2": 13.792777061462402,
+        "uncentered_energy_fraction_in_channel_mean": 0.18584279716014862,
+        "centered_spectrum_token_sample": 256,
+        "centered_pc1_energy_fraction": 0.10018061846494675,
+        "centered_first16_energy_fraction": 0.4768325686454773
+      }
+    },
+    {
+      "control": "dinov2",
+      "layer_index": 12,
+      "relative_depth": 0.5,
+      "observed": {
+        "token_l2_mean": 2.880249261856079,
+        "token_l2_quantiles": [
+          2.34236478805542,
+          2.5401711463928223,
+          2.8732080459594727,
+          3.248065233230591,
+          4.002164840698242
+        ],
+        "channel_std_quantiles": [
+          0.046570248901844025,
+          0.05373435840010643,
+          0.06683114916086197,
+          0.14386732876300812,
+          0.403719961643219
+        ],
+        "mean_direction_l2": 0.94022536277771,
+        "uncentered_energy_fraction_in_channel_mean": 0.10597354173660278,
+        "centered_spectrum_token_sample": 256,
+        "centered_pc1_energy_fraction": 0.07158609479665756,
+        "centered_first16_energy_fraction": 0.45605039596557617
+      },
+      "diagnostic_unlearned_layernorm": {
+        "token_l2_mean": 31.997896194458008,
+        "token_l2_quantiles": [
+          31.996891021728516,
+          31.997400283813477,
+          31.99791145324707,
+          31.998350143432617,
+          31.9989070892334
+        ],
+        "channel_std_quantiles": [
+          0.49526047706604004,
+          0.5839824676513672,
+          0.731957197189331,
+          1.6219894886016846,
+          4.637188911437988
+        ],
+        "mean_direction_l2": 9.708573341369629,
+        "uncentered_energy_fraction_in_channel_mean": 0.09205933660268784,
+        "centered_spectrum_token_sample": 256,
+        "centered_pc1_energy_fraction": 0.06897109746932983,
+        "centered_first16_energy_fraction": 0.4495975375175476
+      }
+    },
+    {
+      "control": "dinov2",
+      "layer_index": 15,
+      "relative_depth": 0.625,
+      "observed": {
+        "token_l2_mean": 5.1561665534973145,
+        "token_l2_quantiles": [
+          4.167793273925781,
+          4.664156913757324,
+          5.12579345703125,
+          5.748045444488525,
+          9.953903198242188
+        ],
+        "channel_std_quantiles": [
+          0.07634340226650238,
+          0.11298542469739914,
+          0.13192549347877502,
+          0.22151917219161987,
+          0.6739307641983032
+        ],
+        "mean_direction_l2": 1.7197418212890625,
+        "uncentered_energy_fraction_in_channel_mean": 0.11073654145002365,
+        "centered_spectrum_token_sample": 256,
+        "centered_pc1_energy_fraction": 0.05963888764381409,
+        "centered_first16_energy_fraction": 0.41765695810317993
+      },
+      "diagnostic_unlearned_layernorm": {
+        "token_l2_mean": 31.999361038208008,
+        "token_l2_quantiles": [
+          31.99905014038086,
+          31.999231338500977,
+          31.999361038208008,
+          31.999492645263672,
+          31.999834060668945
+        ],
+        "channel_std_quantiles": [
+          0.4736654460430145,
+          0.6996555924415588,
+          0.8199127912521362,
+          1.373300313949585,
+          4.273484230041504
+        ],
+        "mean_direction_l2": 10.13066577911377,
+        "uncentered_energy_fraction_in_channel_mean": 0.10022899508476257,
+        "centered_spectrum_token_sample": 256,
+        "centered_pc1_energy_fraction": 0.05877963453531265,
+        "centered_first16_energy_fraction": 0.41613155603408813
+      }
+    },
+    {
+      "control": "dinov2",
+      "layer_index": 18,
+      "relative_depth": 0.75,
+      "observed": {
+        "token_l2_mean": 10.676372528076172,
+        "token_l2_quantiles": [
+          7.969893932342529,
+          9.328311920166016,
+          10.41295337677002,
+          11.929544448852539,
+          187.14137268066406
+        ],
+        "channel_std_quantiles": [
+          0.12434284389019012,
+          0.23728321492671967,
+          0.28382813930511475,
+          0.46845749020576477,
+          3.2646350860595703
+        ],
+        "mean_direction_l2": 3.7578258514404297,
+        "uncentered_energy_fraction_in_channel_mean": 0.10011959075927734,
+        "centered_spectrum_token_sample": 256,
+        "centered_pc1_energy_fraction": 0.06094759330153465,
+        "centered_first16_energy_fraction": 0.40139567852020264
+      },
+      "diagnostic_unlearned_layernorm": {
+        "token_l2_mean": 31.999847412109375,
+        "token_l2_quantiles": [
+          31.999732971191406,
+          31.99980926513672,
+          31.999847412109375,
+          31.9998836517334,
+          32.000003814697266
+        ],
+        "channel_std_quantiles": [
+          0.3601112961769104,
+          0.7153493165969849,
+          0.8513491749763489,
+          1.2940773963928223,
+          3.4511044025421143
+        ],
+        "mean_direction_l2": 11.084553718566895,
+        "uncentered_energy_fraction_in_channel_mean": 0.11998878419399261,
+        "centered_spectrum_token_sample": 256,
+        "centered_pc1_energy_fraction": 0.0579228438436985,
+        "centered_first16_energy_fraction": 0.39353251457214355
+      }
+    },
+    {
+      "control": "dinov2",
+      "layer_index": 21,
+      "relative_depth": 0.875,
+      "observed": {
+        "token_l2_mean": 27.316232681274414,
+        "token_l2_quantiles": [
+          20.358177185058594,
+          23.968862533569336,
+          26.67323112487793,
+          29.867033004760742,
+          555.5504760742188
+        ],
+        "channel_std_quantiles": [
+          0.28957492113113403,
+          0.5829552412033081,
+          0.7146884799003601,
+          0.9467263221740723,
+          11.236360549926758
+        ],
+        "mean_direction_l2": 12.367908477783203,
+        "uncentered_energy_fraction_in_channel_mean": 0.15139374136924744,
+        "centered_spectrum_token_sample": 256,
+        "centered_pc1_energy_fraction": 0.06315207481384277,
+        "centered_first16_energy_fraction": 0.3832445442676544
+      },
+      "diagnostic_unlearned_layernorm": {
+        "token_l2_mean": 31.999971389770508,
+        "token_l2_quantiles": [
+          31.999954223632812,
+          31.999969482421875,
+          31.999975204467773,
+          31.999980926513672,
+          32.0
+        ],
+        "channel_std_quantiles": [
+          0.3472825288772583,
+          0.6845232844352722,
+          0.8492753505706787,
+          1.0999144315719604,
+          3.0556249618530273
+        ],
+        "mean_direction_l2": 14.145970344543457,
+        "uncentered_energy_fraction_in_channel_mean": 0.19541874527931213,
+        "centered_spectrum_token_sample": 256,
+        "centered_pc1_energy_fraction": 0.06508712470531464,
+        "centered_first16_energy_fraction": 0.38673117756843567
+      }
+    },
+    {
+      "control": "dinov2",
+      "layer_index": 24,
+      "relative_depth": 1.0,
+      "observed": {
+        "token_l2_mean": 45.51194381713867,
+        "token_l2_quantiles": [
+          36.89067840576172,
+          41.87671661376953,
+          45.640655517578125,
+          48.453285217285156,
+          86.19226837158203
+        ],
+        "channel_std_quantiles": [
+          0.13398896157741547,
+          1.090078353881836,
+          1.2235229015350342,
+          1.6368682384490967,
+          5.726898193359375
+        ],
+        "mean_direction_l2": 13.53219985961914,
+        "uncentered_energy_fraction_in_channel_mean": 0.0881720781326294,
+        "centered_spectrum_token_sample": 256,
+        "centered_pc1_energy_fraction": 0.05541173368692398,
+        "centered_first16_energy_fraction": 0.4196179509162903
+      },
+      "diagnostic_unlearned_layernorm": {
+        "token_l2_mean": 31.999998092651367,
+        "token_l2_quantiles": [
+          31.999984741210938,
+          31.999988555908203,
+          31.99999237060547,
+          31.999996185302734,
+          32.0
+        ],
+        "channel_std_quantiles": [
+          0.09986592084169388,
+          0.765854001045227,
+          0.8597042560577393,
+          1.1536294221878052,
+          4.036613464355469
+        ],
+        "mean_direction_l2": 9.541976928710938,
+        "uncentered_energy_fraction_in_channel_mean": 0.0889153927564621,
+        "centered_spectrum_token_sample": 256,
+        "centered_pc1_energy_fraction": 0.05517985299229622,
+        "centered_first16_energy_fraction": 0.4220085144042969
+      }
+    }
+  ],
+  "device": "cpu",
+  "benchmark_normalization_changed": false,
+  "normalization_protocol": "Observed caches preserve raw intermediate streams and the learned final parent norm. Unlearned per-token LayerNorm here is diagnostic only.",
+  "spectrum_caveat": "Centered spectrum uses 256 evenly spaced tokens from this fixed image subset, separately for each feature stream; it is not the full benchmark covariance."
+}

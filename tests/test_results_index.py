@@ -59,7 +59,7 @@ def test_correction_scope_preserves_full_sweeps_and_cohort_membership():
 
 def test_v3_cohort_uses_the_standard_layout_outside_the_figures():
     models = INDEX["cohorts"]["v3"]["models"]
-    assert set(models) == {"nemotron35_super", "nemotron35_bolt"}
+    assert set(models) == {"nemotron35_super", "nemotron35_bolt", "dinov3"}
     assert not set(models) & set(INDEX["figure_sources"]["geometry_stage_levels"])
     for model in models:
         paths = [f"perturbation/{model}_perturbation.json"]
@@ -69,3 +69,13 @@ def test_v3_cohort_uses_the_standard_layout_outside_the_figures():
         for path in paths:
             assert (RESULTS / path).is_file(), path
     assert not (RESULTS / "v3").exists()
+
+
+def test_dinov3_intervals_point_at_committed_sources():
+    paths = sorted(RESULTS.glob("bootstrap/*-dinov3-vs-dinov2.json"))
+    assert len(paths) == 7
+    for path in paths:
+        protocol = json.loads(path.read_text())["protocol"]
+        for key in ("first_source", "second_source"):
+            if key in protocol:
+                assert (RESULTS.parent / protocol[key]).is_file(), (path.name, key)

@@ -10,6 +10,7 @@ from torch.utils.data import DataLoader
 from vtb.cache import ShardWriter
 from vtb.adapters.deepseek_v41 import DeepSeekV41Adapter
 from vtb.adapters.dinov2 import DINOv2Adapter
+from vtb.adapters.dinov3 import DINOv3Adapter
 from vtb.adapters.gemma4 import Gemma4Adapter
 from vtb.adapters.glm5 import GLM5Adapter
 from vtb.adapters.kimi_k26 import KimiK26Adapter
@@ -25,6 +26,7 @@ from vtb.images import ImageFolder
 ADAPTERS = {
     "deepseek_v41": DeepSeekV41Adapter,
     "dinov2": DINOv2Adapter,
+    "dinov3": DINOv3Adapter,
     "gemma4": Gemma4Adapter,
     "glm5": GLM5Adapter,
     "kimi_k26": KimiK26Adapter,

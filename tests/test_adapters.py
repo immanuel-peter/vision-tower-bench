@@ -10,6 +10,7 @@ from PIL import Image
 
 from vtb.adapters.deepseek_v41 import DeepSeekV41Adapter
 from vtb.adapters.dinov2 import DINOv2Adapter
+from vtb.adapters.dinov3 import DINOv3Adapter
 from vtb.adapters.gemma4 import Gemma4Adapter
 from vtb.adapters.glm5 import GLM5Adapter
 from vtb.adapters.kimi_k26 import KimiK26Adapter
@@ -27,6 +28,7 @@ RESOLUTION = 448
 # Tower grid side, merged grid side, and the widths each Stage should produce.
 EXPECTED = {
     DINOv2Adapter: (32, None, 1024, None, None),
+    DINOv3Adapter: (28, None, 1024, None, None),
     SigLIP2Adapter: (32, None, 1152, None, None),
     MoonViTV2Adapter: (32, 16, 1024, 4096, 7168),
     KimiK26Adapter: (32, 16, 1152, 4608, 7168),

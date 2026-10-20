@@ -1,0 +1,158 @@
+{
+  "task": "depth",
+  "images": 771,
+  "train_images": 541,
+  "capacity_matched": true,
+  "head": "multiscale",
+  "epochs": 10,
+  "seeds": 3,
+  "learning_rates": [
+    0.0001,
+    0.0003,
+    0.001,
+    0.003,
+    0.01,
+    0.03
+  ],
+  "cells": [
+    {
+      "d1": 0.7661,
+      "d1_std": 0.0039,
+      "d2": 0.9132,
+      "d2_std": 0.0021,
+      "d3": 0.9568,
+      "d3_std": 0.0004,
+      "rmse": 3.3625,
+      "rmse_std": 0.0199,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.8193,
+          "d1_std": 0.0063,
+          "d2": 0.9692,
+          "d2_std": 0.0053,
+          "d3": 0.9949,
+          "d3_std": 0.0003,
+          "rmse": 0.5296,
+          "rmse_std": 0.0086,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.7236,
+          "d1_std": 0.0028,
+          "d2": 0.8685,
+          "d2_std": 0.0007,
+          "d3": 0.9264,
+          "d3_std": 0.0007,
+          "rmse": 5.6199,
+          "rmse_std": 0.03,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.7929,
+      "learning_rate_search": {
+        "0.0001": 0.3576,
+        "0.0003": 0.7238,
+        "0.001": 0.7773,
+        "0.003": 0.783,
+        "0.01": 0.7929,
+        "0.03": 0.7789
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.7627,
+          "d2": 0.9115,
+          "d3": 0.9565,
+          "rmse": 3.3755,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.812,
+              "d2": 0.966,
+              "d3": 0.9945,
+              "rmse": 0.5398,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.7235,
+              "d2": 0.8681,
+              "d3": 0.9261,
+              "rmse": 5.6352,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.7639,
+          "d2": 0.9162,
+          "d3": 0.9565,
+          "rmse": 3.3775,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.8185,
+              "d2": 0.9767,
+              "d3": 0.9952,
+              "rmse": 0.5302,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.7203,
+              "d2": 0.8679,
+              "d3": 0.9257,
+              "rmse": 5.6465,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.7716,
+          "d2": 0.9118,
+          "d3": 0.9573,
+          "rmse": 3.3344,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.8273,
+              "d2": 0.965,
+              "d3": 0.995,
+              "rmse": 0.5188,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.7271,
+              "d2": 0.8695,
+              "d3": 0.9273,
+              "rmse": 5.578,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "facebook/dinov3-vitl16-pretrain-lvd1689m",
+      "stage": "tower",
+      "layer_index": 24,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "grid": 28,
+      "trainable_parameters": 1444608,
+      "seconds": 736.4
+    }
+  ]
+}
