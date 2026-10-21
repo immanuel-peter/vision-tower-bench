@@ -79,6 +79,7 @@ def test_adapter_pins_source_drops_registers_and_retains_parent_final_norm(monke
         return parent
 
     monkeypatch.setattr(dinov3.DINOv3ViTModel, "from_pretrained", load)
+    monkeypatch.delenv(dinov3.BUNDLE_ENV, raising=False)
     adapter = dinov3.DINOv3Adapter(resolution=32, dtype=torch.float32, device="cpu")
     assert calls == [((dinov3.SOURCE_REPO,), {"revision": dinov3.SOURCE_REVISION, "dtype": torch.float32})]
     batches = list(adapter.extract(torch.zeros(2, 3, 32, 32), ["first", "second"]))
