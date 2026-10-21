@@ -24,6 +24,8 @@ TRUNCATE_SIGMAS = 3.0
 MIN_BOX_AREA_KEPT = 0.5
 # Letterbox padding colour, the ImageNet mean in 8-bit RGB.
 LETTERBOX_FILL = (124, 116, 104)
+# The head predicts density times this factor; a dot's peak cell then sits near 15.
+DENSITY_SCALE = 100.0
 BINS = ("le50", "50to200", "gt200")
 
 

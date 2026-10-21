@@ -1,27 +1,34 @@
 """Train dense readouts on a cached run and report one geometry column."""
 
 import argparse
+import hashlib
 import json
+import math
+import os
 import time
+from dataclasses import dataclass
 from pathlib import Path
 
 import numpy as np
 import torch
+from safetensors import safe_open
+from safetensors.torch import load_file, save_file
 from torch.nn.functional import interpolate
 
-from vtb import cache, geometry
+from vtb import cache, counting, geometry, probe
+from vtb.count_metrics import bins_for, density_loss, evaluate_count, summarise as summarise_counts
 from vtb.geometry_metrics import (
     depth_si_loss,
     evaluate_depth,
     evaluate_surface_normal,
     normal_loss,
 )
-from vtb.probe_run import fit_reducer, split_indices
+from vtb.probe_run import Split, fit_reducer, split_indices
 
-TASKS = ("depth", "normal")
+TASKS = ("depth", "normal", "count")
 
-# Validation metric and direction for each task.
-SELECTION = {"depth": ("d1", True), "normal": ("mean_deg", False)}
+# Validation metric and direction for each task. Count selects on validation MAE.
+SELECTION = {"depth": ("d1", True), "normal": ("mean_deg", False), "count": ("abs_error", False)}
 
 # Six points spanning both edges the four-point matrix truncated at.
 LEARNING_RATES = (1e-4, 3e-4, 1e-3, 3e-3, 1e-2, 3e-2)
@@ -82,28 +89,44 @@ def coverage_of(targets: torch.Tensor, valid: torch.Tensor | None) -> torch.Tens
     return mask.flatten(1).mean(dim=1)
 
 
-def train_cell(features, targets, valid, split, task, args, learning_rate, seed):
+class Diverged(RuntimeError):
+    """A readout's training loss became non-finite."""
+
+
+def train_cell(features, targets, valid, split, task, args, learning_rate, seed, monitor=None):
+    """Fit one head. ``monitor(epoch, model, mean_loss)`` runs after each epoch when given."""
     torch.manual_seed(seed)
     model = build_head(features.shape[1], task, args).to(args.device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=1e-4)
     schedule = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, args.epochs)
 
-    for _ in range(args.epochs):
+    for epoch in range(args.epochs):
         model.train()
         order = split.train[torch.randperm(len(split.train))]
+        total = torch.zeros((), device=args.device)
         for start in range(0, len(order), args.batch_size):
             index = order[start:start + args.batch_size]
             loss = _loss(model, features, targets, valid, index, task, args.device)
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
+            if monitor is not None:
+                total += loss.detach() * len(index)
         schedule.step()
+        if monitor is not None:
+            mean_loss = total.item() / len(order)
+            if not math.isfinite(mean_loss):
+                raise Diverged(f"loss {mean_loss} at epoch {epoch + 1}, lr {learning_rate:g}, seed {seed}")
+            monitor(epoch + 1, model, mean_loss)
 
     return model
 
 
 def _predict(model, features, index, device, target_hw):
-    prediction = model([features[index].to(device)])
+    prediction = model([features[index].to(device).float()])
+    # CountHead already predicts on the declared target grid.
+    if tuple(prediction.shape[-2:]) == tuple(target_hw):
+        return prediction
     return interpolate(prediction, target_hw, mode="bilinear", align_corners=False)
 
 
@@ -112,11 +135,14 @@ def _loss(model, features, targets, valid, index, task, device):
     prediction = _predict(model, features, index, device, batch.shape[-2:])
     if task == "depth":
         return depth_si_loss(prediction, batch)
+    if task == "count":
+        return density_loss(prediction, batch)
     return normal_loss(prediction, batch, valid[index].to(device))
 
 
 @torch.inference_mode()
 def score(model, features, targets, valid, index, task, args) -> dict[str, torch.Tensor]:
+    """Per-image metrics. For count, ``valid`` holds each image's integer retained count."""
     model.eval()
     totals: dict[str, list[torch.Tensor]] = {}
     for start in range(0, len(index), args.batch_size):
@@ -125,6 +151,8 @@ def score(model, features, targets, valid, index, task, args) -> dict[str, torch
         prediction = _predict(model, features, chunk, args.device, batch.shape[-2:])
         if task == "depth":
             metrics = evaluate_depth(prediction, batch, scale_invariant=args.scale_invariant)
+        elif task == "count":
+            metrics = evaluate_count(prediction, valid[chunk])
         else:
             metrics = evaluate_surface_normal(prediction, batch, valid[chunk].to(args.device))
         for key, value in metrics.items():
@@ -148,16 +176,31 @@ def summarise(metrics, coverage, image_ids, index, scenes) -> dict:
     }
 
 
-def select_learning_rate(features, targets, valid, split, task, args) -> tuple[float, dict]:
+def select_learning_rate(features, targets, valid, split, task, args, curves=None) -> tuple[float, dict]:
+    """Search rates on validation. With ``curves``, record per-epoch curves and survive divergence."""
     metric, higher_is_better = SELECTION[task]
     searched: dict[str, float] = {}
     best_rate, best_score = None, None
     for rate in args.learning_rates:
-        model = train_cell(features, targets, valid, split, task, args, rate, seed=0)
-        value = score(model, features, targets, valid, split.val, task, args)[metric].mean().item()
+        if curves is None:
+            model = train_cell(features, targets, valid, split, task, args, rate, seed=0)
+            value = score(model, features, targets, valid, split.val, task, args)[metric].mean().item()
+        else:
+            curve = curves.setdefault(f"lr {rate:g}", {})
+            try:
+                model = train_cell(features, targets, valid, split, task, args, rate, seed=0,
+                                   monitor=epoch_monitor(curve, features, targets, valid, split, task, args))
+                value = score(model, features, targets, valid, split.val, task, args)[metric].mean().item()
+            except Diverged as error:
+                curve["diverged"] = str(error)
+                value = math.nan
         searched[f"{rate:g}"] = round(value, 4)
+        if not math.isfinite(value):
+            continue
         if best_score is None or (value > best_score if higher_is_better else value < best_score):
             best_rate, best_score = rate, value
+    if best_rate is None:
+        raise Diverged(f"every learning rate diverged: {searched}")
     return best_rate, {
         "learning_rate": best_rate,
         "val_metric": metric,
@@ -174,8 +217,8 @@ def _mean_std(values: list[float]) -> tuple[float, float]:
 def aggregate(runs: list[dict]) -> dict:
     out: dict = {}
     for key, value in runs[0].items():
-        if key == "by_scene":
-            out[key] = {name: aggregate([r["by_scene"][name] for r in runs]) for name in value}
+        if key in ("by_scene", "by_bin"):
+            out[key] = {name: aggregate([r[key][name] for r in runs]) for name in value}
         elif key in ("images", "coverage"):
             out[key] = value
         else:
@@ -186,6 +229,8 @@ def aggregate(runs: list[dict]) -> dict:
 def build_head(width: int, task: str, args) -> torch.nn.Module:
     if task == "depth":
         return geometry.DepthHead([width], head=args.head, max_depth=args.max_depth)
+    if task == "count":
+        return geometry.CountHead([width], head=args.head)
     return geometry.SurfaceNormalHead([width], head=args.head)
 
 
@@ -202,6 +247,356 @@ def run_cell(features, targets, valid, split, task, coverage, image_ids, scenes,
         metrics = score(model, features, targets, valid, split.test, task, args)
         per_seed.append(summarise(metrics, coverage, image_ids, split.test, scenes))
     return aggregate(per_seed) | selection | {"seeds": args.seeds, "per_seed": per_seed}
+
+
+# Count readouts. FSC-147 uses its official class-disjoint split, and every final
+# seed's head, PCA and per-image predictions are kept for transfer and bootstrap.
+
+PREDICTION_COLUMNS = (
+    "image_id", "split", "stage", "layer", "arm", "seed", "true_count",
+    "predicted_count", "signed_error", "abs_error", "sq_error", "bin",
+)
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with open(path, "rb") as handle:
+        for block in iter(lambda: handle.read(1 << 24), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def write_atomic(path: Path, text: str) -> None:
+    scratch = path.with_name(f".{path.name}.{os.getpid()}.partial")
+    scratch.write_text(text)
+    os.replace(scratch, path)
+
+
+def official_split(image_ids: list[str], splits: dict[str, list[str]], keep: set[str] | None = None) -> Split:
+    """Index the cache rows by the manifest's split lists. The cache must hold exactly those IDs."""
+    position = {image_id: row for row, image_id in enumerate(image_ids)}
+    listed = [image_id for name in ("train", "val", "test") for image_id in splits[name]]
+    if len(position) != len(image_ids) or len(set(listed)) != len(listed):
+        raise ValueError("duplicate image IDs in the cache or the split lists")
+    if set(listed) != set(image_ids):
+        raise ValueError(
+            f"cache and split differ: {len(set(image_ids) - set(listed))} unlisted, "
+            f"{len(set(listed) - set(image_ids))} missing"
+        )
+
+    def rows(name: str) -> torch.Tensor:
+        chosen = [position[i] for i in splits[name] if keep is None or i in keep]
+        return torch.tensor(chosen, dtype=torch.long)
+
+    return Split(rows("train"), rows("val"), rows("test"))
+
+
+def count_targets(path: Path, image_ids: list[str], images: dict) -> tuple[torch.Tensor, torch.Tensor]:
+    """(N, 1, G, G) density and (N,) integer retained counts, checked against each other."""
+    density, _ = load_targets(path, image_ids, "count")
+    counts = torch.tensor([images[i]["count"] for i in image_ids], dtype=torch.float64)
+    mass = density.double().flatten(1).sum(dim=1)
+    if not torch.allclose(mass, counts, atol=1e-3 + 1e-5 * counts.max().item()):
+        worst = (mass - counts).abs().argmax().item()
+        raise ValueError(f"{image_ids[worst]} density sums to {mass[worst]:.4f}, count {counts[worst]:.0f}")
+    return density, counts
+
+
+def exemplar_boxes(images: dict, image_ids: list[str], rows: list[int], limit: int | None = None) -> list[np.ndarray]:
+    boxes = []
+    for row in rows:
+        entry = images[image_ids[row]]
+        valid = [box for box, ok in zip(entry["boxes"], entry["box_valid"]) if ok]
+        boxes.append(np.asarray(valid[:limit], dtype=np.float64).reshape(-1, 4))
+    return boxes
+
+
+def exemplar_channel(features: torch.Tensor, boxes: list[np.ndarray], rows: list[int], chunk: int = 256) -> torch.Tensor:
+    """The conditioning channel for ``rows``; other rows stay zero and never enter a split."""
+    channel = torch.zeros(features.shape[0], 1, *features.shape[-2:], dtype=features.dtype)
+    for start in range(0, len(rows), chunk):
+        index = rows[start:start + chunk]
+        channel[index] = counting.prototype_similarity(
+            features[index].to(features.device), boxes[start:start + chunk]
+        ).cpu()
+    return channel
+
+
+def epoch_monitor(curve: dict, features, targets, valid, split, task, args):
+    metric = SELECTION[task][0]
+
+    def record(epoch: int, model, mean_loss: float) -> None:
+        value = score(model, features, targets, valid, split.val, task, args)[metric].mean().item()
+        curve.setdefault("epoch", []).append(epoch)
+        curve.setdefault("train_loss", []).append(round(mean_loss, 6))
+        curve.setdefault(f"val_{metric}", []).append(round(value, 4))
+
+    return record
+
+
+def prediction_rows(metrics, image_ids, index, split_name, stage, layer, arm, seed) -> list[str]:
+    rows = []
+    bins = bins_for(metrics["true_count"].tolist())
+    for position, row in enumerate(index.tolist()):
+        values = (
+            image_ids[row], split_name, stage, layer, arm, seed,
+            int(round(metrics["true_count"][position].item())),
+            f"{metrics['predicted_count'][position].item():.4f}",
+            f"{metrics['signed_error'][position].item():.4f}",
+            f"{metrics['abs_error'][position].item():.4f}",
+            f"{metrics['sq_error'][position].item():.4f}",
+            bins[position],
+        )
+        rows.append("\t".join(str(v) for v in values))
+    return rows
+
+
+def save_readout(directory: Path, seed: int, model: torch.nn.Module, reducer, meta: dict) -> None:
+    directory.mkdir(parents=True, exist_ok=True)
+    if reducer is not None:
+        pca = directory / "pca.safetensors"
+        scratch = pca.with_name(f".{pca.name}.{os.getpid()}.partial")
+        save_file({"mean": reducer.mean.contiguous(), "basis": reducer.basis.contiguous()}, str(scratch),
+                  metadata={"meta": json.dumps({"fit_split": "train", "width": reducer.basis.shape[1]})})
+        os.replace(scratch, pca)
+    state = {key: value.detach().cpu().contiguous() for key, value in model.state_dict().items()}
+    path = directory / f"seed{seed}.safetensors"
+    scratch = path.with_name(f".{path.name}.{os.getpid()}.partial")
+    save_file(state, str(scratch), metadata={"meta": json.dumps(meta | {"seed": seed, "pca": reducer is not None})})
+    os.replace(scratch, path)
+
+
+@dataclass
+class Readout:
+    """A saved count head with its PCA, ready for frozen transfer."""
+
+    head: torch.nn.Module
+    reducer: probe.Reducer | None
+    conditioned: bool
+    meta: dict
+
+    @torch.inference_mode()
+    def density(self, tokens: torch.Tensor, boxes: list[np.ndarray] | None = None,
+                valid: torch.Tensor | None = None) -> torch.Tensor:
+        """(N, T, D) cache tokens to (N, 1, G, G) density, on the training numerical path."""
+        features = tokens.float().cpu()
+        if self.reducer is not None:
+            features = self.reducer(features)
+        rows, count, width = features.shape
+        side = math.isqrt(count)
+        if side * side != count:
+            raise ValueError(f"{count} tokens do not form a square grid")
+        features = features.transpose(1, 2).reshape(rows, width, side, side).contiguous()
+        if self.conditioned:
+            if boxes is None:
+                raise ValueError("this readout needs exemplar boxes")
+            features = counting.condition(features, boxes, valid)
+        elif boxes is not None:
+            raise ValueError("this readout is exemplar-free")
+        device = next(self.head.parameters()).device
+        return self.head([features.to(device)])
+
+
+def load_readout(directory: Path, seed: int, device: str = "cuda") -> Readout:
+    path = Path(directory) / f"seed{seed}.safetensors"
+    with safe_open(path, framework="pt") as handle:
+        meta = json.loads(handle.metadata()["meta"])
+    head = geometry.CountHead(
+        [meta["input_dim"]], head=meta["head"], hidden_dim=meta["hidden_dim"],
+        grid=meta["grid"], scale=meta["density_scale"],
+    )
+    head.load_state_dict(load_file(path))
+    reducer = None
+    if meta["pca"]:
+        saved = load_file(Path(directory) / "pca.safetensors")
+        reducer = probe.Reducer(basis=saved["basis"], mean=saved["mean"])
+    return Readout(head.to(device).eval(), reducer, meta["arm"] == "exemplar", meta)
+
+
+def count_identity(args, stage: str, layer: int, provenance: dict) -> str:
+    """Hash of everything that decides a count cell's numbers, for safe resumption."""
+    fields = {
+        "protocol": counting.PROTOCOL, "grid": counting.TARGET_GRID, "sigma": counting.SIGMA_CELLS,
+        "truncate": counting.TRUNCATE_SIGMAS, "scale": counting.DENSITY_SCALE,
+        "arm": args.arm, "matched": args.match_capacity, "width": args.width, "head": args.head,
+        "epochs": args.epochs, "batch_size": args.batch_size,
+        "learning_rates": [f"{r:g}" for r in args.learning_rates], "seeds": args.seeds,
+        "stage": stage, "layer": layer,
+    } | provenance
+    return hashlib.sha256(json.dumps(fields, sort_keys=True).encode()).hexdigest()
+
+
+def finished_cell(cells_dir: Path, key: str, identity: str, readouts: Path | None, seeds: int) -> dict | None:
+    path = cells_dir / f"{key}.json"
+    if not path.exists():
+        return None
+    cell = json.loads(path.read_text())
+    if cell.get("identity") != identity or not (cells_dir / f"{key}.predictions.tsv").exists():
+        return None
+    if readouts is not None and not all((readouts / f"seed{s}.safetensors").exists() for s in range(seeds)):
+        return None
+    return cell
+
+
+def run_count_cell(features, targets, counts, split, image_ids, images, stage, layer, reducer,
+                   readouts, meta, args) -> tuple[dict, list[str], list[str]]:
+    curves: dict = {}
+    best_rate, selection = select_learning_rate(features, targets, counts, split, "count", args, curves.setdefault("search", {}))
+    per_seed, one_exemplar, test_rows, val_rows = [], [], [], []
+    for seed in range(args.seeds):
+        curve = curves.setdefault(f"seed {seed}", {})
+        model = train_cell(features, targets, counts, split, "count", args, best_rate, seed,
+                           monitor=epoch_monitor(curve, features, targets, counts, split, "count", args))
+        test = score(model, features, targets, counts, split.test, "count", args)
+        val = score(model, features, targets, counts, split.val, "count", args)
+        per_seed.append(summarise_counts(test, bins_for(test["true_count"].tolist())))
+        test_rows += prediction_rows(test, image_ids, split.test, "test", stage, layer, args.arm, seed)
+        val_rows += prediction_rows(val, image_ids, split.val, "val", stage, layer, args.arm, seed)
+        if args.arm == "exemplar":
+            one_exemplar.append(one_exemplar_val(model, features, targets, counts, split, image_ids, images, args))
+        if readouts is not None:
+            save_readout(readouts, seed, model, reducer, meta | {"learning_rate": best_rate})
+    cell = aggregate(per_seed) | selection | {"seeds": args.seeds, "per_seed": per_seed, "curves": curves}
+    if one_exemplar:
+        cell["one_exemplar_val"] = {"note": "transfer diagnostic only; never used for selection",
+                                    "per_seed": one_exemplar} | aggregate(one_exemplar)
+    return cell, test_rows, val_rows
+
+
+def one_exemplar_val(model, features, targets, counts, split, image_ids, images, args) -> dict:
+    """Validation with only the first release box, read by the same three-box head."""
+    rows = split.val.tolist()
+    saved = features[split.val, -1:].clone()
+    single = exemplar_channel(features[split.val, :-1], exemplar_boxes(images, image_ids, rows, limit=1),
+                              list(range(len(rows))))
+    features[split.val, -1:] = single.to(features.device)
+    try:
+        metrics = score(model, features, targets, counts, split.val, "count", args)
+    finally:
+        features[split.val, -1:] = saved
+    return summarise_counts(metrics, bins_for(metrics["true_count"].tolist()))
+
+
+def count_main(args) -> None:
+    targets_manifest = manifest(args.targets)
+    images, splits = targets_manifest["images"], targets_manifest["splits"]
+    completion = cache.completion(args.run)
+    provenance = {"cache": completion["sha256"], "targets": sha256_file(args.targets),
+                  "manifest": sha256_file(args.targets.with_name(args.targets.name.replace("_targets.npz", "_manifest.json")))}
+    capacity = "matched" if args.match_capacity else "raw"
+    name = args.name or args.run.name
+    out = args.out or args.run / f"{name}_count_{args.arm}_{capacity}.json"
+    cells_dir = out.with_suffix(".cells")
+    cells_dir.mkdir(parents=True, exist_ok=True)
+
+    try:
+        chosen = selected_slices(args.run, args.only, args.stages, args.deepest_only)
+    except ValueError as error:
+        raise SystemExit(str(error)) from error
+    if args.arm == "exemplar" and any(stage != "tower" for stage, _ in chosen):
+        raise SystemExit("the exemplar arm is Tower-only; pass --stages tower --deepest-only")
+
+    cells = []
+    for stage, layer in chosen:
+        key = f"{stage}_L{layer:02d}"
+        identity = count_identity(args, stage, layer, provenance)
+        readouts = args.readouts / name / f"{args.arm}_{capacity}" / key if args.readouts else None
+        if done := finished_cell(cells_dir, key, identity, readouts, args.seeds):
+            print(f"{stage:>9} L{layer:02d}  already complete, skipping", flush=True)
+            cells.append(done)
+            continue
+
+        started = time.perf_counter()
+        batch = cache.load_batch(args.run, stage, layer)
+        order, token_width = batch.image_ids, batch.tokens.shape[-1]
+        eligible = {i for i in order if images[i]["exemplar_eligible"]} if args.arm == "exemplar" else None
+        split = official_split(order, splits, eligible)
+        targets, counts = count_targets(args.targets, order, images)
+
+        reducer = None
+        if args.match_capacity:
+            # PCA always fits on the whole official training split, so both arms share it.
+            # Reducer.fit upcasts to float32 itself, so the bfloat16 cache gives the same fit.
+            reducer = fit_reducer(batch.tokens, official_split(order, splits), args.width)
+            batch = batch.with_tokens(torch.cat([
+                reducer(batch.tokens[start:start + 512].float())
+                for start in range(0, len(order), 512)
+            ]))
+        # bfloat16 to float32 is exact, so converting after the move changes no value.
+        features = geometry.dense_map(batch).to(args.features_device).float()
+        if args.arm == "exemplar":
+            rows = sorted(torch.cat([split.train, split.val, split.test]).tolist())
+            channel = exemplar_channel(features, exemplar_boxes(images, order, rows), rows)
+            features = torch.cat([features, channel.to(features.device)], dim=1)
+
+        parameters = geometry.parameter_count(build_head(features.shape[1], "count", args))
+        meta = {
+            "protocol": counting.PROTOCOL, "task": "count", "arm": args.arm, "capacity": capacity,
+            "input_dim": features.shape[1], "head": args.head, "hidden_dim": 512,
+            "grid": counting.TARGET_GRID, "density_scale": counting.DENSITY_SCALE,
+            "epochs": args.epochs, "batch_size": args.batch_size, "model_id": batch.model_id,
+            "stage": stage, "layer": layer, "feature_cache": str(args.run),
+            "feature_cache_sha256": provenance["cache"], "targets_sha256": provenance["targets"],
+            "manifest_sha256": provenance["manifest"], "torch": torch.__version__,
+            "precision": precision(),
+        }
+        try:
+            cell, test_rows, val_rows = run_count_cell(
+                features, targets, counts, split, order, images, stage, layer, reducer, readouts, meta, args
+            )
+        except Diverged as error:
+            write_atomic(cells_dir / f"{key}.failed.json", json.dumps({"error": str(error), "identity": identity}) + "\n")
+            print(f"{stage:>9} L{layer:02d}  FAILED {error}", flush=True)
+            continue
+        cell |= {
+            "identity": identity, "model_id": batch.model_id, "stage": stage, "layer_index": layer,
+            "relative_depth": batch.relative_depth, "token_width": token_width,
+            "input_width": features.shape[1], "grid": features.shape[-1],
+            "trainable_parameters": parameters,
+            "images": {"train": len(split.train), "val": len(split.val), "test": len(split.test)},
+            "readout_dir": str(readouts) if readouts else None,
+            "seconds": round(time.perf_counter() - started, 1),
+        }
+        header = "\t".join(PREDICTION_COLUMNS) + "\n"
+        write_atomic(cells_dir / f"{key}.val.tsv", header + "\n".join(val_rows) + "\n")
+        write_atomic(cells_dir / f"{key}.predictions.tsv", header + "\n".join(test_rows) + "\n")
+        write_atomic(cells_dir / f"{key}.json", json.dumps(cell, indent=2) + "\n")
+        cells.append(cell)
+        print(
+            f"{stage:>9} L{layer:02d}  MAE {cell['mae']:.2f} +- {cell['mae_std']:.2f}  "
+            f"RMSE {cell['rmse']:.2f}  lr {cell['learning_rate']:g}  params {parameters:,}  "
+            f"{cell['seconds']:.0f}s",
+            flush=True,
+        )
+        del features, batch
+
+    expected = len(chosen)
+    payload = {
+        "task": "count", "protocol": counting.PROTOCOL, "dataset": targets_manifest.get("dataset", "FSC-147"),
+        "arm": args.arm, "capacity_matched": args.match_capacity, "head": args.head,
+        "target_grid": counting.TARGET_GRID, "sigma_cells": counting.SIGMA_CELLS,
+        "density_scale": counting.DENSITY_SCALE, "epochs": args.epochs, "batch_size": args.batch_size,
+        "seeds": args.seeds, "learning_rates": args.learning_rates, "split": "official",
+        "expected_cells": expected, "complete": len(cells) == expected,
+        "provenance": provenance, "cells": cells,
+    }
+    write_atomic(out, json.dumps(payload, indent=2) + "\n")
+    header = "\t".join(PREDICTION_COLUMNS) + "\n"
+    rows = [line for cell in cells for line in
+            (cells_dir / f"{cell['stage']}_L{cell['layer_index']:02d}.predictions.tsv").read_text().splitlines()[1:]]
+    write_atomic(out.with_suffix(".predictions.tsv"), header + "\n".join(rows) + "\n")
+    print(f"\nwrote {out} ({len(cells)}/{expected} cells)")
+    if len(cells) != expected:
+        raise SystemExit(f"{expected - len(cells)} cells failed; see {cells_dir}")
+
+
+def precision() -> dict:
+    return {
+        "features": "bfloat16 cache, float32 readout",
+        "matmul_tf32": torch.backends.cuda.matmul.allow_tf32,
+        "cudnn_tf32": torch.backends.cudnn.allow_tf32,
+        "float32_matmul_precision": torch.get_float32_matmul_precision(),
+    }
 
 
 def main() -> None:
@@ -235,6 +630,13 @@ def main() -> None:
         help="depth ceiling in metres; defaults to the prep manifest",
     )
     ap.add_argument("--device", default="cuda")
+    ap.add_argument("--arm", default="free", choices=("free", "exemplar"),
+                    help="count only: exemplar-free, or conditioned on the release exemplar boxes")
+    ap.add_argument("--name", default=None, help="count only: model name for outputs and readouts")
+    ap.add_argument("--readouts", type=Path, default=None,
+                    help="count only: save every final seed's head and the PCA under this directory")
+    ap.add_argument("--features-device", default="cpu",
+                    help="count only: hold the cell's features here, e.g. cuda")
     ap.add_argument(
         "--only",
         nargs="+",
@@ -255,6 +657,9 @@ def main() -> None:
         help="run only cells at the final Tower layer",
     )
     args = ap.parse_args()
+    if args.task == "count":
+        count_main(args)
+        return
     args.max_depth = depth_range(args.targets, args.max_depth)
     scenes = manifest(args.targets).get("scenes", {})
     print(f"depth bins span 0 to {args.max_depth:.1f} m")

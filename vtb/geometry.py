@@ -6,6 +6,7 @@ import torch
 from torch import nn
 from torch.nn.functional import interpolate
 
+from vtb.counting import DENSITY_SCALE, TARGET_GRID
 from vtb.feature_batch import FeatureBatch
 
 PROBE3D_COMMIT = "https://github.com/mbanani/probe3d"
@@ -103,6 +104,30 @@ class SurfaceNormalHead(nn.Module):
 
     def forward(self, feats: list[torch.Tensor]) -> torch.Tensor:
         return self.head(feats)
+
+
+class CountHead(nn.Module):
+    """Non-negative density on the declared count grid; its sum is the count.
+
+    Area resampling averages every head pixel into one target cell, whatever the
+    patch grid. The head predicts density times ``scale``.
+    """
+
+    def __init__(
+        self,
+        input_dims: list[int],
+        head: str = "multiscale",
+        hidden_dim: int = 512,
+        grid: int = TARGET_GRID,
+        scale: float = DENSITY_SCALE,
+    ):
+        super().__init__()
+        self.head = _build(head, input_dims, 1, hidden_dim)
+        self.grid, self.scale = grid, scale
+
+    def forward(self, feats: list[torch.Tensor]) -> torch.Tensor:
+        scaled = interpolate(self.head(feats), (self.grid, self.grid), mode="area")
+        return scaled.relu() / self.scale
 
 
 def _build(head: str, input_dims: list[int], output_dim: int, hidden_dim: int) -> nn.Module:

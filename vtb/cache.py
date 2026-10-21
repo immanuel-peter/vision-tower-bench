@@ -1,3 +1,5 @@
+import hashlib
+import json
 import re
 from collections.abc import Iterator
 from pathlib import Path
@@ -82,3 +84,60 @@ class ShardWriter:
     @property
     def slice_count(self) -> int:
         return len(self.shard_counts)
+
+
+COMPLETION = "complete.json"
+
+
+def validate(run_dir: Path, expected_ids: list[str], slices_wanted: list[tuple[str, int]]) -> dict:
+    """Check a finished cache slice by slice: the expected IDs once each, one shape and metadata."""
+    run_dir = Path(run_dir)
+    found = slices(run_dir)
+    if sorted(found) != sorted(slices_wanted):
+        raise ValueError(f"{run_dir} holds slices {found}, expected {sorted(slices_wanted)}")
+    expected = sorted(expected_ids)
+    if len(set(expected)) != len(expected):
+        raise ValueError("expected image IDs repeat")
+    report = {}
+    for stage, layer in found:
+        rows, shape, meta = 0, None, None
+        image_ids: list[str] = []
+        for path in shards(run_dir, stage, layer):
+            with safe_open(path, framework="pt") as handle:
+                metadata = handle.metadata() or {}
+                piece = handle.get_slice("tokens").get_shape()
+            ids = metadata["image_ids"].split("\n")
+            if piece[0] != len(ids):
+                raise ValueError(f"{path.name}: {piece[0]} rows but {len(ids)} IDs")
+            if shape is not None and piece[1:] != shape:
+                raise ValueError(f"{path.name}: token shape {piece[1:]} differs from {shape}")
+            fixed = {k: metadata[k] for k in ("model_id", "stage", "layer_index", "num_layers", "resolution", "pooled_to")}
+            if meta is not None and fixed != meta:
+                raise ValueError(f"{path.name}: metadata differs from earlier shards")
+            shape, meta = piece[1:], fixed
+            image_ids += ids
+            rows += piece[0]
+        if sorted(image_ids) != expected:
+            missing, extra = set(expected) - set(image_ids), set(image_ids) - set(expected)
+            raise ValueError(f"{stage} L{layer:02d}: {len(missing)} missing, {len(extra)} unexpected, "
+                             f"{len(image_ids) - len(set(image_ids))} repeated IDs")
+        report[f"{stage}_L{layer:02d}"] = {"rows": rows, "tokens": shape[0], "width": shape[1]} | meta
+    return report
+
+
+def write_completion(run_dir: Path, info: dict) -> Path:
+    """Record a validated cache. Its hash identifies the features in readout provenance."""
+    path = Path(run_dir) / COMPLETION
+    scratch = path.with_name(f".{COMPLETION}.partial")
+    scratch.write_text(json.dumps(info, indent=2, sort_keys=True) + "\n")
+    scratch.replace(path)
+    return path
+
+
+def completion(run_dir: Path) -> dict:
+    """The completion record of a validated cache; a cache without one is incomplete."""
+    path = Path(run_dir) / COMPLETION
+    if not path.exists():
+        raise FileNotFoundError(f"{run_dir} has no {COMPLETION}; validate the extraction first")
+    raw = path.read_bytes()
+    return json.loads(raw) | {"sha256": hashlib.sha256(raw).hexdigest()}
