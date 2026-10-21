@@ -84,6 +84,23 @@ def letterbox_frame(width: int, height: int) -> SquareFrame:
     return SquareFrame(-((side - width) // 2), -((side - height) // 2), side, width, height, "letterbox")
 
 
+def onto_image(xy: np.ndarray, width: int, height: int, tolerance: float = 1.0) -> tuple[np.ndarray, int]:
+    """Clamp source dots within ``tolerance`` px outside the image onto its last pixel.
+
+    Some release dots sit exactly on the closing edge (x == width). They mark
+    objects in the image, so the half-open rule must not drop them; the rule
+    still decides membership at interior crop edges. Returns the dots and how
+    many moved. Dots farther outside are left for the frame to drop.
+    """
+    xy = np.asarray(xy, dtype=np.float64).reshape(-1, 2).copy()
+    limit = np.array([np.nextafter(width, 0.0), np.nextafter(height, 0.0)])
+    near = np.all((xy >= -tolerance) & (xy <= limit + tolerance), axis=1)
+    clamped = np.clip(xy, 0.0, limit)
+    moved = near & np.any(clamped != xy, axis=1)
+    xy[moved] = clamped[moved]
+    return xy, int(moved.sum())
+
+
 def inside(unit_xy: np.ndarray) -> np.ndarray:
     """Points retained by the canvas, using the half-open boundary rule."""
     unit_xy = np.asarray(unit_xy, dtype=np.float64).reshape(-1, 2)

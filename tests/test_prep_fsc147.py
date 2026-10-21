@@ -72,10 +72,12 @@ def test_crop_recounts_with_half_open_edges_and_writes_native_png(tmp_path):
     result = prep.prepare_one(task(raw, images, tmp_path / "out", "1.jpg"))
     record = result["record"]
     assert record["frame"] == {"kind": "centre_crop", "left": 2, "top": 0, "side": 6, "width": 10, "height": 6}
-    # x = 2 (left edge) and x = 7.999 stay; x = 8, x = 1.999 and y = 6 (closing edges) drop.
-    assert (record["source_count"], record["count"], record["bin"]) == (6, 3, "le50")
+    # x = 2 (left edge) and x = 7.999 stay; x = 8 and x = 1.999 (crop edges) drop. y = 6 lies on the
+    # image's own closing edge, so it is clamped onto the image and stays.
+    assert (record["source_count"], record["count"], record["bin"]) == (6, 4, "le50")
+    assert "1 release dots on the image edge clamped onto it" in record["notes"]
     assert result["density"].dtype == np.float32 and result["density"].shape == (64, 64)
-    assert result["density"].sum(dtype=np.float64) == pytest.approx(3, abs=1e-5)
+    assert result["density"].sum(dtype=np.float64) == pytest.approx(4, abs=1e-5)
     with Image.open(images / "1.jpg") as source, Image.open(tmp_path / "out/images/fsc147_1.png") as crop:
         assert crop.size == (6, 6)
         assert np.array_equal(np.asarray(crop), np.asarray(source)[:, 2:8])

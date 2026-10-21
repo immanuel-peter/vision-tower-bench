@@ -84,3 +84,10 @@ def test_count_bins_use_inclusive_upper_edges():
     assert [counting.count_bin(c) for c in (0, 50, 50.5, 200, 201)] == [
         "le50", "le50", "50to200", "50to200", "gt200",
     ]
+
+
+def test_dots_on_the_closing_image_edge_are_clamped_onto_the_image():
+    dots, moved = counting.onto_image(np.array([[384.0, 10.0], [5.0, 384.0], [383.5, 2.0], [390.0, 3.0]]), 384, 384)
+    assert moved == 2
+    frame = counting.centre_crop_frame(384, 384)
+    assert counting.inside(frame.points(dots)).tolist() == [True, True, True, False]

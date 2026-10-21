@@ -207,7 +207,8 @@ def prepare_one(task: dict) -> dict:
         image = decoded.convert("RGB")
     width, height = image.size
     entry = task["annotation"]
-    dots = np.asarray(entry["points"], dtype=np.float64).reshape(-1, 2)
+    release_dots = np.asarray(entry["points"], dtype=np.float64).reshape(-1, 2)
+    dots, edge_dots = counting.onto_image(release_dots, width, height)
     corners = entry["box_examples_coordinates"]
     out, iid = Path(task["out"]), task["image_id"]
 
@@ -222,6 +223,8 @@ def prepare_one(task: dict) -> dict:
     if len(corners) > EXEMPLARS:
         notes.append(f"release has {len(corners)} boxes; boxes 0-2 used")
     source_box = np.stack([corners_to_box(c) for c in corners[:EXEMPLARS]])
+    if edge_dots:
+        notes.append(f"{edge_dots} release dots on the image edge clamped onto it")
     outside_dots = int((~counting.inside(dots / (width, height))).sum())
     if outside_dots:
         notes.append(f"{outside_dots} release dots lie outside the source image")
