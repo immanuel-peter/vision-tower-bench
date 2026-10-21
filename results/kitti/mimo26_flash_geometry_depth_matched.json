@@ -1,0 +1,225 @@
+{
+  "task": "depth",
+  "images": 1000,
+  "train_images": 700,
+  "capacity_matched": true,
+  "head": "multiscale",
+  "epochs": 10,
+  "seeds": 3,
+  "learning_rates": [
+    0.0001,
+    0.0003,
+    0.001,
+    0.003,
+    0.01,
+    0.03
+  ],
+  "cells": [
+    {
+      "d1": 0.9501,
+      "d1_std": 0.0013,
+      "d2": 0.9914,
+      "d2_std": 0.0004,
+      "d3": 0.9971,
+      "d3_std": 0.0,
+      "rmse": 3.3327,
+      "rmse_std": 0.0162,
+      "images": 150,
+      "coverage": 0.2239,
+      "by_scene": {
+        "driving": {
+          "d1": 0.9501,
+          "d1_std": 0.0013,
+          "d2": 0.9914,
+          "d2_std": 0.0004,
+          "d3": 0.9971,
+          "d3_std": 0.0,
+          "rmse": 3.3327,
+          "rmse_std": 0.0162,
+          "images": 150,
+          "coverage": 0.2239
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.9559,
+      "learning_rate_search": {
+        "0.0001": 0.8937,
+        "0.0003": 0.9291,
+        "0.001": 0.946,
+        "0.003": 0.9534,
+        "0.01": 0.9559,
+        "0.03": 0.9514
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.9484,
+          "d2": 0.9909,
+          "d3": 0.9971,
+          "rmse": 3.3226,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9484,
+              "d2": 0.9909,
+              "d3": 0.9971,
+              "rmse": 3.3226,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        },
+        {
+          "d1": 0.9516,
+          "d2": 0.9914,
+          "d3": 0.9971,
+          "rmse": 3.3199,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9516,
+              "d2": 0.9914,
+              "d3": 0.9971,
+              "rmse": 3.3199,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        },
+        {
+          "d1": 0.9502,
+          "d2": 0.9919,
+          "d3": 0.9971,
+          "rmse": 3.3556,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9502,
+              "d2": 0.9919,
+              "d3": 0.9971,
+              "rmse": 3.3556,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        }
+      ],
+      "max_depth": 85.766,
+      "model_id": "immanuelpeter/MiMoViT-2.6-Flash",
+      "stage": "projected",
+      "layer_index": 28,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "grid": 14,
+      "trainable_parameters": 1444608,
+      "seconds": 275.8
+    },
+    {
+      "d1": 0.9154,
+      "d1_std": 0.0011,
+      "d2": 0.9857,
+      "d2_std": 0.0002,
+      "d3": 0.9971,
+      "d3_std": 0.0,
+      "rmse": 3.7343,
+      "rmse_std": 0.0335,
+      "images": 150,
+      "coverage": 0.2239,
+      "by_scene": {
+        "driving": {
+          "d1": 0.9154,
+          "d1_std": 0.0011,
+          "d2": 0.9857,
+          "d2_std": 0.0002,
+          "d3": 0.9971,
+          "d3_std": 0.0,
+          "rmse": 3.7343,
+          "rmse_std": 0.0335,
+          "images": 150,
+          "coverage": 0.2239
+        }
+      },
+      "learning_rate": 0.003,
+      "val_metric": "d1",
+      "val_score": 0.9237,
+      "learning_rate_search": {
+        "0.0001": 0.8675,
+        "0.0003": 0.8911,
+        "0.001": 0.9065,
+        "0.003": 0.9237,
+        "0.01": 0.9144,
+        "0.03": 0.9079
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.9153,
+          "d2": 0.9855,
+          "d3": 0.997,
+          "rmse": 3.7031,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9153,
+              "d2": 0.9855,
+              "d3": 0.997,
+              "rmse": 3.7031,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        },
+        {
+          "d1": 0.9168,
+          "d2": 0.986,
+          "d3": 0.9971,
+          "rmse": 3.719,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9168,
+              "d2": 0.986,
+              "d3": 0.9971,
+              "rmse": 3.719,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        },
+        {
+          "d1": 0.9142,
+          "d2": 0.9856,
+          "d3": 0.9971,
+          "rmse": 3.7807,
+          "images": 150,
+          "coverage": 0.2239,
+          "by_scene": {
+            "driving": {
+              "d1": 0.9142,
+              "d2": 0.9856,
+              "d3": 0.9971,
+              "rmse": 3.7807,
+              "images": 150,
+              "coverage": 0.2239
+            }
+          }
+        }
+      ],
+      "max_depth": 85.766,
+      "model_id": "immanuelpeter/MiMoViT-2.6-Flash",
+      "stage": "tower",
+      "layer_index": 28,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "grid": 28,
+      "trainable_parameters": 1444608,
+      "seconds": 965.5
+    }
+  ]
+}
