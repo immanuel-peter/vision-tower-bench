@@ -1,0 +1,37 @@
+{
+  "images": 13000,
+  "label_fraction": 0.01,
+  "train_images": 100,
+  "full_train_images": 9100,
+  "cells": [
+    {
+      "learning_rate": 0.03,
+      "learning_rate_search": {
+        "1e-05": 0.0205,
+        "3e-05": 0.021,
+        "0.0001": 0.0215,
+        "0.0003": 0.0169,
+        "0.001": 0.0251,
+        "0.003": 0.0528,
+        "0.01": 0.0995,
+        "0.03": 0.1364,
+        "0.1": 0.1087,
+        "0.3": 0.0959,
+        "1": 0.1046
+      },
+      "val_accuracy": 0.1364,
+      "test_accuracy": 0.1301,
+      "test_std": 0.0064,
+      "seeds": 3,
+      "model_id": "immanuelpeter/MiMoViT-2.6-Flash",
+      "stage": "tower",
+      "layer_index": 28,
+      "relative_depth": 1.0,
+      "token_width": 1280,
+      "trainable_parameters": 51300,
+      "label_fraction": 0.01,
+      "train_images": 100,
+      "full_train_images": 9100
+    }
+  ]
+}

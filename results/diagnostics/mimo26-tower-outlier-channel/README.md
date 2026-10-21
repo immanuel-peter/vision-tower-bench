@@ -142,6 +142,11 @@ Test accuracy, unchanged then standardized:
 | Gemma 4 | 0.325 / 0.329 | 0.691 / 0.692 | 0.828 / 0.833 | 0.876 / 0.876 |
 | Kimi K3 | 0.218 / 0.228 | 0.567 / 0.576 | 0.767 / 0.779 | 0.837 / 0.852 |
 | MiniMax M3 | 0.052 / 0.052 | 0.069 / 0.067 | 0.148 / 0.153 | 0.342 / 0.324 |
+| DINOv3 | 0.520 / 0.530 | 0.826 / 0.829 | 0.882 / 0.885 | 0.914 / 0.915 |
+| Nemotron Super | 0.482 / 0.480 | 0.824 / 0.827 | 0.880 / 0.879 | 0.899 / 0.902 |
+| Nemotron Bolt (merged L32) | 0.450 / 0.484 | 0.810 / 0.818 | 0.869 / 0.878 | 0.898 / 0.895 |
+| MiMo 2.6 Pro | 0.015 / 0.240 | 0.009 / 0.562 | 0.052 / 0.762 | 0.786 / 0.825 |
+| MiMo 2.6 Flash | 0.014 / 0.239 | 0.016 / 0.563 | 0.039 / 0.761 | 0.744 / 0.830 |
 
 The outlier mainly distorts the low-label end of the curve. At 1% labels,
 standardization adds 27 points to Muse Glimmer, 25 to Qwen3.8, 13 to DeepSeek
