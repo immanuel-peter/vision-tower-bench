@@ -5,6 +5,7 @@ import hashlib
 import json
 import math
 import os
+import resource
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -187,6 +188,7 @@ def select_learning_rate(features, targets, valid, split, task, args, curves=Non
             value = score(model, features, targets, valid, split.val, task, args)[metric].mean().item()
         else:
             curve = curves.setdefault(f"lr {rate:g}", {})
+            began = time.perf_counter()
             try:
                 model = train_cell(features, targets, valid, split, task, args, rate, seed=0,
                                    monitor=epoch_monitor(curve, features, targets, valid, split, task, args))
@@ -194,6 +196,7 @@ def select_learning_rate(features, targets, valid, split, task, args, curves=Non
             except Diverged as error:
                 curve["diverged"] = str(error)
                 value = math.nan
+            curve["seconds"] = round(time.perf_counter() - began, 1)
         searched[f"{rate:g}"] = round(value, 4)
         if not math.isfinite(value):
             continue
@@ -445,10 +448,12 @@ def run_count_cell(features, targets, counts, split, image_ids, images, stage, l
     per_seed, one_exemplar, test_rows, val_rows = [], [], [], []
     for seed in range(args.seeds):
         curve = curves.setdefault(f"seed {seed}", {})
+        began = time.perf_counter()
         model = train_cell(features, targets, counts, split, "count", args, best_rate, seed,
                            monitor=epoch_monitor(curve, features, targets, counts, split, "count", args))
         test = score(model, features, targets, counts, split.test, "count", args)
         val = score(model, features, targets, counts, split.val, "count", args)
+        curve["seconds"] = round(time.perf_counter() - began, 1)
         per_seed.append(summarise_counts(test, bins_for(test["true_count"].tolist())))
         test_rows += prediction_rows(test, image_ids, split.test, "test", stage, layer, args.arm, seed)
         val_rows += prediction_rows(val, image_ids, split.val, "val", stage, layer, args.arm, seed)
@@ -506,28 +511,42 @@ def count_main(args) -> None:
             cells.append(done)
             continue
 
-        started = time.perf_counter()
+        started = clock = time.perf_counter()
+        timing: dict[str, float] = {}
+
+        def lap(name: str) -> None:
+            nonlocal clock
+            now = time.perf_counter()
+            timing[name] = round(now - clock, 2)
+            clock = now
+
+        if torch.cuda.is_available():
+            torch.cuda.reset_peak_memory_stats()
         batch = cache.load_batch(args.run, stage, layer)
         order, token_width = batch.image_ids, batch.tokens.shape[-1]
         eligible = {i for i in order if images[i]["exemplar_eligible"]} if args.arm == "exemplar" else None
         split = official_split(order, splits, eligible)
         targets, counts = count_targets(args.targets, order, images)
+        lap("load")
 
         reducer = None
         if args.match_capacity:
             # PCA always fits on the whole official training split, so both arms share it.
             # Reducer.fit upcasts to float32 itself, so the bfloat16 cache gives the same fit.
             reducer = fit_reducer(batch.tokens, official_split(order, splits), args.width)
+            lap("pca_fit")
             batch = batch.with_tokens(torch.cat([
                 reducer(batch.tokens[start:start + 512].float())
                 for start in range(0, len(order), 512)
             ]))
         # bfloat16 to float32 is exact, so converting after the move changes no value.
+            lap("pca_transform")
         features = geometry.dense_map(batch).to(args.features_device).float()
         if args.arm == "exemplar":
             rows = sorted(torch.cat([split.train, split.val, split.test]).tolist())
             channel = exemplar_channel(features, exemplar_boxes(images, order, rows), rows)
             features = torch.cat([features, channel.to(features.device)], dim=1)
+        lap("prepare_features")
 
         parameters = geometry.parameter_count(build_head(features.shape[1], "count", args))
         meta = {
@@ -548,6 +567,7 @@ def count_main(args) -> None:
             write_atomic(cells_dir / f"{key}.failed.json", json.dumps({"error": str(error), "identity": identity}) + "\n")
             print(f"{stage:>9} L{layer:02d}  FAILED {error}", flush=True)
             continue
+        lap("train_and_score")
         cell |= {
             "identity": identity, "model_id": batch.model_id, "stage": stage, "layer_index": layer,
             "relative_depth": batch.relative_depth, "token_width": token_width,
@@ -556,6 +576,9 @@ def count_main(args) -> None:
             "images": {"train": len(split.train), "val": len(split.val), "test": len(split.test)},
             "readout_dir": str(readouts) if readouts else None,
             "seconds": round(time.perf_counter() - started, 1),
+            "timing_seconds": timing,
+            "peak_vram_gib": round(torch.cuda.max_memory_allocated() / 2**30, 2) if torch.cuda.is_available() else None,
+            "peak_rss_gib": round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 2**20, 2),
         }
         header = "\t".join(PREDICTION_COLUMNS) + "\n"
         write_atomic(cells_dir / f"{key}.val.tsv", header + "\n".join(val_rows) + "\n")
