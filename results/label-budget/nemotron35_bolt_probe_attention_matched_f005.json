@@ -1,0 +1,37 @@
+{
+  "images": 13000,
+  "label_fraction": 0.05,
+  "train_images": 455,
+  "full_train_images": 9100,
+  "cells": [
+    {
+      "learning_rate": 0.001,
+      "learning_rate_search": {
+        "1e-05": 0.0282,
+        "3e-05": 0.1205,
+        "0.0001": 0.4769,
+        "0.0003": 0.7564,
+        "0.001": 0.8128,
+        "0.003": 0.8067,
+        "0.01": 0.7359,
+        "0.03": 0.5985,
+        "0.1": 0.3708,
+        "0.3": 0.1313,
+        "1": 0.0092
+      },
+      "val_accuracy": 0.8128,
+      "test_accuracy": 0.8101,
+      "test_std": 0.0009,
+      "seeds": 3,
+      "model_id": "nvidia/NVIDIA-Nemotron-3.5-Bolt-74B-A9B-BF16",
+      "stage": "merged",
+      "layer_index": 32,
+      "relative_depth": 1.0,
+      "token_width": 5120,
+      "trainable_parameters": 1627748,
+      "label_fraction": 0.05,
+      "train_images": 455,
+      "full_train_images": 9100
+    }
+  ]
+}
