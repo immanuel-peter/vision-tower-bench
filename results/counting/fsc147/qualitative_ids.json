@@ -1,0 +1,12 @@
+{
+ "rule": "FSC-147 test images in the gt200 bin. For each exemplar-free result with all three final Stages (tower, merged, projected), an image's jump is max minus min over Stages of its seed-mean absolute error, divided by its true count. Per image, take the median jump over those results; keep the 4 largest, ties broken by image ID ascending.",
+ "bin": "gt200",
+ "k": 4,
+ "results_used": [],
+ "status": "pending: no free-arm result with all three Stages",
+ "image_ids": [],
+ "scores": [],
+ "panel": "density maps only; FSC-147 pixels are not redistributed",
+ "sources": {},
+ "how_to_write": "uv run python scripts/figures.py --counting fsc-select --results <dir with complete <model>_count_free_<raw|matched>.json> --ids results/counting/fsc147/qualitative_ids.json"
+}

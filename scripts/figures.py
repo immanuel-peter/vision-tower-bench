@@ -463,14 +463,290 @@ FIGURES = {
 }
 
 
+# ---------------------------------------------------------------- counting (v3), opt-in targets
+# These targets are never part of FIGURES: they read saved readouts and feature caches,
+# can run on a GPU (--device), and their rendered output is not committed. FSC-147 panels
+# show density maps only, never FSC-147 pixels; CountQA panels show CC-BY-4.0 images with
+# attribution.
+
+COUNT_STAGES = ("tower", "merged", "projected")
+QUALITATIVE_IDS = RESULTS / "counting/fsc147/qualitative_ids.json"
+COUNT_TARGETS = ("fsc-select", "fsc-density", "countqa-panel")
+
+
+def _counting_modules():
+    """Lazy imports, so the default v2 figures need neither vtb nor the CountQA script."""
+    import sys
+
+    root = str(RESULTS.parent)
+    if root not in sys.path:
+        sys.path.insert(0, root)
+    from scripts import countqa_eval
+    from vtb import cache, count_bootstrap, counting, geometry_run
+
+    return cache, count_bootstrap, counting, geometry_run, countqa_eval
+
+
+def count_readout_dirs(readouts: Path, arm: str, capacity: str, stages=None) -> list[tuple[str, int, Path]]:
+    """``<readouts>/<arm>_<capacity>/<stage>_L<layer>`` directories, deepest layer per Stage."""
+    *_, countqa_eval = _counting_modules()
+    found = countqa_eval.readout_cells(Path(readouts), arm, capacity, list(stages) if stages else None)
+    deepest: dict[str, tuple[str, int, Path]] = {}
+    for stage, layer, directory in found:
+        if stage not in deepest or layer > deepest[stage][1]:
+            deepest[stage] = (stage, layer, directory)
+    return [deepest[s] for s in COUNT_STAGES if s in deepest]
+
+
+def predict_density_maps(features: Path, cells: list[tuple[str, int, Path]], image_ids: list[str], *,
+                         boxes=None, valid_rects=None, seeds=(0, 1, 2), device: str = "cpu",
+                         batch_size: int = 8) -> dict:
+    """Seed-mean (n, 64, 64) density per Stage for ``image_ids`` from saved readouts.
+
+    Counts are masked by each image's valid canvas area (the whole canvas when
+    ``valid_rects`` is None, as for the FSC-147 centre crop). Runs on ``device``.
+    """
+    import torch
+
+    cache, _, counting, geometry_run, _ = _counting_modules()
+    grid = counting.TARGET_GRID
+    valid = None
+    if valid_rects is not None:
+        valid = torch.from_numpy(np.stack([counting.coverage(rect, grid) for rect in valid_rects]))
+    out = {"stages": [], "layers": {}, "density": {}, "counts": {}}
+    for stage, layer, directory in cells:
+        tokens, cache_ids, _ = cache.load(features, stage, layer)
+        position = {image_id: row for row, image_id in enumerate(cache_ids)}
+        missing = [i for i in image_ids if i not in position]
+        if missing:
+            raise ValueError(f"{stage} L{layer}: {len(missing)} image IDs are not in {features}")
+        rows = tokens[torch.tensor([position[i] for i in image_ids])]
+        total = torch.zeros(len(image_ids), grid, grid, dtype=torch.float64)
+        for seed in seeds:
+            readout = geometry_run.load_readout(directory, seed, device)
+            for start in range(0, len(image_ids), batch_size):
+                stop = start + batch_size
+                chunk_boxes = list(boxes[start:stop]) if readout.conditioned else None
+                rects = list(valid_rects[start:stop]) if valid_rects is not None else None
+                density = readout.density(rows[start:stop].to(device), boxes=chunk_boxes, valid_rects=rects)
+                total[start:stop] += density[:, 0].double().cpu()
+        mean = total / len(seeds)
+        masked = mean * valid if valid is not None else mean
+        out["stages"].append(stage)
+        out["layers"][stage] = layer
+        out["density"][stage] = mean.float().numpy()
+        out["counts"][stage] = masked.flatten(1).sum(dim=1).numpy()
+    return out
+
+
+def select_fsc_qualitative(results: Path, out: Path = QUALITATIVE_IDS, k: int = 4) -> dict:
+    """Write the dense FSC-147 test images whose error jumps across Stages (rule in the file)."""
+    _, count_bootstrap, *_ = _counting_modules()
+    loaded = count_bootstrap.discover(results, allow_partial=False)
+    chosen = count_bootstrap.select_dense(loaded, k=k)
+    chosen["sources"] = {Path(path).name: sha for r in loaded for path, sha in sorted(r.sources.items())
+                         if r.arm == "free" and f"{r.model}_count_{r.arm}_{r.capacity}" in chosen["results_used"]}
+    chosen["how_to_write"] = (
+        "uv run python scripts/figures.py --counting fsc-select --results <dir with complete "
+        "<model>_count_free_<raw|matched>.json> --ids results/counting/fsc147/qualitative_ids.json")
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(chosen, indent=1) + "\n")
+    return chosen
+
+
+def fsc_density_data(model: str, features: Path, readouts: Path, prep: Path, image_ids: list[str], *,
+                     arm: str = "free", capacity: str = "matched", seeds=(0, 1, 2), device: str = "cpu") -> dict:
+    """Ground-truth and predicted density maps (no pixels) for FSC-147 test images."""
+    _, _, _, geometry_run, _ = _counting_modules()
+    manifest = json.loads((Path(prep) / "fsc147_manifest.json").read_text())
+    images = manifest["images"]
+    unknown = [i for i in image_ids if i not in images or images[i]["split"] != "test"]
+    if unknown:
+        raise ValueError(f"not FSC-147 test images: {unknown}")
+    targets = np.load(Path(prep) / "fsc147_targets.npz")
+    boxes = (geometry_run.exemplar_boxes(images, image_ids, list(range(len(image_ids))))
+             if arm == "exemplar" else None)
+    cells = count_readout_dirs(Path(readouts) / model, arm, capacity)
+    data = predict_density_maps(features, cells, image_ids, boxes=boxes, seeds=seeds, device=device)
+    return data | {
+        "model": model, "arm": arm, "capacity": capacity, "image_ids": list(image_ids),
+        "truth": np.stack([targets[i] for i in image_ids]),
+        "true_counts": np.array([images[i]["count"] for i in image_ids], dtype=float),
+    }
+
+
+def fsc_density_panel(out: Path, data: dict, note: str = "") -> None:
+    """Rows: images. Columns: ground-truth density, then each Stage's seed-mean predicted density."""
+    stages = data["stages"]
+    rows, cols = len(data["image_ids"]), 1 + len(stages)
+    figure, axes = plt.subplots(rows, cols, figsize=(2.3 * cols, 2.3 * rows + 0.9), squeeze=False)
+    for r, image_id in enumerate(data["image_ids"]):
+        maps = [data["truth"][r]] + [data["density"][s][r] for s in stages]
+        vmax = max(float(np.percentile(m, 99.5)) for m in maps) or 1.0
+        titles = [f"truth {data['true_counts'][r]:.0f}"] + [
+            f"{s}: {data['counts'][s][r]:.1f}" for s in stages]
+        for c, (density, title) in enumerate(zip(maps, titles)):
+            axis = axes[r, c]
+            axis.imshow(density, cmap="magma", vmin=0, vmax=vmax, interpolation="nearest")
+            axis.set_xticks([])
+            axis.set_yticks([])
+            axis.set_title(title, fontsize=8)
+        axes[r, 0].set_ylabel(image_id, fontsize=7)
+    figure.suptitle(
+        f"{DISPLAY.get(data['model'], data['model'])}: FSC-147 test density maps across Stages "
+        f"({data['arm']}, {data['capacity']}, seed-mean)\n"
+        "density only, no image pixels; qualitative, error-selected images" + (f"; {note}" if note else ""),
+        fontsize=9,
+    )
+    figure.tight_layout()
+    figure.savefig(out, bbox_inches="tight")
+    plt.close(figure)
+
+
+def countqa_selection(result_json: Path, k: int = 3, stage: str = "tower") -> list[tuple[str, str]]:
+    """k lowest and k highest seed-mean absolute errors at the final ``stage``; ties by image ID."""
+    _, count_bootstrap, *_ = _counting_modules()
+    result = count_bootstrap.load_countqa(result_json)
+    cell = result.final(stage)
+    if cell is None:
+        raise ValueError(f"{result_json} has no {stage} cell")
+    error = cell.abs_error.mean(dim=0).tolist()
+    ranked = sorted(zip(error, cell.image_ids))
+    successes = [i for _, i in ranked[:k]]
+    failures = [i for _, i in sorted(ranked, key=lambda item: (-item[0], item[1]))[:k] if i not in successes]
+    return [(i, "success") for i in successes] + [(i, "failure") for i in failures]
+
+
+def countqa_panel_data(model: str, features: Path, readouts: Path, manifest_path: Path, result_json: Path, *,
+                       exemplars: Path | None = None, arm: str = "exemplar", capacity: str = "matched",
+                       k: int = 3, seeds=(0, 1, 2), device: str = "cpu", image_side: int = 256) -> dict:
+    """Letterboxed CountQA images, exemplar boxes and Tower densities for an error-selected set."""
+    from PIL import Image
+
+    *_, countqa_eval = _counting_modules()
+    manifest = json.loads(Path(manifest_path).read_text())
+    frames = countqa_eval.load_frames(manifest)
+    chosen = countqa_selection(result_json, k=k)
+    ids = [i for i, _ in chosen]
+    boxes = None
+    if arm == "exemplar":
+        approved, _ = countqa_eval.load_exemplars(exemplars, manifest)  # refuses unapproved boxes
+        boxes = [approved[i] for i in ids]
+    cells = count_readout_dirs(Path(readouts) / model, arm, capacity, stages=["tower"])
+    data = predict_density_maps(features, cells, ids, boxes=boxes, valid_rects=[frames[i].valid for i in ids],
+                                seeds=seeds, device=device)
+    root = Path(manifest_path).parent
+    pictures = []
+    for image_id in ids:
+        with Image.open(root / manifest["images"][image_id]["png"]) as image:
+            pictures.append(np.asarray(image.convert("RGB").resize((image_side, image_side), Image.BICUBIC)))
+    stage = data["stages"][0]
+    return {
+        "model": model, "arm": arm, "capacity": capacity, "stage": stage, "image_ids": ids,
+        "labels": [label for _, label in chosen], "images": pictures,
+        "boxes": [b[0] for b in boxes] if boxes is not None else None,
+        "valid": [frames[i].valid for i in ids], "density": data["density"][stage],
+        "predicted": data["counts"][stage],
+        "true": np.array([manifest["images"][i]["answer"] for i in ids], dtype=float),
+        "attribution": manifest["source"]["citation"],
+        "source": f"{manifest['source']['repo']}@{manifest['source']['revision'][:8]}",
+    }
+
+
+def countqa_panel(out: Path, data: dict) -> None:
+    """Top: attributed letterboxed image with the exemplar box. Bottom: predicted density on the valid area."""
+    n = len(data["image_ids"])
+    figure, axes = plt.subplots(2, n, figsize=(2.4 * n, 5.4), squeeze=False)
+    for c in range(n):
+        side = data["images"][c].shape[0]
+        top, bottom = axes[0, c], axes[1, c]
+        top.imshow(data["images"][c])
+        if data["boxes"] is not None:
+            x0, y0, x1, y1 = np.asarray(data["boxes"][c]) * side
+            top.add_patch(plt.Rectangle((x0, y0), x1 - x0, y1 - y0, fill=False, edgecolor="#00e5ff", linewidth=1.6))
+        density = np.ma.masked_where(_valid_mask(data["valid"][c], data["density"][c].shape[0]) <= 0,
+                                     data["density"][c])
+        bottom.imshow(density, cmap="magma", vmin=0, interpolation="nearest")
+        top.set_title(f"{data['labels'][c]}\npred {data['predicted'][c]:.1f} / true {data['true'][c]:.0f}", fontsize=8,
+                      color="#1a7f37" if data["labels"][c] == "success" else "#b42318")
+        for axis in (top, bottom):
+            axis.set_xticks([])
+            axis.set_yticks([])
+        bottom.set_xlabel(data["image_ids"][c], fontsize=6)
+    box_note = "exemplar box (one approved human box)" if data["boxes"] is not None else "exemplar-free"
+    figure.suptitle(
+        f"{DISPLAY.get(data['model'], data['model'])}: CountQA transfer, final {data['stage']}, {data['arm']}, "
+        f"{data['capacity']} (frozen FSC-147 heads, seed-mean density)\n"
+        f"qualitative, error-selected: lowest and highest absolute error; {box_note}; "
+        "not MLLM question answering",
+        fontsize=8.5,
+    )
+    figure.text(0.5, 0.005, f"Images: {data['attribution']} ({data['source']}); letterboxed.",
+                ha="center", fontsize=6.5, wrap=True)
+    figure.tight_layout(rect=(0, 0.03, 1, 1))
+    figure.savefig(out, bbox_inches="tight")
+    plt.close(figure)
+
+
+def _valid_mask(rect, grid: int) -> np.ndarray:
+    *_, counting, _, _ = _counting_modules()
+    return counting.coverage(tuple(rect), grid)
+
+
+def counting_main(args) -> None:
+    if args.counting == "fsc-select":
+        chosen = select_fsc_qualitative(args.results, args.ids, args.k)
+        print(f"{chosen['status']}: {chosen['image_ids']} -> {args.ids}")
+        return
+    seeds = tuple(args.seeds)
+    if args.counting == "fsc-density":
+        selection = json.loads(args.ids.read_text())
+        if not selection.get("image_ids"):
+            raise SystemExit(f"{args.ids} lists no image IDs yet ({selection.get('status')})")
+        data = fsc_density_data(args.model, args.features, args.readouts, args.prep, selection["image_ids"],
+                                arm=args.arm, capacity=args.capacity, seeds=seeds, device=args.device)
+        draw, stem = (lambda path: fsc_density_panel(path, data, "selection rule in qualitative_ids.json"),
+                      f"count-fsc-density-{args.model}-{args.arm}-{args.capacity}")
+    else:
+        data = countqa_panel_data(args.model, args.features, args.readouts, args.manifest, args.countqa_result,
+                                  exemplars=args.exemplars, arm=args.arm, capacity=args.capacity, k=args.k,
+                                  seeds=seeds, device=args.device)
+        draw, stem = (lambda path: countqa_panel(path, data),
+                      f"count-countqa-panel-{args.model}-{args.arm}-{args.capacity}")
+    for suffix in args.formats:
+        draw(args.out / f"{stem}.{suffix}")
+    print(f"wrote {stem} to {args.out} as {', '.join(args.formats)}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=Path, default=Path("docs/figures"))
     # SVG for the web report, PDF for pdflatex, which cannot embed SVG.
     parser.add_argument("--format", dest="formats", nargs="+", default=["svg"],
                         choices=("svg", "pdf", "png"))
+    counting_group = parser.add_argument_group("counting (opt-in; not part of the default figures)")
+    counting_group.add_argument("--counting", choices=COUNT_TARGETS, default=None)
+    counting_group.add_argument("--model")
+    counting_group.add_argument("--arm", choices=("free", "exemplar"), default="free")
+    counting_group.add_argument("--capacity", choices=("raw", "matched"), default="matched")
+    counting_group.add_argument("--features", type=Path, help="vtb.extract run dir of the panel's images")
+    counting_group.add_argument("--readouts", type=Path, help="readouts root holding <model>/<arm>_<capacity>/")
+    counting_group.add_argument("--prep", type=Path, help="FSC-147 prep dir (manifest and targets)")
+    counting_group.add_argument("--results", type=Path, help="FSC-147 count results dir (fsc-select)")
+    counting_group.add_argument("--ids", type=Path, default=QUALITATIVE_IDS)
+    counting_group.add_argument("--manifest", type=Path, help="CountQA manifest.json")
+    counting_group.add_argument("--exemplars", type=Path, default=RESULTS / "counting/countqa/exemplars.json")
+    counting_group.add_argument("--countqa-result", type=Path, help="scripts/countqa_eval.py output JSON")
+    counting_group.add_argument("--k", type=int, default=None)
+    counting_group.add_argument("--seeds", type=int, nargs="+", default=[0, 1, 2])
+    counting_group.add_argument("--device", default="cpu")
     args = parser.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
+
+    if args.counting:
+        args.k = args.k or (4 if args.counting == "fsc-select" else 3)
+        counting_main(args)
+        return
 
     for name, draw in FIGURES.items():
         for suffix in args.formats:

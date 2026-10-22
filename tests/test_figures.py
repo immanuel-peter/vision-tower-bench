@@ -118,3 +118,133 @@ def test_semantic_forest_leaves_out_the_v3_cohort(tmp_path):
     assert "siglip2 - dinov2" in labels
     for model in FIGURE_SCRIPT.LATER_COHORT:
         assert model not in labels
+
+
+# ---------------------------------------------------------------- counting (v3) opt-in targets
+def test_counting_targets_stay_out_of_the_default_figures():
+    assert not set(FIGURE_SCRIPT.COUNT_TARGETS) & set(FIGURE_SCRIPT.FIGURES)
+    assert not any(name.startswith("count") for name in FIGURE_SCRIPT.FIGURES)
+
+
+def _count_fixture(root, ids, side=4, dim=6, stages=("tower", "merged", "projected"), arms=("free",)):
+    """A synthetic feature cache and saved count readouts in the runner's layout (CPU only)."""
+    import torch
+
+    from vtb import counting, geometry, geometry_run
+    from vtb.feature_batch import FeatureBatch
+    from vtb.probe import Reducer
+
+    torch.manual_seed(0)
+    features = root / "features"
+    features.mkdir()
+    for stage in stages:
+        FeatureBatch(tokens=torch.randn(len(ids), side * side, dim).to(torch.bfloat16), image_ids=ids[::-1],
+                     model_id="toy/model", stage=stage, layer_index=3, num_layers=3, resolution=32).save(
+            features / f"{stage}_L03_00000.safetensors")
+    reducer = Reducer(basis=torch.randn(dim, 4), mean=torch.zeros(1, dim))
+    for arm in arms:
+        for stage in stages if arm == "free" else ("tower",):
+            width = 4 + int(arm == "exemplar")
+            meta = {"protocol": counting.PROTOCOL, "arm": arm, "input_dim": width, "head": "linear",
+                    "hidden_dim": 8, "grid": counting.TARGET_GRID, "density_scale": counting.DENSITY_SCALE,
+                    "grid_extent": 1.0}
+            for seed in (0, 1):
+                torch.manual_seed(seed)
+                head = geometry.CountHead([width], head="linear", hidden_dim=8)
+                geometry_run.save_readout(root / "readouts" / "toy" / f"{arm}_matched" / f"{stage}_L03", seed,
+                                          head, reducer, meta)
+    return features, root / "readouts"
+
+
+def test_fsc_density_panel_from_saved_readouts_on_cpu(tmp_path):
+    import numpy as np
+
+    from vtb import cache, counting, geometry_run
+
+    ids = [f"fsc147_{k}" for k in range(3)]
+    features, readouts = _count_fixture(tmp_path, ids, arms=("free", "exemplar"))
+    prep = tmp_path / "prep"
+    prep.mkdir()
+    images = {i: {"split": "test", "count": 3 + k, "boxes": [[0.1, 0.1, 0.3, 0.3]], "box_valid": [True]}
+              for k, i in enumerate(ids)}
+    (prep / "fsc147_manifest.json").write_text(json.dumps({"images": images}))
+    rng = np.random.default_rng(0)
+    np.savez(prep / "fsc147_targets.npz",
+             **{i: counting.density_map(rng.random((3 + k, 2)) * 0.9) for k, i in enumerate(ids)})
+
+    data = FIGURE_SCRIPT.fsc_density_data("toy", features, readouts, prep, ids, seeds=(0, 1), device="cpu")
+    assert data["stages"] == ["tower", "merged", "projected"]
+    assert data["truth"].shape == (3, 64, 64) and data["density"]["merged"].shape == (3, 64, 64)
+    assert data["truth"].sum(axis=(1, 2)) == pytest.approx([3, 4, 5], abs=1e-3)
+    # Seed-mean density, read through the same load_readout path the runner saves for.
+    tokens, order, _ = cache.load(features, "projected", 3)
+    rows = [order.index(i) for i in ids]
+    directory = readouts / "toy" / "free_matched" / "projected_L03"
+    expected = sum(geometry_run.load_readout(directory, s, "cpu").density(tokens[rows])[:, 0] for s in (0, 1)) / 2
+    assert data["density"]["projected"] == pytest.approx(expected.numpy(), rel=1e-5, abs=1e-7)
+    assert data["counts"]["projected"] == pytest.approx(expected.flatten(1).sum(1).double().numpy(), rel=1e-5)
+    out = tmp_path / "fsc.png"
+    FIGURE_SCRIPT.fsc_density_panel(out, data)
+    assert out.stat().st_size > 0
+    with pytest.raises(ValueError, match="not FSC-147 test"):
+        FIGURE_SCRIPT.fsc_density_data("toy", features, readouts, prep, ["fsc147_99"], device="cpu")
+    # The conditioned Tower reads the release boxes from the manifest.
+    conditioned = FIGURE_SCRIPT.fsc_density_data("toy", features, readouts, prep, ids, arm="exemplar",
+                                                 seeds=(0,), device="cpu")
+    assert conditioned["stages"] == ["tower"] and conditioned["density"]["tower"].shape == (3, 64, 64)
+
+
+def test_fsc_selection_writes_rule_and_ids(tmp_path):
+    from tests.test_count_bootstrap import make_truth, write_result
+
+    ids, true = make_truth()
+    write_result(tmp_path, "toy", "free", "matched", ids, true, ("tower", "merged", "projected"))
+    out = tmp_path / "qualitative_ids.json"
+    chosen = FIGURE_SCRIPT.select_fsc_qualitative(tmp_path, out, k=3)
+    saved = json.loads(out.read_text())
+    assert saved == chosen and saved["status"] == "selected" and len(saved["image_ids"]) == 3
+    assert "median" in saved["rule"] and saved["sources"]
+    committed = json.loads(FIGURE_SCRIPT.QUALITATIVE_IDS.read_text())
+    assert committed["rule"] == FIGURE_SCRIPT._counting_modules()[1].select_dense([], k=committed["k"])["rule"]
+
+
+def test_countqa_panel_selects_successes_and_failures_and_attributes(tmp_path):
+    import numpy as np
+    from PIL import Image
+
+    from tests.test_count_bootstrap import write_countqa
+    from vtb import counting
+
+    ids = [f"countqa_{k:04d}_abcdef01" for k in range(6)]
+    true = np.array([3.0, 5.0, 8.0, 2.0, 12.0, 7.0])
+    features, readouts = _count_fixture(tmp_path, ids, stages=("tower",), arms=("free",))
+    data_dir = tmp_path / "countqa"
+    (data_dir / "images").mkdir(parents=True)
+    images = {}
+    for k, image_id in enumerate(ids):
+        width, height = 40 + 4 * k, 30
+        frame = counting.letterbox_frame(width, height)
+        Image.new("RGB", (frame.side, frame.side), (124, 116, 104)).save(data_dir / "images" / f"{image_id}.png")
+        images[image_id] = {"width": width, "height": height, "frame": frame.as_dict(), "answer": int(true[k]),
+                            "png": f"images/{image_id}.png", "question_id": f"{image_id}_q0"}
+    manifest = data_dir / "manifest.json"
+    manifest.write_text(json.dumps({"images": images, "eligibility_sha256": "e", "source": {
+        "repo": "Jayant-Sravan/CountQA", "revision": "f92cc6fe46542c61e2916e3d2ae9a911e2216b1a",
+        "citation": "Tamarapalli et al. CountQA (2025). CC-BY-4.0."}}))
+    result = write_countqa(tmp_path, "toy", "free", "matched", ids, true, ("tower",))
+
+    chosen = FIGURE_SCRIPT.countqa_selection(result, k=2)
+    assert [label for _, label in chosen] == ["success", "success", "failure", "failure"]
+    assert len({i for i, _ in chosen}) == 4
+    data = FIGURE_SCRIPT.countqa_panel_data("toy", features, readouts, manifest, result, arm="free",
+                                            k=2, seeds=(0, 1), device="cpu", image_side=32)
+    assert data["boxes"] is None and data["density"].shape == (4, 64, 64)
+    assert data["images"][0].shape == (32, 32, 3)
+    # Padding never counts: the predicted count only sums the valid area.
+    k = ids.index(data["image_ids"][0])
+    valid = counting.coverage(counting.letterbox_frame(40 + 4 * k, 30).valid, 64)
+    assert data["predicted"][0] == pytest.approx((data["density"][0] * valid).sum(), rel=1e-4)
+    out = tmp_path / "countqa.svg"
+    FIGURE_SCRIPT.countqa_panel(out, data)
+    text = out.read_text()
+    assert "CC-BY-4.0" in text and "error-selected" in text
