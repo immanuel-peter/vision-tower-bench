@@ -258,6 +258,9 @@ def test_comparison_families_on_a_matrix(matrix):
 
     with pytest.raises(ValueError):
         cb.arm_comparison(results["exemplar", "matched"], results["free", "matched"])
+    results["free", "raw"].protocol, results["free", "matched"].protocol = "count-v1", "count-v2"
+    with pytest.raises(ValueError, match="protocols"):
+        cb.capacity_comparisons(results["free", "raw"], results["free", "matched"], resamples=10)
     swapped = results["exemplar", "matched"]
     swapped.cells["tower_L27"].image_ids[0] = "fsc147_unknown"
     with pytest.raises(ValueError, match="not in the free arm"):

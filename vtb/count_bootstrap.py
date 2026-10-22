@@ -176,6 +176,7 @@ class Result:
     cell_json: dict[str, dict]   # key -> cell JSON
     sources: dict[str, str]      # path -> sha256
     val: dict[str, Cell] = field(default_factory=dict)
+    protocol: str | None = None  # count protocol when recorded (complete payloads, CountQA readout meta)
 
     def final(self, stage: str) -> Cell | None:
         """The deepest cell of a Stage (the final Tower for ``tower``)."""
@@ -255,8 +256,9 @@ def load_fsc(path: Path, allow_partial: bool = True) -> Result | None:
         if val_tsv.exists():
             val |= read_predictions(val_tsv, split="val")
             sources[str(val_tsv)] = sha256_file(val_tsv)
+    protocol = payload.get("protocol") if payload is not None else None
     return Result("fsc147", match["model"], match["arm"], match["capacity"], status, cells, cell_json,
-                  sources, val)
+                  sources, val, protocol)
 
 
 def load_countqa(path: Path) -> Result:
@@ -275,9 +277,14 @@ def load_countqa(path: Path) -> Result:
         cell.meta = {"model_id": cell_json[key].get("model_id"),
                      "relative_depth": cell_json[key].get("relative_depth")}
         _check_against_json(cell, cell_json[key], f"{path} {key}", per_seed_key="metrics")
+    protocols = {seed["meta"].get("protocol") for c in payload["cells"] for seed in c.get("seed_readouts", [])}
+    protocols.discard(None)
+    if len(protocols) > 1:
+        raise ValueError(f"{path}: readouts of several protocols {sorted(protocols)}")
     return Result("countqa", match["model"], payload.get("arm", match["arm"]),
                   payload.get("variant", match["capacity"]), "complete", cells, cell_json,
-                  {str(path): sha256_file(path), str(tsv): sha256_file(tsv)})
+                  {str(path): sha256_file(path), str(tsv): sha256_file(tsv)}, {},
+                  protocols.pop() if protocols else None)
 
 
 def discover(directory: Path, allow_partial: bool = True) -> list[Result]:
@@ -437,12 +444,14 @@ def resolved(interval: dict) -> str:
 def describe(result: Result, cell: Cell) -> dict:
     return {"dataset": result.dataset, "model": result.model, "arm": result.arm, "capacity": result.capacity,
             "stage": cell.stage, "layer_index": cell.layer, "cell": cell.key, "status": result.status,
-            **cell.meta}
+            "protocol": result.protocol, **cell.meta}
 
 
 def comparison(first: tuple[Result, Cell], second: tuple[Result, Cell], family: str, ids_rule: str,
                dropped: int = 0, **kwargs) -> dict:
     (ra, a), (rb, b) = first, second
+    if ra.protocol and rb.protocol and ra.protocol != rb.protocol:
+        raise ValueError(f"cannot pair protocols {ra.protocol} and {rb.protocol}")
     out = {
         "family": family,
         "first": describe(ra, a), "second": describe(rb, b),

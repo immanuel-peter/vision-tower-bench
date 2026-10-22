@@ -498,6 +498,25 @@ def count_readout_dirs(readouts: Path, arm: str, capacity: str, stages=None) -> 
     return [deepest[s] for s in COUNT_STAGES if s in deepest]
 
 
+def cache_rows(cache, features: Path, stage: str, layer: int, image_ids: list[str]):
+    """Token rows for ``image_ids`` in that order, reading only the shards that hold them."""
+    import torch
+    from safetensors import safe_open
+
+    found, chosen = {}, set(image_ids)
+    for shard in cache.shards(features, stage, layer):
+        with safe_open(shard, framework="pt") as handle:
+            ids = handle.metadata()["image_ids"].split("\n")
+            wanted = [(row, i) for row, i in enumerate(ids) if i in chosen]
+            if wanted:
+                tokens = handle.get_tensor("tokens")
+                found |= {i: tokens[row].clone() for row, i in wanted}
+    missing = [i for i in image_ids if i not in found]
+    if missing:
+        raise ValueError(f"{stage} L{layer}: {len(missing)} image IDs are not in {features}")
+    return torch.stack([found[i] for i in image_ids])
+
+
 def predict_density_maps(features: Path, cells: list[tuple[str, int, Path]], image_ids: list[str], *,
                          boxes=None, valid_rects=None, seeds=(0, 1, 2), device: str = "cpu",
                          batch_size: int = 8) -> dict:
@@ -515,12 +534,7 @@ def predict_density_maps(features: Path, cells: list[tuple[str, int, Path]], ima
         valid = torch.from_numpy(np.stack([counting.coverage(rect, grid) for rect in valid_rects]))
     out = {"stages": [], "layers": {}, "density": {}, "counts": {}}
     for stage, layer, directory in cells:
-        tokens, cache_ids, _ = cache.load(features, stage, layer)
-        position = {image_id: row for row, image_id in enumerate(cache_ids)}
-        missing = [i for i in image_ids if i not in position]
-        if missing:
-            raise ValueError(f"{stage} L{layer}: {len(missing)} image IDs are not in {features}")
-        rows = tokens[torch.tensor([position[i] for i in image_ids])]
+        rows = cache_rows(cache, features, stage, layer, image_ids)
         total = torch.zeros(len(image_ids), grid, grid, dtype=torch.float64)
         for seed in seeds:
             readout = geometry_run.load_readout(directory, seed, device)
