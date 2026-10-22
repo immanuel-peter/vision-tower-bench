@@ -2,6 +2,7 @@
 
 import json
 import sys
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -206,3 +207,36 @@ def test_grid_extent_matches_the_padding_adapters():
     assert geometry_run.grid_extent("facebook/dinov2-large", "tower", 448, 32) == 1.0
     with pytest.raises(ValueError):
         geometry_run.grid_extent(gemma4.MODEL_ID, "tower", 448, 28)
+
+
+@pytest.mark.parametrize("arm", ["free", "exemplar"])
+def test_letterbox_check_reproduces_crop_validation_on_a_full_canvas(tmp_path, monkeypatch, arm):
+    """With the whole canvas valid and the same features, the frozen-transfer path must match training."""
+    sys.path.insert(0, str(Path(__file__).parents[1] / "scripts"))
+    import count_letterbox_check
+
+    run, targets, ids = write_fixture(tmp_path)
+    out = tmp_path / "out" / f"toy_count_{arm}_raw.json"
+    out.parent.mkdir()
+    argv = ["--task", "count", "--run", run, "--targets", targets, "--out", out, "--arm", arm, "--name", "toy",
+            "--readouts", tmp_path / "readouts", "--device", "cpu", "--epochs", "1", "--batch-size", "4",
+            "--learning-rates", "1e-3", "--seeds", "1"]
+    if arm == "exemplar":
+        argv += ["--stages", "tower", "--deepest-only"]
+    run_main(monkeypatch, *argv)
+
+    manifest = json.loads(targets.with_name("fsc147_manifest.json").read_text())
+    val = {i: dict(manifest["images"][i], valid=[0.0, 0.0, 1.0, 1.0]) for i in manifest["splits"]["val"]
+           if manifest["images"][i]["exemplar_eligible"]}
+    (tmp_path / "letterbox_val_manifest.json").write_text(json.dumps({"images": val}))
+    report = tmp_path / "check.json"
+    monkeypatch.setattr(sys, "argv", ["count_letterbox_check", "--features", str(run), "--manifest",
+                                      str(tmp_path / "letterbox_val_manifest.json"), "--readouts",
+                                      str(tmp_path / "readouts" / "toy"), "--results", str(out.parent),
+                                      "--name", "toy", "--seeds", "0", "--device", "cpu", "--out", str(report)])
+    count_letterbox_check.main()
+    for entry in json.loads(report.read_text())["readouts"]:
+        row = entry["seeds"][0]
+        letterbox = row["letterbox_three_boxes" if arm == "exemplar" else "letterbox"]
+        assert letterbox["mae"] == pytest.approx(row["centre_crop_val"]["mae"], abs=2e-3), entry["readout"]
+        assert letterbox["images"] == row["centre_crop_val"]["images"]

@@ -23,6 +23,8 @@ CAPACITIES="${CAPACITIES:-raw matched}"
 THREADS="${THREADS:-8}"
 WORKERS="${WORKERS:-8}"
 ROSTER="${ROSTER:-}"
+# Space-separated name|images|manifest specs, e.g. "countqa|$VTB_WORK/data/countqa/images|$VTB_WORK/data/countqa/manifest.json".
+TRANSFER="${TRANSFER:-}"
 TARGETS="$PREP/fsc147_targets.npz"
 MANIFEST="$PREP/fsc147_manifest.json"
 TOWER_ONLY=" dinov2 dinov3 siglip2 "
@@ -52,12 +54,15 @@ print(f\"{source.get('kind')}: {source.get('repo')}@{source.get('revision')}\")
 }
 
 extract() {
-    local model="$1" gpu="$2" res run log layer
+    # extract <model> <gpu> [features dir] [images dir] [manifest] [log tag]
+    local model="$1" gpu="$2" features="${3:-$FEATURES}" images="${4:-$PREP/images}"
+    local manifest="${5:-$MANIFEST}" tag="${6:-extract}" res run log layer
     res=$(resolution "$model")
-    run="$FEATURES/${model}_${res}_full"
-    log="$OUT/logs/${model}_extract.log"
+    run="$features/${model}_${res}_full"
+    log="$OUT/logs/${model}_$tag.log"
+    mkdir -p "$features"
     if [ -f "$run/complete.json" ]; then
-        echo "[$(date +%T)] $model cache already validated" >> "$OUT/logs/lane_gpu$gpu.log"
+        echo "[$(date +%T)] $model $tag cache already validated" >> "$OUT/logs/lane_gpu$gpu.log"
         return 0
     fi
     if [ -d "$run" ]; then
@@ -67,7 +72,7 @@ extract() {
     [ "$model" = nemotron35_bolt ] && extra=(--stages tower merged projected)
     # shellcheck disable=SC2046
     CUDA_VISIBLE_DEVICES="$gpu" OMP_NUM_THREADS="$THREADS" MKL_NUM_THREADS="$THREADS" \
-    uv run python -m vtb.extract --model "$model" --images "$PREP/images" --out "$FEATURES" \
+    uv run python -m vtb.extract --model "$model" --images "$images" --out "$features" \
         --resolution "$res" --device cuda --batch-size "$(batch_size "$model")" --workers "$WORKERS" \
         --final-stages $(stages "$model") "${extra[@]}" > "$log" 2>&1 || return 1
     layer=$(uv run python -c "
@@ -76,7 +81,7 @@ from vtb import cache
 print(max(layer for _, layer in cache.slices(sys.argv[1])))
 " "$run") || return 1
     # shellcheck disable=SC2046
-    uv run python scripts/validate_cache.py --run "$run" --manifest "$MANIFEST" --model "$model" \
+    uv run python scripts/validate_cache.py --run "$run" --manifest "$manifest" --model "$model" \
         --stages $(stages "$model") --layer "$layer" --log "$log" \
         --source "$(source_of "$model")" >> "$log" 2>&1
 }
@@ -118,6 +123,14 @@ lane() {
                 echo "[$(date +%T)] done ${model}_count_${arm}_${capacity} rc=$rc in $((SECONDS - started))s" >> "$log"
                 [ "$rc" -eq 0 ] || echo "${model}_count_${arm}_${capacity} exited rc=$rc" >> "$ALERTS"
             done
+        done
+        # Frozen-transfer caches: name|images dir|manifest, extracted after the FSC readouts.
+        for spec in $TRANSFER; do
+            IFS='|' read -r set images manifest <<< "$spec"
+            started=$SECONDS rc=0
+            extract "$model" "$gpu" "$FEATURES/../$set" "$images" "$manifest" "extract_$set" || rc=$?
+            echo "[$(date +%T)] extract $set $model rc=$rc in $((SECONDS - started))s" >> "$log"
+            [ "$rc" -eq 0 ] || echo "$model $set extraction rc=$rc" >> "$ALERTS"
         done
         grep -hnE "$FAILURE_PATTERNS" "$OUT/logs/${model}_"*.log | sed "s|^|$model |" >> "$ALERTS" || true
     done
