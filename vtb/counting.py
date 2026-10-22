@@ -8,6 +8,7 @@ Density targets, predictions and counts live on one declared TARGET_GRID x
 TARGET_GRID grid over that canvas, whatever the model's patch grid.
 """
 
+import hashlib
 from dataclasses import dataclass
 from math import ceil, erf, sqrt
 
@@ -15,10 +16,11 @@ import numpy as np
 import torch
 from torch.nn.functional import normalize
 
-# count-v1 used a final ReLU, which the pilot saw collapse to an all-zero map
-# (dead units) at several rates and seeds; count-v2 uses softplus and exact
-# area resampling that knows how much of the canvas the patch grid spans.
-PROTOCOL = "count-v2"
+# count-v1 used a final ReLU, which the pilot saw collapse to an all-zero map.
+# count-v2 used softplus and exact area resampling over the grid's canvas extent,
+# but rates of 1e-2 and above still exploded and collapsed. count-v3 searches
+# 1e-5 to 3e-3 and fails any final seed whose map collapses.
+PROTOCOL = "count-v3"
 TARGET_GRID = 64
 # One target cell is 1/64 of the canvas side, 6 px for a 384 px FSC-147 crop.
 SIGMA_CELLS = 1.0
@@ -195,6 +197,12 @@ def box_weights(boxes: np.ndarray, side: int, extent: float = 1.0) -> np.ndarray
     if (mass <= 0).any():
         raise ValueError("an exemplar box covers no patch area")
     return (weights / mass).astype(np.float32)
+
+
+def png_digest(images: dict) -> str:
+    """One hash over every prepared image's ID and PNG sha256, from a prep manifest."""
+    rows = "\n".join(f"{image_id}\t{images[image_id]['png_sha256']}" for image_id in sorted(images))
+    return hashlib.sha256(rows.encode()).hexdigest()
 
 
 def prototype_similarity(

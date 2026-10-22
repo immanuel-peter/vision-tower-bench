@@ -1,4 +1,4 @@
-"""Prepare FSC-147 count-v1 targets: centre-crop PNGs, densities, exemplar boxes, and a letterbox val set."""
+"""Prepare FSC-147 count targets: centre-crop PNGs, densities, exemplar boxes, and a letterbox val set."""
 
 import argparse
 import hashlib

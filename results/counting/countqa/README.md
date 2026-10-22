@@ -1,4 +1,4 @@
-# CountQA: curated transfer subset for count-v1
+# CountQA: curated transfer subset for the FSC-147 count readouts
 
 This is exemplar-based frozen-feature counting on a curated CountQA subset. It is not MLLM
 question answering. Don't put these numbers next to MLLM CountQA scores.
@@ -43,7 +43,7 @@ The adapter then resizes that square to the benchmark resolution. The heads ther
 padding they never saw in training, and objects at a smaller scale. Predicted density is summed
 only over the valid area, `masked_count(density, coverage(frame.valid, 64))`. Exemplar boxes go
 through `frame.boxes` and are never centre-cropped. Prototype centring uses
-`coverage(frame.valid, side)` at the token grid. Five kept PNG sources have a fully opaque alpha
+`token_valid(frame.valid, side, grid_extent)` at the token grid. Five kept PNG sources have a fully opaque alpha
 channel, which is dropped. No kept image needed compositing, and no image has an EXIF
 orientation.
 
@@ -57,7 +57,7 @@ the protocol and the local tool.
 ```bash
 uv run python -m scripts.countqa_eval --arm exemplar --variant matched \
   --features $VTB_WORK/features/countqa/<model>_<res>_full \
-  --readouts $VTB_WORK/readouts/count-v1/<model> --seeds 0 1 2
+  --readouts $VTB_WORK/readouts/count-v3/<model> --seeds 0 1 2
 ```
 
 The script loads each `<arm>_<variant>/<stage>_L<layer>/` readout through

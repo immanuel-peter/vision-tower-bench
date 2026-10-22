@@ -14,7 +14,7 @@ from pathlib import Path
 
 import torch
 
-from vtb import cache
+from vtb import cache, counting
 
 
 def code_state() -> dict:
@@ -35,9 +35,18 @@ def main() -> None:
     ap.add_argument("--layer", type=int, required=True, help="final Tower layer of every expected slice")
     ap.add_argument("--source", default="", help="weight source and revision, from the roster manifest")
     ap.add_argument("--log", type=Path, default=None, help="extraction log to reference")
+    ap.add_argument("--images", type=Path, default=None,
+                    help="extracted image directory; every PNG must match the manifest's png_sha256")
+    ap.add_argument("--batch-size", type=int, default=None, help="extraction batch size used")
     args = ap.parse_args()
 
-    expected = sorted(json.loads(args.manifest.read_text())["images"])
+    images = json.loads(args.manifest.read_text())["images"]
+    expected = sorted(images)
+    if args.images is not None:
+        for image_id in expected:
+            digest = hashlib.sha256((args.images / f"{image_id}.png").read_bytes()).hexdigest()
+            if digest != images[image_id]["png_sha256"]:
+                raise SystemExit(f"{image_id}.png differs from the manifest")
     report = cache.validate(args.run, expected, [(stage, args.layer) for stage in args.stages])
     summary = json.loads((args.run / "summary.json").read_text()) if (args.run / "summary.json").exists() else {}
     info = {
@@ -50,6 +59,9 @@ def main() -> None:
         "image_ids_sha256": hashlib.sha256("\n".join(expected).encode()).hexdigest(),
         "manifest": str(args.manifest),
         "manifest_sha256": hashlib.sha256(args.manifest.read_bytes()).hexdigest(),
+        "png_digest": counting.png_digest(images),
+        "images_verified": args.images is not None,
+        "batch_size": args.batch_size,
         "extract_summary": summary,
         "log": str(args.log) if args.log else None,
         "code": code_state(),

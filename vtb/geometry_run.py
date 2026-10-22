@@ -6,6 +6,7 @@ import json
 import math
 import os
 import resource
+import subprocess
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -33,6 +34,9 @@ SELECTION = {"depth": ("d1", True), "normal": ("mean_deg", False), "count": ("ab
 
 # Six points spanning both edges the four-point matrix truncated at.
 LEARNING_RATES = (1e-4, 3e-4, 1e-3, 3e-3, 1e-2, 3e-2)
+# Count heads explode in the first epoch at 1e-2 and above and select at the old
+# floor, so the same six-point budget sits one decade lower (count-v3).
+COUNT_LEARNING_RATES = (1e-5, 3e-5, 1e-4, 3e-4, 1e-3, 3e-3)
 
 
 def manifest(targets: Path) -> dict:
@@ -192,7 +196,10 @@ def select_learning_rate(features, targets, valid, split, task, args, curves=Non
             try:
                 model = train_cell(features, targets, valid, split, task, args, rate, seed=0,
                                    monitor=epoch_monitor(curve, features, targets, valid, split, task, args))
-                value = score(model, features, targets, valid, split.val, task, args)[metric].mean().item()
+                metrics = score(model, features, targets, valid, split.val, task, args)
+                if task == "count" and (reason := collapsed(metrics)):
+                    raise Diverged(f"lr {rate:g}: {reason}")
+                value = metrics[metric].mean().item()
             except Diverged as error:
                 curve["diverged"] = str(error)
                 value = math.nan
@@ -222,6 +229,8 @@ def aggregate(runs: list[dict]) -> dict:
     for key, value in runs[0].items():
         if key in ("by_scene", "by_bin"):
             out[key] = {name: aggregate([r[key][name] for r in runs]) for name in value}
+        elif key == "exemplar_eligible_subset":
+            out[key] = aggregate([r[key] for r in runs])
         elif key in ("images", "coverage"):
             out[key] = value
         else:
@@ -386,7 +395,8 @@ def save_readout(directory: Path, seed: int, model: torch.nn.Module, reducer, me
         pca = directory / "pca.safetensors"
         scratch = pca.with_name(f".{pca.name}.{os.getpid()}.partial")
         save_file({"mean": reducer.mean.contiguous(), "basis": reducer.basis.contiguous()}, str(scratch),
-                  metadata={"meta": json.dumps({"fit_split": "train", "width": reducer.basis.shape[1]})})
+                  metadata={"meta": json.dumps({"fit_split": "train", "width": reducer.basis.shape[1],
+                                                "identity": meta["identity"]})})
         os.replace(scratch, pca)
     state = {key: value.detach().cpu().contiguous() for key, value in model.state_dict().items()}
     path = directory / f"seed{seed}.safetensors"
@@ -463,16 +473,44 @@ def count_identity(args, stage: str, layer: int, provenance: dict) -> str:
     return hashlib.sha256(json.dumps(fields, sort_keys=True).encode()).hexdigest()
 
 
-def finished_cell(cells_dir: Path, key: str, identity: str, readouts: Path | None, seeds: int) -> dict | None:
+def readout_identity(path: Path) -> str | None:
+    if not path.exists():
+        return None
+    with safe_open(path, framework="pt") as handle:
+        return json.loads(handle.metadata()["meta"]).get("identity")
+
+
+def finished_cell(cells_dir: Path, key: str, identity: str, readouts: Path | None, seeds: int,
+                  matched: bool = False) -> dict | None:
+    """A finished cell whose result, predictions and every saved readout carry this identity."""
     path = cells_dir / f"{key}.json"
     if not path.exists():
         return None
     cell = json.loads(path.read_text())
     if cell.get("identity") != identity or not (cells_dir / f"{key}.predictions.tsv").exists():
         return None
-    if readouts is not None and not all((readouts / f"seed{s}.safetensors").exists() for s in range(seeds)):
-        return None
+    if readouts is not None:
+        files = [readouts / f"seed{s}.safetensors" for s in range(seeds)]
+        if matched:
+            files.append(readouts / "pca.safetensors")
+        if any(readout_identity(f) != identity for f in files):
+            return None
     return cell
+
+
+def collapsed(metrics: dict[str, torch.Tensor]) -> str | None:
+    """Name a degenerate count map: near-zero total mass, or the same count for every image."""
+    predicted, true = metrics["predicted_count"], metrics["true_count"]
+    ratio = predicted.sum().item() / max(true.sum().item(), 1e-9)
+    if ratio < COLLAPSE_MASS:
+        return f"zero map: predicted mass is {ratio:.4f} of the true mass"
+    if predicted.std().item() < 1e-3 * max(predicted.mean().item(), 1e-9):
+        return f"constant map: every image predicts {predicted.mean().item():.3f}"
+    return None
+
+
+# A fit predicting under a tenth of the validation mass has collapsed.
+COLLAPSE_MASS = 0.1
 
 
 def run_count_cell(features, targets, counts, split, image_ids, images, stage, layer, reducer,
@@ -488,14 +526,28 @@ def run_count_cell(features, targets, counts, split, image_ids, images, stage, l
         test = score(model, features, targets, counts, split.test, "count", args)
         val = score(model, features, targets, counts, split.val, "count", args)
         curve["seconds"] = round(time.perf_counter() - began, 1)
-        per_seed.append(summarise_counts(test, bins_for(test["true_count"].tolist())))
+        # A collapsed final seed fails the cell instead of entering the mean.
+        if reason := collapsed(val):
+            raise Diverged(f"final seed {seed} at lr {best_rate:g}: {reason}")
+        summary = summarise_counts(test, bins_for(test["true_count"].tolist()))
+        if args.arm == "free":
+            # The exemplar arm's test images, for arm comparisons on common IDs.
+            common = [k for k, row in enumerate(split.test.tolist()) if images[image_ids[row]]["exemplar_eligible"]]
+            subset = {key: value[common] for key, value in test.items()}
+            summary["exemplar_eligible_subset"] = summarise_counts(subset, bins_for(subset["true_count"].tolist()))
+        summary["rmse_pooled_input"] = test["sq_error"].tolist()
+        per_seed.append(summary)
         test_rows += prediction_rows(test, image_ids, split.test, "test", stage, layer, args.arm, seed)
         val_rows += prediction_rows(val, image_ids, split.val, "val", stage, layer, args.arm, seed)
         if args.arm == "exemplar":
             one_exemplar.append(one_exemplar_val(model, features, targets, counts, split, image_ids, images, args))
         if readouts is not None:
             save_readout(readouts, seed, model, reducer, meta | {"learning_rate": best_rate})
+    # RMSE: each seed's from its squared errors, then mean and std over seeds as for every
+    # metric; rmse_pooled is sqrt of the mean squared error over all seed-image rows.
+    squared = [error for summary in per_seed for error in summary.pop("rmse_pooled_input")]
     cell = aggregate(per_seed) | selection | {"seeds": args.seeds, "per_seed": per_seed, "curves": curves}
+    cell["rmse_pooled"] = round(math.sqrt(sum(squared) / len(squared)), 4)
     if one_exemplar:
         cell["one_exemplar_val"] = {"note": "transfer diagnostic only; never used for selection",
                                     "per_seed": one_exemplar} | aggregate(one_exemplar)
@@ -519,7 +571,12 @@ def one_exemplar_val(model, features, targets, counts, split, image_ids, images,
 def count_main(args) -> None:
     targets_manifest = manifest(args.targets)
     images, splits = targets_manifest["images"], targets_manifest["splits"]
+    if targets_manifest.get("protocol") != counting.PROTOCOL:
+        raise SystemExit(f"targets were prepared for {targets_manifest.get('protocol')}, not {counting.PROTOCOL}")
     completion = cache.completion(args.run)
+    # The features must come from exactly the prepared images these targets describe.
+    if completion.get("png_digest") != counting.png_digest(images):
+        raise SystemExit(f"{args.run} was extracted from other images than {args.targets}")
     provenance = {"cache": completion["sha256"], "targets": sha256_file(args.targets),
                   "manifest": sha256_file(args.targets.with_name(args.targets.name.replace("_targets.npz", "_manifest.json")))}
     capacity = "matched" if args.match_capacity else "raw"
@@ -543,7 +600,7 @@ def count_main(args) -> None:
                                        math.isqrt(recorded["tokens"]))
         identity = count_identity(args, stage, layer, provenance)
         readouts = args.readouts / name / f"{args.arm}_{capacity}" / key if args.readouts else None
-        if done := finished_cell(cells_dir, key, identity, readouts, args.seeds):
+        if done := finished_cell(cells_dir, key, identity, readouts, args.seeds, args.match_capacity):
             print(f"{stage:>9} L{layer:02d}  already complete, skipping", flush=True)
             cells.append(done)
             continue
@@ -588,7 +645,10 @@ def count_main(args) -> None:
         parameters = geometry.parameter_count(build_head(features.shape[1], "count", args))
         meta = {
             "protocol": counting.PROTOCOL, "task": "count", "arm": args.arm, "capacity": capacity,
-            "input_dim": features.shape[1], "head": args.head, "hidden_dim": 512,
+            "input_dim": features.shape[1], "head": args.head,
+            "hidden_dim": build_head(features.shape[1], "count", args).head.conv_mid[0].out_channels,
+            "identity": identity, "resolution": batch.resolution, "tokens": features.shape[-1] ** 2,
+            "code": code_commit(),
             "grid": counting.TARGET_GRID, "density_scale": counting.DENSITY_SCALE,
             "grid_extent": args.grid_extent, "epochs": args.epochs, "batch_size": args.batch_size, "model_id": batch.model_id,
             "stage": stage, "layer": layer, "feature_cache": str(args.run),
@@ -650,6 +710,21 @@ def count_main(args) -> None:
         raise SystemExit(f"{expected - len(cells)} cells failed; see {cells_dir}")
 
 
+def code_commit() -> str:
+    root = Path(__file__).resolve().parents[1]
+    found = subprocess.run(["git", "rev-parse", "HEAD"], cwd=root, capture_output=True, text=True)
+    return found.stdout.strip() or "unknown"
+
+
+def check_readout(readout: Readout, batch) -> None:
+    """Refuse a readout trained on another model, Stage, layer, resolution or grid than the cache."""
+    expected = {"model_id": batch.model_id, "stage": batch.stage, "layer": batch.layer_index,
+                "resolution": batch.resolution, "tokens": batch.tokens.shape[1]}
+    found = {key: readout.meta.get(key) for key in expected}
+    if found != expected:
+        raise ValueError(f"readout {found} does not match cache {expected}")
+
+
 def precision() -> dict:
     return {
         "features": "bfloat16 cache, float32 readout",
@@ -678,8 +753,8 @@ def main() -> None:
         "--learning-rates",
         type=float,
         nargs="+",
-        default=list(LEARNING_RATES),
-        help="search these rates on validation for every cell",
+        default=None,
+        help="search these rates on validation for every cell (default: the task's grid)",
     )
     ap.add_argument("--seeds", type=int, default=3)
     ap.add_argument("--scale-invariant", action="store_true")
@@ -717,6 +792,8 @@ def main() -> None:
         help="run only cells at the final Tower layer",
     )
     args = ap.parse_args()
+    if args.learning_rates is None:
+        args.learning_rates = list(COUNT_LEARNING_RATES if args.task == "count" else LEARNING_RATES)
     if args.task == "count":
         count_main(args)
         return

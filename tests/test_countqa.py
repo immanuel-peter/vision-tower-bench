@@ -313,6 +313,11 @@ class Loader:
 
     def __call__(self, directory, seed, device):
         readout = stand_in(self.conditioned, True, bias=self.bias, seed=seed)
+        # Identify the readout with the cache slice its directory names, as the runner's metadata does.
+        stage, layer = directory.name.rsplit("_L", 1)
+        side = 4 if stage == "tower" else 2
+        readout.meta |= {"model_id": "toy", "stage": stage, "layer": int(layer), "resolution": 32,
+                         "tokens": side * side}
         self.loaded.append(readout)
         return readout
 
@@ -380,6 +385,20 @@ def test_eval_keeps_readouts_frozen_and_writes_contract_rows(tmp_path, monkeypat
     assert json.loads(out.read_text())["label"] == cqe.LABEL
 
 
+def test_eval_refuses_a_readout_from_another_cache(tmp_path):
+    args = build_fixture(tmp_path)
+    args.arm = "free"
+
+    class Elsewhere(Loader):
+        def __call__(self, directory, seed, device):
+            readout = super().__call__(directory, seed, device)
+            readout.meta["model_id"] = "someone/else"
+            return readout
+
+    with pytest.raises(cqe.Refused, match="does not match cache"):
+        cqe.evaluate(args, Elsewhere(conditioned=False))
+
+
 def test_eval_arm_must_match_the_readout(tmp_path):
     args = build_fixture(tmp_path)
     with pytest.raises(cqe.Refused, match="conditioned=False"):
@@ -388,8 +407,9 @@ def test_eval_arm_must_match_the_readout(tmp_path):
 
 def test_free_arm_counts_only_the_valid_area(tmp_path):
     args = build_fixture(tmp_path)
-    args.arm = "free"
+    args.arm, args.stages = "free", ["tower"]
     readout = stand_in(False, True)
+    readout.meta |= {"model_id": "toy", "stage": "tower", "layer": 2, "resolution": 32, "tokens": 16}
     with torch.no_grad():
         readout.head.weight.zero_()
         readout.head.bias.fill_(2.0)  # constant density everywhere, padding included
@@ -419,7 +439,9 @@ def test_metrics_round_half_up_and_bin_on_the_true_answer():
     assert out["exact_match_by_seed"] == pytest.approx([2 / 3, 2 / 3])
     errors = np.abs(predicted - true)
     assert out["mae"] == pytest.approx(errors.mean())
-    assert out["rmse"] == pytest.approx(np.sqrt((errors ** 2).mean()))
+    # RMSE per seed from squared errors, then averaged over seeds; the pooled value is kept too.
+    assert out["rmse"] == pytest.approx(np.sqrt((errors ** 2).mean(axis=1)).mean())
+    assert out["rmse_pooled"] == pytest.approx(np.sqrt((errors ** 2).mean()))
     assert out["by_bin"]["le50"]["images"] == 1 and out["by_bin"]["50to200"]["images"] == 1
     assert out["by_bin"]["gt200"]["exact_match"] == pytest.approx(0.0)
     assert out["by_bin"]["le50"]["mae"] == pytest.approx((0.5 + 0.49) / 2)

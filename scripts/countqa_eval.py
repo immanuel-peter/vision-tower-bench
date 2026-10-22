@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Frozen-head transfer evaluation of the count-v1 FSC-147 readouts on curated CountQA.
+"""Frozen-head transfer evaluation of the FSC-147 count readouts on curated CountQA.
 
 This measures exemplar-based frozen-feature counting on a curated CountQA subset. It is not
 MLLM question answering; never put these numbers beside MLLM CountQA accuracies.
@@ -201,7 +201,10 @@ def summarise(predicted: np.ndarray, true: np.ndarray) -> dict:
     bins = np.array([counting.count_bin(value) for value in true])
     out = {
         "images": int(len(true)), "seeds": int(predicted.shape[0]),
-        "mae": float(np.abs(error).mean()), "rmse": float(np.sqrt((error ** 2).mean())),
+        # Same convention as the FSC-147 cells: each seed's RMSE, then the mean over seeds;
+        # rmse_pooled is sqrt of the mean squared error over all seed x image rows.
+        "mae": float(np.abs(error).mean()), "rmse": float(np.sqrt((error ** 2).mean(axis=1)).mean()),
+        "rmse_pooled": float(np.sqrt((error ** 2).mean())),
         "exact_match": float(correct.mean()), "mean_signed_error": float(error.mean()),
         "mae_by_seed": np.abs(error).mean(axis=1).tolist(),
         "rmse_by_seed": np.sqrt((error ** 2).mean(axis=1)).tolist(),
@@ -212,7 +215,7 @@ def summarise(predicted: np.ndarray, true: np.ndarray) -> dict:
         mask = bins == name
         out["by_bin"][name] = {"images": int(mask.sum())} | ({
             "mae": float(np.abs(error[:, mask]).mean()),
-            "rmse": float(np.sqrt((error[:, mask] ** 2).mean())),
+            "rmse": float(np.sqrt((error[:, mask] ** 2).mean(axis=1)).mean()),
             "exact_match": float(correct[:, mask].mean()),
         } if mask.any() else {})
     return out
@@ -291,6 +294,11 @@ def evaluate(args, loader: Callable | None = None) -> dict:
             protocol = readout.meta.get("protocol")
             if protocol not in (None, counting.PROTOCOL):
                 raise Refused(f"{directory}: protocol {protocol!r} is not {counting.PROTOCOL}")
+            expected = {"model_id": meta.get("model_id"), "stage": stage, "layer": layer,
+                        "resolution": int(meta["resolution"]), "tokens": int(tokens.shape[1])}
+            found = {key: readout.meta.get(key) for key in expected}
+            if found != expected:
+                raise Refused(f"{directory} seed {seed}: readout {found} does not match cache {expected}")
             before = frozen_state(readout)
             predicted.append(predict_counts(readout, ordered, image_ids, frames, boxes,
                                             args.batch_size, args.device))
@@ -341,12 +349,14 @@ def evaluate(args, loader: Callable | None = None) -> dict:
             "frame": "letterbox (counting.letterbox_frame), whole image, fill counting.LETTERBOX_FILL",
             "transfer_preprocessing": manifest["transfer_preprocessing"],
             "count": "counting.masked_count(density, counting.coverage(frame.valid, 64))",
-            "prototype_valid": "counting.coverage(frame.valid, side) at the token grid",
+            "prototype_valid": "counting.token_valid(frame.valid, side, grid_extent) at the token grid",
             "exemplars": "one approved human box per image, frame.boxes of the source-pixel box"
             if args.arm == "exemplar" else "none",
             "exact_match": "floor(pred + 0.5) == integer answer",
             "bins": "counting.count_bin of the true answer",
-            "rmse": "sqrt(mean sq_error) over all seed x image rows of the cell",
+            "rmse": "mean over seeds of each seed's sqrt(mean sq_error); rmse_pooled pools seed x image rows",
+            "numerics": "readouts trained with cuDNN TF32 convolutions on GPU; this run's device may differ, "
+                        "so transfer parity with training is approximate at float32 rounding",
             "seeds": list(args.seeds),
             "bootstrap": {"function": "vtb.geometry_bootstrap.paired_metric_bootstrap",
                           "pairing": "identical image IDs; seed k with seed k; per-image seed-mean metric",
@@ -383,7 +393,7 @@ def parser() -> argparse.ArgumentParser:
                     help="vtb.extract run dir for the CountQA letterbox images, e.g. "
                     "$VTB_WORK/features/countqa/<model>_<res>_full")
     ap.add_argument("--readouts", type=Path, required=True,
-                    help="$VTB_WORK/readouts/count-v1/<model> (holds <arm>_<variant>/<stage>_L<layer>/)")
+                    help="$VTB_WORK/readouts/count-v3/<model> (holds <arm>_<variant>/<stage>_L<layer>/)")
     ap.add_argument("--arm", choices=ARMS, required=True)
     ap.add_argument("--variant", choices=VARIANTS, default="matched")
     ap.add_argument("--stages", nargs="+", choices=STAGE_ORDER, default=None)

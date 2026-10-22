@@ -89,7 +89,8 @@ class ShardWriter:
 COMPLETION = "complete.json"
 
 
-def validate(run_dir: Path, expected_ids: list[str], slices_wanted: list[tuple[str, int]]) -> dict:
+def validate(run_dir: Path, expected_ids: list[str], slices_wanted: list[tuple[str, int]],
+             check_finite: bool = True) -> dict:
     """Check a finished cache slice by slice: the expected IDs once each, one shape and metadata."""
     run_dir = Path(run_dir)
     found = slices(run_dir)
@@ -106,6 +107,8 @@ def validate(run_dir: Path, expected_ids: list[str], slices_wanted: list[tuple[s
             with safe_open(path, framework="pt") as handle:
                 metadata = handle.metadata() or {}
                 piece = handle.get_slice("tokens").get_shape()
+                if check_finite and not torch.isfinite(handle.get_tensor("tokens")).all():
+                    raise ValueError(f"{path.name}: non-finite token values")
             ids = metadata["image_ids"].split("\n")
             if piece[0] != len(ids):
                 raise ValueError(f"{path.name}: {piece[0]} rows but {len(ids)} IDs")

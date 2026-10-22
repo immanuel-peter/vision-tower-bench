@@ -80,6 +80,7 @@ def main() -> None:
         entry = {"readout": f"{arm_capacity}/{key}", "images": len(ids), "seeds": []}
         for seed in args.seeds:
             readout = geometry_run.load_readout(directory, seed, args.device)
+            geometry_run.check_readout(readout, batch)
             row = {"seed": seed, "centre_crop_val": crop_val(args.results / f"{args.name}_count_{arm_capacity}.cells", key, seed)}
             if readout.conditioned:
                 row["letterbox_three_boxes"] = evaluate(readout, tokens, ids, images, 3, args.device, args.batch_size)

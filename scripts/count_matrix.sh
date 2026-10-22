@@ -15,7 +15,7 @@ READOUTS="${1:?readouts dir}"; shift
 GPUS="${GPUS:-$(nvidia-smi --query-gpu=index --format=csv,noheader | paste -sd,)}"
 IFS=, read -ra GPU <<< "$GPUS"
 LANES="${LANES:-${#GPU[@]}}"
-GRID="${GRID:-1e-4 3e-4 1e-3 3e-3 1e-2 3e-2}"
+GRID="${GRID:-1e-5 3e-5 1e-4 3e-4 1e-3 3e-3}"
 SEEDS="${SEEDS:-3}"
 EPOCHS="${EPOCHS:-10}"
 ARMS="${ARMS:-free exemplar}"
@@ -36,13 +36,33 @@ FAILURE_PATTERNS='Traceback|CUDA out of memory|RuntimeError|Killed|FAILED'
 
 resolution() { [ "$1" = dinov3 ] && echo 512 || echo 448; }
 stages() { [[ "$TOWER_ONLY" == *" $1 "* ]] && echo tower || echo "tower merged projected"; }
+# These adapters mix features across the images of a batch (or gain nothing from batching).
+SINGLE_IMAGE=" kimi_k26 minimax_m3 moonvit_v2 "
 batch_size() {
+    [[ "$SINGLE_IMAGE" == *" $1 "* ]] && { echo 1; return; }
     [ -n "$ROSTER" ] && [ -f "$ROSTER" ] || { echo "${EXTRACT_BATCH:-16}"; return; }
     uv run python -c "
 import json, sys
 entry = json.load(open(sys.argv[1]))['models'].get(sys.argv[2], {})
 print(entry.get('extraction', {}).get('batch_size') or sys.argv[3])
 " "$ROSTER" "$1" "${EXTRACT_BATCH:-16}"
+}
+# Prints "offline" when the model loads without the network at its roster revision,
+# "online" for selective parent exports, which resolve shard etags on every load.
+hub_mode() {
+    [ -n "$ROSTER" ] && [ -f "$ROSTER" ] || { echo online; return; }
+    uv run python -c "
+import json, os, sys
+source = json.load(open(sys.argv[1]))['models'][sys.argv[2]]['source']
+if source['kind'] == 'selective_parent_export':
+    print('online'); sys.exit()
+if source['kind'] == 'hub_standalone':
+    ref = os.path.join(os.environ['HF_HOME'], 'hub', 'models--' + source['repo'].replace('/', '--'), 'refs', 'main')
+    found = open(ref).read().strip() if os.path.exists(ref) else None
+    if found != source['revision']:
+        sys.exit(f'{sys.argv[2]}: cached main is {found}, roster pins {source[\"revision\"]}')
+print('offline')
+" "$ROSTER" "$1"
 }
 source_of() {
     [ -n "$ROSTER" ] && [ -f "$ROSTER" ] || { echo "unrecorded"; return; }
@@ -68,12 +88,15 @@ extract() {
     if [ -d "$run" ]; then
         mv "$run" "$run.partial-$(date +%Y%m%dT%H%M%S)"
     fi
-    local extra=()
+    local extra=() mode batch offline=0
     [ "$model" = nemotron35_bolt ] && extra=(--stages tower merged projected)
+    mode=$(hub_mode "$model") || { echo "$mode" > "$log"; return 1; }
+    [ "$mode" = offline ] && offline=1
+    batch=$(batch_size "$model")
     # shellcheck disable=SC2046
-    CUDA_VISIBLE_DEVICES="$gpu" OMP_NUM_THREADS="$THREADS" MKL_NUM_THREADS="$THREADS" \
+    HF_HUB_OFFLINE="$offline" CUDA_VISIBLE_DEVICES="$gpu" OMP_NUM_THREADS="$THREADS" MKL_NUM_THREADS="$THREADS" \
     uv run python -m vtb.extract --model "$model" --images "$images" --out "$features" \
-        --resolution "$res" --device cuda --batch-size "$(batch_size "$model")" --workers "$WORKERS" \
+        --resolution "$res" --device cuda --batch-size "$batch" --workers "$WORKERS" \
         --final-stages $(stages "$model") "${extra[@]}" > "$log" 2>&1 || return 1
     layer=$(uv run python -c "
 import sys
@@ -82,7 +105,7 @@ print(max(layer for _, layer in cache.slices(sys.argv[1])))
 " "$run") || return 1
     # shellcheck disable=SC2046
     uv run python scripts/validate_cache.py --run "$run" --manifest "$manifest" --model "$model" \
-        --stages $(stages "$model") --layer "$layer" --log "$log" \
+        --stages $(stages "$model") --layer "$layer" --log "$log" --images "$images" --batch-size "$batch" \
         --source "$(source_of "$model")" >> "$log" 2>&1
 }
 

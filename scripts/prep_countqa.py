@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prepare the CountQA transfer subset for the frozen count-v1 readouts (issue #10).
+"""Prepare the CountQA transfer subset for the frozen FSC-147 count readouts (issue #10).
 
 Three steps, each reproducible from the pinned dataset revision:
 

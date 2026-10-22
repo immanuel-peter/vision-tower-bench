@@ -79,12 +79,13 @@ def write_fixture(root, side=8, width=6, images=24, seed=0):
         boxes = [[0.1, 0.1, 0.3, 0.3], [0.5, 0.5, 0.7, 0.7], [0.2, 0.6, 0.4, 0.9]]
         entries[image_id] = {"count": count, "split": names[k], "boxes": boxes,
                              "box_valid": [True, True, k != 3], "exemplar_eligible": k != 3,
-                             "bin": counting.count_bin(count)}
+                             "bin": counting.count_bin(count), "png_sha256": f"{k:064x}"}
     splits = {name: [i for i, n in zip(ids, names) if n == name] for name in ("train", "val", "test")}
     data = root / "data"
     data.mkdir()
     np.savez(data / "fsc147_targets.npz", **targets)
-    (data / "fsc147_manifest.json").write_text(json.dumps({"images": entries, "splits": splits}))
+    (data / "fsc147_manifest.json").write_text(
+        json.dumps({"protocol": counting.PROTOCOL, "images": entries, "splits": splits}))
     run = root / "features" / "toy_448_full"
     run.mkdir(parents=True)
     order = rng.permutation(images)
@@ -92,7 +93,8 @@ def write_fixture(root, side=8, width=6, images=24, seed=0):
         FeatureBatch(tokens=tokens[order].to(torch.bfloat16), image_ids=[ids[i] for i in order],
                      model_id="toy/model", stage=stage, layer_index=4, num_layers=4,
                      resolution=448).save(run / f"{stage}_L04_00000.safetensors")
-    cache.write_completion(run, {"model": "toy", "slices": cache.validate(run, ids, [("tower", 4), ("merged", 4)])})
+    cache.write_completion(run, {"model": "toy", "png_digest": counting.png_digest(entries),
+                                 "slices": cache.validate(run, ids, [("tower", 4), ("merged", 4)])})
     return run, data / "fsc147_targets.npz", ids
 
 
@@ -240,3 +242,43 @@ def test_letterbox_check_reproduces_crop_validation_on_a_full_canvas(tmp_path, m
         letterbox = row["letterbox_three_boxes" if arm == "exemplar" else "letterbox"]
         assert letterbox["mae"] == pytest.approx(row["centre_crop_val"]["mae"], abs=2e-3), entry["readout"]
         assert letterbox["images"] == row["centre_crop_val"]["images"]
+
+
+def test_collapse_detection_names_zero_and_constant_maps():
+    true = torch.tensor([10.0, 40.0, 3.0])
+    assert "zero map" in geometry_run.collapsed({"predicted_count": true * 0.01, "true_count": true})
+    assert "constant map" in geometry_run.collapsed({"predicted_count": torch.full((3,), 17.0), "true_count": true})
+    assert geometry_run.collapsed({"predicted_count": true * 0.8, "true_count": true}) is None
+
+
+def test_resume_rejects_readouts_written_under_another_configuration(tmp_path, monkeypatch):
+    run, targets, _ = write_fixture(tmp_path)
+    out = tmp_path / "toy_count_free_matched.json"
+    base = ["--task", "count", "--run", run, "--targets", targets, "--out", out, "--name", "toy",
+            "--readouts", tmp_path / "readouts", "--device", "cpu", "--batch-size", "4",
+            "--learning-rates", "1e-3", "--seeds", "1", "--match-capacity", "--width", "4", "--stages", "tower"]
+    run_main(monkeypatch, *base, "--epochs", "1")
+    cell = json.loads(out.read_text())["cells"][0]
+    assert "exemplar_eligible_subset" in cell and cell["exemplar_eligible_subset"]["images"] == 5
+    assert cell["rmse_pooled"] > 0
+    directory = tmp_path / "readouts" / "toy" / "free_matched" / "tower_L04"
+    assert geometry_run.readout_identity(directory / "seed0.safetensors") == cell["identity"]
+    assert geometry_run.readout_identity(directory / "pca.safetensors") == cell["identity"]
+
+    # Another configuration overwrites the readout (as an interrupted run would) ...
+    other = tmp_path / "other.json"
+    run_main(monkeypatch, *[a if a != out else other for a in base], "--epochs", "2")
+    # ... so the first configuration's cell is no longer complete and is retrained.
+    cells = out.with_suffix(".cells")
+    assert geometry_run.finished_cell(cells, "tower_L04", cell["identity"], directory, 1, True) is None
+    run_main(monkeypatch, *base, "--epochs", "1")
+    assert geometry_run.readout_identity(directory / "seed0.safetensors") == cell["identity"]
+
+
+def test_count_run_refuses_features_from_other_images(tmp_path, monkeypatch):
+    run, targets, _ = write_fixture(tmp_path)
+    record = json.loads((run / "complete.json").read_text())
+    cache.write_completion(run, record | {"png_digest": "stale"})
+    with pytest.raises(SystemExit, match="other images"):
+        run_main(monkeypatch, "--task", "count", "--run", run, "--targets", targets, "--device", "cpu",
+                 "--out", tmp_path / "x.json", "--seeds", "1", "--epochs", "1", "--learning-rates", "1e-3")
