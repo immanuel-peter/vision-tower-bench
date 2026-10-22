@@ -111,7 +111,10 @@ def write(dataset: str, grouped: dict[str, list[cb.Result]], args) -> list[Path]
     written, rows = [], []
     for model, results in sorted(grouped.items()):
         comparisons = comparisons_for(results, kwargs)
-        if not comparisons:
+        failed = {f"{r.arm}_{r.capacity}/{key}": error for r in results for key, error in sorted(r.failed.items())}
+        for name, error in failed.items():
+            print(f"{dataset} {model}: FAILED cell {name}: {error}")
+        if not comparisons and not failed:
             print(f"{dataset} {model}: no pairable cells yet")
             continue
         if args.no_image_ids:
@@ -122,8 +125,9 @@ def write(dataset: str, grouped: dict[str, list[cb.Result]], args) -> list[Path]
             "dataset": dataset, "model": model, "label": args.label,
             "partial": any(r.status != "complete" for r in results),
             "protocol": cb.protocol(args.resamples, args.confidence, args.bootstrap_seed),
-            "results": [{"arm": r.arm, "capacity": r.capacity, "status": r.status, "cells": sorted(r.cells)}
-                        for r in results],
+            "results": [{"arm": r.arm, "capacity": r.capacity, "status": r.status, "cells": sorted(r.cells),
+                         "failed_cells": r.failed} for r in results],
+            "failed_cells": failed,
             "sources": sources,
             "comparisons": comparisons,
         }

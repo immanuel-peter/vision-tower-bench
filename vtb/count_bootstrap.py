@@ -177,6 +177,7 @@ class Result:
     sources: dict[str, str]      # path -> sha256
     val: dict[str, Cell] = field(default_factory=dict)
     protocol: str | None = None  # count protocol when recorded (complete payloads, CountQA readout meta)
+    failed: dict[str, str] = field(default_factory=dict)  # <key>.failed.json errors, never dropped silently
 
     def final(self, stage: str) -> Cell | None:
         """The deepest cell of a Stage (the final Tower for ``tower``)."""
@@ -195,6 +196,9 @@ def _check_against_json(cell: Cell, cell_json: dict, where: str, per_seed_key: s
     mae = cell.abs_error.mean(dim=1).tolist()
     if len(recorded) != len(mae) or any(abs(a - b) > 2e-3 for a, b in zip(mae, recorded)):
         raise ValueError(f"{where}: TSV per-seed MAE {mae} does not match the cell JSON {recorded}")
+    pooled = cell_json.get("rmse_pooled", cell_json.get("metrics", {}).get("rmse_pooled"))
+    if pooled is not None and abs(pooled_rmse(cell.sq_error) - pooled) > 2e-3 + 1e-5 * pooled:
+        raise ValueError(f"{where}: TSV pooled RMSE {pooled_rmse(cell.sq_error):.4f} != cell JSON {pooled}")
 
 
 def load_fsc(path: Path, allow_partial: bool = True) -> Result | None:
@@ -240,11 +244,16 @@ def load_fsc(path: Path, allow_partial: bool = True) -> Result | None:
             cell_json[cell_path.stem] = json.loads(cell_path.read_text())
             sources[str(cell_path)] = sha256_file(cell_path)
             sources[str(tsv)] = sha256_file(tsv)
-        if not cells:
-            return None
         status = "partial (finished cells only)"
     else:
         return None
+    failed = {}
+    if cells_dir.is_dir():
+        for failure in sorted(cells_dir.glob("*.failed.json")):
+            key = failure.name.removesuffix(".failed.json")
+            if key not in cells:
+                failed[key] = json.loads(failure.read_text()).get("error", "unknown")
+                sources[str(failure)] = sha256_file(failure)
     for key, cell in cells.items():
         cell.meta = {k: cell_json[key].get(k) for k in
                      ("model_id", "relative_depth", "learning_rate", "token_width", "input_width", "grid",
@@ -256,9 +265,11 @@ def load_fsc(path: Path, allow_partial: bool = True) -> Result | None:
         if val_tsv.exists():
             val |= read_predictions(val_tsv, split="val")
             sources[str(val_tsv)] = sha256_file(val_tsv)
+    if not cells and not failed:
+        return None
     protocol = payload.get("protocol") if payload is not None else None
     return Result("fsc147", match["model"], match["arm"], match["capacity"], status, cells, cell_json,
-                  sources, val, protocol)
+                  sources, val, protocol, failed)
 
 
 def load_countqa(path: Path) -> Result:
@@ -486,8 +497,15 @@ def arm_comparison(free: Result, exemplar: Result, stage: str = "tower", **kwarg
     extra = sorted(set(common) - set(a.image_ids))
     if extra:
         raise ValueError(f"{len(extra)} exemplar-arm test IDs are not in the free arm, e.g. {extra[:3]}")
+    common_free = a.subset(common)
+    recorded = [seed.get("exemplar_eligible_subset", {}).get("mae")
+                for seed in free.cell_json.get(a.key, {}).get("per_seed", [])]
+    if recorded and None not in recorded:
+        mae = common_free.abs_error.mean(dim=1).tolist()
+        if len(mae) != len(recorded) or any(abs(x - y) > 2e-3 for x, y in zip(mae, recorded)):
+            raise ValueError(f"{free.model} {a.key}: common-ID MAE {mae} != exemplar_eligible_subset {recorded}")
     name = f"arm:{stage}_{free.capacity}:free_vs_exemplar"
-    return {name: comparison((free, a.subset(common)), (exemplar, b), "arm",
+    return {name: comparison((free, common_free), (exemplar, b), "arm",
                              "common eligible test IDs: the exemplar arm's test IDs (intersection)",
                              dropped=len(a.image_ids) - len(common), **kwargs)}
 

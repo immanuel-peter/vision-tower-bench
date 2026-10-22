@@ -30,13 +30,19 @@ def tsv_rows(ids, true, predicted, stage, layer, arm, split="test", digits=4):
     return rows
 
 
-def cell_json(stage, layer, true, predicted):
+def cell_json(stage, layer, true, predicted, eligible=None):
+    """Runner-shaped cell JSON; ``eligible`` is a boolean mask of the exemplar arm's test images."""
     per_seed = [{"mae": round(float(np.abs(p - true).mean()), 4),
                  "rmse": round(float(np.sqrt(((p - true) ** 2).mean())), 4)} for p in predicted]
+    if eligible is not None:
+        for entry, p in zip(per_seed, predicted):
+            entry["exemplar_eligible_subset"] = {"mae": round(float(np.abs(p - true)[eligible].mean()), 4),
+                                                 "images": int(eligible.sum())}
     mae = [s["mae"] for s in per_seed]
     return {"stage": stage, "layer_index": layer, "relative_depth": 1.0, "model_id": "toy/model",
             "learning_rate": 1e-3, "mae": float(np.mean(mae)), "mae_std": float(np.std(mae)),
             "rmse": float(np.mean([s["rmse"] for s in per_seed])), "per_seed": per_seed,
+            "rmse_pooled": round(float(np.sqrt(((predicted - true) ** 2).mean())), 4),
             "images": {"train": 10, "val": 5, "test": len(true)}, "token_width": 8, "input_width": 8,
             "grid": 4, "trainable_parameters": 100}
 
@@ -52,7 +58,7 @@ def make_truth(images=60, seed=0):
 
 
 def write_result(directory, model, arm, capacity, ids, true, stages, complete=True, seeds=3, offset=0.0,
-                 rng_seed=1, val=True):
+                 rng_seed=1, val=True, eligible=None):
     """A runner-shaped result: payload JSON, its predictions TSV and the .cells directory."""
     rng = np.random.default_rng(rng_seed)
     stem = f"{model}_count_{arm}_{capacity}"
@@ -63,7 +69,7 @@ def write_result(directory, model, arm, capacity, ids, true, stages, complete=Tr
         layer = 27
         scale = STAGE_NOISE[stage] + offset
         predicted = true[None, :] + rng.normal(0, scale, (seeds, len(true))) * np.sqrt(true)[None, :] / 3
-        cell = cell_json(stage, layer, true, predicted)
+        cell = cell_json(stage, layer, true, predicted, eligible)
         key = f"{stage}_L{layer:02d}"
         lines = tsv_rows(ids, true, predicted, stage, layer, arm)
         (cells_dir / f"{key}.predictions.tsv").write_text(HEADER + "\n" + "\n".join(lines) + "\n")
@@ -96,7 +102,7 @@ def matrix(tmp_path):
     keep = np.array([k % 5 != 0 for k in range(len(ids))])
     for capacity, offset in (("raw", 0.5), ("matched", 0.0)):
         write_result(tmp_path, "toy", "free", capacity, ids, true, ("tower", "merged", "projected"), offset=offset,
-                     rng_seed=1 + len(capacity))
+                     rng_seed=1 + len(capacity), eligible=keep)
         write_result(tmp_path, "toy", "exemplar", capacity, eligible, true[keep], ("tower",), offset=offset - 0.5,
                      rng_seed=7 + len(capacity))
     return tmp_path, ids, true, eligible
@@ -265,6 +271,34 @@ def test_comparison_families_on_a_matrix(matrix):
     swapped.cells["tower_L27"].image_ids[0] = "fsc147_unknown"
     with pytest.raises(ValueError, match="not in the free arm"):
         cb.arm_comparison(results["free", "matched"], swapped)
+
+
+def test_failed_cells_are_reported_not_dropped(tmp_path):
+    ids, true = make_truth(30)
+    path = write_result(tmp_path, "toy", "free", "raw", ids, true, ("tower", "merged"), complete=False)
+    (path.with_suffix(".cells") / "projected_L27.failed.json").write_text(
+        json.dumps({"error": "final seed 1 at lr 0.001: zero map", "identity": "x"}))
+    result = cb.load_fsc(path)
+    assert result.failed == {"projected_L27": "final seed 1 at lr 0.001: zero map"}
+    out = tmp_path / "analysis"
+    cli.main(["fsc", "--results", str(tmp_path), "--out", str(out), "--resamples", "50"])
+    payload = json.loads((out / "fsc147" / "toy_count_bootstrap.json").read_text())
+    assert payload["failed_cells"] == {"free_raw/projected_L27": "final seed 1 at lr 0.001: zero map"}
+    assert payload["partial"]
+    table = tmp_path / "table"
+    count_table.main(["--results", str(tmp_path), "--out", str(table)])
+    assert "zero map" in (table / "count_table.md").read_text()
+
+
+def test_arm_comparison_checks_the_runner_common_id_summary(matrix):
+    root = matrix[0]
+    path = root / "toy_count_free_matched.json"
+    payload = json.loads(path.read_text())
+    payload["cells"][0]["per_seed"][0]["exemplar_eligible_subset"]["mae"] += 0.5
+    path.write_text(json.dumps(payload))
+    results = {(r.arm, r.capacity): r for r in cb.discover(root)}
+    with pytest.raises(ValueError, match="exemplar_eligible_subset"):
+        cb.arm_comparison(results["free", "matched"], results["exemplar", "matched"], resamples=10)
 
 
 def test_cli_writes_evidence_with_sources_and_protocol(matrix, tmp_path):

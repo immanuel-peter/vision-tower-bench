@@ -503,10 +503,13 @@ def cache_rows(cache, features: Path, stage: str, layer: int, image_ids: list[st
     import torch
     from safetensors import safe_open
 
-    found, chosen = {}, set(image_ids)
+    from types import SimpleNamespace
+
+    found, chosen, meta = {}, set(image_ids), {}
     for shard in cache.shards(features, stage, layer):
         with safe_open(shard, framework="pt") as handle:
-            ids = handle.metadata()["image_ids"].split("\n")
+            meta = handle.metadata()
+            ids = meta["image_ids"].split("\n")
             wanted = [(row, i) for row, i in enumerate(ids) if i in chosen]
             if wanted:
                 tokens = handle.get_tensor("tokens")
@@ -514,7 +517,9 @@ def cache_rows(cache, features: Path, stage: str, layer: int, image_ids: list[st
     missing = [i for i in image_ids if i not in found]
     if missing:
         raise ValueError(f"{stage} L{layer}: {len(missing)} image IDs are not in {features}")
-    return torch.stack([found[i] for i in image_ids])
+    # Batch-shaped, so geometry_run.check_readout can refuse a readout from another cache.
+    return SimpleNamespace(tokens=torch.stack([found[i] for i in image_ids]), model_id=meta["model_id"],
+                           stage=stage, layer_index=layer, resolution=int(meta["resolution"]))
 
 
 def predict_density_maps(features: Path, cells: list[tuple[str, int, Path]], image_ids: list[str], *,
@@ -534,10 +539,12 @@ def predict_density_maps(features: Path, cells: list[tuple[str, int, Path]], ima
         valid = torch.from_numpy(np.stack([counting.coverage(rect, grid) for rect in valid_rects]))
     out = {"stages": [], "layers": {}, "density": {}, "counts": {}}
     for stage, layer, directory in cells:
-        rows = cache_rows(cache, features, stage, layer, image_ids)
+        batch = cache_rows(cache, features, stage, layer, image_ids)
+        rows = batch.tokens
         total = torch.zeros(len(image_ids), grid, grid, dtype=torch.float64)
         for seed in seeds:
             readout = geometry_run.load_readout(directory, seed, device)
+            geometry_run.check_readout(readout, batch)
             for start in range(0, len(image_ids), batch_size):
                 stop = start + batch_size
                 chunk_boxes = list(boxes[start:stop]) if readout.conditioned else None

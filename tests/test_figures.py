@@ -147,7 +147,8 @@ def _count_fixture(root, ids, side=4, dim=6, stages=("tower", "merged", "project
             width = 4 + int(arm == "exemplar")
             meta = {"protocol": counting.PROTOCOL, "arm": arm, "input_dim": width, "head": "linear",
                     "hidden_dim": 8, "grid": counting.TARGET_GRID, "density_scale": counting.DENSITY_SCALE,
-                    "grid_extent": 1.0}
+                    "grid_extent": 1.0, "model_id": "toy/model", "stage": stage, "layer": 3, "resolution": 32,
+                    "tokens": side * side, "identity": "toy"}
             for seed in (0, 1):
                 torch.manual_seed(seed)
                 head = geometry.CountHead([width], head="linear", hidden_dim=8)
@@ -192,6 +193,12 @@ def test_fsc_density_panel_from_saved_readouts_on_cpu(tmp_path):
     conditioned = FIGURE_SCRIPT.fsc_density_data("toy", features, readouts, prep, ids, arm="exemplar",
                                                  seeds=(0,), device="cpu")
     assert conditioned["stages"] == ["tower"] and conditioned["density"]["tower"].shape == (3, 64, 64)
+    # A readout trained on another cache (here: the Tower slice) is refused.
+    directory = readouts / "toy" / "free_matched" / "merged_L03"
+    wrong = geometry_run.load_readout(directory, 0, "cpu")
+    geometry_run.save_readout(directory, 0, wrong.head, wrong.reducer, wrong.meta | {"stage": "tower"})
+    with pytest.raises(ValueError, match="does not match cache"):
+        FIGURE_SCRIPT.fsc_density_data("toy", features, readouts, prep, ids, seeds=(0,), device="cpu")
 
 
 def test_fsc_selection_writes_rule_and_ids(tmp_path):

@@ -91,6 +91,12 @@ def one_exemplar_rows(results: list[cb.Result]) -> list[dict]:
     return rows
 
 
+def failed_rows(results: list[cb.Result]) -> list[dict]:
+    """Cells whose final seed collapsed or whose every rate diverged (``<key>.failed.json``)."""
+    return [{"model": r.model, "arm": r.arm, "capacity": r.capacity, "cell": key, "error": error}
+            for r in sorted(results, key=_order) for key, error in sorted(r.failed.items())]
+
+
 def fmt(value, digits: int = 2) -> str:
     return "n/a" if value is None else f"{value:.{digits}f}"
 
@@ -146,10 +152,16 @@ def diagnostic_markdown(rows: list[dict]) -> str:
     return "\n".join(lines)
 
 
-def markdown(fsc: list[dict], diagnostics: list[dict], countqa: list[dict], label: str | None) -> str:
+def markdown(fsc: list[dict], diagnostics: list[dict], countqa: list[dict], label: str | None,
+             failed: list[dict] | None = None) -> str:
     parts = []
     if label:
         parts.append(f"> **{label.upper()}**: {label} numbers, not final results.\n")
+    if failed:
+        parts += ["## Failed cells (reported, not dropped)\n",
+                  "| Model | Arm | Capacity | Cell | Error |", "|---|---|---|---|---|"]
+        parts += [f"| {f['model']} | {f['arm']} | {f['capacity']} | `{f['cell']}` | {f['error']} |" for f in failed]
+        parts.append("")
     if fsc:
         parts += ["## FSC-147 test (official split)\n",
                   "MAE and RMSE: mean ± sd over seeds of each seed's value. Pooled RMSE: sqrt of the mean "
@@ -202,7 +214,7 @@ def main(argv=None) -> None:
     qa = [r for r in qa if args.models is None or r.model in args.models]
     fsc, diagnostics = fsc_rows(results), one_exemplar_rows(results)
     countqa = fsc_rows(qa)
-    text = markdown(fsc, diagnostics, countqa, args.label)
+    text = markdown(fsc, diagnostics, countqa, args.label, failed_rows(results))
     if args.out is None:
         print(text)
         return
