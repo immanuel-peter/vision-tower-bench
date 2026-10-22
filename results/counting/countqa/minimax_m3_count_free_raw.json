@@ -1,0 +1,624 @@
+{
+ "label": "experimental, supplementary: exemplar-based frozen-feature counting transfer on a curated CountQA-derived subset; not official CountQA benchmark scores",
+ "experimental": true,
+ "supplementary": true,
+ "official_countqa_benchmark": false,
+ "not_mllm_qa": "Frozen Tower/Stage features read by FSC-147-trained count heads; not MLLM question answering and not comparable to MLLM CountQA scores.",
+ "role": "secondary (exemplar-free)",
+ "annotation": null,
+ "primary_cell": null,
+ "model": "minimax_m3",
+ "arm": "free",
+ "variant": "raw",
+ "dataset": {
+  "name": "CountQA (curated subset)",
+  "repo": "Jayant-Sravan/CountQA",
+  "revision": "f92cc6fe46542c61e2916e3d2ae9a911e2216b1a",
+  "license": "CC-BY-4.0",
+  "citation": "Tamarapalli, Grover, Pande, Yerramilli. CountQA: How Well Do MLLMs Count in the Wild? arXiv:2508.06585 (2025). Dataset Jayant-Sravan/CountQA, CC-BY-4.0.",
+  "eligibility_sha256": "64573edf367a1bc5934fbbaa1e995dbf79ad73b1b60756953c8c6cc8f827bf14",
+  "manifest_sha256": "74ce4419307c80267109dd8c617e6a4399b58c628ec1ca3fdee9e23ce7bbffa2",
+  "exemplars_status": "pending",
+  "exemplars_sha256": "a20303519d287245f092e907d0bbd69122081bd938b086ea866993ae3efe041c",
+  "prepared_images": 439,
+  "evaluated_images": 439,
+  "excluded": {}
+ },
+ "features": {
+  "dir": "/home/shadeform/vtb-work/counting-v3/features/countqa/minimax_m3_448_full",
+  "complete_json": "/home/shadeform/vtb-work/counting-v3/features/countqa/minimax_m3_448_full/complete.json",
+  "complete_json_sha256": "cb4d4d6e66163dbc5c0ea135c46e1f481ae64f9dbb5896b8fc044ff4ee9790ae"
+ },
+ "protocol": {
+  "training": "none on CountQA: saved FSC-147 heads and PCA are applied frozen",
+  "frame": "letterbox (counting.letterbox_frame), whole image, fill counting.LETTERBOX_FILL",
+  "transfer_preprocessing": "CountQA answers refer to the whole image, so each kept image is placed whole on a max(w, h) square canvas (counting.letterbox_frame, integer centring offsets) filled with counting.LETTERBOX_FILL and saved as PNG at native resolution; the adapter then resizes that square to the benchmark resolution. FSC-147 heads were trained on the central min-side square (counting.centre_crop_frame), so CountQA adds padding the heads never saw and a different object scale; predicted density is summed only over the valid (non-padding) area, counting.masked_count(density, counting.coverage(frame.valid, 64)). Exemplar boxes are mapped with frame.boxes, never centre-cropped.",
+  "count": "counting.masked_count(density, counting.coverage(frame.valid, 64))",
+  "prototype_valid": "counting.token_valid(frame.valid, side, grid_extent) at the token grid",
+  "exemplars": "none",
+  "exact_match": "floor(pred + 0.5) == integer answer",
+  "bins": "counting.count_bin of the true answer",
+  "rmse": "mean over seeds of each seed's sqrt(mean sq_error); rmse_pooled pools seed x image rows",
+  "numerics": "readouts trained with cuDNN TF32 convolutions on GPU; this run's device may differ, so transfer parity with training is approximate at float32 rounding",
+  "seeds": [
+   0,
+   1,
+   2
+  ],
+  "bootstrap": {
+   "function": "vtb.geometry_bootstrap.paired_metric_bootstrap",
+   "pairing": "identical image IDs; seed k with seed k; per-image seed-mean metric",
+   "resamples": 10000,
+   "confidence": 0.95,
+   "interval": "percentile",
+   "bootstrap_seed": 0,
+   "abs_error_difference": "second_minus_first (positive: first has lower error)",
+   "exact_match_difference": "first_minus_second"
+  }
+ },
+ "cells": [
+  {
+   "key": "tower_L32",
+   "stage": "tower",
+   "layer": 32,
+   "readout_dir": "/home/shadeform/vtb-work/counting-v3/readouts/count-v4/minimax_m3/free_raw/tower_L32",
+   "model_id": "immanuelpeter/MiniMax-M3-Vision",
+   "relative_depth": "1.0000",
+   "tokens_per_image": 1024,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "metrics": {
+    "images": 439,
+    "seeds": 3,
+    "mae": 19.269264814250832,
+    "rmse": 42.18164425639285,
+    "rmse_pooled": 42.18879152142702,
+    "exact_match": 0.016704631738800303,
+    "mean_signed_error": 17.247280624117376,
+    "mae_by_seed": [
+     18.542398135591476,
+     19.490675610127372,
+     19.77472069703365
+    ],
+    "rmse_by_seed": [
+     41.10362963230363,
+     42.53915735085331,
+     42.902145786021606
+    ],
+    "exact_match_by_seed": [
+     0.015945330296127564,
+     0.022779043280182234,
+     0.011389521640091117
+    ],
+    "by_bin": {
+     "le50": {
+      "images": 435,
+      "mae": 18.96266617683615,
+      "rmse": 41.80043583027322,
+      "exact_match": 0.01685823754789272
+     },
+     "50to200": {
+      "images": 3,
+      "mae": 24.7156244913737,
+      "rmse": 27.790454527171075,
+      "exact_match": 0.0
+     },
+     "gt200": {
+      "images": 1,
+      "mae": 136.30059305826822,
+      "rmse": 136.30059305826822,
+      "exact_match": 0.0
+     }
+    }
+   },
+   "seed_readouts": [
+    {
+     "seed": 0,
+     "frozen_state_sha256": "a1b50b730015ae82a84bac7da5266607a3ee615cb807cb809cc6f9e00155aaf2",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/minimax_m3_448_full",
+      "feature_cache_sha256": "c1ce37055a1776b91ca822afd31fd56312bdf58ac009bb46db7b8aa58b5e2dfd",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "ac7cdf50bf86b4f2df37246c88ec46de629709be6e839a206b5483b55e0ee76b",
+      "input_dim": 1280,
+      "layer": 32,
+      "learning_rate": 0.0001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/MiniMax-M3-Vision",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 0,
+      "stage": "tower",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 1024,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 1,
+     "frozen_state_sha256": "551e60a9de98e9c7bf48f535d1878ae40a62cf005bbfa8af42192baf15ee30bd",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/minimax_m3_448_full",
+      "feature_cache_sha256": "c1ce37055a1776b91ca822afd31fd56312bdf58ac009bb46db7b8aa58b5e2dfd",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "ac7cdf50bf86b4f2df37246c88ec46de629709be6e839a206b5483b55e0ee76b",
+      "input_dim": 1280,
+      "layer": 32,
+      "learning_rate": 0.0001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/MiniMax-M3-Vision",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 1,
+      "stage": "tower",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 1024,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 2,
+     "frozen_state_sha256": "34c3bb37234f88c893b0abae7dec47f331bb967fdd84e3e2d3e435bb69931529",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/minimax_m3_448_full",
+      "feature_cache_sha256": "c1ce37055a1776b91ca822afd31fd56312bdf58ac009bb46db7b8aa58b5e2dfd",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "ac7cdf50bf86b4f2df37246c88ec46de629709be6e839a206b5483b55e0ee76b",
+      "input_dim": 1280,
+      "layer": 32,
+      "learning_rate": 0.0001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/MiniMax-M3-Vision",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 2,
+      "stage": "tower",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 1024,
+      "torch": "2.13.0+cu129"
+     }
+    }
+   ]
+  },
+  {
+   "key": "merged_L32",
+   "stage": "merged",
+   "layer": 32,
+   "readout_dir": "/home/shadeform/vtb-work/counting-v3/readouts/count-v4/minimax_m3/free_raw/merged_L32",
+   "model_id": "immanuelpeter/MiniMax-M3-Vision",
+   "relative_depth": "1.0000",
+   "tokens_per_image": 256,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "metrics": {
+    "images": 439,
+    "seeds": 3,
+    "mae": 19.5797000525119,
+    "rmse": 39.708890446500675,
+    "rmse_pooled": 39.84341663002281,
+    "exact_match": 0.022779043280182234,
+    "mean_signed_error": 17.136169708399674,
+    "mae_by_seed": [
+     19.67794538847678,
+     17.416949081529516,
+     21.644205687529404
+    ],
+    "rmse_by_seed": [
+     41.049061221610934,
+     35.20399618336464,
+     42.87361393452644
+    ],
+    "exact_match_by_seed": [
+     0.018223234624145785,
+     0.02050113895216401,
+     0.029612756264236904
+    ],
+    "by_bin": {
+     "le50": {
+      "images": 435,
+      "mae": 19.143649813407226,
+      "rmse": 38.877646066497896,
+      "exact_match": 0.022988505747126436
+     },
+     "50to200": {
+      "images": 3,
+      "mae": 32.13086043463813,
+      "rmse": 33.051590290543544,
+      "exact_match": 0.0
+     },
+     "gt200": {
+      "images": 1,
+      "mae": 171.60807291666666,
+      "rmse": 171.60807291666666,
+      "exact_match": 0.0
+     }
+    }
+   },
+   "seed_readouts": [
+    {
+     "seed": 0,
+     "frozen_state_sha256": "823bcef42a595a95fbd8b2cc209f4951d9e8327238addcd467d5bfcf7636c579",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/minimax_m3_448_full",
+      "feature_cache_sha256": "c1ce37055a1776b91ca822afd31fd56312bdf58ac009bb46db7b8aa58b5e2dfd",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "901f34fccc483cce8e92527482f5827d706024181e883766ecc867aa001d2e4a",
+      "input_dim": 5120,
+      "layer": 32,
+      "learning_rate": 0.0001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/MiniMax-M3-Vision",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 0,
+      "stage": "merged",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 256,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 1,
+     "frozen_state_sha256": "a43691c303ed10316b00e7db89fe522e44e5a99975e47e0b835947d1ee6a1038",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/minimax_m3_448_full",
+      "feature_cache_sha256": "c1ce37055a1776b91ca822afd31fd56312bdf58ac009bb46db7b8aa58b5e2dfd",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "901f34fccc483cce8e92527482f5827d706024181e883766ecc867aa001d2e4a",
+      "input_dim": 5120,
+      "layer": 32,
+      "learning_rate": 0.0001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/MiniMax-M3-Vision",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 1,
+      "stage": "merged",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 256,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 2,
+     "frozen_state_sha256": "0e8ddd8abf6092c1d5df1ac4a575a0684253602e20a0308f87e6a7d05adb00e9",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/minimax_m3_448_full",
+      "feature_cache_sha256": "c1ce37055a1776b91ca822afd31fd56312bdf58ac009bb46db7b8aa58b5e2dfd",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "901f34fccc483cce8e92527482f5827d706024181e883766ecc867aa001d2e4a",
+      "input_dim": 5120,
+      "layer": 32,
+      "learning_rate": 0.0001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/MiniMax-M3-Vision",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 2,
+      "stage": "merged",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 256,
+      "torch": "2.13.0+cu129"
+     }
+    }
+   ]
+  },
+  {
+   "key": "projected_L32",
+   "stage": "projected",
+   "layer": 32,
+   "readout_dir": "/home/shadeform/vtb-work/counting-v3/readouts/count-v4/minimax_m3/free_raw/projected_L32",
+   "model_id": "immanuelpeter/MiniMax-M3-Vision",
+   "relative_depth": "1.0000",
+   "tokens_per_image": 256,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "metrics": {
+    "images": 439,
+    "seeds": 3,
+    "mae": 11.037800973350565,
+    "rmse": 28.269474543720705,
+    "rmse_pooled": 28.27909967876991,
+    "exact_match": 0.039483675018982534,
+    "mean_signed_error": 6.3328785163123404,
+    "mae_by_seed": [
+     10.757718493020615,
+     11.186409847068353,
+     11.169274579962728
+    ],
+    "rmse_by_seed": [
+     27.42209030755551,
+     28.166017287506513,
+     29.220316036100083
+    ],
+    "exact_match_by_seed": [
+     0.05466970387243736,
+     0.02733485193621868,
+     0.03644646924829157
+    ],
+    "by_bin": {
+     "le50": {
+      "images": 435,
+      "mae": 10.311237454871108,
+      "rmse": 25.393544323437226,
+      "exact_match": 0.03984674329501916
+     },
+     "50to200": {
+      "images": 3,
+      "mae": 34.67578379313151,
+      "rmse": 38.16639053006376,
+      "exact_match": 0.0
+     },
+     "gt200": {
+      "images": 1,
+      "mae": 256.1789830525716,
+      "rmse": 256.1789830525716,
+      "exact_match": 0.0
+     }
+    }
+   },
+   "seed_readouts": [
+    {
+     "seed": 0,
+     "frozen_state_sha256": "b6367f115654f3ca89300a8f4e0f2eef6fa375fc1fca54c3fbdaff429d8ae22a",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/minimax_m3_448_full",
+      "feature_cache_sha256": "c1ce37055a1776b91ca822afd31fd56312bdf58ac009bb46db7b8aa58b5e2dfd",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "aeb5330926e2d3980d24e92a58abcad8a438316454bb7303db30b23ff22818b2",
+      "input_dim": 6144,
+      "layer": 32,
+      "learning_rate": 0.0003,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/MiniMax-M3-Vision",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 0,
+      "stage": "projected",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 256,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 1,
+     "frozen_state_sha256": "48c0b580435a6cf52be497aba94f67d7401f1d5821cfa3c6cf61a291929e31e0",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/minimax_m3_448_full",
+      "feature_cache_sha256": "c1ce37055a1776b91ca822afd31fd56312bdf58ac009bb46db7b8aa58b5e2dfd",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "aeb5330926e2d3980d24e92a58abcad8a438316454bb7303db30b23ff22818b2",
+      "input_dim": 6144,
+      "layer": 32,
+      "learning_rate": 0.0003,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/MiniMax-M3-Vision",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 1,
+      "stage": "projected",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 256,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 2,
+     "frozen_state_sha256": "5f25c3bac543313fe6e4f502e0bdda4ea5913040ca1ed5ded5e03cb3de3c510a",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/minimax_m3_448_full",
+      "feature_cache_sha256": "c1ce37055a1776b91ca822afd31fd56312bdf58ac009bb46db7b8aa58b5e2dfd",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "aeb5330926e2d3980d24e92a58abcad8a438316454bb7303db30b23ff22818b2",
+      "input_dim": 6144,
+      "layer": 32,
+      "learning_rate": 0.0003,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/MiniMax-M3-Vision",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 2,
+      "stage": "projected",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 256,
+      "torch": "2.13.0+cu129"
+     }
+    }
+   ]
+  }
+ ],
+ "stage_differences": {
+  "tower_L32_vs_merged_L32": {
+   "first": "tower_L32",
+   "second": "merged_L32",
+   "images": 439,
+   "seeds_paired": [
+    0,
+    1,
+    2
+   ],
+   "abs_error": {
+    "point_estimate": 0.31043532490730286,
+    "confidence": 0.95,
+    "lower": -0.44226545095443726,
+    "upper": 1.0979905128479004,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "second_minus_first"
+   },
+   "exact_match": {
+    "point_estimate": -0.006074412260204554,
+    "confidence": 0.95,
+    "lower": -0.01672361232340336,
+    "upper": 0.00455580884590745,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second"
+   }
+  },
+  "tower_L32_vs_projected_L32": {
+   "first": "tower_L32",
+   "second": "projected_L32",
+   "images": 439,
+   "seeds_paired": [
+    0,
+    1,
+    2
+   ],
+   "abs_error": {
+    "point_estimate": -8.231463432312012,
+    "confidence": 0.95,
+    "lower": -10.068350791931152,
+    "upper": -6.567059516906738,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "second_minus_first"
+   },
+   "exact_match": {
+    "point_estimate": -0.02277904376387596,
+    "confidence": 0.95,
+    "lower": -0.037205770611763,
+    "upper": -0.0091116176918149,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second"
+   }
+  },
+  "merged_L32_vs_projected_L32": {
+   "first": "merged_L32",
+   "second": "projected_L32",
+   "images": 439,
+   "seeds_paired": [
+    0,
+    1,
+    2
+   ],
+   "abs_error": {
+    "point_estimate": -8.541899681091309,
+    "confidence": 0.95,
+    "lower": -10.179636001586914,
+    "upper": -7.053950786590576,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "second_minus_first"
+   },
+   "exact_match": {
+    "point_estimate": -0.016704631969332695,
+    "confidence": 0.95,
+    "lower": -0.031131360679864883,
+    "upper": -0.0022779046557843685,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second"
+   }
+  }
+ }
+}

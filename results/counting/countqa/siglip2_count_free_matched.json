@@ -1,0 +1,221 @@
+{
+ "label": "experimental, supplementary: exemplar-based frozen-feature counting transfer on a curated CountQA-derived subset; not official CountQA benchmark scores",
+ "experimental": true,
+ "supplementary": true,
+ "official_countqa_benchmark": false,
+ "not_mllm_qa": "Frozen Tower/Stage features read by FSC-147-trained count heads; not MLLM question answering and not comparable to MLLM CountQA scores.",
+ "role": "secondary (exemplar-free)",
+ "annotation": null,
+ "primary_cell": null,
+ "model": "siglip2",
+ "arm": "free",
+ "variant": "matched",
+ "dataset": {
+  "name": "CountQA (curated subset)",
+  "repo": "Jayant-Sravan/CountQA",
+  "revision": "f92cc6fe46542c61e2916e3d2ae9a911e2216b1a",
+  "license": "CC-BY-4.0",
+  "citation": "Tamarapalli, Grover, Pande, Yerramilli. CountQA: How Well Do MLLMs Count in the Wild? arXiv:2508.06585 (2025). Dataset Jayant-Sravan/CountQA, CC-BY-4.0.",
+  "eligibility_sha256": "64573edf367a1bc5934fbbaa1e995dbf79ad73b1b60756953c8c6cc8f827bf14",
+  "manifest_sha256": "74ce4419307c80267109dd8c617e6a4399b58c628ec1ca3fdee9e23ce7bbffa2",
+  "exemplars_status": "pending",
+  "exemplars_sha256": "a20303519d287245f092e907d0bbd69122081bd938b086ea866993ae3efe041c",
+  "prepared_images": 439,
+  "evaluated_images": 439,
+  "excluded": {}
+ },
+ "features": {
+  "dir": "/home/shadeform/vtb-work/counting-v3/features/countqa/siglip2_448_full",
+  "complete_json": "/home/shadeform/vtb-work/counting-v3/features/countqa/siglip2_448_full/complete.json",
+  "complete_json_sha256": "bd4974d62d32d4226cebf90eeea072e00e9b473a326378baced8cf56bfd561f5"
+ },
+ "protocol": {
+  "training": "none on CountQA: saved FSC-147 heads and PCA are applied frozen",
+  "frame": "letterbox (counting.letterbox_frame), whole image, fill counting.LETTERBOX_FILL",
+  "transfer_preprocessing": "CountQA answers refer to the whole image, so each kept image is placed whole on a max(w, h) square canvas (counting.letterbox_frame, integer centring offsets) filled with counting.LETTERBOX_FILL and saved as PNG at native resolution; the adapter then resizes that square to the benchmark resolution. FSC-147 heads were trained on the central min-side square (counting.centre_crop_frame), so CountQA adds padding the heads never saw and a different object scale; predicted density is summed only over the valid (non-padding) area, counting.masked_count(density, counting.coverage(frame.valid, 64)). Exemplar boxes are mapped with frame.boxes, never centre-cropped.",
+  "count": "counting.masked_count(density, counting.coverage(frame.valid, 64))",
+  "prototype_valid": "counting.token_valid(frame.valid, side, grid_extent) at the token grid",
+  "exemplars": "none",
+  "exact_match": "floor(pred + 0.5) == integer answer",
+  "bins": "counting.count_bin of the true answer",
+  "rmse": "mean over seeds of each seed's sqrt(mean sq_error); rmse_pooled pools seed x image rows",
+  "numerics": "readouts trained with cuDNN TF32 convolutions on GPU; this run's device may differ, so transfer parity with training is approximate at float32 rounding",
+  "seeds": [
+   0,
+   1,
+   2
+  ],
+  "bootstrap": {
+   "function": "vtb.geometry_bootstrap.paired_metric_bootstrap",
+   "pairing": "identical image IDs; seed k with seed k; per-image seed-mean metric",
+   "resamples": 10000,
+   "confidence": 0.95,
+   "interval": "percentile",
+   "bootstrap_seed": 0,
+   "abs_error_difference": "second_minus_first (positive: first has lower error)",
+   "exact_match_difference": "first_minus_second"
+  }
+ },
+ "cells": [
+  {
+   "key": "tower_L27",
+   "stage": "tower",
+   "layer": 27,
+   "readout_dir": "/home/shadeform/vtb-work/counting-v3/readouts/count-v4/siglip2/free_matched/tower_L27",
+   "model_id": "google/siglip2-so400m-patch14-384",
+   "relative_depth": "1.0000",
+   "tokens_per_image": 1024,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "metrics": {
+    "images": 439,
+    "seeds": 3,
+    "mae": 7.903061713879092,
+    "rmse": 19.00069441705767,
+    "rmse_pooled": 19.001460447086284,
+    "exact_match": 0.05011389521640091,
+    "mean_signed_error": 1.3027953588337997,
+    "mae_by_seed": [
+     7.712683694509276,
+     8.079779589909355,
+     7.916721857218644
+    ],
+    "rmse_by_seed": [
+     18.78623607741938,
+     19.012153533692555,
+     19.203693640061065
+    ],
+    "exact_match_by_seed": [
+     0.05011389521640091,
+     0.05466970387243736,
+     0.04555808656036447
+    ],
+    "by_bin": {
+     "le50": {
+      "images": 435,
+      "mae": 6.970184504392047,
+      "rmse": 11.026781278014598,
+      "exact_match": 0.05057471264367816
+     },
+     "50to200": {
+      "images": 3,
+      "mae": 41.77722146775987,
+      "rmse": 52.15340659754218,
+      "exact_match": 0.0
+     },
+     "gt200": {
+      "images": 1,
+      "mae": 312.08216857910156,
+      "rmse": 312.08216857910156,
+      "exact_match": 0.0
+     }
+    }
+   },
+   "seed_readouts": [
+    {
+     "seed": 0,
+     "frozen_state_sha256": "7cafbb10abbf71f4b94ccdfe9c5e5c75b4e3879c8de3fb301f4639e44e8f142a",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "matched",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/siglip2_448_full",
+      "feature_cache_sha256": "3f2fd969e2d2a083d5ecd2847376ec2ea031af2ebb711056e67747e7ce995d0d",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "12dd16052aafb6587a70bc8ff1dad1f7f84ab5c20ce15d116e33ae6a9283cdd2",
+      "input_dim": 512,
+      "layer": 27,
+      "learning_rate": 0.001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "google/siglip2-so400m-patch14-384",
+      "pca": true,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 0,
+      "stage": "tower",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 1024,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 1,
+     "frozen_state_sha256": "6ceeddf0d2b5e02acd0b6f27ff6a418c9c6fef16c407cef61523d59aca6f8cd2",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "matched",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/siglip2_448_full",
+      "feature_cache_sha256": "3f2fd969e2d2a083d5ecd2847376ec2ea031af2ebb711056e67747e7ce995d0d",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "12dd16052aafb6587a70bc8ff1dad1f7f84ab5c20ce15d116e33ae6a9283cdd2",
+      "input_dim": 512,
+      "layer": 27,
+      "learning_rate": 0.001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "google/siglip2-so400m-patch14-384",
+      "pca": true,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 1,
+      "stage": "tower",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 1024,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 2,
+     "frozen_state_sha256": "badaf590878bc46ed1c0f72013e89f2f074274b311c334535614630b60594c02",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "matched",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/siglip2_448_full",
+      "feature_cache_sha256": "3f2fd969e2d2a083d5ecd2847376ec2ea031af2ebb711056e67747e7ce995d0d",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "12dd16052aafb6587a70bc8ff1dad1f7f84ab5c20ce15d116e33ae6a9283cdd2",
+      "input_dim": 512,
+      "layer": 27,
+      "learning_rate": 0.001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "google/siglip2-so400m-patch14-384",
+      "pca": true,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 2,
+      "stage": "tower",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 1024,
+      "torch": "2.13.0+cu129"
+     }
+    }
+   ]
+  }
+ ],
+ "stage_differences": {}
+}

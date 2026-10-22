@@ -20,6 +20,7 @@ historical filename slugs `qwen3_5` and `moonvit_v2` mean Qwen3.8 and Kimi K3.
 | [label-budget/](label-budget/) | Recognition at 1%, 5%, 20%, and 100% of training labels; throughput records for the original six Towers. |
 | [perturbation/](perturbation/) | Frozen-readout perturbation measurements. All Towers have occlusion; newer payloads also include scale and motion blur. The shared transform manifest describes the original occlusion run. |
 | [kitti/](kitti/) | Matched depth transfer measurements on KITTI. Paired intervals are in `bootstrap/`. |
+| [counting/](counting/) | Class-agnostic counting (issues #8, #10): FSC-147 count readouts on every final Stage for all 16 Towers, with paired intervals, per-bin tables and a letterbox transfer check; plus an experimental, supplementary CountQA-derived transfer column. See [counting/README.md](counting/README.md). |
 | [diagnostics/](diagnostics/) | Pooling checks, independent repeats, extended learning-rate searches, the Bolt Tower check, the DINOv3 equal-pixel and conditioning checks, and the MiMo attention sink check. Includes failed and inconclusive controls. |
 | [manifests/](manifests/) | Original six-Tower matrix completion lists. Run-specific lists remain beside their measurements. |
 | [history/roster-run.md](history/roster-run.md) | Historical run narrative, including superseded interpretations and later corrections. |
@@ -139,6 +140,25 @@ still leave full-token attention comparisons inconclusive. Read the
 [pooling diagnostic](diagnostics/pooling-diagnostic/README.md) and
 [roster check](diagnostics/pooling-roster/README.md) before interpreting those
 controls; the latter preserves both batch-size variants for Kimi.
+
+## Counting
+
+[counting/](counting/) holds protocol count-v4 for the `counting_sixteen` cohort, the
+union of v2 and v3. FSC-147 is the primary counting experiment. It uses the official
+class-disjoint split, and all 116 cells are complete. Counts are sums of a 64 x 64
+density whose Gaussians use a sigma of one grid cell, 6 source px. Unlike the DIODE
+geometry inputs, which are downsampled, FSC-147 crops are upsampled: 384 px goes to
+448 px (1.1667x), or to 512 px for DINOv3 (1.3333x).
+
+- Paired intervals: `counting/bootstrap/fsc147/`
+- Per-bin tables: `counting/tables/`
+- Letterbox transfer diagnostic: `counting/fsc147/letterbox/`
+
+[counting/countqa/](counting/countqa/) is **experimental and supplementary**. Frozen
+FSC-147 heads are applied to a curated CountQA-derived subset. These are not official
+CountQA benchmark scores and are not comparable to MLLM results. Its conditioned arm
+uses AI-authored exemplar boxes that no human has reviewed, under
+`countqa/ai_exemplars/`. No human-approved exemplars exist.
 
 ## Use the files
 

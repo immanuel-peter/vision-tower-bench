@@ -1,0 +1,624 @@
+{
+ "label": "experimental, supplementary: exemplar-based frozen-feature counting transfer on a curated CountQA-derived subset; not official CountQA benchmark scores",
+ "experimental": true,
+ "supplementary": true,
+ "official_countqa_benchmark": false,
+ "not_mllm_qa": "Frozen Tower/Stage features read by FSC-147-trained count heads; not MLLM question answering and not comparable to MLLM CountQA scores.",
+ "role": "secondary (exemplar-free)",
+ "annotation": null,
+ "primary_cell": null,
+ "model": "nemotron_omni",
+ "arm": "free",
+ "variant": "raw",
+ "dataset": {
+  "name": "CountQA (curated subset)",
+  "repo": "Jayant-Sravan/CountQA",
+  "revision": "f92cc6fe46542c61e2916e3d2ae9a911e2216b1a",
+  "license": "CC-BY-4.0",
+  "citation": "Tamarapalli, Grover, Pande, Yerramilli. CountQA: How Well Do MLLMs Count in the Wild? arXiv:2508.06585 (2025). Dataset Jayant-Sravan/CountQA, CC-BY-4.0.",
+  "eligibility_sha256": "64573edf367a1bc5934fbbaa1e995dbf79ad73b1b60756953c8c6cc8f827bf14",
+  "manifest_sha256": "74ce4419307c80267109dd8c617e6a4399b58c628ec1ca3fdee9e23ce7bbffa2",
+  "exemplars_status": "pending",
+  "exemplars_sha256": "a20303519d287245f092e907d0bbd69122081bd938b086ea866993ae3efe041c",
+  "prepared_images": 439,
+  "evaluated_images": 439,
+  "excluded": {}
+ },
+ "features": {
+  "dir": "/home/shadeform/vtb-work/counting-v3/features/countqa/nemotron_omni_448_full",
+  "complete_json": "/home/shadeform/vtb-work/counting-v3/features/countqa/nemotron_omni_448_full/complete.json",
+  "complete_json_sha256": "f02c7adc9e29243cda137f4f91440d375505658576cf00410ec6cb837c3c1d8b"
+ },
+ "protocol": {
+  "training": "none on CountQA: saved FSC-147 heads and PCA are applied frozen",
+  "frame": "letterbox (counting.letterbox_frame), whole image, fill counting.LETTERBOX_FILL",
+  "transfer_preprocessing": "CountQA answers refer to the whole image, so each kept image is placed whole on a max(w, h) square canvas (counting.letterbox_frame, integer centring offsets) filled with counting.LETTERBOX_FILL and saved as PNG at native resolution; the adapter then resizes that square to the benchmark resolution. FSC-147 heads were trained on the central min-side square (counting.centre_crop_frame), so CountQA adds padding the heads never saw and a different object scale; predicted density is summed only over the valid (non-padding) area, counting.masked_count(density, counting.coverage(frame.valid, 64)). Exemplar boxes are mapped with frame.boxes, never centre-cropped.",
+  "count": "counting.masked_count(density, counting.coverage(frame.valid, 64))",
+  "prototype_valid": "counting.token_valid(frame.valid, side, grid_extent) at the token grid",
+  "exemplars": "none",
+  "exact_match": "floor(pred + 0.5) == integer answer",
+  "bins": "counting.count_bin of the true answer",
+  "rmse": "mean over seeds of each seed's sqrt(mean sq_error); rmse_pooled pools seed x image rows",
+  "numerics": "readouts trained with cuDNN TF32 convolutions on GPU; this run's device may differ, so transfer parity with training is approximate at float32 rounding",
+  "seeds": [
+   0,
+   1,
+   2
+  ],
+  "bootstrap": {
+   "function": "vtb.geometry_bootstrap.paired_metric_bootstrap",
+   "pairing": "identical image IDs; seed k with seed k; per-image seed-mean metric",
+   "resamples": 10000,
+   "confidence": 0.95,
+   "interval": "percentile",
+   "bootstrap_seed": 0,
+   "abs_error_difference": "second_minus_first (positive: first has lower error)",
+   "exact_match_difference": "first_minus_second"
+  }
+ },
+ "cells": [
+  {
+   "key": "tower_L32",
+   "stage": "tower",
+   "layer": 32,
+   "readout_dir": "/home/shadeform/vtb-work/counting-v3/readouts/count-v4/nemotron_omni/free_raw/tower_L32",
+   "model_id": "immanuelpeter/C-RADIOv4-H-3-Omni",
+   "relative_depth": "1.0000",
+   "tokens_per_image": 784,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "metrics": {
+    "images": 439,
+    "seeds": 3,
+    "mae": 7.7060169976320605,
+    "rmse": 14.964132007237476,
+    "rmse_pooled": 14.986022321499865,
+    "exact_match": 0.060744115413819286,
+    "mean_signed_error": 3.356965019201454,
+    "mae_by_seed": [
+     6.938883601397208,
+     7.445797005384007,
+     8.733370386114968
+    ],
+    "rmse_by_seed": [
+     13.823459149887508,
+     15.447425285272413,
+     15.621511586552511
+    ],
+    "exact_match_by_seed": [
+     0.04555808656036447,
+     0.07517084282460136,
+     0.06150341685649203
+    ],
+    "by_bin": {
+     "le50": {
+      "images": 435,
+      "mae": 7.090168007488908,
+      "rmse": 10.948772427786748,
+      "exact_match": 0.06130268199233716
+     },
+     "50to200": {
+      "images": 3,
+      "mae": 33.5934804280599,
+      "rmse": 45.46507674093281,
+      "exact_match": 0.0
+     },
+     "gt200": {
+      "images": 1,
+      "mae": 197.93793741861978,
+      "rmse": 197.93793741861978,
+      "exact_match": 0.0
+     }
+    }
+   },
+   "seed_readouts": [
+    {
+     "seed": 0,
+     "frozen_state_sha256": "458e4c90c11e79f6bdf152c597571d40f6257dc0376bc5e364371ac511f4a0e8",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/nemotron_omni_448_full",
+      "feature_cache_sha256": "d54f04200f23942e292813243195e31699a6f64676fec24cca5450cbc463320c",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "5c66e66d8507be4941c22b092510a9d43b6b2fd5ccf4d9903adc1a19547687f1",
+      "input_dim": 1280,
+      "layer": 32,
+      "learning_rate": 0.001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/C-RADIOv4-H-3-Omni",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 0,
+      "stage": "tower",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 784,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 1,
+     "frozen_state_sha256": "391e6384e06cf60eeb0a0b5044f6845c567c21b5bd003fad9e331e96e3d8809e",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/nemotron_omni_448_full",
+      "feature_cache_sha256": "d54f04200f23942e292813243195e31699a6f64676fec24cca5450cbc463320c",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "5c66e66d8507be4941c22b092510a9d43b6b2fd5ccf4d9903adc1a19547687f1",
+      "input_dim": 1280,
+      "layer": 32,
+      "learning_rate": 0.001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/C-RADIOv4-H-3-Omni",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 1,
+      "stage": "tower",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 784,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 2,
+     "frozen_state_sha256": "2cf2bdb2084aeb97b34bc69c472714a470d37ead5e20b0b666c732c57a54e53b",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/nemotron_omni_448_full",
+      "feature_cache_sha256": "d54f04200f23942e292813243195e31699a6f64676fec24cca5450cbc463320c",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "5c66e66d8507be4941c22b092510a9d43b6b2fd5ccf4d9903adc1a19547687f1",
+      "input_dim": 1280,
+      "layer": 32,
+      "learning_rate": 0.001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/C-RADIOv4-H-3-Omni",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 2,
+      "stage": "tower",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 784,
+      "torch": "2.13.0+cu129"
+     }
+    }
+   ]
+  },
+  {
+   "key": "merged_L32",
+   "stage": "merged",
+   "layer": 32,
+   "readout_dir": "/home/shadeform/vtb-work/counting-v3/readouts/count-v4/nemotron_omni/free_raw/merged_L32",
+   "model_id": "immanuelpeter/C-RADIOv4-H-3-Omni",
+   "relative_depth": "1.0000",
+   "tokens_per_image": 196,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "metrics": {
+    "images": 439,
+    "seeds": 3,
+    "mae": 9.258153753314131,
+    "rmse": 16.853523241775545,
+    "rmse_pooled": 16.908197187722898,
+    "exact_match": 0.051632498101746395,
+    "mean_signed_error": 5.0175502547144255,
+    "mae_by_seed": [
+     11.060920430750402,
+     8.974039463967017,
+     7.739501365224973
+    ],
+    "rmse_by_seed": [
+     18.481977277933485,
+     16.922434268324213,
+     15.156158179068937
+    ],
+    "exact_match_by_seed": [
+     0.04100227790432802,
+     0.05011389521640091,
+     0.06378132118451026
+    ],
+    "by_bin": {
+     "le50": {
+      "images": 435,
+      "mae": 8.676119808150434,
+      "rmse": 13.530546078858967,
+      "exact_match": 0.05210727969348659
+     },
+     "50to200": {
+      "images": 3,
+      "mae": 32.0994938744439,
+      "rmse": 45.38085335618282,
+      "exact_match": 0.0
+     },
+     "gt200": {
+      "images": 1,
+      "mae": 193.9188995361328,
+      "rmse": 193.9188995361328,
+      "exact_match": 0.0
+     }
+    }
+   },
+   "seed_readouts": [
+    {
+     "seed": 0,
+     "frozen_state_sha256": "971e450899d69201bb6652e2b10ad461ea4c7b11e33c8c79e445208950b2a25a",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/nemotron_omni_448_full",
+      "feature_cache_sha256": "d54f04200f23942e292813243195e31699a6f64676fec24cca5450cbc463320c",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "e43df96ae1e77f832117a6e6cc90db52d40d200bc134da6ff13305b1f2fa29db",
+      "input_dim": 5120,
+      "layer": 32,
+      "learning_rate": 0.001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/C-RADIOv4-H-3-Omni",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 0,
+      "stage": "merged",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 196,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 1,
+     "frozen_state_sha256": "4da933eb3a2cda045de2effddaea65e32552e36588d7ea1438355b69c8baf09c",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/nemotron_omni_448_full",
+      "feature_cache_sha256": "d54f04200f23942e292813243195e31699a6f64676fec24cca5450cbc463320c",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "e43df96ae1e77f832117a6e6cc90db52d40d200bc134da6ff13305b1f2fa29db",
+      "input_dim": 5120,
+      "layer": 32,
+      "learning_rate": 0.001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/C-RADIOv4-H-3-Omni",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 1,
+      "stage": "merged",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 196,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 2,
+     "frozen_state_sha256": "7669bdc26dfc48734cfd35fcbf34bf3aab7539925cf97929e5ac952451d12475",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/nemotron_omni_448_full",
+      "feature_cache_sha256": "d54f04200f23942e292813243195e31699a6f64676fec24cca5450cbc463320c",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "e43df96ae1e77f832117a6e6cc90db52d40d200bc134da6ff13305b1f2fa29db",
+      "input_dim": 5120,
+      "layer": 32,
+      "learning_rate": 0.001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/C-RADIOv4-H-3-Omni",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 2,
+      "stage": "merged",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 196,
+      "torch": "2.13.0+cu129"
+     }
+    }
+   ]
+  },
+  {
+   "key": "projected_L32",
+   "stage": "projected",
+   "layer": 32,
+   "readout_dir": "/home/shadeform/vtb-work/counting-v3/readouts/count-v4/nemotron_omni/free_raw/projected_L32",
+   "model_id": "immanuelpeter/C-RADIOv4-H-3-Omni",
+   "relative_depth": "1.0000",
+   "tokens_per_image": 196,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "metrics": {
+    "images": 439,
+    "seeds": 3,
+    "mae": 6.703771800096956,
+    "rmse": 14.991298626711966,
+    "rmse_pooled": 14.997052703311885,
+    "exact_match": 0.08276385725132877,
+    "mean_signed_error": 2.639933021664167,
+    "mae_by_seed": [
+     6.902725866009272,
+     6.305970323384487,
+     6.902619210897111
+    ],
+    "rmse_by_seed": [
+     14.75259103874363,
+     14.645790159835835,
+     15.575514681556433
+    ],
+    "exact_match_by_seed": [
+     0.08428246013667426,
+     0.0683371298405467,
+     0.09567198177676538
+    ],
+    "by_bin": {
+     "le50": {
+      "images": 435,
+      "mae": 5.962685910586653,
+      "rmse": 9.185414118556638,
+      "exact_match": 0.08352490421455938
+     },
+     "50to200": {
+      "images": 3,
+      "mae": 38.16626993815104,
+      "rmse": 47.46934465372377,
+      "exact_match": 0.0
+     },
+     "gt200": {
+      "images": 1,
+      "mae": 234.68863932291666,
+      "rmse": 234.68863932291666,
+      "exact_match": 0.0
+     }
+    }
+   },
+   "seed_readouts": [
+    {
+     "seed": 0,
+     "frozen_state_sha256": "e1aad50c92fdfe00cff650319f08ce3626440a4413d51c0385ee57bae7d516db",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/nemotron_omni_448_full",
+      "feature_cache_sha256": "d54f04200f23942e292813243195e31699a6f64676fec24cca5450cbc463320c",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "44670417a5a4ff9923e378599820e5c6f727d99e3cb003f3c6de76b311364c0f",
+      "input_dim": 2688,
+      "layer": 32,
+      "learning_rate": 0.0003,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/C-RADIOv4-H-3-Omni",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 0,
+      "stage": "projected",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 196,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 1,
+     "frozen_state_sha256": "2c849752833b132a8a8e9c178f17c3c1a30117dbba0ee58c546329b7bda3d4e2",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/nemotron_omni_448_full",
+      "feature_cache_sha256": "d54f04200f23942e292813243195e31699a6f64676fec24cca5450cbc463320c",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "44670417a5a4ff9923e378599820e5c6f727d99e3cb003f3c6de76b311364c0f",
+      "input_dim": 2688,
+      "layer": 32,
+      "learning_rate": 0.0003,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/C-RADIOv4-H-3-Omni",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 1,
+      "stage": "projected",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 196,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 2,
+     "frozen_state_sha256": "8344821afa12321456892b13b0bc71235a5aa7cee44a966d0aed9a45c40e9004",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/nemotron_omni_448_full",
+      "feature_cache_sha256": "d54f04200f23942e292813243195e31699a6f64676fec24cca5450cbc463320c",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "44670417a5a4ff9923e378599820e5c6f727d99e3cb003f3c6de76b311364c0f",
+      "input_dim": 2688,
+      "layer": 32,
+      "learning_rate": 0.0003,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/C-RADIOv4-H-3-Omni",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 2,
+      "stage": "projected",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 196,
+      "torch": "2.13.0+cu129"
+     }
+    }
+   ]
+  }
+ ],
+ "stage_differences": {
+  "tower_L32_vs_merged_L32": {
+   "first": "tower_L32",
+   "second": "merged_L32",
+   "images": 439,
+   "seeds_paired": [
+    0,
+    1,
+    2
+   ],
+   "abs_error": {
+    "point_estimate": 1.552136778831482,
+    "confidence": 0.95,
+    "lower": 1.0885387659072876,
+    "upper": 2.047445774078369,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "second_minus_first"
+   },
+   "exact_match": {
+    "point_estimate": 0.0091116176918149,
+    "confidence": 0.95,
+    "lower": -0.009111616760492325,
+    "upper": 0.02657555416226387,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second"
+   }
+  },
+  "tower_L32_vs_projected_L32": {
+   "first": "tower_L32",
+   "second": "projected_L32",
+   "images": 439,
+   "seeds_paired": [
+    0,
+    1,
+    2
+   ],
+   "abs_error": {
+    "point_estimate": -1.0022451877593994,
+    "confidence": 0.95,
+    "lower": -1.5159423351287842,
+    "upper": -0.4959842562675476,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "second_minus_first"
+   },
+   "exact_match": {
+    "point_estimate": -0.02201974205672741,
+    "confidence": 0.95,
+    "lower": -0.04479878395795822,
+    "upper": 5.430947358497917e-10,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second"
+   }
+  },
+  "merged_L32_vs_projected_L32": {
+   "first": "merged_L32",
+   "second": "projected_L32",
+   "images": 439,
+   "seeds_paired": [
+    0,
+    1,
+    2
+   ],
+   "abs_error": {
+    "point_estimate": -2.5543816089630127,
+    "confidence": 0.95,
+    "lower": -3.189929485321045,
+    "upper": -1.9417392015457153,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "second_minus_first"
+   },
+   "exact_match": {
+    "point_estimate": -0.031131356954574585,
+    "confidence": 0.95,
+    "lower": -0.053910400718450546,
+    "upper": -0.009111616760492325,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second"
+   }
+  }
+ }
+}

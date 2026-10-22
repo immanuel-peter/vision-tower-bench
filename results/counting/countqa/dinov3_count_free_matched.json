@@ -1,0 +1,221 @@
+{
+ "label": "experimental, supplementary: exemplar-based frozen-feature counting transfer on a curated CountQA-derived subset; not official CountQA benchmark scores",
+ "experimental": true,
+ "supplementary": true,
+ "official_countqa_benchmark": false,
+ "not_mllm_qa": "Frozen Tower/Stage features read by FSC-147-trained count heads; not MLLM question answering and not comparable to MLLM CountQA scores.",
+ "role": "secondary (exemplar-free)",
+ "annotation": null,
+ "primary_cell": null,
+ "model": "dinov3",
+ "arm": "free",
+ "variant": "matched",
+ "dataset": {
+  "name": "CountQA (curated subset)",
+  "repo": "Jayant-Sravan/CountQA",
+  "revision": "f92cc6fe46542c61e2916e3d2ae9a911e2216b1a",
+  "license": "CC-BY-4.0",
+  "citation": "Tamarapalli, Grover, Pande, Yerramilli. CountQA: How Well Do MLLMs Count in the Wild? arXiv:2508.06585 (2025). Dataset Jayant-Sravan/CountQA, CC-BY-4.0.",
+  "eligibility_sha256": "64573edf367a1bc5934fbbaa1e995dbf79ad73b1b60756953c8c6cc8f827bf14",
+  "manifest_sha256": "74ce4419307c80267109dd8c617e6a4399b58c628ec1ca3fdee9e23ce7bbffa2",
+  "exemplars_status": "pending",
+  "exemplars_sha256": "a20303519d287245f092e907d0bbd69122081bd938b086ea866993ae3efe041c",
+  "prepared_images": 439,
+  "evaluated_images": 439,
+  "excluded": {}
+ },
+ "features": {
+  "dir": "/home/shadeform/vtb-work/counting-v3/features/countqa/dinov3_512_full",
+  "complete_json": "/home/shadeform/vtb-work/counting-v3/features/countqa/dinov3_512_full/complete.json",
+  "complete_json_sha256": "14f74a73235384b0625525eeca71d7dfe7a1b4ad09efc580c9f583b37f585a20"
+ },
+ "protocol": {
+  "training": "none on CountQA: saved FSC-147 heads and PCA are applied frozen",
+  "frame": "letterbox (counting.letterbox_frame), whole image, fill counting.LETTERBOX_FILL",
+  "transfer_preprocessing": "CountQA answers refer to the whole image, so each kept image is placed whole on a max(w, h) square canvas (counting.letterbox_frame, integer centring offsets) filled with counting.LETTERBOX_FILL and saved as PNG at native resolution; the adapter then resizes that square to the benchmark resolution. FSC-147 heads were trained on the central min-side square (counting.centre_crop_frame), so CountQA adds padding the heads never saw and a different object scale; predicted density is summed only over the valid (non-padding) area, counting.masked_count(density, counting.coverage(frame.valid, 64)). Exemplar boxes are mapped with frame.boxes, never centre-cropped.",
+  "count": "counting.masked_count(density, counting.coverage(frame.valid, 64))",
+  "prototype_valid": "counting.token_valid(frame.valid, side, grid_extent) at the token grid",
+  "exemplars": "none",
+  "exact_match": "floor(pred + 0.5) == integer answer",
+  "bins": "counting.count_bin of the true answer",
+  "rmse": "mean over seeds of each seed's sqrt(mean sq_error); rmse_pooled pools seed x image rows",
+  "numerics": "readouts trained with cuDNN TF32 convolutions on GPU; this run's device may differ, so transfer parity with training is approximate at float32 rounding",
+  "seeds": [
+   0,
+   1,
+   2
+  ],
+  "bootstrap": {
+   "function": "vtb.geometry_bootstrap.paired_metric_bootstrap",
+   "pairing": "identical image IDs; seed k with seed k; per-image seed-mean metric",
+   "resamples": 10000,
+   "confidence": 0.95,
+   "interval": "percentile",
+   "bootstrap_seed": 0,
+   "abs_error_difference": "second_minus_first (positive: first has lower error)",
+   "exact_match_difference": "first_minus_second"
+  }
+ },
+ "cells": [
+  {
+   "key": "tower_L24",
+   "stage": "tower",
+   "layer": 24,
+   "readout_dir": "/home/shadeform/vtb-work/counting-v3/readouts/count-v4/dinov3/free_matched/tower_L24",
+   "model_id": "facebook/dinov3-vitl16-pretrain-lvd1689m",
+   "relative_depth": "1.0000",
+   "tokens_per_image": 1024,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "metrics": {
+    "images": 439,
+    "seeds": 3,
+    "mae": 7.8438562480796445,
+    "rmse": 21.584187300579917,
+    "rmse_pooled": 21.584499140630875,
+    "exact_match": 0.05087319665907365,
+    "mean_signed_error": -3.777323000811906,
+    "mae_by_seed": [
+     7.688469818977804,
+     7.660217290892688,
+     8.18288163436844
+    ],
+    "rmse_by_seed": [
+     21.524879202200186,
+     21.481347953068518,
+     21.746334746471046
+    ],
+    "exact_match_by_seed": [
+     0.05239179954441914,
+     0.05694760820045558,
+     0.04328018223234624
+    ],
+    "by_bin": {
+     "le50": {
+      "images": 435,
+      "mae": 6.616093425018805,
+      "rmse": 9.672471617178834,
+      "exact_match": 0.05134099616858238
+     },
+     "50to200": {
+      "images": 3,
+      "mae": 59.63277371724447,
+      "rmse": 68.87303652744775,
+      "exact_match": 0.0
+     },
+     "gt200": {
+      "images": 1,
+      "mae": 386.55393187205,
+      "rmse": 386.55393187205,
+      "exact_match": 0.0
+     }
+    }
+   },
+   "seed_readouts": [
+    {
+     "seed": 0,
+     "frozen_state_sha256": "dcb2d032ee695fc28454a2e20cc00816f36f0859f698881e3a2fb66692d5b5be",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "matched",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/dinov3_512_full",
+      "feature_cache_sha256": "e3784c435f87a1c1eba543d4245ddbce2610411603cb40d942afaeca81f66d51",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "fe05b8262a5e36a57700e149591f6737801d901596d0cf134a071df36fa96da8",
+      "input_dim": 512,
+      "layer": 24,
+      "learning_rate": 0.001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "facebook/dinov3-vitl16-pretrain-lvd1689m",
+      "pca": true,
+      "protocol": "count-v4",
+      "resolution": 512,
+      "seed": 0,
+      "stage": "tower",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 1024,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 1,
+     "frozen_state_sha256": "c51cccdc8954a712d02ee4dd85f28fe00890b58e09e4dc9c96bafeb6366a1677",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "matched",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/dinov3_512_full",
+      "feature_cache_sha256": "e3784c435f87a1c1eba543d4245ddbce2610411603cb40d942afaeca81f66d51",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "fe05b8262a5e36a57700e149591f6737801d901596d0cf134a071df36fa96da8",
+      "input_dim": 512,
+      "layer": 24,
+      "learning_rate": 0.001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "facebook/dinov3-vitl16-pretrain-lvd1689m",
+      "pca": true,
+      "protocol": "count-v4",
+      "resolution": 512,
+      "seed": 1,
+      "stage": "tower",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 1024,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 2,
+     "frozen_state_sha256": "76caffcfef4566c73ef6c99d527a4b7f09aab30f07eef29a95b3a439a854d093",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "matched",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/dinov3_512_full",
+      "feature_cache_sha256": "e3784c435f87a1c1eba543d4245ddbce2610411603cb40d942afaeca81f66d51",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "fe05b8262a5e36a57700e149591f6737801d901596d0cf134a071df36fa96da8",
+      "input_dim": 512,
+      "layer": 24,
+      "learning_rate": 0.001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "facebook/dinov3-vitl16-pretrain-lvd1689m",
+      "pca": true,
+      "protocol": "count-v4",
+      "resolution": 512,
+      "seed": 2,
+      "stage": "tower",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 1024,
+      "torch": "2.13.0+cu129"
+     }
+    }
+   ]
+  }
+ ],
+ "stage_differences": {}
+}

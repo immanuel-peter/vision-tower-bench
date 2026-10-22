@@ -38,6 +38,27 @@
         "mimo26_flash"
       ],
       "description": "Nemotron Super, Nemotron Bolt and the DINOv3 ViT-L/16 control, measured after the v2 report and not in the default figures. Super follows the v2 protocols with all three Stages. Bolt covers only the merged and projected Stages, plus one final Tower sanity cell under diagnostics/nemotron35-bolt-tower/. DINOv3 runs at 512 px for a 32x32 grid, equal to DINOv2 at 448 px, with DINOv2's bicubic crop and ImageNet normalization; its 448 px equal-pixel check is under diagnostics/dinov3-equal-pixels/. MiMo 2.6 Pro and MiMo 2.6 Flash follow the v2 protocols with all three Stages at 448 px; each still image is fed as two identical frames, and every Tower depth is restored to raster order. Their paired Pro-versus-Flash intervals are under bootstrap/*-mimo26-pro-vs-flash*.json, and the attention sink check is under diagnostics/mimo26-attention-sinks/."
+    },
+    "counting_sixteen": {
+      "models": [
+        "dinov2",
+        "siglip2",
+        "muse_glimmer",
+        "glm5",
+        "nemotron_omni",
+        "kimi_k26",
+        "qwen3_5",
+        "deepseek_v41",
+        "gemma4",
+        "moonvit_v2",
+        "minimax_m3",
+        "nemotron35_super",
+        "nemotron35_bolt",
+        "dinov3",
+        "mimo26_pro",
+        "mimo26_flash"
+      ],
+      "description": "Union of v2_eleven and v3: every Tower in the counting experiments (issues #8, #10). Final Stages only, at 448 px (DINOv3 at 512 px). Not part of the default figures."
     }
   },
   "experiments": {
@@ -161,6 +182,24 @@
       "protocol": "MiMo 2.6 Tower L28 perturbation readout with the published reducer and with channels standardized before PCA, plus Pro-minus-Flash intervals from cross_run_bootstrap.py; channel and PCA statistics on 1,000 ImageNet-100 images at every tapped depth for MiMo and the eleven v2 Towers, with 1%-label readouts at the final Tower layer; the attention-matched label budget for the eleven v2 Towers on the full recognition split, unchanged and standardized; and Qwen3.8 Tower L20, L24 and L27 depth probes.",
       "status": "The published MiMo Tower L28 perturbation cells are a readout failure, not a robustness measurement. Standardized results are diagnostic only; no published file or benchmark arm changed.",
       "cohort": "v3"
+    },
+    "counting_fsc147": {
+      "path": "counting/fsc147/",
+      "protocol": "count-v4: FSC-147 official class-disjoint split, centre-crop recount, 64x64 mass-conserving density targets; dense count readout on every final Stage, exemplar-free (raw and PCA-512) and exemplar-conditioned final Tower; six rates selected on validation MAE with edge extension and seed-collapse fallback, then three seeds; ten epochs.",
+      "status": "Complete: 116 of 116 cells. Paired intervals under counting/bootstrap/fsc147/; tables under counting/tables/; frozen letterbox transfer diagnostic under counting/fsc147/letterbox/.",
+      "cohort": "counting_sixteen"
+    },
+    "counting_countqa": {
+      "path": "counting/countqa/",
+      "protocol": "Experimental, supplementary: frozen FSC-147 count heads on a curated CountQA-derived subset (439 questions), letterboxed; nothing fit on CountQA. Not official CountQA benchmark scores and not comparable to MLLM results.",
+      "status": "Exemplar-free arm complete for all 16 models at every final Stage. The human-box conditioned arm is not run: no human-approved exemplars exist.",
+      "cohort": "counting_sixteen"
+    },
+    "counting_countqa_ai_exemplars": {
+      "path": "counting/countqa/ai_exemplars/",
+      "protocol": "Experimental, supplementary protocol countqa-ai-exemplars-v1: AI-authored exemplar boxes (not human-reviewed; exemplars_ai.json), both arms on the 325 AI-boxed questions of 439 (105 no_clean_instance and 9 unresolved needs_review excluded).",
+      "status": "Complete for all 16 models. Paired intervals under counting/bootstrap/ai_exemplars/countqa/.",
+      "cohort": "counting_sixteen"
     }
   },
   "cell_manifests": [
@@ -178,6 +217,11 @@
       "path": "manifests/expected_cells_geometry_matched.tsv",
       "results_directory": "geometry/",
       "cohort": "v1_six"
+    },
+    {
+      "path": "manifests/expected_cells_count_v4.tsv",
+      "results_directory": "counting/fsc147/",
+      "cohort": "counting_sixteen"
     }
   ],
   "figure_sources": {

@@ -1,0 +1,221 @@
+{
+ "label": "experimental, supplementary: exemplar-based frozen-feature counting transfer on a curated CountQA-derived subset; not official CountQA benchmark scores",
+ "experimental": true,
+ "supplementary": true,
+ "official_countqa_benchmark": false,
+ "not_mllm_qa": "Frozen Tower/Stage features read by FSC-147-trained count heads; not MLLM question answering and not comparable to MLLM CountQA scores.",
+ "role": "secondary (exemplar-free)",
+ "annotation": null,
+ "primary_cell": null,
+ "model": "dinov2",
+ "arm": "free",
+ "variant": "raw",
+ "dataset": {
+  "name": "CountQA (curated subset)",
+  "repo": "Jayant-Sravan/CountQA",
+  "revision": "f92cc6fe46542c61e2916e3d2ae9a911e2216b1a",
+  "license": "CC-BY-4.0",
+  "citation": "Tamarapalli, Grover, Pande, Yerramilli. CountQA: How Well Do MLLMs Count in the Wild? arXiv:2508.06585 (2025). Dataset Jayant-Sravan/CountQA, CC-BY-4.0.",
+  "eligibility_sha256": "64573edf367a1bc5934fbbaa1e995dbf79ad73b1b60756953c8c6cc8f827bf14",
+  "manifest_sha256": "74ce4419307c80267109dd8c617e6a4399b58c628ec1ca3fdee9e23ce7bbffa2",
+  "exemplars_status": "pending",
+  "exemplars_sha256": "a20303519d287245f092e907d0bbd69122081bd938b086ea866993ae3efe041c",
+  "prepared_images": 439,
+  "evaluated_images": 439,
+  "excluded": {}
+ },
+ "features": {
+  "dir": "/home/shadeform/vtb-work/counting-v3/features/countqa/dinov2_448_full",
+  "complete_json": "/home/shadeform/vtb-work/counting-v3/features/countqa/dinov2_448_full/complete.json",
+  "complete_json_sha256": "f9d78b369f404e54872f54f7bcafc36ee69de096d44e40c153f2c36a7fa14210"
+ },
+ "protocol": {
+  "training": "none on CountQA: saved FSC-147 heads and PCA are applied frozen",
+  "frame": "letterbox (counting.letterbox_frame), whole image, fill counting.LETTERBOX_FILL",
+  "transfer_preprocessing": "CountQA answers refer to the whole image, so each kept image is placed whole on a max(w, h) square canvas (counting.letterbox_frame, integer centring offsets) filled with counting.LETTERBOX_FILL and saved as PNG at native resolution; the adapter then resizes that square to the benchmark resolution. FSC-147 heads were trained on the central min-side square (counting.centre_crop_frame), so CountQA adds padding the heads never saw and a different object scale; predicted density is summed only over the valid (non-padding) area, counting.masked_count(density, counting.coverage(frame.valid, 64)). Exemplar boxes are mapped with frame.boxes, never centre-cropped.",
+  "count": "counting.masked_count(density, counting.coverage(frame.valid, 64))",
+  "prototype_valid": "counting.token_valid(frame.valid, side, grid_extent) at the token grid",
+  "exemplars": "none",
+  "exact_match": "floor(pred + 0.5) == integer answer",
+  "bins": "counting.count_bin of the true answer",
+  "rmse": "mean over seeds of each seed's sqrt(mean sq_error); rmse_pooled pools seed x image rows",
+  "numerics": "readouts trained with cuDNN TF32 convolutions on GPU; this run's device may differ, so transfer parity with training is approximate at float32 rounding",
+  "seeds": [
+   0,
+   1,
+   2
+  ],
+  "bootstrap": {
+   "function": "vtb.geometry_bootstrap.paired_metric_bootstrap",
+   "pairing": "identical image IDs; seed k with seed k; per-image seed-mean metric",
+   "resamples": 10000,
+   "confidence": 0.95,
+   "interval": "percentile",
+   "bootstrap_seed": 0,
+   "abs_error_difference": "second_minus_first (positive: first has lower error)",
+   "exact_match_difference": "first_minus_second"
+  }
+ },
+ "cells": [
+  {
+   "key": "tower_L24",
+   "stage": "tower",
+   "layer": 24,
+   "readout_dir": "/home/shadeform/vtb-work/counting-v3/readouts/count-v4/dinov2/free_raw/tower_L24",
+   "model_id": "facebook/dinov2-large",
+   "relative_depth": "1.0000",
+   "tokens_per_image": 1024,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "metrics": {
+    "images": 439,
+    "seeds": 3,
+    "mae": 7.179520429628947,
+    "rmse": 21.038809146118883,
+    "rmse_pooled": 21.0393389469014,
+    "exact_match": 0.06378132118451026,
+    "mean_signed_error": -1.9499116921931754,
+    "mae_by_seed": [
+     7.324329973896435,
+     6.97965257137946,
+     7.234578743610947
+    ],
+    "rmse_by_seed": [
+     21.232951965100355,
+     20.86982822363956,
+     21.01364724961673
+    ],
+    "exact_match_by_seed": [
+     0.05466970387243736,
+     0.07061503416856492,
+     0.06605922551252848
+    ],
+    "by_bin": {
+     "le50": {
+      "images": 435,
+      "mae": 5.9732177767717065,
+      "rmse": 8.280765411937972,
+      "exact_match": 0.06436781609195402
+     },
+     "50to200": {
+      "images": 3,
+      "mae": 55.106042279137505,
+      "rmse": 67.82372367557792,
+      "exact_match": 0.0
+     },
+     "gt200": {
+      "images": 1,
+      "mae": 388.1416088740031,
+      "rmse": 388.1416088740031,
+      "exact_match": 0.0
+     }
+    }
+   },
+   "seed_readouts": [
+    {
+     "seed": 0,
+     "frozen_state_sha256": "054211219139894af0742c1b1f3b0e13bce24800c066d020cf80f94438e6914d",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/dinov2_448_full",
+      "feature_cache_sha256": "39ffc7ba66d9aa98c034e0a4faf34e3f52b85afbabcc2c93d0ebe805bb7f17c6",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "4c5113595b8544bea756b40ae8058dd3272784bf93d0cc9ce7189ad68b759cb1",
+      "input_dim": 1024,
+      "layer": 24,
+      "learning_rate": 0.0003,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "facebook/dinov2-large",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 0,
+      "stage": "tower",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 1024,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 1,
+     "frozen_state_sha256": "fffaad9ed55b21c48aa1706becc40348c9499424ed66d98119c69f02b5889f5f",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/dinov2_448_full",
+      "feature_cache_sha256": "39ffc7ba66d9aa98c034e0a4faf34e3f52b85afbabcc2c93d0ebe805bb7f17c6",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "4c5113595b8544bea756b40ae8058dd3272784bf93d0cc9ce7189ad68b759cb1",
+      "input_dim": 1024,
+      "layer": 24,
+      "learning_rate": 0.0003,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "facebook/dinov2-large",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 1,
+      "stage": "tower",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 1024,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 2,
+     "frozen_state_sha256": "e4dbe1249045ef2ecfe67541128035e1a4e1882029828af0fef1c93ac62df6ea",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/dinov2_448_full",
+      "feature_cache_sha256": "39ffc7ba66d9aa98c034e0a4faf34e3f52b85afbabcc2c93d0ebe805bb7f17c6",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "4c5113595b8544bea756b40ae8058dd3272784bf93d0cc9ce7189ad68b759cb1",
+      "input_dim": 1024,
+      "layer": 24,
+      "learning_rate": 0.0003,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "facebook/dinov2-large",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 2,
+      "stage": "tower",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 1024,
+      "torch": "2.13.0+cu129"
+     }
+    }
+   ]
+  }
+ ],
+ "stage_differences": {}
+}

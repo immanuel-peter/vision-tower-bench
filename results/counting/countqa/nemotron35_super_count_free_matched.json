@@ -1,0 +1,624 @@
+{
+ "label": "experimental, supplementary: exemplar-based frozen-feature counting transfer on a curated CountQA-derived subset; not official CountQA benchmark scores",
+ "experimental": true,
+ "supplementary": true,
+ "official_countqa_benchmark": false,
+ "not_mllm_qa": "Frozen Tower/Stage features read by FSC-147-trained count heads; not MLLM question answering and not comparable to MLLM CountQA scores.",
+ "role": "secondary (exemplar-free)",
+ "annotation": null,
+ "primary_cell": null,
+ "model": "nemotron35_super",
+ "arm": "free",
+ "variant": "matched",
+ "dataset": {
+  "name": "CountQA (curated subset)",
+  "repo": "Jayant-Sravan/CountQA",
+  "revision": "f92cc6fe46542c61e2916e3d2ae9a911e2216b1a",
+  "license": "CC-BY-4.0",
+  "citation": "Tamarapalli, Grover, Pande, Yerramilli. CountQA: How Well Do MLLMs Count in the Wild? arXiv:2508.06585 (2025). Dataset Jayant-Sravan/CountQA, CC-BY-4.0.",
+  "eligibility_sha256": "64573edf367a1bc5934fbbaa1e995dbf79ad73b1b60756953c8c6cc8f827bf14",
+  "manifest_sha256": "74ce4419307c80267109dd8c617e6a4399b58c628ec1ca3fdee9e23ce7bbffa2",
+  "exemplars_status": "pending",
+  "exemplars_sha256": "a20303519d287245f092e907d0bbd69122081bd938b086ea866993ae3efe041c",
+  "prepared_images": 439,
+  "evaluated_images": 439,
+  "excluded": {}
+ },
+ "features": {
+  "dir": "/home/shadeform/vtb-work/counting-v3/features/countqa/nemotron35_super_448_full",
+  "complete_json": "/home/shadeform/vtb-work/counting-v3/features/countqa/nemotron35_super_448_full/complete.json",
+  "complete_json_sha256": "fabc67187e73ba6cfb9187ce31fdea2abd2fb51b85f9261ea32f3b176f69314a"
+ },
+ "protocol": {
+  "training": "none on CountQA: saved FSC-147 heads and PCA are applied frozen",
+  "frame": "letterbox (counting.letterbox_frame), whole image, fill counting.LETTERBOX_FILL",
+  "transfer_preprocessing": "CountQA answers refer to the whole image, so each kept image is placed whole on a max(w, h) square canvas (counting.letterbox_frame, integer centring offsets) filled with counting.LETTERBOX_FILL and saved as PNG at native resolution; the adapter then resizes that square to the benchmark resolution. FSC-147 heads were trained on the central min-side square (counting.centre_crop_frame), so CountQA adds padding the heads never saw and a different object scale; predicted density is summed only over the valid (non-padding) area, counting.masked_count(density, counting.coverage(frame.valid, 64)). Exemplar boxes are mapped with frame.boxes, never centre-cropped.",
+  "count": "counting.masked_count(density, counting.coverage(frame.valid, 64))",
+  "prototype_valid": "counting.token_valid(frame.valid, side, grid_extent) at the token grid",
+  "exemplars": "none",
+  "exact_match": "floor(pred + 0.5) == integer answer",
+  "bins": "counting.count_bin of the true answer",
+  "rmse": "mean over seeds of each seed's sqrt(mean sq_error); rmse_pooled pools seed x image rows",
+  "numerics": "readouts trained with cuDNN TF32 convolutions on GPU; this run's device may differ, so transfer parity with training is approximate at float32 rounding",
+  "seeds": [
+   0,
+   1,
+   2
+  ],
+  "bootstrap": {
+   "function": "vtb.geometry_bootstrap.paired_metric_bootstrap",
+   "pairing": "identical image IDs; seed k with seed k; per-image seed-mean metric",
+   "resamples": 10000,
+   "confidence": 0.95,
+   "interval": "percentile",
+   "bootstrap_seed": 0,
+   "abs_error_difference": "second_minus_first (positive: first has lower error)",
+   "exact_match_difference": "first_minus_second"
+  }
+ },
+ "cells": [
+  {
+   "key": "tower_L32",
+   "stage": "tower",
+   "layer": 32,
+   "readout_dir": "/home/shadeform/vtb-work/counting-v3/readouts/count-v4/nemotron35_super/free_matched/tower_L32",
+   "model_id": "immanuelpeter/C-RADIOv4-H-3.5-Super",
+   "relative_depth": "1.0000",
+   "tokens_per_image": 784,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "metrics": {
+    "images": 439,
+    "seeds": 3,
+    "mae": 6.019755371520261,
+    "rmse": 16.70458193078066,
+    "rmse_pooled": 16.70510382251448,
+    "exact_match": 0.07289293849658314,
+    "mean_signed_error": -2.2677405038926306,
+    "mae_by_seed": [
+     5.971625603141437,
+     6.201354103642336,
+     5.886286407777009
+    ],
+    "rmse_by_seed": [
+     16.634473857135347,
+     16.88952926880002,
+     16.58974266640661
+    ],
+    "exact_match_by_seed": [
+     0.0774487471526196,
+     0.0683371298405467,
+     0.07289293849658314
+    ],
+    "by_bin": {
+     "le50": {
+      "images": 435,
+      "mae": 5.124452022483066,
+      "rmse": 8.069447198825044,
+      "exact_match": 0.0735632183908046
+     },
+     "50to200": {
+      "images": 3,
+      "mae": 39.56069797939725,
+      "rmse": 48.89697260907568,
+      "exact_match": 0.0
+     },
+     "gt200": {
+      "images": 1,
+      "mae": 294.85388437906903,
+      "rmse": 294.85388437906903,
+      "exact_match": 0.0
+     }
+    }
+   },
+   "seed_readouts": [
+    {
+     "seed": 0,
+     "frozen_state_sha256": "6caaa1f0952a003253ac2349c4f0dc434b918b8147adb7f280f7e6ad175749ff",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "matched",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/nemotron35_super_448_full",
+      "feature_cache_sha256": "0bf3f05a03ec52a63cf5d294cdf236c316022a988962e786faa45278c045d03b",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "283d8de17a607fed79fdd0ada8365a025a46e379547a3dba20fb1bb08dd4b71f",
+      "input_dim": 512,
+      "layer": 32,
+      "learning_rate": 0.001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/C-RADIOv4-H-3.5-Super",
+      "pca": true,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 0,
+      "stage": "tower",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 784,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 1,
+     "frozen_state_sha256": "20decd35661dfa48f820226db95022fcf86af9979398f09514a73ec8e498fd2c",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "matched",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/nemotron35_super_448_full",
+      "feature_cache_sha256": "0bf3f05a03ec52a63cf5d294cdf236c316022a988962e786faa45278c045d03b",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "283d8de17a607fed79fdd0ada8365a025a46e379547a3dba20fb1bb08dd4b71f",
+      "input_dim": 512,
+      "layer": 32,
+      "learning_rate": 0.001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/C-RADIOv4-H-3.5-Super",
+      "pca": true,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 1,
+      "stage": "tower",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 784,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 2,
+     "frozen_state_sha256": "4aeca0dfa7ff5d7fbfebed276c43cb7ec186a9f38f95c0bbedb4c590e701aa3a",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "matched",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/nemotron35_super_448_full",
+      "feature_cache_sha256": "0bf3f05a03ec52a63cf5d294cdf236c316022a988962e786faa45278c045d03b",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "283d8de17a607fed79fdd0ada8365a025a46e379547a3dba20fb1bb08dd4b71f",
+      "input_dim": 512,
+      "layer": 32,
+      "learning_rate": 0.001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/C-RADIOv4-H-3.5-Super",
+      "pca": true,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 2,
+      "stage": "tower",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 784,
+      "torch": "2.13.0+cu129"
+     }
+    }
+   ]
+  },
+  {
+   "key": "merged_L32",
+   "stage": "merged",
+   "layer": 32,
+   "readout_dir": "/home/shadeform/vtb-work/counting-v3/readouts/count-v4/nemotron35_super/free_matched/merged_L32",
+   "model_id": "immanuelpeter/C-RADIOv4-H-3.5-Super",
+   "relative_depth": "1.0000",
+   "tokens_per_image": 196,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "metrics": {
+    "images": 439,
+    "seeds": 3,
+    "mae": 6.234506241284203,
+    "rmse": 14.359375735782152,
+    "rmse_pooled": 14.39254643787065,
+    "exact_match": 0.053910402429764616,
+    "mean_signed_error": -2.798149899544934,
+    "mae_by_seed": [
+     6.152075721566185,
+     6.132977308845466,
+     6.418465693440958
+    ],
+    "rmse_by_seed": [
+     13.388042678406343,
+     13.994768052184575,
+     15.695316476755533
+    ],
+    "exact_match_by_seed": [
+     0.05694760820045558,
+     0.05239179954441914,
+     0.05239179954441914
+    ],
+    "by_bin": {
+     "le50": {
+      "images": 435,
+      "mae": 5.486611481647496,
+      "rmse": 8.33196917118643,
+      "exact_match": 0.05440613026819923
+     },
+     "50to200": {
+      "images": 3,
+      "mae": 40.51728079054091,
+      "rmse": 50.17960662970199,
+      "exact_match": 0.0
+     },
+     "gt200": {
+      "images": 1,
+      "mae": 228.72040303548178,
+      "rmse": 228.72040303548178,
+      "exact_match": 0.0
+     }
+    }
+   },
+   "seed_readouts": [
+    {
+     "seed": 0,
+     "frozen_state_sha256": "8de65289560aab28d034de75a5c3f8de25dd93d01ae9998713bc9ebfee6a6f5a",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "matched",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/nemotron35_super_448_full",
+      "feature_cache_sha256": "0bf3f05a03ec52a63cf5d294cdf236c316022a988962e786faa45278c045d03b",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "5acb25b4e66f5d95d51274821f16e3411119dc7900b6cd03e3b010b434f54557",
+      "input_dim": 512,
+      "layer": 32,
+      "learning_rate": 0.003,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/C-RADIOv4-H-3.5-Super",
+      "pca": true,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 0,
+      "stage": "merged",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 196,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 1,
+     "frozen_state_sha256": "c71e3279888576ab137ca7cb66b4bf88c319cfad835299d37c7d0460d3485a6c",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "matched",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/nemotron35_super_448_full",
+      "feature_cache_sha256": "0bf3f05a03ec52a63cf5d294cdf236c316022a988962e786faa45278c045d03b",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "5acb25b4e66f5d95d51274821f16e3411119dc7900b6cd03e3b010b434f54557",
+      "input_dim": 512,
+      "layer": 32,
+      "learning_rate": 0.003,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/C-RADIOv4-H-3.5-Super",
+      "pca": true,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 1,
+      "stage": "merged",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 196,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 2,
+     "frozen_state_sha256": "f46c6e22c610c4d11de54d0a18ab202f09625babaa5b20792bc98f8af9381a03",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "matched",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/nemotron35_super_448_full",
+      "feature_cache_sha256": "0bf3f05a03ec52a63cf5d294cdf236c316022a988962e786faa45278c045d03b",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "5acb25b4e66f5d95d51274821f16e3411119dc7900b6cd03e3b010b434f54557",
+      "input_dim": 512,
+      "layer": 32,
+      "learning_rate": 0.003,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/C-RADIOv4-H-3.5-Super",
+      "pca": true,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 2,
+      "stage": "merged",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 196,
+      "torch": "2.13.0+cu129"
+     }
+    }
+   ]
+  },
+  {
+   "key": "projected_L32",
+   "stage": "projected",
+   "layer": 32,
+   "readout_dir": "/home/shadeform/vtb-work/counting-v3/readouts/count-v4/nemotron35_super/free_matched/projected_L32",
+   "model_id": "immanuelpeter/C-RADIOv4-H-3.5-Super",
+   "relative_depth": "1.0000",
+   "tokens_per_image": 196,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "metrics": {
+    "images": 439,
+    "seeds": 3,
+    "mae": 7.244180434566605,
+    "rmse": 18.5326287730514,
+    "rmse_pooled": 18.537619909946713,
+    "exact_match": 0.07668944570994685,
+    "mean_signed_error": 2.6248169720127623,
+    "mae_by_seed": [
+     7.540261937979957,
+     6.959872083674802,
+     7.232407282045056
+    ],
+    "rmse_by_seed": [
+     18.46011712280416,
+     19.091943461319456,
+     18.045825735030586
+    ],
+    "exact_match_by_seed": [
+     0.07972665148063782,
+     0.07061503416856492,
+     0.07972665148063782
+    ],
+    "by_bin": {
+     "le50": {
+      "images": 435,
+      "mae": 6.329977186064154,
+      "rmse": 11.06718120119787,
+      "exact_match": 0.07739463601532567
+     },
+     "50to200": {
+      "images": 3,
+      "mae": 43.23784255981445,
+      "rmse": 55.16617760437157,
+      "exact_match": 0.0
+     },
+     "gt200": {
+      "images": 1,
+      "mae": 296.94160715738934,
+      "rmse": 296.94160715738934,
+      "exact_match": 0.0
+     }
+    }
+   },
+   "seed_readouts": [
+    {
+     "seed": 0,
+     "frozen_state_sha256": "0b5052272f3222b0045260356ddbc6f9b4a9c149ae965d80b27ccd1ff39ab2cb",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "matched",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/nemotron35_super_448_full",
+      "feature_cache_sha256": "0bf3f05a03ec52a63cf5d294cdf236c316022a988962e786faa45278c045d03b",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "382132c3912f444f036a71c80170d209533a83dd3b3f614c946b766fb1b00798",
+      "input_dim": 512,
+      "layer": 32,
+      "learning_rate": 0.003,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/C-RADIOv4-H-3.5-Super",
+      "pca": true,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 0,
+      "stage": "projected",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 196,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 1,
+     "frozen_state_sha256": "d420c85f1f930aaab0222f2fabd87933b6d30715eb855f50d3dee6d36fab5b65",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "matched",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/nemotron35_super_448_full",
+      "feature_cache_sha256": "0bf3f05a03ec52a63cf5d294cdf236c316022a988962e786faa45278c045d03b",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "382132c3912f444f036a71c80170d209533a83dd3b3f614c946b766fb1b00798",
+      "input_dim": 512,
+      "layer": 32,
+      "learning_rate": 0.003,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/C-RADIOv4-H-3.5-Super",
+      "pca": true,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 1,
+      "stage": "projected",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 196,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 2,
+     "frozen_state_sha256": "7ef84373c5b425562f62b136f5d07cb01791c6d83ab86a6e4c014969ca8e6da1",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "matched",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/nemotron35_super_448_full",
+      "feature_cache_sha256": "0bf3f05a03ec52a63cf5d294cdf236c316022a988962e786faa45278c045d03b",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "382132c3912f444f036a71c80170d209533a83dd3b3f614c946b766fb1b00798",
+      "input_dim": 512,
+      "layer": 32,
+      "learning_rate": 0.003,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/C-RADIOv4-H-3.5-Super",
+      "pca": true,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 2,
+      "stage": "projected",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 196,
+      "torch": "2.13.0+cu129"
+     }
+    }
+   ]
+  }
+ ],
+ "stage_differences": {
+  "tower_L32_vs_merged_L32": {
+   "first": "tower_L32",
+   "second": "merged_L32",
+   "images": 439,
+   "seeds_paired": [
+    0,
+    1,
+    2
+   ],
+   "abs_error": {
+    "point_estimate": 0.21475085616111755,
+    "confidence": 0.95,
+    "lower": -0.24299468100070953,
+    "upper": 0.5917460322380066,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "second_minus_first"
+   },
+   "exact_match": {
+    "point_estimate": 0.01898253709077835,
+    "confidence": 0.95,
+    "lower": -0.0015186030650511384,
+    "upper": 0.03948367387056351,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second"
+   }
+  },
+  "tower_L32_vs_projected_L32": {
+   "first": "tower_L32",
+   "second": "projected_L32",
+   "images": 439,
+   "seeds_paired": [
+    0,
+    1,
+    2
+   ],
+   "abs_error": {
+    "point_estimate": 1.224425196647644,
+    "confidence": 0.95,
+    "lower": 0.5975239276885986,
+    "upper": 1.9137507677078247,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "second_minus_first"
+   },
+   "exact_match": {
+    "point_estimate": -0.003796506905928254,
+    "confidence": 0.95,
+    "lower": -0.028094151988625526,
+    "upper": 0.020501138642430305,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second"
+   }
+  },
+  "merged_L32_vs_projected_L32": {
+   "first": "merged_L32",
+   "second": "projected_L32",
+   "images": 439,
+   "seeds_paired": [
+    0,
+    1,
+    2
+   ],
+   "abs_error": {
+    "point_estimate": 1.009674310684204,
+    "confidence": 0.95,
+    "lower": 0.3590286672115326,
+    "upper": 1.7433149814605713,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "second_minus_first"
+   },
+   "exact_match": {
+    "point_estimate": -0.02277904376387596,
+    "confidence": 0.95,
+    "lower": -0.04479878768324852,
+    "upper": -0.0007593012414872646,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second"
+   }
+  }
+ }
+}

@@ -1,0 +1,624 @@
+{
+ "label": "experimental, supplementary: exemplar-based frozen-feature counting transfer on a curated CountQA-derived subset; not official CountQA benchmark scores",
+ "experimental": true,
+ "supplementary": true,
+ "official_countqa_benchmark": false,
+ "not_mllm_qa": "Frozen Tower/Stage features read by FSC-147-trained count heads; not MLLM question answering and not comparable to MLLM CountQA scores.",
+ "role": "secondary (exemplar-free)",
+ "annotation": null,
+ "primary_cell": null,
+ "model": "muse_glimmer",
+ "arm": "free",
+ "variant": "raw",
+ "dataset": {
+  "name": "CountQA (curated subset)",
+  "repo": "Jayant-Sravan/CountQA",
+  "revision": "f92cc6fe46542c61e2916e3d2ae9a911e2216b1a",
+  "license": "CC-BY-4.0",
+  "citation": "Tamarapalli, Grover, Pande, Yerramilli. CountQA: How Well Do MLLMs Count in the Wild? arXiv:2508.06585 (2025). Dataset Jayant-Sravan/CountQA, CC-BY-4.0.",
+  "eligibility_sha256": "64573edf367a1bc5934fbbaa1e995dbf79ad73b1b60756953c8c6cc8f827bf14",
+  "manifest_sha256": "74ce4419307c80267109dd8c617e6a4399b58c628ec1ca3fdee9e23ce7bbffa2",
+  "exemplars_status": "pending",
+  "exemplars_sha256": "a20303519d287245f092e907d0bbd69122081bd938b086ea866993ae3efe041c",
+  "prepared_images": 439,
+  "evaluated_images": 439,
+  "excluded": {}
+ },
+ "features": {
+  "dir": "/home/shadeform/vtb-work/counting-v3/features/countqa/muse_glimmer_448_full",
+  "complete_json": "/home/shadeform/vtb-work/counting-v3/features/countqa/muse_glimmer_448_full/complete.json",
+  "complete_json_sha256": "176280c63c08408dde347372b66e80f424e79b2a1b45a6903b6e390521bb7502"
+ },
+ "protocol": {
+  "training": "none on CountQA: saved FSC-147 heads and PCA are applied frozen",
+  "frame": "letterbox (counting.letterbox_frame), whole image, fill counting.LETTERBOX_FILL",
+  "transfer_preprocessing": "CountQA answers refer to the whole image, so each kept image is placed whole on a max(w, h) square canvas (counting.letterbox_frame, integer centring offsets) filled with counting.LETTERBOX_FILL and saved as PNG at native resolution; the adapter then resizes that square to the benchmark resolution. FSC-147 heads were trained on the central min-side square (counting.centre_crop_frame), so CountQA adds padding the heads never saw and a different object scale; predicted density is summed only over the valid (non-padding) area, counting.masked_count(density, counting.coverage(frame.valid, 64)). Exemplar boxes are mapped with frame.boxes, never centre-cropped.",
+  "count": "counting.masked_count(density, counting.coverage(frame.valid, 64))",
+  "prototype_valid": "counting.token_valid(frame.valid, side, grid_extent) at the token grid",
+  "exemplars": "none",
+  "exact_match": "floor(pred + 0.5) == integer answer",
+  "bins": "counting.count_bin of the true answer",
+  "rmse": "mean over seeds of each seed's sqrt(mean sq_error); rmse_pooled pools seed x image rows",
+  "numerics": "readouts trained with cuDNN TF32 convolutions on GPU; this run's device may differ, so transfer parity with training is approximate at float32 rounding",
+  "seeds": [
+   0,
+   1,
+   2
+  ],
+  "bootstrap": {
+   "function": "vtb.geometry_bootstrap.paired_metric_bootstrap",
+   "pairing": "identical image IDs; seed k with seed k; per-image seed-mean metric",
+   "resamples": 10000,
+   "confidence": 0.95,
+   "interval": "percentile",
+   "bootstrap_seed": 0,
+   "abs_error_difference": "second_minus_first (positive: first has lower error)",
+   "exact_match_difference": "first_minus_second"
+  }
+ },
+ "cells": [
+  {
+   "key": "tower_L50",
+   "stage": "tower",
+   "layer": 50,
+   "readout_dir": "/home/shadeform/vtb-work/counting-v3/readouts/count-v4/muse_glimmer/free_raw/tower_L50",
+   "model_id": "immanuelpeter/Muse-Glimmer-Vision",
+   "relative_depth": "1.0000",
+   "tokens_per_image": 1024,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "metrics": {
+    "images": 439,
+    "seeds": 3,
+    "mae": 7.257690281513159,
+    "rmse": 20.612161643406697,
+    "rmse_pooled": 20.61571531868767,
+    "exact_match": 0.085041761579347,
+    "mean_signed_error": 0.6402982344840997,
+    "mae_by_seed": [
+     7.200867302325429,
+     6.84704679725925,
+     7.7251567449547975
+    ],
+    "rmse_by_seed": [
+     20.363397488181516,
+     20.32018687025631,
+     21.152900571782265
+    ],
+    "exact_match_by_seed": [
+     0.0888382687927107,
+     0.10022779043280182,
+     0.06605922551252848
+    ],
+    "by_bin": {
+     "le50": {
+      "images": 435,
+      "mae": 6.343913590131591,
+      "rmse": 11.505016194750233,
+      "exact_match": 0.08505747126436781
+     },
+     "50to200": {
+      "images": 3,
+      "mae": 23.68759536743164,
+      "rmse": 28.275095183787386,
+      "exact_match": 0.1111111111111111
+     },
+     "gt200": {
+      "images": 1,
+      "mae": 355.46083577473956,
+      "rmse": 355.46083577473956,
+      "exact_match": 0.0
+     }
+    }
+   },
+   "seed_readouts": [
+    {
+     "seed": 0,
+     "frozen_state_sha256": "cd877f6d774efc67525ca391dbf5dae8e7d5557633d18b24b602548bed9ea560",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/muse_glimmer_448_full",
+      "feature_cache_sha256": "4b4dc4442a22365855208935597eb6c4f6d85d1437b6fa08c3f3ed2c8fec1d2a",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "8bb6e9cf0ddadfb08c426f1a2ae95b7f1e005361410dfe00098cdfe666184214",
+      "input_dim": 1536,
+      "layer": 50,
+      "learning_rate": 0.003,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/Muse-Glimmer-Vision",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 0,
+      "stage": "tower",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 1024,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 1,
+     "frozen_state_sha256": "46be7b06b95038a5f1f65a5c6f5417d95f2f33d0581c6313e546bbdf83859b6f",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/muse_glimmer_448_full",
+      "feature_cache_sha256": "4b4dc4442a22365855208935597eb6c4f6d85d1437b6fa08c3f3ed2c8fec1d2a",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "8bb6e9cf0ddadfb08c426f1a2ae95b7f1e005361410dfe00098cdfe666184214",
+      "input_dim": 1536,
+      "layer": 50,
+      "learning_rate": 0.003,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/Muse-Glimmer-Vision",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 1,
+      "stage": "tower",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 1024,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 2,
+     "frozen_state_sha256": "d92abf314af5188a3b056e2c451ed776c0164a9394f65d6f9b750f7e7d0fc97b",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/muse_glimmer_448_full",
+      "feature_cache_sha256": "4b4dc4442a22365855208935597eb6c4f6d85d1437b6fa08c3f3ed2c8fec1d2a",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "8bb6e9cf0ddadfb08c426f1a2ae95b7f1e005361410dfe00098cdfe666184214",
+      "input_dim": 1536,
+      "layer": 50,
+      "learning_rate": 0.003,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/Muse-Glimmer-Vision",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 2,
+      "stage": "tower",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 1024,
+      "torch": "2.13.0+cu129"
+     }
+    }
+   ]
+  },
+  {
+   "key": "merged_L50",
+   "stage": "merged",
+   "layer": 50,
+   "readout_dir": "/home/shadeform/vtb-work/counting-v3/readouts/count-v4/muse_glimmer/free_raw/merged_L50",
+   "model_id": "immanuelpeter/Muse-Glimmer-Vision",
+   "relative_depth": "1.0000",
+   "tokens_per_image": 256,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "metrics": {
+    "images": 439,
+    "seeds": 3,
+    "mae": 7.672275202692505,
+    "rmse": 21.689653496663198,
+    "rmse_pooled": 21.69723635700711,
+    "exact_match": 0.08959757023538345,
+    "mean_signed_error": 0.6624591372279208,
+    "mae_by_seed": [
+     7.714229376006506,
+     7.419502995280307,
+     7.883093236790702
+    ],
+    "rmse_by_seed": [
+     22.245176750637658,
+     20.899992928969635,
+     21.923790810382293
+    ],
+    "exact_match_by_seed": [
+     0.08428246013667426,
+     0.0888382687927107,
+     0.09567198177676538
+    ],
+    "by_bin": {
+     "le50": {
+      "images": 435,
+      "mae": 6.712394154391526,
+      "rmse": 12.570327635104144,
+      "exact_match": 0.0896551724137931
+     },
+     "50to200": {
+      "images": 3,
+      "mae": 27.372620476616753,
+      "rmse": 33.0312159709009,
+      "exact_match": 0.1111111111111111
+     },
+     "gt200": {
+      "images": 1,
+      "mae": 366.1194953918457,
+      "rmse": 366.1194953918457,
+      "exact_match": 0.0
+     }
+    }
+   },
+   "seed_readouts": [
+    {
+     "seed": 0,
+     "frozen_state_sha256": "76b0762cfd6c06884429eaed6b1b682ac2d2729bbed8d1d61886a05a61d03e34",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/muse_glimmer_448_full",
+      "feature_cache_sha256": "4b4dc4442a22365855208935597eb6c4f6d85d1437b6fa08c3f3ed2c8fec1d2a",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "96e055c9503875fba4fb68ac36caf45ad6391534e7f7403a46d31ff7b6028c78",
+      "input_dim": 6144,
+      "layer": 50,
+      "learning_rate": 0.003,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/Muse-Glimmer-Vision",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 0,
+      "stage": "merged",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 256,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 1,
+     "frozen_state_sha256": "136f2c9763c08689ed81c68fed46419c5a8660dfe0daa67c82080d61cb5fa532",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/muse_glimmer_448_full",
+      "feature_cache_sha256": "4b4dc4442a22365855208935597eb6c4f6d85d1437b6fa08c3f3ed2c8fec1d2a",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "96e055c9503875fba4fb68ac36caf45ad6391534e7f7403a46d31ff7b6028c78",
+      "input_dim": 6144,
+      "layer": 50,
+      "learning_rate": 0.003,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/Muse-Glimmer-Vision",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 1,
+      "stage": "merged",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 256,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 2,
+     "frozen_state_sha256": "df651d13d1e34c0f390d2f124c989fe25bbfe5d89e75c5b41e02bee16bbb6fa9",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/muse_glimmer_448_full",
+      "feature_cache_sha256": "4b4dc4442a22365855208935597eb6c4f6d85d1437b6fa08c3f3ed2c8fec1d2a",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "96e055c9503875fba4fb68ac36caf45ad6391534e7f7403a46d31ff7b6028c78",
+      "input_dim": 6144,
+      "layer": 50,
+      "learning_rate": 0.003,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/Muse-Glimmer-Vision",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 2,
+      "stage": "merged",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 256,
+      "torch": "2.13.0+cu129"
+     }
+    }
+   ]
+  },
+  {
+   "key": "projected_L50",
+   "stage": "projected",
+   "layer": 50,
+   "readout_dir": "/home/shadeform/vtb-work/counting-v3/readouts/count-v4/muse_glimmer/free_raw/projected_L50",
+   "model_id": "immanuelpeter/Muse-Glimmer-Vision",
+   "relative_depth": "1.0000",
+   "tokens_per_image": 256,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "metrics": {
+    "images": 439,
+    "seeds": 3,
+    "mae": 5.865768279192931,
+    "rmse": 18.11561813873966,
+    "rmse_pooled": 18.11693880532436,
+    "exact_match": 0.0926347760060744,
+    "mean_signed_error": -0.1818182040274641,
+    "mae_by_seed": [
+     5.88845377359412,
+     5.714564791301388,
+     5.994286272683285
+    ],
+    "rmse_by_seed": [
+     17.806657850205585,
+     18.283675688247467,
+     18.256520877765922
+    ],
+    "exact_match_by_seed": [
+     0.0979498861047836,
+     0.09111617312072894,
+     0.0888382687927107
+    ],
+    "by_bin": {
+     "le50": {
+      "images": 435,
+      "mae": 4.9830630643157665,
+      "rmse": 9.145932428192827,
+      "exact_match": 0.09348659003831418
+     },
+     "50to200": {
+      "images": 3,
+      "mae": 28.28503312004937,
+      "rmse": 34.429310579484614,
+      "exact_match": 0.0
+     },
+     "gt200": {
+      "images": 1,
+      "mae": 322.5847422281901,
+      "rmse": 322.5847422281901,
+      "exact_match": 0.0
+     }
+    }
+   },
+   "seed_readouts": [
+    {
+     "seed": 0,
+     "frozen_state_sha256": "f12bed6999b8198529a1be2d6e7ddd45cd4a7e97e2a6f38986816052550973c5",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/muse_glimmer_448_full",
+      "feature_cache_sha256": "4b4dc4442a22365855208935597eb6c4f6d85d1437b6fa08c3f3ed2c8fec1d2a",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "fbc3b852bdfc584de98022877aef113a9102e5fb19192dd8e9ec609b53851537",
+      "input_dim": 6656,
+      "layer": 50,
+      "learning_rate": 0.0001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/Muse-Glimmer-Vision",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 0,
+      "stage": "projected",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 256,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 1,
+     "frozen_state_sha256": "b5305a068e404971c0d78915c36fa1cfd007350cc87c8af82be474caf0f016b9",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/muse_glimmer_448_full",
+      "feature_cache_sha256": "4b4dc4442a22365855208935597eb6c4f6d85d1437b6fa08c3f3ed2c8fec1d2a",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "fbc3b852bdfc584de98022877aef113a9102e5fb19192dd8e9ec609b53851537",
+      "input_dim": 6656,
+      "layer": 50,
+      "learning_rate": 0.0001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/Muse-Glimmer-Vision",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 1,
+      "stage": "projected",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 256,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 2,
+     "frozen_state_sha256": "f0bd1d99ed286055f995c2eaf677e1e8012f524300ff056fbc7c43517da12917",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/muse_glimmer_448_full",
+      "feature_cache_sha256": "4b4dc4442a22365855208935597eb6c4f6d85d1437b6fa08c3f3ed2c8fec1d2a",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "fbc3b852bdfc584de98022877aef113a9102e5fb19192dd8e9ec609b53851537",
+      "input_dim": 6656,
+      "layer": 50,
+      "learning_rate": 0.0001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/Muse-Glimmer-Vision",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 2,
+      "stage": "projected",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 256,
+      "torch": "2.13.0+cu129"
+     }
+    }
+   ]
+  }
+ ],
+ "stage_differences": {
+  "tower_L50_vs_merged_L50": {
+   "first": "tower_L50",
+   "second": "merged_L50",
+   "images": 439,
+   "seeds_paired": [
+    0,
+    1,
+    2
+   ],
+   "abs_error": {
+    "point_estimate": 0.4145848751068115,
+    "confidence": 0.95,
+    "lower": 0.02251739799976349,
+    "upper": 0.8090088367462158,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "second_minus_first"
+   },
+   "exact_match": {
+    "point_estimate": -0.004555807448923588,
+    "confidence": 0.95,
+    "lower": -0.028094151988625526,
+    "upper": 0.01900181733071804,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second"
+   }
+  },
+  "tower_L50_vs_projected_L50": {
+   "first": "tower_L50",
+   "second": "projected_L50",
+   "images": 439,
+   "seeds_paired": [
+    0,
+    1,
+    2
+   ],
+   "abs_error": {
+    "point_estimate": -1.391921877861023,
+    "confidence": 0.95,
+    "lower": -1.9031442403793335,
+    "upper": -0.9066951274871826,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "second_minus_first"
+   },
+   "exact_match": {
+    "point_estimate": -0.007593014743179083,
+    "confidence": 0.95,
+    "lower": -0.03340926021337509,
+    "upper": 0.017463931813836098,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second"
+   }
+  },
+  "merged_L50_vs_projected_L50": {
+   "first": "merged_L50",
+   "second": "projected_L50",
+   "images": 439,
+   "seeds_paired": [
+    0,
+    1,
+    2
+   ],
+   "abs_error": {
+    "point_estimate": -1.806506872177124,
+    "confidence": 0.95,
+    "lower": -2.3707187175750732,
+    "upper": -1.293772578239441,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "second_minus_first"
+   },
+   "exact_match": {
+    "point_estimate": -0.003037206130102277,
+    "confidence": 0.95,
+    "lower": -0.028094155713915825,
+    "upper": 0.02201974205672741,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second"
+   }
+  }
+ }
+}

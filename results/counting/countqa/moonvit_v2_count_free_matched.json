@@ -1,0 +1,624 @@
+{
+ "label": "experimental, supplementary: exemplar-based frozen-feature counting transfer on a curated CountQA-derived subset; not official CountQA benchmark scores",
+ "experimental": true,
+ "supplementary": true,
+ "official_countqa_benchmark": false,
+ "not_mllm_qa": "Frozen Tower/Stage features read by FSC-147-trained count heads; not MLLM question answering and not comparable to MLLM CountQA scores.",
+ "role": "secondary (exemplar-free)",
+ "annotation": null,
+ "primary_cell": null,
+ "model": "moonvit_v2",
+ "arm": "free",
+ "variant": "matched",
+ "dataset": {
+  "name": "CountQA (curated subset)",
+  "repo": "Jayant-Sravan/CountQA",
+  "revision": "f92cc6fe46542c61e2916e3d2ae9a911e2216b1a",
+  "license": "CC-BY-4.0",
+  "citation": "Tamarapalli, Grover, Pande, Yerramilli. CountQA: How Well Do MLLMs Count in the Wild? arXiv:2508.06585 (2025). Dataset Jayant-Sravan/CountQA, CC-BY-4.0.",
+  "eligibility_sha256": "64573edf367a1bc5934fbbaa1e995dbf79ad73b1b60756953c8c6cc8f827bf14",
+  "manifest_sha256": "74ce4419307c80267109dd8c617e6a4399b58c628ec1ca3fdee9e23ce7bbffa2",
+  "exemplars_status": "pending",
+  "exemplars_sha256": "a20303519d287245f092e907d0bbd69122081bd938b086ea866993ae3efe041c",
+  "prepared_images": 439,
+  "evaluated_images": 439,
+  "excluded": {}
+ },
+ "features": {
+  "dir": "/home/shadeform/vtb-work/counting-v3/features/countqa/moonvit_v2_448_full",
+  "complete_json": "/home/shadeform/vtb-work/counting-v3/features/countqa/moonvit_v2_448_full/complete.json",
+  "complete_json_sha256": "1efabf70a88463d8cc81d0337c7bf0fe56f6be13b1be60a3c86e4e828f42ce1f"
+ },
+ "protocol": {
+  "training": "none on CountQA: saved FSC-147 heads and PCA are applied frozen",
+  "frame": "letterbox (counting.letterbox_frame), whole image, fill counting.LETTERBOX_FILL",
+  "transfer_preprocessing": "CountQA answers refer to the whole image, so each kept image is placed whole on a max(w, h) square canvas (counting.letterbox_frame, integer centring offsets) filled with counting.LETTERBOX_FILL and saved as PNG at native resolution; the adapter then resizes that square to the benchmark resolution. FSC-147 heads were trained on the central min-side square (counting.centre_crop_frame), so CountQA adds padding the heads never saw and a different object scale; predicted density is summed only over the valid (non-padding) area, counting.masked_count(density, counting.coverage(frame.valid, 64)). Exemplar boxes are mapped with frame.boxes, never centre-cropped.",
+  "count": "counting.masked_count(density, counting.coverage(frame.valid, 64))",
+  "prototype_valid": "counting.token_valid(frame.valid, side, grid_extent) at the token grid",
+  "exemplars": "none",
+  "exact_match": "floor(pred + 0.5) == integer answer",
+  "bins": "counting.count_bin of the true answer",
+  "rmse": "mean over seeds of each seed's sqrt(mean sq_error); rmse_pooled pools seed x image rows",
+  "numerics": "readouts trained with cuDNN TF32 convolutions on GPU; this run's device may differ, so transfer parity with training is approximate at float32 rounding",
+  "seeds": [
+   0,
+   1,
+   2
+  ],
+  "bootstrap": {
+   "function": "vtb.geometry_bootstrap.paired_metric_bootstrap",
+   "pairing": "identical image IDs; seed k with seed k; per-image seed-mean metric",
+   "resamples": 10000,
+   "confidence": 0.95,
+   "interval": "percentile",
+   "bootstrap_seed": 0,
+   "abs_error_difference": "second_minus_first (positive: first has lower error)",
+   "exact_match_difference": "first_minus_second"
+  }
+ },
+ "cells": [
+  {
+   "key": "tower_L27",
+   "stage": "tower",
+   "layer": 27,
+   "readout_dir": "/home/shadeform/vtb-work/counting-v3/readouts/count-v4/moonvit_v2/free_matched/tower_L27",
+   "model_id": "immanuelpeter/MoonViT-V2",
+   "relative_depth": "1.0000",
+   "tokens_per_image": 1024,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "metrics": {
+    "images": 439,
+    "seeds": 3,
+    "mae": 7.560241391827143,
+    "rmse": 18.597581400871015,
+    "rmse_pooled": 18.623663859049874,
+    "exact_match": 0.08048595292331055,
+    "mean_signed_error": 4.3563732050908,
+    "mae_by_seed": [
+     7.363732192945371,
+     7.487625841670807,
+     7.829366140865248
+    ],
+    "rmse_by_seed": [
+     19.968094328716013,
+     17.694372888913417,
+     18.130276984983617
+    ],
+    "exact_match_by_seed": [
+     0.07061503416856492,
+     0.08656036446469248,
+     0.08428246013667426
+    ],
+    "by_bin": {
+     "le50": {
+      "images": 435,
+      "mae": 6.904452309663268,
+      "rmse": 14.546209056303441,
+      "exact_match": 0.08122605363984674
+     },
+     "50to200": {
+      "images": 3,
+      "mae": 26.63249291314019,
+      "rmse": 35.3481875098438,
+      "exact_match": 0.0
+     },
+     "gt200": {
+      "images": 1,
+      "mae": 235.6117375691732,
+      "rmse": 235.6117375691732,
+      "exact_match": 0.0
+     }
+    }
+   },
+   "seed_readouts": [
+    {
+     "seed": 0,
+     "frozen_state_sha256": "0541e80b14ed0b0c7039924be78cf127156aaa723ee49fe888c6699fd579a505",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "matched",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/moonvit_v2_448_full",
+      "feature_cache_sha256": "e82cd95cd76b8c056d7cf81b51d64e5a07ca107b931fe4f9ad605804485b749b",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "c666a181f503cd69a0daa5b3a2837e1bfa3179ccb99d0e54c4431478e321043b",
+      "input_dim": 512,
+      "layer": 27,
+      "learning_rate": 0.001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/MoonViT-V2",
+      "pca": true,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 0,
+      "stage": "tower",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 1024,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 1,
+     "frozen_state_sha256": "2e46eccd3f83e2f3b390aa7abe6a71c8c9f522fd7231727d609d7ee69041c181",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "matched",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/moonvit_v2_448_full",
+      "feature_cache_sha256": "e82cd95cd76b8c056d7cf81b51d64e5a07ca107b931fe4f9ad605804485b749b",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "c666a181f503cd69a0daa5b3a2837e1bfa3179ccb99d0e54c4431478e321043b",
+      "input_dim": 512,
+      "layer": 27,
+      "learning_rate": 0.001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/MoonViT-V2",
+      "pca": true,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 1,
+      "stage": "tower",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 1024,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 2,
+     "frozen_state_sha256": "c16afe55ccb09dda015b196a88be3152d544a163e4696184772c0cdf80b1d09c",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "matched",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/moonvit_v2_448_full",
+      "feature_cache_sha256": "e82cd95cd76b8c056d7cf81b51d64e5a07ca107b931fe4f9ad605804485b749b",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "c666a181f503cd69a0daa5b3a2837e1bfa3179ccb99d0e54c4431478e321043b",
+      "input_dim": 512,
+      "layer": 27,
+      "learning_rate": 0.001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/MoonViT-V2",
+      "pca": true,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 2,
+      "stage": "tower",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 1024,
+      "torch": "2.13.0+cu129"
+     }
+    }
+   ]
+  },
+  {
+   "key": "merged_L27",
+   "stage": "merged",
+   "layer": 27,
+   "readout_dir": "/home/shadeform/vtb-work/counting-v3/readouts/count-v4/moonvit_v2/free_matched/merged_L27",
+   "model_id": "immanuelpeter/MoonViT-V2",
+   "relative_depth": "1.0000",
+   "tokens_per_image": 256,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "metrics": {
+    "images": 439,
+    "seeds": 3,
+    "mae": 7.123936358598841,
+    "rmse": 20.145368997991703,
+    "rmse_pooled": 20.15006833147786,
+    "exact_match": 0.08428246013667426,
+    "mean_signed_error": 3.1207144061271768,
+    "mae_by_seed": [
+     6.641368923263289,
+     7.019492306035852,
+     7.7109478464973815
+    ],
+    "rmse_by_seed": [
+     19.939643275584224,
+     19.745936883779994,
+     20.750526834610888
+    ],
+    "exact_match_by_seed": [
+     0.08428246013667426,
+     0.08428246013667426,
+     0.08428246013667426
+    ],
+    "by_bin": {
+     "le50": {
+      "images": 435,
+      "mae": 6.345760981424558,
+      "rmse": 14.484543119043503,
+      "exact_match": 0.08505747126436781
+     },
+     "50to200": {
+      "images": 3,
+      "mae": 26.931590610080296,
+      "rmse": 37.76404016167249,
+      "exact_match": 0.0
+     },
+     "gt200": {
+      "images": 1,
+      "mae": 286.20726267496747,
+      "rmse": 286.20726267496747,
+      "exact_match": 0.0
+     }
+    }
+   },
+   "seed_readouts": [
+    {
+     "seed": 0,
+     "frozen_state_sha256": "065bcad4924b5a590e183e422370ae68845d9d77b5e45923efd9c2bfabb18e67",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "matched",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/moonvit_v2_448_full",
+      "feature_cache_sha256": "e82cd95cd76b8c056d7cf81b51d64e5a07ca107b931fe4f9ad605804485b749b",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "94b68359d7c1506e38173f4c3396d6c0d0fc7b01fbc63c2f1854ec3b2ae678ad",
+      "input_dim": 512,
+      "layer": 27,
+      "learning_rate": 0.003,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/MoonViT-V2",
+      "pca": true,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 0,
+      "stage": "merged",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 256,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 1,
+     "frozen_state_sha256": "ea45fe2173e029256aee68659f700b1c5ea36efa03ea3052bec8014586bc8245",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "matched",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/moonvit_v2_448_full",
+      "feature_cache_sha256": "e82cd95cd76b8c056d7cf81b51d64e5a07ca107b931fe4f9ad605804485b749b",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "94b68359d7c1506e38173f4c3396d6c0d0fc7b01fbc63c2f1854ec3b2ae678ad",
+      "input_dim": 512,
+      "layer": 27,
+      "learning_rate": 0.003,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/MoonViT-V2",
+      "pca": true,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 1,
+      "stage": "merged",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 256,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 2,
+     "frozen_state_sha256": "692fa650c27dbd46ab56e2fa3169f2f134ce8d3a6f4c3f2b5f0c7ca6914198cf",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "matched",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/moonvit_v2_448_full",
+      "feature_cache_sha256": "e82cd95cd76b8c056d7cf81b51d64e5a07ca107b931fe4f9ad605804485b749b",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "94b68359d7c1506e38173f4c3396d6c0d0fc7b01fbc63c2f1854ec3b2ae678ad",
+      "input_dim": 512,
+      "layer": 27,
+      "learning_rate": 0.003,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/MoonViT-V2",
+      "pca": true,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 2,
+      "stage": "merged",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 256,
+      "torch": "2.13.0+cu129"
+     }
+    }
+   ]
+  },
+  {
+   "key": "projected_L27",
+   "stage": "projected",
+   "layer": 27,
+   "readout_dir": "/home/shadeform/vtb-work/counting-v3/readouts/count-v4/moonvit_v2/free_matched/projected_L27",
+   "model_id": "immanuelpeter/MoonViT-V2",
+   "relative_depth": "1.0000",
+   "tokens_per_image": 256,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "metrics": {
+    "images": 439,
+    "seeds": 3,
+    "mae": 7.267592347021255,
+    "rmse": 19.03310309929447,
+    "rmse_pooled": 19.06501608369435,
+    "exact_match": 0.07668944570994685,
+    "mean_signed_error": 2.8575895223639276,
+    "mae_by_seed": [
+     7.513849233440495,
+     7.470386101064486,
+     6.818541706558784
+    ],
+    "rmse_by_seed": [
+     19.641421345727746,
+     19.97240636313241,
+     17.48548158902325
+    ],
+    "exact_match_by_seed": [
+     0.07061503416856492,
+     0.07289293849658314,
+     0.08656036446469248
+    ],
+    "by_bin": {
+     "le50": {
+      "images": 435,
+      "mae": 6.4812687550468,
+      "rmse": 13.416137635719744,
+      "exact_match": 0.07739463601532567
+     },
+     "50to200": {
+      "images": 3,
+      "mae": 32.148646884494354,
+      "rmse": 40.57502300674314,
+      "exact_match": 0.0
+     },
+     "gt200": {
+      "images": 1,
+      "mae": 274.67519124348956,
+      "rmse": 274.67519124348956,
+      "exact_match": 0.0
+     }
+    }
+   },
+   "seed_readouts": [
+    {
+     "seed": 0,
+     "frozen_state_sha256": "fa9aebaf4829dcbce32f36f41f2307adaf01ce6ed9056a1b9249e68b3a7a0134",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "matched",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/moonvit_v2_448_full",
+      "feature_cache_sha256": "e82cd95cd76b8c056d7cf81b51d64e5a07ca107b931fe4f9ad605804485b749b",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "3483e6b9724108c9ab753f9b71448669fc3ef018b3660b8bd71b3864c88f11d6",
+      "input_dim": 512,
+      "layer": 27,
+      "learning_rate": 0.003,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/MoonViT-V2",
+      "pca": true,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 0,
+      "stage": "projected",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 256,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 1,
+     "frozen_state_sha256": "8af827d791f5b02a9a03e2b3ab204118aa09f0189ce8048603d24d694f63b197",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "matched",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/moonvit_v2_448_full",
+      "feature_cache_sha256": "e82cd95cd76b8c056d7cf81b51d64e5a07ca107b931fe4f9ad605804485b749b",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "3483e6b9724108c9ab753f9b71448669fc3ef018b3660b8bd71b3864c88f11d6",
+      "input_dim": 512,
+      "layer": 27,
+      "learning_rate": 0.003,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/MoonViT-V2",
+      "pca": true,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 1,
+      "stage": "projected",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 256,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 2,
+     "frozen_state_sha256": "88d237f90f6e515bd213f3d9b948c13f1af46ad141e8bb8265722f0026295d74",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "matched",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/moonvit_v2_448_full",
+      "feature_cache_sha256": "e82cd95cd76b8c056d7cf81b51d64e5a07ca107b931fe4f9ad605804485b749b",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "3483e6b9724108c9ab753f9b71448669fc3ef018b3660b8bd71b3864c88f11d6",
+      "input_dim": 512,
+      "layer": 27,
+      "learning_rate": 0.003,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/MoonViT-V2",
+      "pca": true,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 2,
+      "stage": "projected",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 256,
+      "torch": "2.13.0+cu129"
+     }
+    }
+   ]
+  }
+ ],
+ "stage_differences": {
+  "tower_L27_vs_merged_L27": {
+   "first": "tower_L27",
+   "second": "merged_L27",
+   "images": 439,
+   "seeds_paired": [
+    0,
+    1,
+    2
+   ],
+   "abs_error": {
+    "point_estimate": -0.4363051652908325,
+    "confidence": 0.95,
+    "lower": -0.8897383809089661,
+    "upper": 0.0558289997279644,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "second_minus_first"
+   },
+   "exact_match": {
+    "point_estimate": -0.003796506905928254,
+    "confidence": 0.95,
+    "lower": -0.02505694516003132,
+    "upper": 0.017463933676481247,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second"
+   }
+  },
+  "tower_L27_vs_projected_L27": {
+   "first": "tower_L27",
+   "second": "projected_L27",
+   "images": 439,
+   "seeds_paired": [
+    0,
+    1,
+    2
+   ],
+   "abs_error": {
+    "point_estimate": -0.2926490902900696,
+    "confidence": 0.95,
+    "lower": -0.7499390840530396,
+    "upper": 0.1774243414402008,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "second_minus_first"
+   },
+   "exact_match": {
+    "point_estimate": 0.0037965073715895414,
+    "confidence": 0.95,
+    "lower": -0.017463935539126396,
+    "upper": 0.025056948885321617,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second"
+   }
+  },
+  "merged_L27_vs_projected_L27": {
+   "first": "merged_L27",
+   "second": "projected_L27",
+   "images": 439,
+   "seeds_paired": [
+    0,
+    1,
+    2
+   ],
+   "abs_error": {
+    "point_estimate": 0.14365607500076294,
+    "confidence": 0.95,
+    "lower": -0.23760676383972168,
+    "upper": 0.5057534575462341,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "second_minus_first"
+   },
+   "exact_match": {
+    "point_estimate": 0.00759301520884037,
+    "confidence": 0.95,
+    "lower": -0.01138952188193798,
+    "upper": 0.026575546711683273,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second"
+   }
+  }
+ }
+}

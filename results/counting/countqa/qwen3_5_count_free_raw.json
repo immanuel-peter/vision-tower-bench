@@ -1,0 +1,624 @@
+{
+ "label": "experimental, supplementary: exemplar-based frozen-feature counting transfer on a curated CountQA-derived subset; not official CountQA benchmark scores",
+ "experimental": true,
+ "supplementary": true,
+ "official_countqa_benchmark": false,
+ "not_mllm_qa": "Frozen Tower/Stage features read by FSC-147-trained count heads; not MLLM question answering and not comparable to MLLM CountQA scores.",
+ "role": "secondary (exemplar-free)",
+ "annotation": null,
+ "primary_cell": null,
+ "model": "qwen3_5",
+ "arm": "free",
+ "variant": "raw",
+ "dataset": {
+  "name": "CountQA (curated subset)",
+  "repo": "Jayant-Sravan/CountQA",
+  "revision": "f92cc6fe46542c61e2916e3d2ae9a911e2216b1a",
+  "license": "CC-BY-4.0",
+  "citation": "Tamarapalli, Grover, Pande, Yerramilli. CountQA: How Well Do MLLMs Count in the Wild? arXiv:2508.06585 (2025). Dataset Jayant-Sravan/CountQA, CC-BY-4.0.",
+  "eligibility_sha256": "64573edf367a1bc5934fbbaa1e995dbf79ad73b1b60756953c8c6cc8f827bf14",
+  "manifest_sha256": "74ce4419307c80267109dd8c617e6a4399b58c628ec1ca3fdee9e23ce7bbffa2",
+  "exemplars_status": "pending",
+  "exemplars_sha256": "a20303519d287245f092e907d0bbd69122081bd938b086ea866993ae3efe041c",
+  "prepared_images": 439,
+  "evaluated_images": 439,
+  "excluded": {}
+ },
+ "features": {
+  "dir": "/home/shadeform/vtb-work/counting-v3/features/countqa/qwen3_5_448_full",
+  "complete_json": "/home/shadeform/vtb-work/counting-v3/features/countqa/qwen3_5_448_full/complete.json",
+  "complete_json_sha256": "a5d3bdfbbb659ccf83a6bb67ad1c86a31ad216cd0c095f4262fb225a71aa3e4d"
+ },
+ "protocol": {
+  "training": "none on CountQA: saved FSC-147 heads and PCA are applied frozen",
+  "frame": "letterbox (counting.letterbox_frame), whole image, fill counting.LETTERBOX_FILL",
+  "transfer_preprocessing": "CountQA answers refer to the whole image, so each kept image is placed whole on a max(w, h) square canvas (counting.letterbox_frame, integer centring offsets) filled with counting.LETTERBOX_FILL and saved as PNG at native resolution; the adapter then resizes that square to the benchmark resolution. FSC-147 heads were trained on the central min-side square (counting.centre_crop_frame), so CountQA adds padding the heads never saw and a different object scale; predicted density is summed only over the valid (non-padding) area, counting.masked_count(density, counting.coverage(frame.valid, 64)). Exemplar boxes are mapped with frame.boxes, never centre-cropped.",
+  "count": "counting.masked_count(density, counting.coverage(frame.valid, 64))",
+  "prototype_valid": "counting.token_valid(frame.valid, side, grid_extent) at the token grid",
+  "exemplars": "none",
+  "exact_match": "floor(pred + 0.5) == integer answer",
+  "bins": "counting.count_bin of the true answer",
+  "rmse": "mean over seeds of each seed's sqrt(mean sq_error); rmse_pooled pools seed x image rows",
+  "numerics": "readouts trained with cuDNN TF32 convolutions on GPU; this run's device may differ, so transfer parity with training is approximate at float32 rounding",
+  "seeds": [
+   0,
+   1,
+   2
+  ],
+  "bootstrap": {
+   "function": "vtb.geometry_bootstrap.paired_metric_bootstrap",
+   "pairing": "identical image IDs; seed k with seed k; per-image seed-mean metric",
+   "resamples": 10000,
+   "confidence": 0.95,
+   "interval": "percentile",
+   "bootstrap_seed": 0,
+   "abs_error_difference": "second_minus_first (positive: first has lower error)",
+   "exact_match_difference": "first_minus_second"
+  }
+ },
+ "cells": [
+  {
+   "key": "tower_L27",
+   "stage": "tower",
+   "layer": 27,
+   "readout_dir": "/home/shadeform/vtb-work/counting-v3/readouts/count-v4/qwen3_5/free_raw/tower_L27",
+   "model_id": "immanuelpeter/Qwen3.8-27B-Vision",
+   "relative_depth": "1.0000",
+   "tokens_per_image": 784,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "metrics": {
+    "images": 439,
+    "seeds": 3,
+    "mae": 9.524565532882736,
+    "rmse": 21.66513581663952,
+    "rmse_pooled": 21.66695281920182,
+    "exact_match": 0.0463173880030372,
+    "mean_signed_error": 5.118113940107886,
+    "mae_by_seed": [
+     8.81695638810855,
+     9.75276943056893,
+     10.003970779970729
+    ],
+    "rmse_by_seed": [
+     21.287723904370164,
+     21.747672283372925,
+     21.96001126217547
+    ],
+    "exact_match_by_seed": [
+     0.05239179954441914,
+     0.05239179954441914,
+     0.03416856492027335
+    ],
+    "by_bin": {
+     "le50": {
+      "images": 435,
+      "mae": 8.771134963894255,
+      "rmse": 15.246018987334343,
+      "exact_match": 0.04674329501915709
+     },
+     "50to200": {
+      "images": 3,
+      "mae": 14.635733710394966,
+      "rmse": 16.58120486959405,
+      "exact_match": 0.0
+     },
+     "gt200": {
+      "images": 1,
+      "mae": 321.93335851033527,
+      "rmse": 321.93335851033527,
+      "exact_match": 0.0
+     }
+    }
+   },
+   "seed_readouts": [
+    {
+     "seed": 0,
+     "frozen_state_sha256": "868e56ef17e0ab77d85ed9afa4d909edfee3fe9167742fecc21b4dfa9849f4a8",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/qwen3_5_448_full",
+      "feature_cache_sha256": "94f3a3d0b4043057881ea1fc3330cedbcff4061156fd26a33ef7993df24fa6d7",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "607501d0f8da05cdea3e579ef70b77e45d80c8dac70850f8c3fe4cfdcecb0824",
+      "input_dim": 1152,
+      "layer": 27,
+      "learning_rate": 0.0001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/Qwen3.8-27B-Vision",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 0,
+      "stage": "tower",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 784,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 1,
+     "frozen_state_sha256": "2f1fecf7e10f6bc6a95fb0e0a39a11815e6ef5d94a923ba5c2e8341ff9eb7521",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/qwen3_5_448_full",
+      "feature_cache_sha256": "94f3a3d0b4043057881ea1fc3330cedbcff4061156fd26a33ef7993df24fa6d7",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "607501d0f8da05cdea3e579ef70b77e45d80c8dac70850f8c3fe4cfdcecb0824",
+      "input_dim": 1152,
+      "layer": 27,
+      "learning_rate": 0.0001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/Qwen3.8-27B-Vision",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 1,
+      "stage": "tower",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 784,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 2,
+     "frozen_state_sha256": "d55b06e71df98b08d6d28414fce869903fd41b11485d55b12f357687cec7e49d",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/qwen3_5_448_full",
+      "feature_cache_sha256": "94f3a3d0b4043057881ea1fc3330cedbcff4061156fd26a33ef7993df24fa6d7",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "607501d0f8da05cdea3e579ef70b77e45d80c8dac70850f8c3fe4cfdcecb0824",
+      "input_dim": 1152,
+      "layer": 27,
+      "learning_rate": 0.0001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/Qwen3.8-27B-Vision",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 2,
+      "stage": "tower",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 784,
+      "torch": "2.13.0+cu129"
+     }
+    }
+   ]
+  },
+  {
+   "key": "merged_L27",
+   "stage": "merged",
+   "layer": 27,
+   "readout_dir": "/home/shadeform/vtb-work/counting-v3/readouts/count-v4/qwen3_5/free_raw/merged_L27",
+   "model_id": "immanuelpeter/Qwen3.8-27B-Vision",
+   "relative_depth": "1.0000",
+   "tokens_per_image": 196,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "metrics": {
+    "images": 439,
+    "seeds": 3,
+    "mae": 10.399801140494118,
+    "rmse": 23.126294810870103,
+    "rmse_pooled": 23.12778107103961,
+    "exact_match": 0.051632498101746395,
+    "mean_signed_error": 4.7981093703750055,
+    "mae_by_seed": [
+     10.753027166483886,
+     10.087260656584911,
+     10.359115598413558
+    ],
+    "rmse_by_seed": [
+     23.492070168849875,
+     22.890731932668846,
+     22.996082331091593
+    ],
+    "exact_match_by_seed": [
+     0.04783599088838269,
+     0.05011389521640091,
+     0.05694760820045558
+    ],
+    "by_bin": {
+     "le50": {
+      "images": 435,
+      "mae": 9.590831061523993,
+      "rmse": 16.04127374542622,
+      "exact_match": 0.05134099616858238
+     },
+     "50to200": {
+      "images": 3,
+      "mae": 14.933615366617838,
+      "rmse": 20.104322709502117,
+      "exact_match": 0.1111111111111111
+     },
+     "gt200": {
+      "images": 1,
+      "mae": 348.7003428141276,
+      "rmse": 348.7003428141276,
+      "exact_match": 0.0
+     }
+    }
+   },
+   "seed_readouts": [
+    {
+     "seed": 0,
+     "frozen_state_sha256": "0eddbecb19b27e12883e2b099bf651bd844ed10af55c6733848b456c68218a4f",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/qwen3_5_448_full",
+      "feature_cache_sha256": "94f3a3d0b4043057881ea1fc3330cedbcff4061156fd26a33ef7993df24fa6d7",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "8391d1121ce04cc24954b1d070b9783ad1ca969d5f1fa0b6795876b68e0e86da",
+      "input_dim": 4608,
+      "layer": 27,
+      "learning_rate": 0.0001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/Qwen3.8-27B-Vision",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 0,
+      "stage": "merged",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 196,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 1,
+     "frozen_state_sha256": "c5631ee088e224eb137387f7d044faea39a09106010b80aa743ebbafafccd0be",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/qwen3_5_448_full",
+      "feature_cache_sha256": "94f3a3d0b4043057881ea1fc3330cedbcff4061156fd26a33ef7993df24fa6d7",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "8391d1121ce04cc24954b1d070b9783ad1ca969d5f1fa0b6795876b68e0e86da",
+      "input_dim": 4608,
+      "layer": 27,
+      "learning_rate": 0.0001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/Qwen3.8-27B-Vision",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 1,
+      "stage": "merged",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 196,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 2,
+     "frozen_state_sha256": "21628a5c56a8688fc8d2c13d629386d38dd980a1dcf2c68fb3689b6e19d85c07",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/qwen3_5_448_full",
+      "feature_cache_sha256": "94f3a3d0b4043057881ea1fc3330cedbcff4061156fd26a33ef7993df24fa6d7",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "8391d1121ce04cc24954b1d070b9783ad1ca969d5f1fa0b6795876b68e0e86da",
+      "input_dim": 4608,
+      "layer": 27,
+      "learning_rate": 0.0001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/Qwen3.8-27B-Vision",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 2,
+      "stage": "merged",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 196,
+      "torch": "2.13.0+cu129"
+     }
+    }
+   ]
+  },
+  {
+   "key": "projected_L27",
+   "stage": "projected",
+   "layer": 27,
+   "readout_dir": "/home/shadeform/vtb-work/counting-v3/readouts/count-v4/qwen3_5/free_raw/projected_L27",
+   "model_id": "immanuelpeter/Qwen3.8-27B-Vision",
+   "relative_depth": "1.0000",
+   "tokens_per_image": 196,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "metrics": {
+    "images": 439,
+    "seeds": 3,
+    "mae": 6.942648673111866,
+    "rmse": 18.624162995011257,
+    "rmse_pooled": 18.627752895117787,
+    "exact_match": 0.06226271829916477,
+    "mean_signed_error": 0.576141040073531,
+    "mae_by_seed": [
+     6.5943357281912975,
+     7.029485925726576,
+     7.204124365417724
+    ],
+    "rmse_by_seed": [
+     18.969611463490732,
+     18.78474792949095,
+     18.11812959205209
+    ],
+    "exact_match_by_seed": [
+     0.04783599088838269,
+     0.07517084282460136,
+     0.06378132118451026
+    ],
+    "by_bin": {
+     "le50": {
+      "images": 435,
+      "mae": 6.02710275960608,
+      "rmse": 11.049762007446729,
+      "exact_match": 0.06283524904214559
+     },
+     "50to200": {
+      "images": 3,
+      "mae": 41.46791034274631,
+      "rmse": 51.54699178679444,
+      "exact_match": 0.0
+     },
+     "gt200": {
+      "images": 1,
+      "mae": 301.6293360392253,
+      "rmse": 301.6293360392253,
+      "exact_match": 0.0
+     }
+    }
+   },
+   "seed_readouts": [
+    {
+     "seed": 0,
+     "frozen_state_sha256": "3ab1981711dd1f5b82c163e164324777817da13626c30a579a438fb53ab968a5",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/qwen3_5_448_full",
+      "feature_cache_sha256": "94f3a3d0b4043057881ea1fc3330cedbcff4061156fd26a33ef7993df24fa6d7",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "49919a2507cbcea4eb359fb43ce8ee3de91fff75f433f00d4321bb2ff495a66b",
+      "input_dim": 5120,
+      "layer": 27,
+      "learning_rate": 0.001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/Qwen3.8-27B-Vision",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 0,
+      "stage": "projected",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 196,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 1,
+     "frozen_state_sha256": "3eeeedf04527a09d6687791c56d451457f3f8d4ade1094f84636e6beff5572af",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/qwen3_5_448_full",
+      "feature_cache_sha256": "94f3a3d0b4043057881ea1fc3330cedbcff4061156fd26a33ef7993df24fa6d7",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "49919a2507cbcea4eb359fb43ce8ee3de91fff75f433f00d4321bb2ff495a66b",
+      "input_dim": 5120,
+      "layer": 27,
+      "learning_rate": 0.001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/Qwen3.8-27B-Vision",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 1,
+      "stage": "projected",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 196,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 2,
+     "frozen_state_sha256": "0f58393db6d3918c85f88a6ff9f04b9d407f88dbda26a9be390452003d9208ec",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/qwen3_5_448_full",
+      "feature_cache_sha256": "94f3a3d0b4043057881ea1fc3330cedbcff4061156fd26a33ef7993df24fa6d7",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "49919a2507cbcea4eb359fb43ce8ee3de91fff75f433f00d4321bb2ff495a66b",
+      "input_dim": 5120,
+      "layer": 27,
+      "learning_rate": 0.001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/Qwen3.8-27B-Vision",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 2,
+      "stage": "projected",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 196,
+      "torch": "2.13.0+cu129"
+     }
+    }
+   ]
+  }
+ ],
+ "stage_differences": {
+  "tower_L27_vs_merged_L27": {
+   "first": "tower_L27",
+   "second": "merged_L27",
+   "images": 439,
+   "seeds_paired": [
+    0,
+    1,
+    2
+   ],
+   "abs_error": {
+    "point_estimate": 0.8752354979515076,
+    "confidence": 0.95,
+    "lower": 0.3304294943809509,
+    "upper": 1.4156897068023682,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "second_minus_first"
+   },
+   "exact_match": {
+    "point_estimate": -0.005315110087394714,
+    "confidence": 0.95,
+    "lower": -0.02581625059247017,
+    "upper": 0.01442672684788704,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second"
+   }
+  },
+  "tower_L27_vs_projected_L27": {
+   "first": "tower_L27",
+   "second": "projected_L27",
+   "images": 439,
+   "seeds_paired": [
+    0,
+    1,
+    2
+   ],
+   "abs_error": {
+    "point_estimate": -2.5819172859191895,
+    "confidence": 0.95,
+    "lower": -3.326444625854492,
+    "upper": -1.8203208446502686,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "second_minus_first"
+   },
+   "exact_match": {
+    "point_estimate": -0.015945330262184143,
+    "confidence": 0.95,
+    "lower": -0.0364464707672596,
+    "upper": 0.00455580884590745,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second"
+   }
+  },
+  "merged_L27_vs_projected_L27": {
+   "first": "merged_L27",
+   "second": "projected_L27",
+   "images": 439,
+   "seeds_paired": [
+    0,
+    1,
+    2
+   ],
+   "abs_error": {
+    "point_estimate": -3.4571521282196045,
+    "confidence": 0.95,
+    "lower": -4.3063063621521,
+    "upper": -2.6250076293945312,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "second_minus_first"
+   },
+   "exact_match": {
+    "point_estimate": -0.010630221106112003,
+    "confidence": 0.95,
+    "lower": -0.031890664249658585,
+    "upper": 0.01138952188193798,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second"
+   }
+  }
+ }
+}

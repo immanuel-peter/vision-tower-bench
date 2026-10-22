@@ -1,0 +1,893 @@
+{
+ "label": "experimental, supplementary: FSC-147-trained frozen-feature counting transfer on a CountQA-derived subset with AI-authored exemplar boxes; not official CountQA benchmark scores and not comparable to published CountQA MLLM results",
+ "experimental": true,
+ "supplementary": true,
+ "official_countqa_benchmark": false,
+ "not_mllm_qa": "Frozen Tower/Stage features read by FSC-147-trained count heads; not MLLM question answering and not comparable to MLLM CountQA scores.",
+ "role": "experimental, supplementary: exemplar-free on the AI-boxed IDs, paired with the conditioned arm",
+ "annotation": {
+  "protocol": "countqa-ai-exemplars-v1",
+  "annotation_protocol": "user-authorized-ai-visual-exemplars-v1",
+  "annotation_source": "ai",
+  "annotation_model": "gpt-6-astra",
+  "human_reviewed": false,
+  "approved_by": null,
+  "annotation_revision": 2,
+  "exemplars_sha256": "1670f4f7ebd7905cc42084e436885dfeed7f53013f46b0de60754927c599c0f0",
+  "source_export_sha256": "3c113eae4731b436cf867c0fea69d08e6c5b9bf0b998f71518c4cabd2124b382",
+  "review_coverage": {
+   "inspected": 439,
+   "boxed_overlay_rechecked_by_ai": 325,
+   "independent_ai_adjudication": 26,
+   "parent_ai_spot_check": [
+    {
+     "question_id": "countqa_0536_efaf8d4d_q0",
+     "status": "boxed",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0902_bee4d7fb_q0",
+     "status": "boxed",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0429_ab54ed50_q0",
+     "status": "boxed",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0250_1ddeec64_q0",
+     "status": "boxed",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0058_477ab87e_q0",
+     "status": "boxed",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0365_c0cfde27_q0",
+     "status": "boxed",
+     "parent_visual_review": "needs_adjudication",
+     "parent_note": "Lower-left storage box may be clipped at left frame edge. Independent adjudication requested."
+    },
+    {
+     "question_id": "countqa_0345_4fb02d46_q0",
+     "status": "boxed",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0351_b2017c19_q0",
+     "status": "boxed",
+     "parent_visual_review": "needs_adjudication",
+     "parent_note": "Top platter may be clipped at left image edge; lower box boundary may include next platter. Independent adjudication requested."
+    },
+    {
+     "question_id": "countqa_0007_d6d9a1fb_q0",
+     "status": "boxed",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0841_38c5fb6f_q0",
+     "status": "boxed",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0163_84a1b67c_q0",
+     "status": "boxed",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0074_7be47cb7_q0",
+     "status": "boxed",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0299_b49bbf57_q0",
+     "status": "no_clean_instance",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0273_c1632c41_q0",
+     "status": "no_clean_instance",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0442_02f3e69a_q0",
+     "status": "no_clean_instance",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0925_0cc75f48_q0",
+     "status": "no_clean_instance",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0993_d6b4b469_q0",
+     "status": "no_clean_instance",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0937_e3bff72e_q0",
+     "status": "no_clean_instance",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0835_57920b52_q0",
+     "status": "needs_review",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0419_a0bf1c20_q0",
+     "status": "needs_review",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0553_08e5ca29_q0",
+     "status": "needs_review",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0530_224845e5_q0",
+     "status": "needs_review",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0792_38e0e0e4_q0",
+     "status": "needs_review",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0878_edc6d9c3_q0",
+     "status": "needs_review",
+     "parent_visual_review": "spot_check_consistent"
+    }
+   ],
+   "human_reviewed": 0,
+   "answers_used_for_decisions": false
+  },
+  "selection": {
+   "questions": 439,
+   "included_boxed": 325,
+   "excluded_no_clean_instance": 105,
+   "excluded_needs_review_unresolved": 9
+  },
+  "included_image_ids_sha256": "fa5eb3d730e81373465f8d8590499997502093056f1f19a21a6e806a6fbd890d",
+  "limitations": [
+   "FSC-147 to CountQA transfer: heads trained on centre crops read letterboxed whole images with padding and smaller objects.",
+   "Exemplars are AI-selected (gpt-6-astra) and not human-reviewed; box errors and target-identity errors are possible.",
+   "Only questions with a clean exemplar are included; this may systematically exclude hard images.",
+   "Sensitivity to the choice of exemplar and stability of model rankings under alternative exemplars or protocol choices are not established."
+  ]
+ },
+ "primary_cell": null,
+ "model": "gemma4",
+ "arm": "free",
+ "variant": "raw",
+ "dataset": {
+  "name": "CountQA (curated subset)",
+  "repo": "Jayant-Sravan/CountQA",
+  "revision": "f92cc6fe46542c61e2916e3d2ae9a911e2216b1a",
+  "license": "CC-BY-4.0",
+  "citation": "Tamarapalli, Grover, Pande, Yerramilli. CountQA: How Well Do MLLMs Count in the Wild? arXiv:2508.06585 (2025). Dataset Jayant-Sravan/CountQA, CC-BY-4.0.",
+  "eligibility_sha256": "64573edf367a1bc5934fbbaa1e995dbf79ad73b1b60756953c8c6cc8f827bf14",
+  "manifest_sha256": "74ce4419307c80267109dd8c617e6a4399b58c628ec1ca3fdee9e23ce7bbffa2",
+  "exemplars_status": "ai_unreviewed",
+  "exemplars_sha256": "1670f4f7ebd7905cc42084e436885dfeed7f53013f46b0de60754927c599c0f0",
+  "prepared_images": 439,
+  "evaluated_images": 325,
+  "excluded": {
+   "countqa_0038_522a4605": "no_clean_instance",
+   "countqa_0057_68482c1d": "no_clean_instance",
+   "countqa_0061_8e460d15": "no_clean_instance",
+   "countqa_0078_18f9ddc4": "no_clean_instance",
+   "countqa_0093_f19d1c0d": "needs_review_unresolved",
+   "countqa_0099_a6e121eb": "no_clean_instance",
+   "countqa_0108_86710d4b": "no_clean_instance",
+   "countqa_0112_3e2335ec": "no_clean_instance",
+   "countqa_0114_e9021f2a": "no_clean_instance",
+   "countqa_0122_822eedd4": "no_clean_instance",
+   "countqa_0144_27d24401": "no_clean_instance",
+   "countqa_0145_6745f72b": "no_clean_instance",
+   "countqa_0152_0ca64dee": "no_clean_instance",
+   "countqa_0189_c91f86ae": "no_clean_instance",
+   "countqa_0191_53ccdde4": "no_clean_instance",
+   "countqa_0195_ef1dacd2": "no_clean_instance",
+   "countqa_0197_5574c68e": "no_clean_instance",
+   "countqa_0199_b8a206e6": "no_clean_instance",
+   "countqa_0202_5bdaaffe": "no_clean_instance",
+   "countqa_0210_fe19c0d2": "no_clean_instance",
+   "countqa_0212_b64811e2": "no_clean_instance",
+   "countqa_0213_d7f8cbd7": "no_clean_instance",
+   "countqa_0235_0ae34970": "no_clean_instance",
+   "countqa_0262_643c738c": "no_clean_instance",
+   "countqa_0267_9f7525a2": "no_clean_instance",
+   "countqa_0268_cd28f81a": "no_clean_instance",
+   "countqa_0273_c1632c41": "no_clean_instance",
+   "countqa_0299_b49bbf57": "no_clean_instance",
+   "countqa_0312_96d9140e": "no_clean_instance",
+   "countqa_0322_45f6fd15": "no_clean_instance",
+   "countqa_0351_b2017c19": "no_clean_instance",
+   "countqa_0358_b10b08af": "no_clean_instance",
+   "countqa_0360_aca3e155": "no_clean_instance",
+   "countqa_0362_e272c4c5": "no_clean_instance",
+   "countqa_0365_c0cfde27": "no_clean_instance",
+   "countqa_0371_fc0d4886": "no_clean_instance",
+   "countqa_0372_8b50797b": "no_clean_instance",
+   "countqa_0384_d5af6452": "no_clean_instance",
+   "countqa_0391_8b6bc632": "no_clean_instance",
+   "countqa_0394_a24a4e08": "no_clean_instance",
+   "countqa_0395_4a72fba4": "no_clean_instance",
+   "countqa_0409_24681fa4": "no_clean_instance",
+   "countqa_0419_a0bf1c20": "no_clean_instance",
+   "countqa_0435_a137c5aa": "no_clean_instance",
+   "countqa_0439_dc2de3b5": "no_clean_instance",
+   "countqa_0442_02f3e69a": "no_clean_instance",
+   "countqa_0475_76db8c64": "no_clean_instance",
+   "countqa_0476_633cc97b": "no_clean_instance",
+   "countqa_0477_54cc5742": "no_clean_instance",
+   "countqa_0497_0c83d9e8": "no_clean_instance",
+   "countqa_0504_407fd82f": "no_clean_instance",
+   "countqa_0505_974b7c38": "no_clean_instance",
+   "countqa_0530_224845e5": "no_clean_instance",
+   "countqa_0540_ca6a08bd": "no_clean_instance",
+   "countqa_0547_41beff65": "no_clean_instance",
+   "countqa_0551_159f1021": "needs_review_unresolved",
+   "countqa_0559_c131f6e0": "no_clean_instance",
+   "countqa_0567_4cffb012": "no_clean_instance",
+   "countqa_0571_14b61cbd": "no_clean_instance",
+   "countqa_0572_75926b06": "no_clean_instance",
+   "countqa_0579_74dd1ca5": "no_clean_instance",
+   "countqa_0596_d9d402a2": "no_clean_instance",
+   "countqa_0600_97998d52": "no_clean_instance",
+   "countqa_0610_85c2bcf6": "no_clean_instance",
+   "countqa_0613_dcb67cbe": "no_clean_instance",
+   "countqa_0616_b2dae42b": "no_clean_instance",
+   "countqa_0619_09cd1372": "no_clean_instance",
+   "countqa_0620_07c2794d": "no_clean_instance",
+   "countqa_0622_57bfd790": "no_clean_instance",
+   "countqa_0627_3f7bf944": "no_clean_instance",
+   "countqa_0637_2c7c62a9": "no_clean_instance",
+   "countqa_0656_7c8d1673": "no_clean_instance",
+   "countqa_0658_2f841a84": "no_clean_instance",
+   "countqa_0677_ca322dc7": "no_clean_instance",
+   "countqa_0687_4a49379a": "no_clean_instance",
+   "countqa_0695_69725872": "needs_review_unresolved",
+   "countqa_0703_b29af589": "no_clean_instance",
+   "countqa_0721_146c6110": "no_clean_instance",
+   "countqa_0722_53db0f54": "no_clean_instance",
+   "countqa_0732_9a0261ca": "no_clean_instance",
+   "countqa_0736_9e87d9bd": "no_clean_instance",
+   "countqa_0741_098dd5e3": "needs_review_unresolved",
+   "countqa_0748_dcbcc30e": "needs_review_unresolved",
+   "countqa_0764_232c53ec": "needs_review_unresolved",
+   "countqa_0769_1ed6688f": "no_clean_instance",
+   "countqa_0788_1e38c3f7": "no_clean_instance",
+   "countqa_0792_38e0e0e4": "no_clean_instance",
+   "countqa_0795_7fee5507": "no_clean_instance",
+   "countqa_0798_1bde7fd1": "no_clean_instance",
+   "countqa_0799_ace02d21": "no_clean_instance",
+   "countqa_0822_027875d0": "no_clean_instance",
+   "countqa_0826_8bfc281d": "no_clean_instance",
+   "countqa_0830_0f653b66": "no_clean_instance",
+   "countqa_0831_16570c11": "no_clean_instance",
+   "countqa_0833_6d865140": "no_clean_instance",
+   "countqa_0835_57920b52": "needs_review_unresolved",
+   "countqa_0838_3273898b": "no_clean_instance",
+   "countqa_0842_b9736fc2": "no_clean_instance",
+   "countqa_0849_7a787571": "needs_review_unresolved",
+   "countqa_0859_adbc283f": "no_clean_instance",
+   "countqa_0863_04b41a9f": "no_clean_instance",
+   "countqa_0871_2505c852": "no_clean_instance",
+   "countqa_0878_edc6d9c3": "no_clean_instance",
+   "countqa_0913_7c0a0665": "no_clean_instance",
+   "countqa_0925_0cc75f48": "no_clean_instance",
+   "countqa_0930_eb68ca8b": "needs_review_unresolved",
+   "countqa_0935_462be4c0": "no_clean_instance",
+   "countqa_0936_f409bc5b": "no_clean_instance",
+   "countqa_0937_e3bff72e": "no_clean_instance",
+   "countqa_0939_f5bfb633": "no_clean_instance",
+   "countqa_0946_096c5175": "no_clean_instance",
+   "countqa_0973_2cca08f3": "no_clean_instance",
+   "countqa_0984_cea0ec3a": "no_clean_instance",
+   "countqa_0993_d6b4b469": "no_clean_instance"
+  }
+ },
+ "features": {
+  "dir": "/home/shadeform/vtb-work/counting-v3/features/countqa/gemma4_448_full",
+  "complete_json": "/home/shadeform/vtb-work/counting-v3/features/countqa/gemma4_448_full/complete.json",
+  "complete_json_sha256": "2c4ea4898fb22769c0f298dfdccc1d54f02812f0da8b7443f0373956040b5f46"
+ },
+ "protocol": {
+  "training": "none on CountQA: saved FSC-147 heads and PCA are applied frozen",
+  "frame": "letterbox (counting.letterbox_frame), whole image, fill counting.LETTERBOX_FILL",
+  "transfer_preprocessing": "CountQA answers refer to the whole image, so each kept image is placed whole on a max(w, h) square canvas (counting.letterbox_frame, integer centring offsets) filled with counting.LETTERBOX_FILL and saved as PNG at native resolution; the adapter then resizes that square to the benchmark resolution. FSC-147 heads were trained on the central min-side square (counting.centre_crop_frame), so CountQA adds padding the heads never saw and a different object scale; predicted density is summed only over the valid (non-padding) area, counting.masked_count(density, counting.coverage(frame.valid, 64)). Exemplar boxes are mapped with frame.boxes, never centre-cropped.",
+  "count": "counting.masked_count(density, counting.coverage(frame.valid, 64))",
+  "prototype_valid": "counting.token_valid(frame.valid, side, grid_extent) at the token grid",
+  "exemplars": "none; scored on the AI-boxed image IDs only",
+  "exact_match": "floor(pred + 0.5) == integer answer",
+  "bins": "counting.count_bin of the true answer",
+  "rmse": "mean over seeds of each seed's sqrt(mean sq_error); rmse_pooled pools seed x image rows",
+  "numerics": "readouts trained with cuDNN TF32 convolutions on GPU; this run's device may differ, so transfer parity with training is approximate at float32 rounding",
+  "seeds": [
+   0,
+   1,
+   2
+  ],
+  "bootstrap": {
+   "function": "vtb.geometry_bootstrap.paired_metric_bootstrap",
+   "pairing": "identical image IDs; seed k with seed k; per-image seed-mean metric",
+   "resamples": 10000,
+   "confidence": 0.95,
+   "interval": "percentile",
+   "bootstrap_seed": 0,
+   "abs_error_difference": "second_minus_first (positive: first has lower error)",
+   "exact_match_difference": "first_minus_second"
+  }
+ },
+ "cells": [
+  {
+   "key": "tower_L27",
+   "stage": "tower",
+   "layer": 27,
+   "readout_dir": "/home/shadeform/vtb-work/counting-v3/readouts/count-v4/gemma4/free_raw/tower_L27",
+   "model_id": "immanuelpeter/Gemma4-31B-Vision",
+   "relative_depth": "1.0000",
+   "tokens_per_image": 900,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "metrics": {
+    "images": 325,
+    "seeds": 3,
+    "mae": 7.864622484598405,
+    "rmse": 24.268232536767545,
+    "rmse_pooled": 24.26843105780833,
+    "exact_match": 0.06666666666666667,
+    "mean_signed_error": 0.678983903787075,
+    "mae_by_seed": [
+     8.026358355375436,
+     7.852878806040837,
+     7.714630292378939
+    ],
+    "rmse_by_seed": [
+     24.23491405422121,
+     24.40159967194704,
+     24.16818388413439
+    ],
+    "exact_match_by_seed": [
+     0.06769230769230769,
+     0.07076923076923076,
+     0.06153846153846154
+    ],
+    "by_bin": {
+     "le50": {
+      "images": 321,
+      "mae": 6.39589662715282,
+      "rmse": 10.439385726036782,
+      "exact_match": 0.06749740394600208
+     },
+     "50to200": {
+      "images": 3,
+      "mae": 38.98402796851264,
+      "rmse": 49.7549425782253,
+      "exact_match": 0.0
+     },
+     "gt200": {
+      "images": 1,
+      "mae": 385.9674062728882,
+      "rmse": 385.9674062728882,
+      "exact_match": 0.0
+     }
+    }
+   },
+   "seed_readouts": [
+    {
+     "seed": 0,
+     "frozen_state_sha256": "dfa7cb4866aa145c88a6edd0a7daccceceb97cdcc697d2f6653bb43c3658fb9b",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "777854bbaa6d685384a96b257804f9716aa58b91",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/gemma4_448_full",
+      "feature_cache_sha256": "d52e6794eeb369b4a42b2c03383f6c97b2e78e49dbc8b34c9bd11071a9240d56",
+      "grid": 64,
+      "grid_extent": 1.0714285714285714,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "60c1f2d875bb71da01960e6815f069ef04c8fcf4ee3bbe9af5d8789c3bddcfdd",
+      "input_dim": 1152,
+      "layer": 27,
+      "learning_rate": 0.0003,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/Gemma4-31B-Vision",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 0,
+      "stage": "tower",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 900,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 1,
+     "frozen_state_sha256": "658f2ab9a183feefed642e0eee2156cb18daada682f071e3e46643beb5b1bd97",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "777854bbaa6d685384a96b257804f9716aa58b91",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/gemma4_448_full",
+      "feature_cache_sha256": "d52e6794eeb369b4a42b2c03383f6c97b2e78e49dbc8b34c9bd11071a9240d56",
+      "grid": 64,
+      "grid_extent": 1.0714285714285714,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "60c1f2d875bb71da01960e6815f069ef04c8fcf4ee3bbe9af5d8789c3bddcfdd",
+      "input_dim": 1152,
+      "layer": 27,
+      "learning_rate": 0.0003,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/Gemma4-31B-Vision",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 1,
+      "stage": "tower",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 900,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 2,
+     "frozen_state_sha256": "d6939c6870f3ee307ba925d2f9f29421a8b647cf812cc2c5844b33d06c387428",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "777854bbaa6d685384a96b257804f9716aa58b91",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/gemma4_448_full",
+      "feature_cache_sha256": "d52e6794eeb369b4a42b2c03383f6c97b2e78e49dbc8b34c9bd11071a9240d56",
+      "grid": 64,
+      "grid_extent": 1.0714285714285714,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "60c1f2d875bb71da01960e6815f069ef04c8fcf4ee3bbe9af5d8789c3bddcfdd",
+      "input_dim": 1152,
+      "layer": 27,
+      "learning_rate": 0.0003,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/Gemma4-31B-Vision",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 2,
+      "stage": "tower",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 900,
+      "torch": "2.13.0+cu129"
+     }
+    }
+   ]
+  },
+  {
+   "key": "merged_L27",
+   "stage": "merged",
+   "layer": 27,
+   "readout_dir": "/home/shadeform/vtb-work/counting-v3/readouts/count-v4/gemma4/free_raw/merged_L27",
+   "model_id": "immanuelpeter/Gemma4-31B-Vision",
+   "relative_depth": "1.0000",
+   "tokens_per_image": 100,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "metrics": {
+    "images": 325,
+    "seeds": 3,
+    "mae": 9.17910589408798,
+    "rmse": 25.05815338620323,
+    "rmse_pooled": 25.061468036881767,
+    "exact_match": 0.07179487179487179,
+    "mean_signed_error": 1.742208594347422,
+    "mae_by_seed": [
+     9.685296333386347,
+     8.984018508356352,
+     8.868002840521244
+    ],
+    "rmse_by_seed": [
+     25.601526680025362,
+     24.61987546278742,
+     24.95305801579692
+    ],
+    "exact_match_by_seed": [
+     0.08,
+     0.05846153846153846,
+     0.07692307692307693
+    ],
+    "by_bin": {
+     "le50": {
+      "images": 321,
+      "mae": 7.667933976488538,
+      "rmse": 12.862536573389482,
+      "exact_match": 0.07268951194184839
+     },
+     "50to200": {
+      "images": 3,
+      "mae": 48.70751635233561,
+      "rmse": 56.6455882847283,
+      "exact_match": 0.0
+     },
+     "gt200": {
+      "images": 1,
+      "mae": 375.6800600687663,
+      "rmse": 375.6800600687663,
+      "exact_match": 0.0
+     }
+    }
+   },
+   "seed_readouts": [
+    {
+     "seed": 0,
+     "frozen_state_sha256": "8dfdee577a3fcd6c2a172eaf2d83ec35c827065c61d0329a9e4ef61dd844f6cc",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "777854bbaa6d685384a96b257804f9716aa58b91",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/gemma4_448_full",
+      "feature_cache_sha256": "d52e6794eeb369b4a42b2c03383f6c97b2e78e49dbc8b34c9bd11071a9240d56",
+      "grid": 64,
+      "grid_extent": 1.0714285714285714,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "6e20e3c6be7dae39e2606005f3f418662f242d18a34f237f37464355b5731476",
+      "input_dim": 1152,
+      "layer": 27,
+      "learning_rate": 0.001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/Gemma4-31B-Vision",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 0,
+      "stage": "merged",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 100,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 1,
+     "frozen_state_sha256": "f4767fc1670768baeeeaf899e670e20f79ed3cb6d1ed857d09f34339868987ca",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "777854bbaa6d685384a96b257804f9716aa58b91",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/gemma4_448_full",
+      "feature_cache_sha256": "d52e6794eeb369b4a42b2c03383f6c97b2e78e49dbc8b34c9bd11071a9240d56",
+      "grid": 64,
+      "grid_extent": 1.0714285714285714,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "6e20e3c6be7dae39e2606005f3f418662f242d18a34f237f37464355b5731476",
+      "input_dim": 1152,
+      "layer": 27,
+      "learning_rate": 0.001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/Gemma4-31B-Vision",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 1,
+      "stage": "merged",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 100,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 2,
+     "frozen_state_sha256": "9dbfa479dc0294ab69d53ae568d118379b24d263a7a906679f8d3435d6b91a55",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "777854bbaa6d685384a96b257804f9716aa58b91",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/gemma4_448_full",
+      "feature_cache_sha256": "d52e6794eeb369b4a42b2c03383f6c97b2e78e49dbc8b34c9bd11071a9240d56",
+      "grid": 64,
+      "grid_extent": 1.0714285714285714,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "6e20e3c6be7dae39e2606005f3f418662f242d18a34f237f37464355b5731476",
+      "input_dim": 1152,
+      "layer": 27,
+      "learning_rate": 0.001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/Gemma4-31B-Vision",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 2,
+      "stage": "merged",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 100,
+      "torch": "2.13.0+cu129"
+     }
+    }
+   ]
+  },
+  {
+   "key": "projected_L27",
+   "stage": "projected",
+   "layer": 27,
+   "readout_dir": "/home/shadeform/vtb-work/counting-v3/readouts/count-v4/gemma4/free_raw/projected_L27",
+   "model_id": "immanuelpeter/Gemma4-31B-Vision",
+   "relative_depth": "1.0000",
+   "tokens_per_image": 100,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "metrics": {
+    "images": 325,
+    "seeds": 3,
+    "mae": 8.263352132699428,
+    "rmse": 24.00160644741321,
+    "rmse_pooled": 24.01101676600059,
+    "exact_match": 0.06461538461538462,
+    "mean_signed_error": 1.2984616379860119,
+    "mae_by_seed": [
+     8.339034329927884,
+     8.098371792206397,
+     8.352650275964004
+    ],
+    "rmse_by_seed": [
+     23.128821454495387,
+     24.111799789850878,
+     24.764198097893363
+    ],
+    "exact_match_by_seed": [
+     0.06769230769230769,
+     0.07076923076923076,
+     0.055384615384615386
+    ],
+    "by_bin": {
+     "le50": {
+      "images": 321,
+      "mae": 6.746170219973983,
+      "rmse": 11.32813935105109,
+      "exact_match": 0.06542056074766354
+     },
+     "50to200": {
+      "images": 3,
+      "mae": 50.72018602159288,
+      "rmse": 59.44708315635799,
+      "exact_match": 0.0
+     },
+     "gt200": {
+      "images": 1,
+      "mae": 367.908244450887,
+      "rmse": 367.908244450887,
+      "exact_match": 0.0
+     }
+    }
+   },
+   "seed_readouts": [
+    {
+     "seed": 0,
+     "frozen_state_sha256": "0ff1d778f2d40e74e7886a683c228f19a42d85c1cb1651e33afb43c51e6159c4",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "777854bbaa6d685384a96b257804f9716aa58b91",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/gemma4_448_full",
+      "feature_cache_sha256": "d52e6794eeb369b4a42b2c03383f6c97b2e78e49dbc8b34c9bd11071a9240d56",
+      "grid": 64,
+      "grid_extent": 1.0714285714285714,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "73ef719fe754d36bf092f224aaa79ea0643e091c4e7b62e41792aaefe01da2a3",
+      "input_dim": 5376,
+      "layer": 27,
+      "learning_rate": 0.0003,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/Gemma4-31B-Vision",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 0,
+      "stage": "projected",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 100,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 1,
+     "frozen_state_sha256": "974b1f7b9dc54e8d00e4697b7e7f0e96df0f83f974e8d06f547c7fcf5a02afb7",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "777854bbaa6d685384a96b257804f9716aa58b91",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/gemma4_448_full",
+      "feature_cache_sha256": "d52e6794eeb369b4a42b2c03383f6c97b2e78e49dbc8b34c9bd11071a9240d56",
+      "grid": 64,
+      "grid_extent": 1.0714285714285714,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "73ef719fe754d36bf092f224aaa79ea0643e091c4e7b62e41792aaefe01da2a3",
+      "input_dim": 5376,
+      "layer": 27,
+      "learning_rate": 0.0003,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/Gemma4-31B-Vision",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 1,
+      "stage": "projected",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 100,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 2,
+     "frozen_state_sha256": "6eae1682dff3a7415391ede159004c2077095217c5065fbd19889f0226479ce7",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "777854bbaa6d685384a96b257804f9716aa58b91",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/gemma4_448_full",
+      "feature_cache_sha256": "d52e6794eeb369b4a42b2c03383f6c97b2e78e49dbc8b34c9bd11071a9240d56",
+      "grid": 64,
+      "grid_extent": 1.0714285714285714,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "73ef719fe754d36bf092f224aaa79ea0643e091c4e7b62e41792aaefe01da2a3",
+      "input_dim": 5376,
+      "layer": 27,
+      "learning_rate": 0.0003,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/Gemma4-31B-Vision",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 2,
+      "stage": "projected",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 100,
+      "torch": "2.13.0+cu129"
+     }
+    }
+   ]
+  }
+ ],
+ "stage_differences": {
+  "tower_L27_vs_merged_L27": {
+   "first": "tower_L27",
+   "second": "merged_L27",
+   "images": 325,
+   "seeds_paired": [
+    0,
+    1,
+    2
+   ],
+   "abs_error": {
+    "point_estimate": 1.3144835233688354,
+    "confidence": 0.95,
+    "lower": 0.5659820437431335,
+    "upper": 2.078589916229248,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "second_minus_first"
+   },
+   "exact_match": {
+    "point_estimate": -0.005128204822540283,
+    "confidence": 0.95,
+    "lower": -0.02769230678677559,
+    "upper": 0.017435899004340172,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second"
+   }
+  },
+  "tower_L27_vs_projected_L27": {
+   "first": "tower_L27",
+   "second": "projected_L27",
+   "images": 325,
+   "seeds_paired": [
+    0,
+    1,
+    2
+   ],
+   "abs_error": {
+    "point_estimate": 0.3987296223640442,
+    "confidence": 0.95,
+    "lower": -0.22073529660701752,
+    "upper": 1.0292648077011108,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "second_minus_first"
+   },
+   "exact_match": {
+    "point_estimate": 0.0020512831397354603,
+    "confidence": 0.95,
+    "lower": -0.022564103826880455,
+    "upper": 0.02666666731238365,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second"
+   }
+  },
+  "merged_L27_vs_projected_L27": {
+   "first": "merged_L27",
+   "second": "projected_L27",
+   "images": 325,
+   "seeds_paired": [
+    0,
+    1,
+    2
+   ],
+   "abs_error": {
+    "point_estimate": -0.9157536625862122,
+    "confidence": 0.95,
+    "lower": -1.3745523691177368,
+    "upper": -0.46420785784721375,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "second_minus_first"
+   },
+   "exact_match": {
+    "point_estimate": 0.007179487496614456,
+    "confidence": 0.95,
+    "lower": -0.015384615398943424,
+    "upper": 0.029743587598204613,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second"
+   }
+  }
+ }
+}

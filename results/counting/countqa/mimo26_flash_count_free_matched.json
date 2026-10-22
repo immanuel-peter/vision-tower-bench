@@ -1,0 +1,624 @@
+{
+ "label": "experimental, supplementary: exemplar-based frozen-feature counting transfer on a curated CountQA-derived subset; not official CountQA benchmark scores",
+ "experimental": true,
+ "supplementary": true,
+ "official_countqa_benchmark": false,
+ "not_mllm_qa": "Frozen Tower/Stage features read by FSC-147-trained count heads; not MLLM question answering and not comparable to MLLM CountQA scores.",
+ "role": "secondary (exemplar-free)",
+ "annotation": null,
+ "primary_cell": null,
+ "model": "mimo26_flash",
+ "arm": "free",
+ "variant": "matched",
+ "dataset": {
+  "name": "CountQA (curated subset)",
+  "repo": "Jayant-Sravan/CountQA",
+  "revision": "f92cc6fe46542c61e2916e3d2ae9a911e2216b1a",
+  "license": "CC-BY-4.0",
+  "citation": "Tamarapalli, Grover, Pande, Yerramilli. CountQA: How Well Do MLLMs Count in the Wild? arXiv:2508.06585 (2025). Dataset Jayant-Sravan/CountQA, CC-BY-4.0.",
+  "eligibility_sha256": "64573edf367a1bc5934fbbaa1e995dbf79ad73b1b60756953c8c6cc8f827bf14",
+  "manifest_sha256": "74ce4419307c80267109dd8c617e6a4399b58c628ec1ca3fdee9e23ce7bbffa2",
+  "exemplars_status": "pending",
+  "exemplars_sha256": "a20303519d287245f092e907d0bbd69122081bd938b086ea866993ae3efe041c",
+  "prepared_images": 439,
+  "evaluated_images": 439,
+  "excluded": {}
+ },
+ "features": {
+  "dir": "/home/shadeform/vtb-work/counting-v3/features/countqa/mimo26_flash_448_full",
+  "complete_json": "/home/shadeform/vtb-work/counting-v3/features/countqa/mimo26_flash_448_full/complete.json",
+  "complete_json_sha256": "09a9c4695453e7ee92c97110607067d245aa74c42b44275855d518ee5c9168bf"
+ },
+ "protocol": {
+  "training": "none on CountQA: saved FSC-147 heads and PCA are applied frozen",
+  "frame": "letterbox (counting.letterbox_frame), whole image, fill counting.LETTERBOX_FILL",
+  "transfer_preprocessing": "CountQA answers refer to the whole image, so each kept image is placed whole on a max(w, h) square canvas (counting.letterbox_frame, integer centring offsets) filled with counting.LETTERBOX_FILL and saved as PNG at native resolution; the adapter then resizes that square to the benchmark resolution. FSC-147 heads were trained on the central min-side square (counting.centre_crop_frame), so CountQA adds padding the heads never saw and a different object scale; predicted density is summed only over the valid (non-padding) area, counting.masked_count(density, counting.coverage(frame.valid, 64)). Exemplar boxes are mapped with frame.boxes, never centre-cropped.",
+  "count": "counting.masked_count(density, counting.coverage(frame.valid, 64))",
+  "prototype_valid": "counting.token_valid(frame.valid, side, grid_extent) at the token grid",
+  "exemplars": "none",
+  "exact_match": "floor(pred + 0.5) == integer answer",
+  "bins": "counting.count_bin of the true answer",
+  "rmse": "mean over seeds of each seed's sqrt(mean sq_error); rmse_pooled pools seed x image rows",
+  "numerics": "readouts trained with cuDNN TF32 convolutions on GPU; this run's device may differ, so transfer parity with training is approximate at float32 rounding",
+  "seeds": [
+   0,
+   1,
+   2
+  ],
+  "bootstrap": {
+   "function": "vtb.geometry_bootstrap.paired_metric_bootstrap",
+   "pairing": "identical image IDs; seed k with seed k; per-image seed-mean metric",
+   "resamples": 10000,
+   "confidence": 0.95,
+   "interval": "percentile",
+   "bootstrap_seed": 0,
+   "abs_error_difference": "second_minus_first (positive: first has lower error)",
+   "exact_match_difference": "first_minus_second"
+  }
+ },
+ "cells": [
+  {
+   "key": "tower_L28",
+   "stage": "tower",
+   "layer": 28,
+   "readout_dir": "/home/shadeform/vtb-work/counting-v3/readouts/count-v4/mimo26_flash/free_matched/tower_L28",
+   "model_id": "immanuelpeter/MiMoViT-2.6-Flash",
+   "relative_depth": "1.0000",
+   "tokens_per_image": 784,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "metrics": {
+    "images": 439,
+    "seeds": 3,
+    "mae": 10.759810518657247,
+    "rmse": 23.439542822870767,
+    "rmse_pooled": 23.443993690354826,
+    "exact_match": 0.04100227790432802,
+    "mean_signed_error": 7.413701368084258,
+    "mae_by_seed": [
+     10.456545554967024,
+     10.432750821928229,
+     11.390135179076488
+    ],
+    "rmse_by_seed": [
+     23.068395933929143,
+     23.167190397327406,
+     24.083042137355758
+    ],
+    "exact_match_by_seed": [
+     0.02733485193621868,
+     0.0387243735763098,
+     0.05694760820045558
+    ],
+    "by_bin": {
+     "le50": {
+      "images": 435,
+      "mae": 9.87696354233899,
+      "rmse": 15.538601166870592,
+      "exact_match": 0.041379310344827586
+     },
+     "50to200": {
+      "images": 3,
+      "mae": 20.422450595431858,
+      "rmse": 27.650708087905496,
+      "exact_match": 0.0
+     },
+     "gt200": {
+      "images": 1,
+      "mae": 365.8103249867757,
+      "rmse": 365.8103249867757,
+      "exact_match": 0.0
+     }
+    }
+   },
+   "seed_readouts": [
+    {
+     "seed": 0,
+     "frozen_state_sha256": "6b59a113be5d6ef732c203391bafac6249157425562eb87b4c9a85c9d73ea295",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "matched",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/mimo26_flash_448_full",
+      "feature_cache_sha256": "8586b9b48e43edd4f1b42c5c2d12708d8fc910c734d97fd10d8a3c3f3ff8353d",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "d0346d185c80a0c6ac3000fb708feee94ebcf40d0e42b4217a91b1e4e46ace14",
+      "input_dim": 512,
+      "layer": 28,
+      "learning_rate": 1e-05,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/MiMoViT-2.6-Flash",
+      "pca": true,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 0,
+      "stage": "tower",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 784,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 1,
+     "frozen_state_sha256": "83a64e0410cfe2c18a469599401f23be198ae40f53e8610c5ad9139659615a18",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "matched",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/mimo26_flash_448_full",
+      "feature_cache_sha256": "8586b9b48e43edd4f1b42c5c2d12708d8fc910c734d97fd10d8a3c3f3ff8353d",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "d0346d185c80a0c6ac3000fb708feee94ebcf40d0e42b4217a91b1e4e46ace14",
+      "input_dim": 512,
+      "layer": 28,
+      "learning_rate": 1e-05,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/MiMoViT-2.6-Flash",
+      "pca": true,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 1,
+      "stage": "tower",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 784,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 2,
+     "frozen_state_sha256": "d21ab382c785c9a24ac7614d9dbfc286356c359a5607e0f1a9729ca46e4d05c6",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "matched",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/mimo26_flash_448_full",
+      "feature_cache_sha256": "8586b9b48e43edd4f1b42c5c2d12708d8fc910c734d97fd10d8a3c3f3ff8353d",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "d0346d185c80a0c6ac3000fb708feee94ebcf40d0e42b4217a91b1e4e46ace14",
+      "input_dim": 512,
+      "layer": 28,
+      "learning_rate": 1e-05,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/MiMoViT-2.6-Flash",
+      "pca": true,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 2,
+      "stage": "tower",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 784,
+      "torch": "2.13.0+cu129"
+     }
+    }
+   ]
+  },
+  {
+   "key": "merged_L28",
+   "stage": "merged",
+   "layer": 28,
+   "readout_dir": "/home/shadeform/vtb-work/counting-v3/readouts/count-v4/mimo26_flash/free_matched/merged_L28",
+   "model_id": "immanuelpeter/MiMoViT-2.6-Flash",
+   "relative_depth": "1.0000",
+   "tokens_per_image": 196,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "metrics": {
+    "images": 439,
+    "seeds": 3,
+    "mae": 7.424894300662123,
+    "rmse": 21.564863645746133,
+    "rmse_pooled": 21.565745818274618,
+    "exact_match": 0.09719058466211086,
+    "mean_signed_error": 2.6973233230202687,
+    "mae_by_seed": [
+     7.383666900404493,
+     7.274815541465082,
+     7.616200460116793
+    ],
+    "rmse_by_seed": [
+     21.825717921440916,
+     21.356723939110438,
+     21.512149076687052
+    ],
+    "exact_match_by_seed": [
+     0.10250569476082004,
+     0.0979498861047836,
+     0.09111617312072894
+    ],
+    "by_bin": {
+     "le50": {
+      "images": 435,
+      "mae": 6.503725145054959,
+      "rmse": 14.576690549019858,
+      "exact_match": 0.09731800766283524
+     },
+     "50to200": {
+      "images": 3,
+      "mae": 34.78516048855252,
+      "rmse": 42.426193930888594,
+      "exact_match": 0.1111111111111111
+     },
+     "gt200": {
+      "images": 1,
+      "mae": 326.05267842610675,
+      "rmse": 326.05267842610675,
+      "exact_match": 0.0
+     }
+    }
+   },
+   "seed_readouts": [
+    {
+     "seed": 0,
+     "frozen_state_sha256": "a441457de4ca1250ec75b6044354badc75def535666ec32e5679cdc3f44850a4",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "matched",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/mimo26_flash_448_full",
+      "feature_cache_sha256": "8586b9b48e43edd4f1b42c5c2d12708d8fc910c734d97fd10d8a3c3f3ff8353d",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "f3d0d67bbbaaccf383e1116a40f42baab9e5103673c50b2f978a74c8c4e66006",
+      "input_dim": 512,
+      "layer": 28,
+      "learning_rate": 0.003,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/MiMoViT-2.6-Flash",
+      "pca": true,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 0,
+      "stage": "merged",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 196,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 1,
+     "frozen_state_sha256": "d4c743c25ebbce7fd4bd5a2ef171d4de7305912677971328c3503c89e82cfd39",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "matched",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/mimo26_flash_448_full",
+      "feature_cache_sha256": "8586b9b48e43edd4f1b42c5c2d12708d8fc910c734d97fd10d8a3c3f3ff8353d",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "f3d0d67bbbaaccf383e1116a40f42baab9e5103673c50b2f978a74c8c4e66006",
+      "input_dim": 512,
+      "layer": 28,
+      "learning_rate": 0.003,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/MiMoViT-2.6-Flash",
+      "pca": true,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 1,
+      "stage": "merged",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 196,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 2,
+     "frozen_state_sha256": "dba42783689adf3f2b6b6ed1533d0bbdab74f11edb36af6080c4b5fb1cf894ff",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "matched",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/mimo26_flash_448_full",
+      "feature_cache_sha256": "8586b9b48e43edd4f1b42c5c2d12708d8fc910c734d97fd10d8a3c3f3ff8353d",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "f3d0d67bbbaaccf383e1116a40f42baab9e5103673c50b2f978a74c8c4e66006",
+      "input_dim": 512,
+      "layer": 28,
+      "learning_rate": 0.003,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/MiMoViT-2.6-Flash",
+      "pca": true,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 2,
+      "stage": "merged",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 196,
+      "torch": "2.13.0+cu129"
+     }
+    }
+   ]
+  },
+  {
+   "key": "projected_L28",
+   "stage": "projected",
+   "layer": 28,
+   "readout_dir": "/home/shadeform/vtb-work/counting-v3/readouts/count-v4/mimo26_flash/free_matched/projected_L28",
+   "model_id": "immanuelpeter/MiMoViT-2.6-Flash",
+   "relative_depth": "1.0000",
+   "tokens_per_image": 196,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "metrics": {
+    "images": 439,
+    "seeds": 3,
+    "mae": 7.282132934781758,
+    "rmse": 20.621022587402354,
+    "rmse_pooled": 20.63207080722162,
+    "exact_match": 0.08807896735003796,
+    "mean_signed_error": 3.575346305502484,
+    "mae_by_seed": [
+     7.396996171164893,
+     7.086087386537521,
+     7.363315246642858
+    ],
+    "rmse_by_seed": [
+     20.561990489884987,
+     19.825283357674603,
+     21.47579391464748
+    ],
+    "exact_match_by_seed": [
+     0.0774487471526196,
+     0.10250569476082004,
+     0.08428246013667426
+    ],
+    "by_bin": {
+     "le50": {
+      "images": 435,
+      "mae": 6.497298766461369,
+      "rmse": 15.06602816370588,
+      "exact_match": 0.08888888888888889
+     },
+     "50to200": {
+      "images": 3,
+      "mae": 26.564342074924046,
+      "rmse": 32.98706865001878,
+      "exact_match": 0.0
+     },
+     "gt200": {
+      "images": 1,
+      "mae": 290.83836873372394,
+      "rmse": 290.83836873372394,
+      "exact_match": 0.0
+     }
+    }
+   },
+   "seed_readouts": [
+    {
+     "seed": 0,
+     "frozen_state_sha256": "ea9b45d844b94a69ac41fcdb4c5100b5d6757519d75e91b5db276d2c1720abf9",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "matched",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/mimo26_flash_448_full",
+      "feature_cache_sha256": "8586b9b48e43edd4f1b42c5c2d12708d8fc910c734d97fd10d8a3c3f3ff8353d",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "9f24d6aae90d917958dc8c2f7fff99d387325e42bd39d549bed42f7c1124dcfa",
+      "input_dim": 512,
+      "layer": 28,
+      "learning_rate": 0.001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/MiMoViT-2.6-Flash",
+      "pca": true,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 0,
+      "stage": "projected",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 196,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 1,
+     "frozen_state_sha256": "6ffb64db7009aa9652370499fb556d5849c95786eac1057a15230f034c1fc388",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "matched",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/mimo26_flash_448_full",
+      "feature_cache_sha256": "8586b9b48e43edd4f1b42c5c2d12708d8fc910c734d97fd10d8a3c3f3ff8353d",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "9f24d6aae90d917958dc8c2f7fff99d387325e42bd39d549bed42f7c1124dcfa",
+      "input_dim": 512,
+      "layer": 28,
+      "learning_rate": 0.001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/MiMoViT-2.6-Flash",
+      "pca": true,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 1,
+      "stage": "projected",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 196,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 2,
+     "frozen_state_sha256": "b377075d82d23490faeb51f33d050ad7e7ec92e1db47369599d5100c57c02923",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "matched",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/mimo26_flash_448_full",
+      "feature_cache_sha256": "8586b9b48e43edd4f1b42c5c2d12708d8fc910c734d97fd10d8a3c3f3ff8353d",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "9f24d6aae90d917958dc8c2f7fff99d387325e42bd39d549bed42f7c1124dcfa",
+      "input_dim": 512,
+      "layer": 28,
+      "learning_rate": 0.001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/MiMoViT-2.6-Flash",
+      "pca": true,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 2,
+      "stage": "projected",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 196,
+      "torch": "2.13.0+cu129"
+     }
+    }
+   ]
+  }
+ ],
+ "stage_differences": {
+  "tower_L28_vs_merged_L28": {
+   "first": "tower_L28",
+   "second": "merged_L28",
+   "images": 439,
+   "seeds_paired": [
+    0,
+    1,
+    2
+   ],
+   "abs_error": {
+    "point_estimate": -3.33491587638855,
+    "confidence": 0.95,
+    "lower": -4.093883514404297,
+    "upper": -2.584771156311035,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "second_minus_first"
+   },
+   "exact_match": {
+    "point_estimate": -0.05618831142783165,
+    "confidence": 0.95,
+    "lower": -0.07820805162191391,
+    "upper": -0.03416856750845909,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second"
+   }
+  },
+  "tower_L28_vs_projected_L28": {
+   "first": "tower_L28",
+   "second": "projected_L28",
+   "images": 439,
+   "seeds_paired": [
+    0,
+    1,
+    2
+   ],
+   "abs_error": {
+    "point_estimate": -3.477677583694458,
+    "confidence": 0.95,
+    "lower": -4.3142852783203125,
+    "upper": -2.629197597503662,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "second_minus_first"
+   },
+   "exact_match": {
+    "point_estimate": -0.047076690942049026,
+    "confidence": 0.95,
+    "lower": -0.06757782399654388,
+    "upper": -0.02581625059247017,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second"
+   }
+  },
+  "merged_L28_vs_projected_L28": {
+   "first": "merged_L28",
+   "second": "projected_L28",
+   "images": 439,
+   "seeds_paired": [
+    0,
+    1,
+    2
+   ],
+   "abs_error": {
+    "point_estimate": -0.14276140928268433,
+    "confidence": 0.95,
+    "lower": -0.5293735861778259,
+    "upper": 0.21984520554542542,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "second_minus_first"
+   },
+   "exact_match": {
+    "point_estimate": 0.009111616760492325,
+    "confidence": 0.95,
+    "lower": -0.014426727779209614,
+    "upper": 0.03264996036887169,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second"
+   }
+  }
+ }
+}

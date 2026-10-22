@@ -142,3 +142,27 @@ Stage differences use the paired image bootstrap (`vtb.geometry_bootstrap.paired
 Images are identical across Stages, seed k is paired with seed k, and each image's metric is
 averaged over seeds. It draws 10,000 resamples with bootstrap seed 0 and reports a 95%
 percentile interval.
+
+## Results (experimental, supplementary)
+
+Every result in this section is experimental and supplementary. None is an official
+CountQA benchmark score.
+
+All 16 Towers have results:
+
+- Exemplar-free on all 439 questions, at every final Stage: `<model>_count_free_<raw|matched>.json`.
+  Paired Stage and capacity intervals are in `../bootstrap/countqa/`. Per-bin rows are
+  in `../tables/` (435 of 439 answers fall in `le50`).
+- AI-exemplar protocol on the 325 AI-boxed questions, both arms:
+  `ai_exemplars/<model>_count_<arm>_<raw|matched>.json`. Paired intervals, including
+  conditioned versus exemplar-free on identical IDs, are in
+  `../bootstrap/ai_exemplars/countqa/`. The table is `ai_exemplars/count_table.md`.
+
+On the 325 AI-boxed questions, the AI exemplar never clearly lowers the Tower's error
+under 512-dim reduction. There the exemplar-free arm is better for 5 Towers and 11
+are unresolved. With full-width features it is better for 5 Towers, the exemplar for
+1, and 10 are unresolved.
+
+This adds to the FSC-147 finding that the one-channel exemplar conditioning rarely
+helps. It cannot separate a weak conditioning design from AI box errors or the
+transfer gap.

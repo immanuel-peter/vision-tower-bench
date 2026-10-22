@@ -1,0 +1,893 @@
+{
+ "label": "experimental, supplementary: FSC-147-trained frozen-feature counting transfer on a CountQA-derived subset with AI-authored exemplar boxes; not official CountQA benchmark scores and not comparable to published CountQA MLLM results",
+ "experimental": true,
+ "supplementary": true,
+ "official_countqa_benchmark": false,
+ "not_mllm_qa": "Frozen Tower/Stage features read by FSC-147-trained count heads; not MLLM question answering and not comparable to MLLM CountQA scores.",
+ "role": "experimental, supplementary: exemplar-free on the AI-boxed IDs, paired with the conditioned arm",
+ "annotation": {
+  "protocol": "countqa-ai-exemplars-v1",
+  "annotation_protocol": "user-authorized-ai-visual-exemplars-v1",
+  "annotation_source": "ai",
+  "annotation_model": "gpt-6-astra",
+  "human_reviewed": false,
+  "approved_by": null,
+  "annotation_revision": 2,
+  "exemplars_sha256": "1670f4f7ebd7905cc42084e436885dfeed7f53013f46b0de60754927c599c0f0",
+  "source_export_sha256": "3c113eae4731b436cf867c0fea69d08e6c5b9bf0b998f71518c4cabd2124b382",
+  "review_coverage": {
+   "inspected": 439,
+   "boxed_overlay_rechecked_by_ai": 325,
+   "independent_ai_adjudication": 26,
+   "parent_ai_spot_check": [
+    {
+     "question_id": "countqa_0536_efaf8d4d_q0",
+     "status": "boxed",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0902_bee4d7fb_q0",
+     "status": "boxed",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0429_ab54ed50_q0",
+     "status": "boxed",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0250_1ddeec64_q0",
+     "status": "boxed",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0058_477ab87e_q0",
+     "status": "boxed",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0365_c0cfde27_q0",
+     "status": "boxed",
+     "parent_visual_review": "needs_adjudication",
+     "parent_note": "Lower-left storage box may be clipped at left frame edge. Independent adjudication requested."
+    },
+    {
+     "question_id": "countqa_0345_4fb02d46_q0",
+     "status": "boxed",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0351_b2017c19_q0",
+     "status": "boxed",
+     "parent_visual_review": "needs_adjudication",
+     "parent_note": "Top platter may be clipped at left image edge; lower box boundary may include next platter. Independent adjudication requested."
+    },
+    {
+     "question_id": "countqa_0007_d6d9a1fb_q0",
+     "status": "boxed",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0841_38c5fb6f_q0",
+     "status": "boxed",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0163_84a1b67c_q0",
+     "status": "boxed",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0074_7be47cb7_q0",
+     "status": "boxed",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0299_b49bbf57_q0",
+     "status": "no_clean_instance",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0273_c1632c41_q0",
+     "status": "no_clean_instance",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0442_02f3e69a_q0",
+     "status": "no_clean_instance",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0925_0cc75f48_q0",
+     "status": "no_clean_instance",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0993_d6b4b469_q0",
+     "status": "no_clean_instance",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0937_e3bff72e_q0",
+     "status": "no_clean_instance",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0835_57920b52_q0",
+     "status": "needs_review",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0419_a0bf1c20_q0",
+     "status": "needs_review",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0553_08e5ca29_q0",
+     "status": "needs_review",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0530_224845e5_q0",
+     "status": "needs_review",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0792_38e0e0e4_q0",
+     "status": "needs_review",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0878_edc6d9c3_q0",
+     "status": "needs_review",
+     "parent_visual_review": "spot_check_consistent"
+    }
+   ],
+   "human_reviewed": 0,
+   "answers_used_for_decisions": false
+  },
+  "selection": {
+   "questions": 439,
+   "included_boxed": 325,
+   "excluded_no_clean_instance": 105,
+   "excluded_needs_review_unresolved": 9
+  },
+  "included_image_ids_sha256": "fa5eb3d730e81373465f8d8590499997502093056f1f19a21a6e806a6fbd890d",
+  "limitations": [
+   "FSC-147 to CountQA transfer: heads trained on centre crops read letterboxed whole images with padding and smaller objects.",
+   "Exemplars are AI-selected (gpt-6-astra) and not human-reviewed; box errors and target-identity errors are possible.",
+   "Only questions with a clean exemplar are included; this may systematically exclude hard images.",
+   "Sensitivity to the choice of exemplar and stability of model rankings under alternative exemplars or protocol choices are not established."
+  ]
+ },
+ "primary_cell": null,
+ "model": "gemma4",
+ "arm": "free",
+ "variant": "matched",
+ "dataset": {
+  "name": "CountQA (curated subset)",
+  "repo": "Jayant-Sravan/CountQA",
+  "revision": "f92cc6fe46542c61e2916e3d2ae9a911e2216b1a",
+  "license": "CC-BY-4.0",
+  "citation": "Tamarapalli, Grover, Pande, Yerramilli. CountQA: How Well Do MLLMs Count in the Wild? arXiv:2508.06585 (2025). Dataset Jayant-Sravan/CountQA, CC-BY-4.0.",
+  "eligibility_sha256": "64573edf367a1bc5934fbbaa1e995dbf79ad73b1b60756953c8c6cc8f827bf14",
+  "manifest_sha256": "74ce4419307c80267109dd8c617e6a4399b58c628ec1ca3fdee9e23ce7bbffa2",
+  "exemplars_status": "ai_unreviewed",
+  "exemplars_sha256": "1670f4f7ebd7905cc42084e436885dfeed7f53013f46b0de60754927c599c0f0",
+  "prepared_images": 439,
+  "evaluated_images": 325,
+  "excluded": {
+   "countqa_0038_522a4605": "no_clean_instance",
+   "countqa_0057_68482c1d": "no_clean_instance",
+   "countqa_0061_8e460d15": "no_clean_instance",
+   "countqa_0078_18f9ddc4": "no_clean_instance",
+   "countqa_0093_f19d1c0d": "needs_review_unresolved",
+   "countqa_0099_a6e121eb": "no_clean_instance",
+   "countqa_0108_86710d4b": "no_clean_instance",
+   "countqa_0112_3e2335ec": "no_clean_instance",
+   "countqa_0114_e9021f2a": "no_clean_instance",
+   "countqa_0122_822eedd4": "no_clean_instance",
+   "countqa_0144_27d24401": "no_clean_instance",
+   "countqa_0145_6745f72b": "no_clean_instance",
+   "countqa_0152_0ca64dee": "no_clean_instance",
+   "countqa_0189_c91f86ae": "no_clean_instance",
+   "countqa_0191_53ccdde4": "no_clean_instance",
+   "countqa_0195_ef1dacd2": "no_clean_instance",
+   "countqa_0197_5574c68e": "no_clean_instance",
+   "countqa_0199_b8a206e6": "no_clean_instance",
+   "countqa_0202_5bdaaffe": "no_clean_instance",
+   "countqa_0210_fe19c0d2": "no_clean_instance",
+   "countqa_0212_b64811e2": "no_clean_instance",
+   "countqa_0213_d7f8cbd7": "no_clean_instance",
+   "countqa_0235_0ae34970": "no_clean_instance",
+   "countqa_0262_643c738c": "no_clean_instance",
+   "countqa_0267_9f7525a2": "no_clean_instance",
+   "countqa_0268_cd28f81a": "no_clean_instance",
+   "countqa_0273_c1632c41": "no_clean_instance",
+   "countqa_0299_b49bbf57": "no_clean_instance",
+   "countqa_0312_96d9140e": "no_clean_instance",
+   "countqa_0322_45f6fd15": "no_clean_instance",
+   "countqa_0351_b2017c19": "no_clean_instance",
+   "countqa_0358_b10b08af": "no_clean_instance",
+   "countqa_0360_aca3e155": "no_clean_instance",
+   "countqa_0362_e272c4c5": "no_clean_instance",
+   "countqa_0365_c0cfde27": "no_clean_instance",
+   "countqa_0371_fc0d4886": "no_clean_instance",
+   "countqa_0372_8b50797b": "no_clean_instance",
+   "countqa_0384_d5af6452": "no_clean_instance",
+   "countqa_0391_8b6bc632": "no_clean_instance",
+   "countqa_0394_a24a4e08": "no_clean_instance",
+   "countqa_0395_4a72fba4": "no_clean_instance",
+   "countqa_0409_24681fa4": "no_clean_instance",
+   "countqa_0419_a0bf1c20": "no_clean_instance",
+   "countqa_0435_a137c5aa": "no_clean_instance",
+   "countqa_0439_dc2de3b5": "no_clean_instance",
+   "countqa_0442_02f3e69a": "no_clean_instance",
+   "countqa_0475_76db8c64": "no_clean_instance",
+   "countqa_0476_633cc97b": "no_clean_instance",
+   "countqa_0477_54cc5742": "no_clean_instance",
+   "countqa_0497_0c83d9e8": "no_clean_instance",
+   "countqa_0504_407fd82f": "no_clean_instance",
+   "countqa_0505_974b7c38": "no_clean_instance",
+   "countqa_0530_224845e5": "no_clean_instance",
+   "countqa_0540_ca6a08bd": "no_clean_instance",
+   "countqa_0547_41beff65": "no_clean_instance",
+   "countqa_0551_159f1021": "needs_review_unresolved",
+   "countqa_0559_c131f6e0": "no_clean_instance",
+   "countqa_0567_4cffb012": "no_clean_instance",
+   "countqa_0571_14b61cbd": "no_clean_instance",
+   "countqa_0572_75926b06": "no_clean_instance",
+   "countqa_0579_74dd1ca5": "no_clean_instance",
+   "countqa_0596_d9d402a2": "no_clean_instance",
+   "countqa_0600_97998d52": "no_clean_instance",
+   "countqa_0610_85c2bcf6": "no_clean_instance",
+   "countqa_0613_dcb67cbe": "no_clean_instance",
+   "countqa_0616_b2dae42b": "no_clean_instance",
+   "countqa_0619_09cd1372": "no_clean_instance",
+   "countqa_0620_07c2794d": "no_clean_instance",
+   "countqa_0622_57bfd790": "no_clean_instance",
+   "countqa_0627_3f7bf944": "no_clean_instance",
+   "countqa_0637_2c7c62a9": "no_clean_instance",
+   "countqa_0656_7c8d1673": "no_clean_instance",
+   "countqa_0658_2f841a84": "no_clean_instance",
+   "countqa_0677_ca322dc7": "no_clean_instance",
+   "countqa_0687_4a49379a": "no_clean_instance",
+   "countqa_0695_69725872": "needs_review_unresolved",
+   "countqa_0703_b29af589": "no_clean_instance",
+   "countqa_0721_146c6110": "no_clean_instance",
+   "countqa_0722_53db0f54": "no_clean_instance",
+   "countqa_0732_9a0261ca": "no_clean_instance",
+   "countqa_0736_9e87d9bd": "no_clean_instance",
+   "countqa_0741_098dd5e3": "needs_review_unresolved",
+   "countqa_0748_dcbcc30e": "needs_review_unresolved",
+   "countqa_0764_232c53ec": "needs_review_unresolved",
+   "countqa_0769_1ed6688f": "no_clean_instance",
+   "countqa_0788_1e38c3f7": "no_clean_instance",
+   "countqa_0792_38e0e0e4": "no_clean_instance",
+   "countqa_0795_7fee5507": "no_clean_instance",
+   "countqa_0798_1bde7fd1": "no_clean_instance",
+   "countqa_0799_ace02d21": "no_clean_instance",
+   "countqa_0822_027875d0": "no_clean_instance",
+   "countqa_0826_8bfc281d": "no_clean_instance",
+   "countqa_0830_0f653b66": "no_clean_instance",
+   "countqa_0831_16570c11": "no_clean_instance",
+   "countqa_0833_6d865140": "no_clean_instance",
+   "countqa_0835_57920b52": "needs_review_unresolved",
+   "countqa_0838_3273898b": "no_clean_instance",
+   "countqa_0842_b9736fc2": "no_clean_instance",
+   "countqa_0849_7a787571": "needs_review_unresolved",
+   "countqa_0859_adbc283f": "no_clean_instance",
+   "countqa_0863_04b41a9f": "no_clean_instance",
+   "countqa_0871_2505c852": "no_clean_instance",
+   "countqa_0878_edc6d9c3": "no_clean_instance",
+   "countqa_0913_7c0a0665": "no_clean_instance",
+   "countqa_0925_0cc75f48": "no_clean_instance",
+   "countqa_0930_eb68ca8b": "needs_review_unresolved",
+   "countqa_0935_462be4c0": "no_clean_instance",
+   "countqa_0936_f409bc5b": "no_clean_instance",
+   "countqa_0937_e3bff72e": "no_clean_instance",
+   "countqa_0939_f5bfb633": "no_clean_instance",
+   "countqa_0946_096c5175": "no_clean_instance",
+   "countqa_0973_2cca08f3": "no_clean_instance",
+   "countqa_0984_cea0ec3a": "no_clean_instance",
+   "countqa_0993_d6b4b469": "no_clean_instance"
+  }
+ },
+ "features": {
+  "dir": "/home/shadeform/vtb-work/counting-v3/features/countqa/gemma4_448_full",
+  "complete_json": "/home/shadeform/vtb-work/counting-v3/features/countqa/gemma4_448_full/complete.json",
+  "complete_json_sha256": "2c4ea4898fb22769c0f298dfdccc1d54f02812f0da8b7443f0373956040b5f46"
+ },
+ "protocol": {
+  "training": "none on CountQA: saved FSC-147 heads and PCA are applied frozen",
+  "frame": "letterbox (counting.letterbox_frame), whole image, fill counting.LETTERBOX_FILL",
+  "transfer_preprocessing": "CountQA answers refer to the whole image, so each kept image is placed whole on a max(w, h) square canvas (counting.letterbox_frame, integer centring offsets) filled with counting.LETTERBOX_FILL and saved as PNG at native resolution; the adapter then resizes that square to the benchmark resolution. FSC-147 heads were trained on the central min-side square (counting.centre_crop_frame), so CountQA adds padding the heads never saw and a different object scale; predicted density is summed only over the valid (non-padding) area, counting.masked_count(density, counting.coverage(frame.valid, 64)). Exemplar boxes are mapped with frame.boxes, never centre-cropped.",
+  "count": "counting.masked_count(density, counting.coverage(frame.valid, 64))",
+  "prototype_valid": "counting.token_valid(frame.valid, side, grid_extent) at the token grid",
+  "exemplars": "none; scored on the AI-boxed image IDs only",
+  "exact_match": "floor(pred + 0.5) == integer answer",
+  "bins": "counting.count_bin of the true answer",
+  "rmse": "mean over seeds of each seed's sqrt(mean sq_error); rmse_pooled pools seed x image rows",
+  "numerics": "readouts trained with cuDNN TF32 convolutions on GPU; this run's device may differ, so transfer parity with training is approximate at float32 rounding",
+  "seeds": [
+   0,
+   1,
+   2
+  ],
+  "bootstrap": {
+   "function": "vtb.geometry_bootstrap.paired_metric_bootstrap",
+   "pairing": "identical image IDs; seed k with seed k; per-image seed-mean metric",
+   "resamples": 10000,
+   "confidence": 0.95,
+   "interval": "percentile",
+   "bootstrap_seed": 0,
+   "abs_error_difference": "second_minus_first (positive: first has lower error)",
+   "exact_match_difference": "first_minus_second"
+  }
+ },
+ "cells": [
+  {
+   "key": "tower_L27",
+   "stage": "tower",
+   "layer": 27,
+   "readout_dir": "/home/shadeform/vtb-work/counting-v3/readouts/count-v4/gemma4/free_matched/tower_L27",
+   "model_id": "immanuelpeter/Gemma4-31B-Vision",
+   "relative_depth": "1.0000",
+   "tokens_per_image": 900,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "metrics": {
+    "images": 325,
+    "seeds": 3,
+    "mae": 7.644365113576253,
+    "rmse": 23.723700142769815,
+    "rmse_pooled": 23.72431673041292,
+    "exact_match": 0.055384615384615386,
+    "mean_signed_error": -0.12482639655088767,
+    "mae_by_seed": [
+     7.556433005883144,
+     7.572953584927779,
+     7.8037087499178375
+    ],
+    "rmse_by_seed": [
+     23.485286309084053,
+     23.80751038927169,
+     23.8783037299537
+    ],
+    "exact_match_by_seed": [
+     0.05846153846153846,
+     0.04,
+     0.06769230769230769
+    ],
+    "by_bin": {
+     "le50": {
+      "images": 321,
+      "mae": 6.212610591856738,
+      "rmse": 10.078693070784645,
+      "exact_match": 0.056074766355140186
+     },
+     "50to200": {
+      "images": 3,
+      "mae": 37.107958475748696,
+      "rmse": 47.36455106928731,
+      "exact_match": 0.0
+     },
+     "gt200": {
+      "images": 1,
+      "mae": 378.84678649902344,
+      "rmse": 378.84678649902344,
+      "exact_match": 0.0
+     }
+    }
+   },
+   "seed_readouts": [
+    {
+     "seed": 0,
+     "frozen_state_sha256": "3f043cdbe416ccd11e4fe76aa27f1293e4f6302028e9e8a1a095cef2e04ded1e",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "matched",
+      "code": "777854bbaa6d685384a96b257804f9716aa58b91",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/gemma4_448_full",
+      "feature_cache_sha256": "d52e6794eeb369b4a42b2c03383f6c97b2e78e49dbc8b34c9bd11071a9240d56",
+      "grid": 64,
+      "grid_extent": 1.0714285714285714,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "7209d4714f3e28d6c13f2a2cb8c0b23c1a7b1de0bcf30eb2e0468540a55b4a05",
+      "input_dim": 512,
+      "layer": 27,
+      "learning_rate": 0.001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/Gemma4-31B-Vision",
+      "pca": true,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 0,
+      "stage": "tower",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 900,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 1,
+     "frozen_state_sha256": "b09592b4fb105f15b9d6fc6fd82fb520a1cf7ce9c09c4858462fc432c4eebb26",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "matched",
+      "code": "777854bbaa6d685384a96b257804f9716aa58b91",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/gemma4_448_full",
+      "feature_cache_sha256": "d52e6794eeb369b4a42b2c03383f6c97b2e78e49dbc8b34c9bd11071a9240d56",
+      "grid": 64,
+      "grid_extent": 1.0714285714285714,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "7209d4714f3e28d6c13f2a2cb8c0b23c1a7b1de0bcf30eb2e0468540a55b4a05",
+      "input_dim": 512,
+      "layer": 27,
+      "learning_rate": 0.001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/Gemma4-31B-Vision",
+      "pca": true,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 1,
+      "stage": "tower",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 900,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 2,
+     "frozen_state_sha256": "9c61fd746a863f32b8f12a9dd0cbedec68f6e6f867ad748adc563ee84973415d",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "matched",
+      "code": "777854bbaa6d685384a96b257804f9716aa58b91",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/gemma4_448_full",
+      "feature_cache_sha256": "d52e6794eeb369b4a42b2c03383f6c97b2e78e49dbc8b34c9bd11071a9240d56",
+      "grid": 64,
+      "grid_extent": 1.0714285714285714,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "7209d4714f3e28d6c13f2a2cb8c0b23c1a7b1de0bcf30eb2e0468540a55b4a05",
+      "input_dim": 512,
+      "layer": 27,
+      "learning_rate": 0.001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/Gemma4-31B-Vision",
+      "pca": true,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 2,
+      "stage": "tower",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 900,
+      "torch": "2.13.0+cu129"
+     }
+    }
+   ]
+  },
+  {
+   "key": "merged_L27",
+   "stage": "merged",
+   "layer": 27,
+   "readout_dir": "/home/shadeform/vtb-work/counting-v3/readouts/count-v4/gemma4/free_matched/merged_L27",
+   "model_id": "immanuelpeter/Gemma4-31B-Vision",
+   "relative_depth": "1.0000",
+   "tokens_per_image": 100,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "metrics": {
+    "images": 325,
+    "seeds": 3,
+    "mae": 9.670210089565154,
+    "rmse": 25.070757962920847,
+    "rmse_pooled": 25.070947077376715,
+    "exact_match": 0.06051282051282051,
+    "mean_signed_error": 2.1199391179168154,
+    "mae_by_seed": [
+     9.508164167541723,
+     9.744897962866126,
+     9.757568138287617
+    ],
+    "rmse_by_seed": [
+     25.200890484145685,
+     25.04471640073212,
+     24.966667003884734
+    ],
+    "exact_match_by_seed": [
+     0.052307692307692305,
+     0.07692307692307693,
+     0.052307692307692305
+    ],
+    "by_bin": {
+     "le50": {
+      "images": 321,
+      "mae": 8.179348167728389,
+      "rmse": 13.47008958749202,
+      "exact_match": 0.0612668743509865
+     },
+     "50to200": {
+      "images": 3,
+      "mae": 49.74929089016385,
+      "rmse": 59.13940111906417,
+      "exact_match": 0.0
+     },
+     "gt200": {
+      "images": 1,
+      "mae": 367.9996445973714,
+      "rmse": 367.9996445973714,
+      "exact_match": 0.0
+     }
+    }
+   },
+   "seed_readouts": [
+    {
+     "seed": 0,
+     "frozen_state_sha256": "6c1a12609f9662e59f8490a0097cc035cbb13ac11a457b93e867998fcf356dd5",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "matched",
+      "code": "777854bbaa6d685384a96b257804f9716aa58b91",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/gemma4_448_full",
+      "feature_cache_sha256": "d52e6794eeb369b4a42b2c03383f6c97b2e78e49dbc8b34c9bd11071a9240d56",
+      "grid": 64,
+      "grid_extent": 1.0714285714285714,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "37ac72951ee5008ed836dfcfae6e560bf24f48e349744a55c8cc7583f9be4f35",
+      "input_dim": 512,
+      "layer": 27,
+      "learning_rate": 0.003,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/Gemma4-31B-Vision",
+      "pca": true,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 0,
+      "stage": "merged",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 100,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 1,
+     "frozen_state_sha256": "af0a566e5535ac947010c1d350ef939417c19ede45b34c2ec9554752234ccc59",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "matched",
+      "code": "777854bbaa6d685384a96b257804f9716aa58b91",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/gemma4_448_full",
+      "feature_cache_sha256": "d52e6794eeb369b4a42b2c03383f6c97b2e78e49dbc8b34c9bd11071a9240d56",
+      "grid": 64,
+      "grid_extent": 1.0714285714285714,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "37ac72951ee5008ed836dfcfae6e560bf24f48e349744a55c8cc7583f9be4f35",
+      "input_dim": 512,
+      "layer": 27,
+      "learning_rate": 0.003,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/Gemma4-31B-Vision",
+      "pca": true,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 1,
+      "stage": "merged",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 100,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 2,
+     "frozen_state_sha256": "09df1daa78e4449924d6b6ef188c32c662baccf2f84a931eadc7b1eed3ddd65b",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "matched",
+      "code": "777854bbaa6d685384a96b257804f9716aa58b91",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/gemma4_448_full",
+      "feature_cache_sha256": "d52e6794eeb369b4a42b2c03383f6c97b2e78e49dbc8b34c9bd11071a9240d56",
+      "grid": 64,
+      "grid_extent": 1.0714285714285714,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "37ac72951ee5008ed836dfcfae6e560bf24f48e349744a55c8cc7583f9be4f35",
+      "input_dim": 512,
+      "layer": 27,
+      "learning_rate": 0.003,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/Gemma4-31B-Vision",
+      "pca": true,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 2,
+      "stage": "merged",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 100,
+      "torch": "2.13.0+cu129"
+     }
+    }
+   ]
+  },
+  {
+   "key": "projected_L27",
+   "stage": "projected",
+   "layer": 27,
+   "readout_dir": "/home/shadeform/vtb-work/counting-v3/readouts/count-v4/gemma4/free_matched/projected_L27",
+   "model_id": "immanuelpeter/Gemma4-31B-Vision",
+   "relative_depth": "1.0000",
+   "tokens_per_image": 100,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "metrics": {
+    "images": 325,
+    "seeds": 3,
+    "mae": 8.950863392521173,
+    "rmse": 24.685398205668474,
+    "rmse_pooled": 24.68572020397663,
+    "exact_match": 0.06564102564102564,
+    "mean_signed_error": 1.066129119228094,
+    "mae_by_seed": [
+     8.940320564233339,
+     8.726486381429892,
+     9.185783231900288
+    ],
+    "rmse_by_seed": [
+     24.715516927080298,
+     24.822541906249413,
+     24.5181357836757
+    ],
+    "exact_match_by_seed": [
+     0.07076923076923076,
+     0.05846153846153846,
+     0.06769230769230769
+    ],
+    "by_bin": {
+     "le50": {
+      "images": 321,
+      "mae": 7.412956462950597,
+      "rmse": 12.312569696304465,
+      "exact_match": 0.06645898234683281
+     },
+     "50to200": {
+      "images": 3,
+      "mae": 52.36396471659342,
+      "rmse": 59.53557302814889,
+      "exact_match": 0.0
+     },
+     "gt200": {
+      "images": 1,
+      "mae": 372.3796838124593,
+      "rmse": 372.3796838124593,
+      "exact_match": 0.0
+     }
+    }
+   },
+   "seed_readouts": [
+    {
+     "seed": 0,
+     "frozen_state_sha256": "80dfd18bd0d49f6d58821eee38b9d58f214d27d372b7501f73ff6544fcac5fa1",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "matched",
+      "code": "777854bbaa6d685384a96b257804f9716aa58b91",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/gemma4_448_full",
+      "feature_cache_sha256": "d52e6794eeb369b4a42b2c03383f6c97b2e78e49dbc8b34c9bd11071a9240d56",
+      "grid": 64,
+      "grid_extent": 1.0714285714285714,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "cbba97483ff9693f0b3eb3a8aa6c00daafd2368a2c77de34369823fe6f3c34b3",
+      "input_dim": 512,
+      "layer": 27,
+      "learning_rate": 0.001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/Gemma4-31B-Vision",
+      "pca": true,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 0,
+      "stage": "projected",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 100,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 1,
+     "frozen_state_sha256": "025c65d539bc37e1c02e6d8ab350d78de88c602f0cc980b8f184b2c513b61001",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "matched",
+      "code": "777854bbaa6d685384a96b257804f9716aa58b91",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/gemma4_448_full",
+      "feature_cache_sha256": "d52e6794eeb369b4a42b2c03383f6c97b2e78e49dbc8b34c9bd11071a9240d56",
+      "grid": 64,
+      "grid_extent": 1.0714285714285714,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "cbba97483ff9693f0b3eb3a8aa6c00daafd2368a2c77de34369823fe6f3c34b3",
+      "input_dim": 512,
+      "layer": 27,
+      "learning_rate": 0.001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/Gemma4-31B-Vision",
+      "pca": true,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 1,
+      "stage": "projected",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 100,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 2,
+     "frozen_state_sha256": "4a8ca66d7911c419ce1ae928a51d410b74d20323117a4e4b6ce6db267c9328f4",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "matched",
+      "code": "777854bbaa6d685384a96b257804f9716aa58b91",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/gemma4_448_full",
+      "feature_cache_sha256": "d52e6794eeb369b4a42b2c03383f6c97b2e78e49dbc8b34c9bd11071a9240d56",
+      "grid": 64,
+      "grid_extent": 1.0714285714285714,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "cbba97483ff9693f0b3eb3a8aa6c00daafd2368a2c77de34369823fe6f3c34b3",
+      "input_dim": 512,
+      "layer": 27,
+      "learning_rate": 0.001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/Gemma4-31B-Vision",
+      "pca": true,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 2,
+      "stage": "projected",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 100,
+      "torch": "2.13.0+cu129"
+     }
+    }
+   ]
+  }
+ ],
+ "stage_differences": {
+  "tower_L27_vs_merged_L27": {
+   "first": "tower_L27",
+   "second": "merged_L27",
+   "images": 325,
+   "seeds_paired": [
+    0,
+    1,
+    2
+   ],
+   "abs_error": {
+    "point_estimate": 2.0258448123931885,
+    "confidence": 0.95,
+    "lower": 1.2762616872787476,
+    "upper": 2.8326101303100586,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "second_minus_first"
+   },
+   "exact_match": {
+    "point_estimate": -0.005128204822540283,
+    "confidence": 0.95,
+    "lower": -0.025641027837991714,
+    "upper": 0.015384615398943424,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second"
+   }
+  },
+  "tower_L27_vs_projected_L27": {
+   "first": "tower_L27",
+   "second": "projected_L27",
+   "images": 325,
+   "seeds_paired": [
+    0,
+    1,
+    2
+   ],
+   "abs_error": {
+    "point_estimate": 1.3064982891082764,
+    "confidence": 0.95,
+    "lower": 0.5887887477874756,
+    "upper": 2.0717971324920654,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "second_minus_first"
+   },
+   "exact_match": {
+    "point_estimate": -0.01025641243904829,
+    "confidence": 0.95,
+    "lower": -0.03384615108370781,
+    "upper": 0.01230769231915474,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second"
+   }
+  },
+  "merged_L27_vs_projected_L27": {
+   "first": "merged_L27",
+   "second": "projected_L27",
+   "images": 325,
+   "seeds_paired": [
+    0,
+    1,
+    2
+   ],
+   "abs_error": {
+    "point_estimate": -0.7193466424942017,
+    "confidence": 0.95,
+    "lower": -1.2737046480178833,
+    "upper": -0.17088189721107483,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "second_minus_first"
+   },
+   "exact_match": {
+    "point_estimate": -0.005128204822540283,
+    "confidence": 0.95,
+    "lower": -0.028717948123812675,
+    "upper": 0.017435899004340172,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second"
+   }
+  }
+ }
+}

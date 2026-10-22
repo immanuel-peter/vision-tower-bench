@@ -109,6 +109,62 @@ predictions are kept in the run workspace. The conditioned arm also scores
 official validation with release box 0 alone. This is a transfer diagnostic and is
 never used for selection.
 
+## Results
+
+All 116 cells are complete for the 16 Towers of the `counting_sixteen` cohort. That is
+84 exemplar-free cells and 32 exemplar-conditioned cells, checked against
+[`../manifests/expected_cells_count_v4.tsv`](../manifests/expected_cells_count_v4.tsv).
+
+Layout:
+
+- `fsc147/<model>_count_<arm>_<capacity>.json`: payloads.
+- `.predictions.tsv`: per-image test predictions for every seed.
+- `.cells/`: per-cell records with the rate search, training curves and timing.
+- `fsc147/letterbox/`: the frozen letterbox transfer check.
+- `bootstrap/fsc147/`: paired image bootstrap, 10,000 resamples with seed 0, 95%
+  percentile intervals, overall and per bin.
+- `tables/count_table.{md,tsv}`: per-bin MAE and RMSE with sample counts.
+- `fsc147/qualitative_ids.json`: the four dense test images the selection rule picks for
+  density panels. Rendered figures are not committed, and no FSC-147 pixels are published.
+
+Rate search:
+
+- In 37 cells the search first selected an edge of the six-rate grid, so it tried one
+  half-decade further out. In 30 of them that meant 1e-2 above the top edge; in the seven
+  MiMo Tower cells (four Flash, three Pro) it meant 3e-6 below the bottom edge. The added
+  rate never improved validation MAE, so these selections stay on the original grid's
+  edge, a limit of the ten-epoch budget. Two of the 30, GLM-5 free matched Tower and
+  Nemotron Omni exemplar matched Tower, finished at 1e-3 after the seed fallback below.
+- The seed-collapse fallback ran in five cells: GLM-5 free matched Tower, MiMo 2.6 Pro
+  free raw Tower, Nemotron Super exemplar raw Tower, Nemotron Omni exemplar matched
+  Tower and Qwen3.8 exemplar raw Tower. Each retrained all seeds at the next-best rate.
+- DeepSeek V4.1's raw exemplar Tower collapsed before the fallback existed. It was
+  rerun, and its first attempt is kept under that cell's `superseded/`.
+
+Headline paired comparisons on FSC-147 test MAE, with the number of Towers whose 95%
+interval excludes zero in each direction:
+
+| comparison | first better | second better | unresolved |
+|---|---:|---:|---:|
+| exemplar-free vs exemplar, final Tower, raw | 9 | 2 | 5 |
+| exemplar-free vs exemplar, final Tower, matched | 10 | 4 | 2 |
+| Tower vs projected, free raw (13 multimodal) | 1 | 9 | 3 |
+| merged vs projected, free raw (13 multimodal) | 2 | 7 | 4 |
+| raw vs matched, free Tower | 4 | 5 | 7 |
+
+Exemplar conditioning, as built here with one cosine-similarity channel, usually does
+not help the final Tower count. The projected Stage usually counts better than the
+Tower or merged Stage. RMSE is dominated by the 39 test images above 200 objects, where
+every readout undercounts heavily, so read the per-bin tables.
+
+Letterbox check. The same frozen heads were run on letterboxed FSC-147 validation
+images. Validation MAE rises by 5.7 to 10.2 against the centre crop (free raw Tower).
+The letterbox count includes every release dot and the crop count only the retained
+ones, so this measures the transfer cost of the CountQA preprocessing only roughly.
+
+These are frozen readouts trained for a fixed ten epochs on one dataset. Differences
+between Towers reflect this protocol, not general counting ability.
+
 ## Reproduce
 
 ```bash
@@ -119,6 +175,22 @@ GPUS=0,1 ROSTER=$VTB_WORK/manifests/roster.json \
   scripts/count_matrix.sh $VTB_WORK/features/fsc147 $VTB_WORK/data/fsc147 \
   $VTB_WORK/results/fsc147 $VTB_WORK/readouts/count-v4 <model...>
 ```
+
+Analysis, from the repository root:
+
+```bash
+uv run python -m scripts.count_bootstrap fsc --results results/counting/fsc147 --complete-only \
+  --out results/counting/bootstrap --relative-to .
+uv run python -m scripts.count_table --results $VTB_WORK/results/fsc147 --complete-only \
+  --countqa results/counting/countqa/*_count_free_*.json --out results/counting/tables
+uv run python scripts/count_letterbox_check.py --features <letterbox-val cache> \
+  --manifest $VTB_WORK/data/fsc147/letterbox_val_manifest.json --readouts $VTB_WORK/readouts/count-v4/<model> \
+  --results $VTB_WORK/results/fsc147 --name <model> --device cuda --out <model>.json
+```
+
+The count table reads the validation TSVs, which stay in the run workspace and the R2
+backup, so pass the workspace results there. Cap `OMP_NUM_THREADS` when other jobs share
+the CPU.
 
 Kimi K2.6 and MiniMax M3 must extract at batch 1, because larger batches mix
 features across images. The roster manifest sets this.

@@ -1,0 +1,893 @@
+{
+ "label": "experimental, supplementary: FSC-147-trained frozen-feature counting transfer on a CountQA-derived subset with AI-authored exemplar boxes; not official CountQA benchmark scores and not comparable to published CountQA MLLM results",
+ "experimental": true,
+ "supplementary": true,
+ "official_countqa_benchmark": false,
+ "not_mllm_qa": "Frozen Tower/Stage features read by FSC-147-trained count heads; not MLLM question answering and not comparable to MLLM CountQA scores.",
+ "role": "experimental, supplementary: exemplar-free on the AI-boxed IDs, paired with the conditioned arm",
+ "annotation": {
+  "protocol": "countqa-ai-exemplars-v1",
+  "annotation_protocol": "user-authorized-ai-visual-exemplars-v1",
+  "annotation_source": "ai",
+  "annotation_model": "gpt-6-astra",
+  "human_reviewed": false,
+  "approved_by": null,
+  "annotation_revision": 2,
+  "exemplars_sha256": "1670f4f7ebd7905cc42084e436885dfeed7f53013f46b0de60754927c599c0f0",
+  "source_export_sha256": "3c113eae4731b436cf867c0fea69d08e6c5b9bf0b998f71518c4cabd2124b382",
+  "review_coverage": {
+   "inspected": 439,
+   "boxed_overlay_rechecked_by_ai": 325,
+   "independent_ai_adjudication": 26,
+   "parent_ai_spot_check": [
+    {
+     "question_id": "countqa_0536_efaf8d4d_q0",
+     "status": "boxed",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0902_bee4d7fb_q0",
+     "status": "boxed",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0429_ab54ed50_q0",
+     "status": "boxed",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0250_1ddeec64_q0",
+     "status": "boxed",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0058_477ab87e_q0",
+     "status": "boxed",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0365_c0cfde27_q0",
+     "status": "boxed",
+     "parent_visual_review": "needs_adjudication",
+     "parent_note": "Lower-left storage box may be clipped at left frame edge. Independent adjudication requested."
+    },
+    {
+     "question_id": "countqa_0345_4fb02d46_q0",
+     "status": "boxed",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0351_b2017c19_q0",
+     "status": "boxed",
+     "parent_visual_review": "needs_adjudication",
+     "parent_note": "Top platter may be clipped at left image edge; lower box boundary may include next platter. Independent adjudication requested."
+    },
+    {
+     "question_id": "countqa_0007_d6d9a1fb_q0",
+     "status": "boxed",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0841_38c5fb6f_q0",
+     "status": "boxed",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0163_84a1b67c_q0",
+     "status": "boxed",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0074_7be47cb7_q0",
+     "status": "boxed",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0299_b49bbf57_q0",
+     "status": "no_clean_instance",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0273_c1632c41_q0",
+     "status": "no_clean_instance",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0442_02f3e69a_q0",
+     "status": "no_clean_instance",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0925_0cc75f48_q0",
+     "status": "no_clean_instance",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0993_d6b4b469_q0",
+     "status": "no_clean_instance",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0937_e3bff72e_q0",
+     "status": "no_clean_instance",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0835_57920b52_q0",
+     "status": "needs_review",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0419_a0bf1c20_q0",
+     "status": "needs_review",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0553_08e5ca29_q0",
+     "status": "needs_review",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0530_224845e5_q0",
+     "status": "needs_review",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0792_38e0e0e4_q0",
+     "status": "needs_review",
+     "parent_visual_review": "spot_check_consistent"
+    },
+    {
+     "question_id": "countqa_0878_edc6d9c3_q0",
+     "status": "needs_review",
+     "parent_visual_review": "spot_check_consistent"
+    }
+   ],
+   "human_reviewed": 0,
+   "answers_used_for_decisions": false
+  },
+  "selection": {
+   "questions": 439,
+   "included_boxed": 325,
+   "excluded_no_clean_instance": 105,
+   "excluded_needs_review_unresolved": 9
+  },
+  "included_image_ids_sha256": "fa5eb3d730e81373465f8d8590499997502093056f1f19a21a6e806a6fbd890d",
+  "limitations": [
+   "FSC-147 to CountQA transfer: heads trained on centre crops read letterboxed whole images with padding and smaller objects.",
+   "Exemplars are AI-selected (gpt-6-astra) and not human-reviewed; box errors and target-identity errors are possible.",
+   "Only questions with a clean exemplar are included; this may systematically exclude hard images.",
+   "Sensitivity to the choice of exemplar and stability of model rankings under alternative exemplars or protocol choices are not established."
+  ]
+ },
+ "primary_cell": null,
+ "model": "kimi_k26",
+ "arm": "free",
+ "variant": "raw",
+ "dataset": {
+  "name": "CountQA (curated subset)",
+  "repo": "Jayant-Sravan/CountQA",
+  "revision": "f92cc6fe46542c61e2916e3d2ae9a911e2216b1a",
+  "license": "CC-BY-4.0",
+  "citation": "Tamarapalli, Grover, Pande, Yerramilli. CountQA: How Well Do MLLMs Count in the Wild? arXiv:2508.06585 (2025). Dataset Jayant-Sravan/CountQA, CC-BY-4.0.",
+  "eligibility_sha256": "64573edf367a1bc5934fbbaa1e995dbf79ad73b1b60756953c8c6cc8f827bf14",
+  "manifest_sha256": "74ce4419307c80267109dd8c617e6a4399b58c628ec1ca3fdee9e23ce7bbffa2",
+  "exemplars_status": "ai_unreviewed",
+  "exemplars_sha256": "1670f4f7ebd7905cc42084e436885dfeed7f53013f46b0de60754927c599c0f0",
+  "prepared_images": 439,
+  "evaluated_images": 325,
+  "excluded": {
+   "countqa_0038_522a4605": "no_clean_instance",
+   "countqa_0057_68482c1d": "no_clean_instance",
+   "countqa_0061_8e460d15": "no_clean_instance",
+   "countqa_0078_18f9ddc4": "no_clean_instance",
+   "countqa_0093_f19d1c0d": "needs_review_unresolved",
+   "countqa_0099_a6e121eb": "no_clean_instance",
+   "countqa_0108_86710d4b": "no_clean_instance",
+   "countqa_0112_3e2335ec": "no_clean_instance",
+   "countqa_0114_e9021f2a": "no_clean_instance",
+   "countqa_0122_822eedd4": "no_clean_instance",
+   "countqa_0144_27d24401": "no_clean_instance",
+   "countqa_0145_6745f72b": "no_clean_instance",
+   "countqa_0152_0ca64dee": "no_clean_instance",
+   "countqa_0189_c91f86ae": "no_clean_instance",
+   "countqa_0191_53ccdde4": "no_clean_instance",
+   "countqa_0195_ef1dacd2": "no_clean_instance",
+   "countqa_0197_5574c68e": "no_clean_instance",
+   "countqa_0199_b8a206e6": "no_clean_instance",
+   "countqa_0202_5bdaaffe": "no_clean_instance",
+   "countqa_0210_fe19c0d2": "no_clean_instance",
+   "countqa_0212_b64811e2": "no_clean_instance",
+   "countqa_0213_d7f8cbd7": "no_clean_instance",
+   "countqa_0235_0ae34970": "no_clean_instance",
+   "countqa_0262_643c738c": "no_clean_instance",
+   "countqa_0267_9f7525a2": "no_clean_instance",
+   "countqa_0268_cd28f81a": "no_clean_instance",
+   "countqa_0273_c1632c41": "no_clean_instance",
+   "countqa_0299_b49bbf57": "no_clean_instance",
+   "countqa_0312_96d9140e": "no_clean_instance",
+   "countqa_0322_45f6fd15": "no_clean_instance",
+   "countqa_0351_b2017c19": "no_clean_instance",
+   "countqa_0358_b10b08af": "no_clean_instance",
+   "countqa_0360_aca3e155": "no_clean_instance",
+   "countqa_0362_e272c4c5": "no_clean_instance",
+   "countqa_0365_c0cfde27": "no_clean_instance",
+   "countqa_0371_fc0d4886": "no_clean_instance",
+   "countqa_0372_8b50797b": "no_clean_instance",
+   "countqa_0384_d5af6452": "no_clean_instance",
+   "countqa_0391_8b6bc632": "no_clean_instance",
+   "countqa_0394_a24a4e08": "no_clean_instance",
+   "countqa_0395_4a72fba4": "no_clean_instance",
+   "countqa_0409_24681fa4": "no_clean_instance",
+   "countqa_0419_a0bf1c20": "no_clean_instance",
+   "countqa_0435_a137c5aa": "no_clean_instance",
+   "countqa_0439_dc2de3b5": "no_clean_instance",
+   "countqa_0442_02f3e69a": "no_clean_instance",
+   "countqa_0475_76db8c64": "no_clean_instance",
+   "countqa_0476_633cc97b": "no_clean_instance",
+   "countqa_0477_54cc5742": "no_clean_instance",
+   "countqa_0497_0c83d9e8": "no_clean_instance",
+   "countqa_0504_407fd82f": "no_clean_instance",
+   "countqa_0505_974b7c38": "no_clean_instance",
+   "countqa_0530_224845e5": "no_clean_instance",
+   "countqa_0540_ca6a08bd": "no_clean_instance",
+   "countqa_0547_41beff65": "no_clean_instance",
+   "countqa_0551_159f1021": "needs_review_unresolved",
+   "countqa_0559_c131f6e0": "no_clean_instance",
+   "countqa_0567_4cffb012": "no_clean_instance",
+   "countqa_0571_14b61cbd": "no_clean_instance",
+   "countqa_0572_75926b06": "no_clean_instance",
+   "countqa_0579_74dd1ca5": "no_clean_instance",
+   "countqa_0596_d9d402a2": "no_clean_instance",
+   "countqa_0600_97998d52": "no_clean_instance",
+   "countqa_0610_85c2bcf6": "no_clean_instance",
+   "countqa_0613_dcb67cbe": "no_clean_instance",
+   "countqa_0616_b2dae42b": "no_clean_instance",
+   "countqa_0619_09cd1372": "no_clean_instance",
+   "countqa_0620_07c2794d": "no_clean_instance",
+   "countqa_0622_57bfd790": "no_clean_instance",
+   "countqa_0627_3f7bf944": "no_clean_instance",
+   "countqa_0637_2c7c62a9": "no_clean_instance",
+   "countqa_0656_7c8d1673": "no_clean_instance",
+   "countqa_0658_2f841a84": "no_clean_instance",
+   "countqa_0677_ca322dc7": "no_clean_instance",
+   "countqa_0687_4a49379a": "no_clean_instance",
+   "countqa_0695_69725872": "needs_review_unresolved",
+   "countqa_0703_b29af589": "no_clean_instance",
+   "countqa_0721_146c6110": "no_clean_instance",
+   "countqa_0722_53db0f54": "no_clean_instance",
+   "countqa_0732_9a0261ca": "no_clean_instance",
+   "countqa_0736_9e87d9bd": "no_clean_instance",
+   "countqa_0741_098dd5e3": "needs_review_unresolved",
+   "countqa_0748_dcbcc30e": "needs_review_unresolved",
+   "countqa_0764_232c53ec": "needs_review_unresolved",
+   "countqa_0769_1ed6688f": "no_clean_instance",
+   "countqa_0788_1e38c3f7": "no_clean_instance",
+   "countqa_0792_38e0e0e4": "no_clean_instance",
+   "countqa_0795_7fee5507": "no_clean_instance",
+   "countqa_0798_1bde7fd1": "no_clean_instance",
+   "countqa_0799_ace02d21": "no_clean_instance",
+   "countqa_0822_027875d0": "no_clean_instance",
+   "countqa_0826_8bfc281d": "no_clean_instance",
+   "countqa_0830_0f653b66": "no_clean_instance",
+   "countqa_0831_16570c11": "no_clean_instance",
+   "countqa_0833_6d865140": "no_clean_instance",
+   "countqa_0835_57920b52": "needs_review_unresolved",
+   "countqa_0838_3273898b": "no_clean_instance",
+   "countqa_0842_b9736fc2": "no_clean_instance",
+   "countqa_0849_7a787571": "needs_review_unresolved",
+   "countqa_0859_adbc283f": "no_clean_instance",
+   "countqa_0863_04b41a9f": "no_clean_instance",
+   "countqa_0871_2505c852": "no_clean_instance",
+   "countqa_0878_edc6d9c3": "no_clean_instance",
+   "countqa_0913_7c0a0665": "no_clean_instance",
+   "countqa_0925_0cc75f48": "no_clean_instance",
+   "countqa_0930_eb68ca8b": "needs_review_unresolved",
+   "countqa_0935_462be4c0": "no_clean_instance",
+   "countqa_0936_f409bc5b": "no_clean_instance",
+   "countqa_0937_e3bff72e": "no_clean_instance",
+   "countqa_0939_f5bfb633": "no_clean_instance",
+   "countqa_0946_096c5175": "no_clean_instance",
+   "countqa_0973_2cca08f3": "no_clean_instance",
+   "countqa_0984_cea0ec3a": "no_clean_instance",
+   "countqa_0993_d6b4b469": "no_clean_instance"
+  }
+ },
+ "features": {
+  "dir": "/home/shadeform/vtb-work/counting-v3/features/countqa/kimi_k26_448_full",
+  "complete_json": "/home/shadeform/vtb-work/counting-v3/features/countqa/kimi_k26_448_full/complete.json",
+  "complete_json_sha256": "bbe4839d81c9a69c7cd19a8ed1f9390a9479b65a665f3293b2382a6fc4d8ec1d"
+ },
+ "protocol": {
+  "training": "none on CountQA: saved FSC-147 heads and PCA are applied frozen",
+  "frame": "letterbox (counting.letterbox_frame), whole image, fill counting.LETTERBOX_FILL",
+  "transfer_preprocessing": "CountQA answers refer to the whole image, so each kept image is placed whole on a max(w, h) square canvas (counting.letterbox_frame, integer centring offsets) filled with counting.LETTERBOX_FILL and saved as PNG at native resolution; the adapter then resizes that square to the benchmark resolution. FSC-147 heads were trained on the central min-side square (counting.centre_crop_frame), so CountQA adds padding the heads never saw and a different object scale; predicted density is summed only over the valid (non-padding) area, counting.masked_count(density, counting.coverage(frame.valid, 64)). Exemplar boxes are mapped with frame.boxes, never centre-cropped.",
+  "count": "counting.masked_count(density, counting.coverage(frame.valid, 64))",
+  "prototype_valid": "counting.token_valid(frame.valid, side, grid_extent) at the token grid",
+  "exemplars": "none; scored on the AI-boxed image IDs only",
+  "exact_match": "floor(pred + 0.5) == integer answer",
+  "bins": "counting.count_bin of the true answer",
+  "rmse": "mean over seeds of each seed's sqrt(mean sq_error); rmse_pooled pools seed x image rows",
+  "numerics": "readouts trained with cuDNN TF32 convolutions on GPU; this run's device may differ, so transfer parity with training is approximate at float32 rounding",
+  "seeds": [
+   0,
+   1,
+   2
+  ],
+  "bootstrap": {
+   "function": "vtb.geometry_bootstrap.paired_metric_bootstrap",
+   "pairing": "identical image IDs; seed k with seed k; per-image seed-mean metric",
+   "resamples": 10000,
+   "confidence": 0.95,
+   "interval": "percentile",
+   "bootstrap_seed": 0,
+   "abs_error_difference": "second_minus_first (positive: first has lower error)",
+   "exact_match_difference": "first_minus_second"
+  }
+ },
+ "cells": [
+  {
+   "key": "tower_L27",
+   "stage": "tower",
+   "layer": 27,
+   "readout_dir": "/home/shadeform/vtb-work/counting-v3/readouts/count-v4/kimi_k26/free_raw/tower_L27",
+   "model_id": "immanuelpeter/MoonViT-K2.6",
+   "relative_depth": "1.0000",
+   "tokens_per_image": 1024,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "metrics": {
+    "images": 325,
+    "seeds": 3,
+    "mae": 5.685170160440299,
+    "rmse": 15.020410049707834,
+    "rmse_pooled": 15.02095854825351,
+    "exact_match": 0.11487179487179487,
+    "mean_signed_error": 1.1965162521753556,
+    "mae_by_seed": [
+     5.402163604589609,
+     5.899236568304208,
+     5.7541103084270775
+    ],
+    "rmse_by_seed": [
+     14.881803227956322,
+     15.191239724191332,
+     14.988187196975847
+    ],
+    "exact_match_by_seed": [
+     0.12,
+     0.11076923076923077,
+     0.11384615384615385
+    ],
+    "by_bin": {
+     "le50": {
+      "images": 321,
+      "mae": 4.855646164617806,
+      "rmse": 9.1822379989486,
+      "exact_match": 0.11630321910695743
+     },
+     "50to200": {
+      "images": 3,
+      "mae": 27.996566772460938,
+      "rmse": 36.15106038096394,
+      "exact_match": 0.0
+     },
+     "gt200": {
+      "images": 1,
+      "mae": 205.02818298339844,
+      "rmse": 205.02818298339844,
+      "exact_match": 0.0
+     }
+    }
+   },
+   "seed_readouts": [
+    {
+     "seed": 0,
+     "frozen_state_sha256": "56a86143b2e5d4d6a66fb09a792ba55cb23628bdab23f3fe0992f08d59fdb631",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/kimi_k26_448_full",
+      "feature_cache_sha256": "59335ac74e84f81188584013003c112892d2a53d81fb9bd4487abea72441191f",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "0f5edf737c73e607507ff0d32f04b3568e034e70fd23c57294ccfa0e8b87861e",
+      "input_dim": 1152,
+      "layer": 27,
+      "learning_rate": 0.0003,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/MoonViT-K2.6",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 0,
+      "stage": "tower",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 1024,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 1,
+     "frozen_state_sha256": "82f50ab6d8057507e9795e47cb9c32ca6c608024b8f3118f90c8d2eaa3ce0853",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/kimi_k26_448_full",
+      "feature_cache_sha256": "59335ac74e84f81188584013003c112892d2a53d81fb9bd4487abea72441191f",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "0f5edf737c73e607507ff0d32f04b3568e034e70fd23c57294ccfa0e8b87861e",
+      "input_dim": 1152,
+      "layer": 27,
+      "learning_rate": 0.0003,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/MoonViT-K2.6",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 1,
+      "stage": "tower",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 1024,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 2,
+     "frozen_state_sha256": "a5a6a1aa21c67de6ce673de2cb42e5332a5c80b81d087fe6f76d2249a2512607",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/kimi_k26_448_full",
+      "feature_cache_sha256": "59335ac74e84f81188584013003c112892d2a53d81fb9bd4487abea72441191f",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "0f5edf737c73e607507ff0d32f04b3568e034e70fd23c57294ccfa0e8b87861e",
+      "input_dim": 1152,
+      "layer": 27,
+      "learning_rate": 0.0003,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/MoonViT-K2.6",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 2,
+      "stage": "tower",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 1024,
+      "torch": "2.13.0+cu129"
+     }
+    }
+   ]
+  },
+  {
+   "key": "merged_L27",
+   "stage": "merged",
+   "layer": 27,
+   "readout_dir": "/home/shadeform/vtb-work/counting-v3/readouts/count-v4/kimi_k26/free_raw/merged_L27",
+   "model_id": "immanuelpeter/MoonViT-K2.6",
+   "relative_depth": "1.0000",
+   "tokens_per_image": 256,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "metrics": {
+    "images": 325,
+    "seeds": 3,
+    "mae": 6.9603796665485085,
+    "rmse": 14.561653923863817,
+    "rmse_pooled": 14.573267632365413,
+    "exact_match": 0.07487179487179488,
+    "mean_signed_error": 2.685034459431966,
+    "mae_by_seed": [
+     6.718532260748057,
+     6.689425329061655,
+     7.473181409835815
+    ],
+    "rmse_by_seed": [
+     14.327562401584837,
+     13.995729994128101,
+     15.361669375878511
+    ],
+    "exact_match_by_seed": [
+     0.07384615384615385,
+     0.07692307692307693,
+     0.07384615384615385
+    ],
+    "by_bin": {
+     "le50": {
+      "images": 321,
+      "mae": 6.368886427220773,
+      "rmse": 12.114305614081275,
+      "exact_match": 0.07476635514018691
+     },
+     "50to200": {
+      "images": 3,
+      "mae": 27.444794548882378,
+      "rmse": 34.0021061559996,
+      "exact_match": 0.1111111111111111
+     },
+     "gt200": {
+      "images": 1,
+      "mae": 135.37646484375,
+      "rmse": 135.37646484375,
+      "exact_match": 0.0
+     }
+    }
+   },
+   "seed_readouts": [
+    {
+     "seed": 0,
+     "frozen_state_sha256": "cb6774fa41ed6f950d8d001c122a0b3d412bbcf7468e4336d551f39b52016e3a",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/kimi_k26_448_full",
+      "feature_cache_sha256": "59335ac74e84f81188584013003c112892d2a53d81fb9bd4487abea72441191f",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "062de2b4efaa96b88bccdc18ad9aa0c955a4e8b4e1e9d0d2e68097ad3295e420",
+      "input_dim": 4608,
+      "layer": 27,
+      "learning_rate": 0.0001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/MoonViT-K2.6",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 0,
+      "stage": "merged",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 256,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 1,
+     "frozen_state_sha256": "cf252fcec5c4c3bb5442087058cf69da59c0ecd46b4edfb52dc62027a9217beb",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/kimi_k26_448_full",
+      "feature_cache_sha256": "59335ac74e84f81188584013003c112892d2a53d81fb9bd4487abea72441191f",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "062de2b4efaa96b88bccdc18ad9aa0c955a4e8b4e1e9d0d2e68097ad3295e420",
+      "input_dim": 4608,
+      "layer": 27,
+      "learning_rate": 0.0001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/MoonViT-K2.6",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 1,
+      "stage": "merged",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 256,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 2,
+     "frozen_state_sha256": "b190f2572947cb7fe016fc83db4ddc917141c994c43d5abed56add5c7d36c2ab",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/kimi_k26_448_full",
+      "feature_cache_sha256": "59335ac74e84f81188584013003c112892d2a53d81fb9bd4487abea72441191f",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "062de2b4efaa96b88bccdc18ad9aa0c955a4e8b4e1e9d0d2e68097ad3295e420",
+      "input_dim": 4608,
+      "layer": 27,
+      "learning_rate": 0.0001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/MoonViT-K2.6",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 2,
+      "stage": "merged",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 256,
+      "torch": "2.13.0+cu129"
+     }
+    }
+   ]
+  },
+  {
+   "key": "projected_L27",
+   "stage": "projected",
+   "layer": 27,
+   "readout_dir": "/home/shadeform/vtb-work/counting-v3/readouts/count-v4/kimi_k26/free_raw/projected_L27",
+   "model_id": "immanuelpeter/MoonViT-K2.6",
+   "relative_depth": "1.0000",
+   "tokens_per_image": 256,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "metrics": {
+    "images": 325,
+    "seeds": 3,
+    "mae": 5.828137586055658,
+    "rmse": 12.041524107860246,
+    "rmse_pooled": 12.101289773360094,
+    "exact_match": 0.10051282051282051,
+    "mean_signed_error": 1.4359702076056065,
+    "mae_by_seed": [
+     6.1265615859398475,
+     5.687654087726886,
+     5.67019708450024
+    ],
+    "rmse_by_seed": [
+     13.509056364995278,
+     10.566725717055592,
+     12.048790241529867
+    ],
+    "exact_match_by_seed": [
+     0.11384615384615385,
+     0.10153846153846154,
+     0.08615384615384615
+    ],
+    "by_bin": {
+     "le50": {
+      "images": 321,
+      "mae": 5.321576253647374,
+      "rmse": 9.401953728055902,
+      "exact_match": 0.10072689511941849
+     },
+     "50to200": {
+      "images": 3,
+      "mae": 22.014970991346573,
+      "rmse": 30.9664167254102,
+      "exact_match": 0.1111111111111111
+     },
+     "gt200": {
+      "images": 1,
+      "mae": 119.87382507324219,
+      "rmse": 119.87382507324219,
+      "exact_match": 0.0
+     }
+    }
+   },
+   "seed_readouts": [
+    {
+     "seed": 0,
+     "frozen_state_sha256": "65b5358617fc21a628e152c3770da7ba52fd1f59b488c92d95defc686a285800",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/kimi_k26_448_full",
+      "feature_cache_sha256": "59335ac74e84f81188584013003c112892d2a53d81fb9bd4487abea72441191f",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "fa368445e918a466211b827729fc0ebefc7cf7c9f7ec84cc260b4acfb3d4f011",
+      "input_dim": 7168,
+      "layer": 27,
+      "learning_rate": 0.001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/MoonViT-K2.6",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 0,
+      "stage": "projected",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 256,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 1,
+     "frozen_state_sha256": "80d2da70c041c9423c0d92dc00fd48983f87ea460106c46edf80a9b1c6677dc6",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/kimi_k26_448_full",
+      "feature_cache_sha256": "59335ac74e84f81188584013003c112892d2a53d81fb9bd4487abea72441191f",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "fa368445e918a466211b827729fc0ebefc7cf7c9f7ec84cc260b4acfb3d4f011",
+      "input_dim": 7168,
+      "layer": 27,
+      "learning_rate": 0.001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/MoonViT-K2.6",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 1,
+      "stage": "projected",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 256,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 2,
+     "frozen_state_sha256": "09321ac429dcf4abc4ef6ea27c4599197cbc6af1f6c5bebc02798a85a86ce361",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "1f206f8479449b2fb946d4746234de408553d2a5",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/kimi_k26_448_full",
+      "feature_cache_sha256": "59335ac74e84f81188584013003c112892d2a53d81fb9bd4487abea72441191f",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "fa368445e918a466211b827729fc0ebefc7cf7c9f7ec84cc260b4acfb3d4f011",
+      "input_dim": 7168,
+      "layer": 27,
+      "learning_rate": 0.001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/MoonViT-K2.6",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 2,
+      "stage": "projected",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 256,
+      "torch": "2.13.0+cu129"
+     }
+    }
+   ]
+  }
+ ],
+ "stage_differences": {
+  "tower_L27_vs_merged_L27": {
+   "first": "tower_L27",
+   "second": "merged_L27",
+   "images": 325,
+   "seeds_paired": [
+    0,
+    1,
+    2
+   ],
+   "abs_error": {
+    "point_estimate": 1.2752095460891724,
+    "confidence": 0.95,
+    "lower": 0.5564233660697937,
+    "upper": 1.913274884223938,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "second_minus_first"
+   },
+   "exact_match": {
+    "point_estimate": 0.03999999910593033,
+    "confidence": 0.95,
+    "lower": 0.010256410576403141,
+    "upper": 0.06974358856678009,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second"
+   }
+  },
+  "tower_L27_vs_projected_L27": {
+   "first": "tower_L27",
+   "second": "projected_L27",
+   "images": 325,
+   "seeds_paired": [
+    0,
+    1,
+    2
+   ],
+   "abs_error": {
+    "point_estimate": 0.14296740293502808,
+    "confidence": 0.95,
+    "lower": -0.5978126525878906,
+    "upper": 0.7380700707435608,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "second_minus_first"
+   },
+   "exact_match": {
+    "point_estimate": 0.014358974993228912,
+    "confidence": 0.95,
+    "lower": -0.017435897141695023,
+    "upper": 0.047179486602544785,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second"
+   }
+  },
+  "merged_L27_vs_projected_L27": {
+   "first": "merged_L27",
+   "second": "projected_L27",
+   "images": 325,
+   "seeds_paired": [
+    0,
+    1,
+    2
+   ],
+   "abs_error": {
+    "point_estimate": -1.132242202758789,
+    "confidence": 0.95,
+    "lower": -1.7857753038406372,
+    "upper": -0.5321842432022095,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "second_minus_first"
+   },
+   "exact_match": {
+    "point_estimate": -0.025641024112701416,
+    "confidence": 0.95,
+    "lower": -0.0533333346247673,
+    "upper": 0.003076923079788685,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second"
+   }
+  }
+ }
+}

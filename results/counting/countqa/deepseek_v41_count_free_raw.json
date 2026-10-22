@@ -1,0 +1,624 @@
+{
+ "label": "experimental, supplementary: exemplar-based frozen-feature counting transfer on a curated CountQA-derived subset; not official CountQA benchmark scores",
+ "experimental": true,
+ "supplementary": true,
+ "official_countqa_benchmark": false,
+ "not_mllm_qa": "Frozen Tower/Stage features read by FSC-147-trained count heads; not MLLM question answering and not comparable to MLLM CountQA scores.",
+ "role": "secondary (exemplar-free)",
+ "annotation": null,
+ "primary_cell": null,
+ "model": "deepseek_v41",
+ "arm": "free",
+ "variant": "raw",
+ "dataset": {
+  "name": "CountQA (curated subset)",
+  "repo": "Jayant-Sravan/CountQA",
+  "revision": "f92cc6fe46542c61e2916e3d2ae9a911e2216b1a",
+  "license": "CC-BY-4.0",
+  "citation": "Tamarapalli, Grover, Pande, Yerramilli. CountQA: How Well Do MLLMs Count in the Wild? arXiv:2508.06585 (2025). Dataset Jayant-Sravan/CountQA, CC-BY-4.0.",
+  "eligibility_sha256": "64573edf367a1bc5934fbbaa1e995dbf79ad73b1b60756953c8c6cc8f827bf14",
+  "manifest_sha256": "74ce4419307c80267109dd8c617e6a4399b58c628ec1ca3fdee9e23ce7bbffa2",
+  "exemplars_status": "pending",
+  "exemplars_sha256": "a20303519d287245f092e907d0bbd69122081bd938b086ea866993ae3efe041c",
+  "prepared_images": 439,
+  "evaluated_images": 439,
+  "excluded": {}
+ },
+ "features": {
+  "dir": "/home/shadeform/vtb-work/counting-v3/features/countqa/deepseek_v41_448_full",
+  "complete_json": "/home/shadeform/vtb-work/counting-v3/features/countqa/deepseek_v41_448_full/complete.json",
+  "complete_json_sha256": "1c903660418a64894ebe3b667f5f4a4bdd58b16e02473d84299fc63d4503604d"
+ },
+ "protocol": {
+  "training": "none on CountQA: saved FSC-147 heads and PCA are applied frozen",
+  "frame": "letterbox (counting.letterbox_frame), whole image, fill counting.LETTERBOX_FILL",
+  "transfer_preprocessing": "CountQA answers refer to the whole image, so each kept image is placed whole on a max(w, h) square canvas (counting.letterbox_frame, integer centring offsets) filled with counting.LETTERBOX_FILL and saved as PNG at native resolution; the adapter then resizes that square to the benchmark resolution. FSC-147 heads were trained on the central min-side square (counting.centre_crop_frame), so CountQA adds padding the heads never saw and a different object scale; predicted density is summed only over the valid (non-padding) area, counting.masked_count(density, counting.coverage(frame.valid, 64)). Exemplar boxes are mapped with frame.boxes, never centre-cropped.",
+  "count": "counting.masked_count(density, counting.coverage(frame.valid, 64))",
+  "prototype_valid": "counting.token_valid(frame.valid, side, grid_extent) at the token grid",
+  "exemplars": "none",
+  "exact_match": "floor(pred + 0.5) == integer answer",
+  "bins": "counting.count_bin of the true answer",
+  "rmse": "mean over seeds of each seed's sqrt(mean sq_error); rmse_pooled pools seed x image rows",
+  "numerics": "readouts trained with cuDNN TF32 convolutions on GPU; this run's device may differ, so transfer parity with training is approximate at float32 rounding",
+  "seeds": [
+   0,
+   1,
+   2
+  ],
+  "bootstrap": {
+   "function": "vtb.geometry_bootstrap.paired_metric_bootstrap",
+   "pairing": "identical image IDs; seed k with seed k; per-image seed-mean metric",
+   "resamples": 10000,
+   "confidence": 0.95,
+   "interval": "percentile",
+   "bootstrap_seed": 0,
+   "abs_error_difference": "second_minus_first (positive: first has lower error)",
+   "exact_match_difference": "first_minus_second"
+  }
+ },
+ "cells": [
+  {
+   "key": "tower_L32",
+   "stage": "tower",
+   "layer": 32,
+   "readout_dir": "/home/shadeform/vtb-work/counting-v3/readouts/count-v4/deepseek_v41/free_raw/tower_L32",
+   "model_id": "immanuelpeter/DeepSeek-ViT",
+   "relative_depth": "1.0000",
+   "tokens_per_image": 1024,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "metrics": {
+    "images": 439,
+    "seeds": 3,
+    "mae": 5.656328660027946,
+    "rmse": 12.334509670678292,
+    "rmse_pooled": 12.338764930287587,
+    "exact_match": 0.10098709187547457,
+    "mean_signed_error": 2.272805270772136,
+    "mae_by_seed": [
+     5.716546729376756,
+     5.7653870262154685,
+     5.487052224491615
+    ],
+    "rmse_by_seed": [
+     12.113573351928073,
+     12.792651729779415,
+     12.097303930327383
+    ],
+    "exact_match_by_seed": [
+     0.10022779043280182,
+     0.10478359908883828,
+     0.0979498861047836
+    ],
+    "by_bin": {
+     "le50": {
+      "images": 435,
+      "mae": 5.0371174695391305,
+      "rmse": 8.570969655455162,
+      "exact_match": 0.10191570881226053
+     },
+     "50to200": {
+      "images": 3,
+      "mae": 43.68617577022977,
+      "rmse": 54.00834437993018,
+      "exact_match": 0.0
+     },
+     "gt200": {
+      "images": 1,
+      "mae": 160.92365519205728,
+      "rmse": 160.92365519205728,
+      "exact_match": 0.0
+     }
+    }
+   },
+   "seed_readouts": [
+    {
+     "seed": 0,
+     "frozen_state_sha256": "7c3949ffb95b5befdbfc0e292555eabd8617899e73dca8c343b3ea784a33173e",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "777854bbaa6d685384a96b257804f9716aa58b91",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/deepseek_v41_448_full",
+      "feature_cache_sha256": "0532413da1d06ddb9c53d4085efce92133f56a52793a678aed112f9f5e84dae4",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "778beac21d453c7d28e91ad861b72acdc51050713ef83186252910b7e55c8797",
+      "input_dim": 1024,
+      "layer": 32,
+      "learning_rate": 0.001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/DeepSeek-ViT",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 0,
+      "stage": "tower",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 1024,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 1,
+     "frozen_state_sha256": "c6d576c42808703995893a90687c053fe5b3bffd64ba50800a61713823bb305c",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "777854bbaa6d685384a96b257804f9716aa58b91",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/deepseek_v41_448_full",
+      "feature_cache_sha256": "0532413da1d06ddb9c53d4085efce92133f56a52793a678aed112f9f5e84dae4",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "778beac21d453c7d28e91ad861b72acdc51050713ef83186252910b7e55c8797",
+      "input_dim": 1024,
+      "layer": 32,
+      "learning_rate": 0.001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/DeepSeek-ViT",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 1,
+      "stage": "tower",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 1024,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 2,
+     "frozen_state_sha256": "7209a722d4c74c782d82fad954be7efb0338c509040b0bcdb9d9258408a9c440",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "777854bbaa6d685384a96b257804f9716aa58b91",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/deepseek_v41_448_full",
+      "feature_cache_sha256": "0532413da1d06ddb9c53d4085efce92133f56a52793a678aed112f9f5e84dae4",
+      "grid": 64,
+      "grid_extent": 1.0,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "778beac21d453c7d28e91ad861b72acdc51050713ef83186252910b7e55c8797",
+      "input_dim": 1024,
+      "layer": 32,
+      "learning_rate": 0.001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/DeepSeek-ViT",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 2,
+      "stage": "tower",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 1024,
+      "torch": "2.13.0+cu129"
+     }
+    }
+   ]
+  },
+  {
+   "key": "merged_L32",
+   "stage": "merged",
+   "layer": 32,
+   "readout_dir": "/home/shadeform/vtb-work/counting-v3/readouts/count-v4/deepseek_v41/free_raw/merged_L32",
+   "model_id": "immanuelpeter/DeepSeek-ViT",
+   "relative_depth": "1.0000",
+   "tokens_per_image": 121,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "metrics": {
+    "images": 439,
+    "seeds": 3,
+    "mae": 6.023039620576162,
+    "rmse": 13.093826279019583,
+    "rmse_pooled": 13.553927809427075,
+    "exact_match": 0.0721336370539104,
+    "mean_signed_error": 1.7560097390082903,
+    "mae_by_seed": [
+     5.686298535462121,
+     5.8202176170088435,
+     6.562602709257521
+    ],
+    "rmse_by_seed": [
+     10.838003745441409,
+     10.404086804871799,
+     18.03938828674554
+    ],
+    "exact_match_by_seed": [
+     0.07517084282460136,
+     0.07972665148063782,
+     0.06150341685649203
+    ],
+    "by_bin": {
+     "le50": {
+      "images": 435,
+      "mae": 5.3679433498346025,
+      "rmse": 8.477586521775988,
+      "exact_match": 0.07279693486590039
+     },
+     "50to200": {
+      "images": 3,
+      "mae": 46.00812869601779,
+      "rmse": 56.59560699474031,
+      "exact_match": 0.0
+     },
+     "gt200": {
+      "images": 1,
+      "mae": 171.03465016682944,
+      "rmse": 171.03465016682944,
+      "exact_match": 0.0
+     }
+    }
+   },
+   "seed_readouts": [
+    {
+     "seed": 0,
+     "frozen_state_sha256": "bd0f2d6baac54fa643ca271ef347802d0519c6e54ad45002e4ff99caf04e57a0",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "777854bbaa6d685384a96b257804f9716aa58b91",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/deepseek_v41_448_full",
+      "feature_cache_sha256": "0532413da1d06ddb9c53d4085efce92133f56a52793a678aed112f9f5e84dae4",
+      "grid": 64,
+      "grid_extent": 1.03125,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "f6147c011d74050f7c48a1b0043fea0abb685b36539e9f7a473b36cd209ad45e",
+      "input_dim": 9216,
+      "layer": 32,
+      "learning_rate": 0.001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/DeepSeek-ViT",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 0,
+      "stage": "merged",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 121,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 1,
+     "frozen_state_sha256": "15e8ea89fc942380f79a03490dab6278ece46c1a30c745294647973bce065657",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "777854bbaa6d685384a96b257804f9716aa58b91",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/deepseek_v41_448_full",
+      "feature_cache_sha256": "0532413da1d06ddb9c53d4085efce92133f56a52793a678aed112f9f5e84dae4",
+      "grid": 64,
+      "grid_extent": 1.03125,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "f6147c011d74050f7c48a1b0043fea0abb685b36539e9f7a473b36cd209ad45e",
+      "input_dim": 9216,
+      "layer": 32,
+      "learning_rate": 0.001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/DeepSeek-ViT",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 1,
+      "stage": "merged",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 121,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 2,
+     "frozen_state_sha256": "8d8baa76edf64c855a6802687ce35606ca64c44722c1365dbf231f48a0192a1d",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "777854bbaa6d685384a96b257804f9716aa58b91",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/deepseek_v41_448_full",
+      "feature_cache_sha256": "0532413da1d06ddb9c53d4085efce92133f56a52793a678aed112f9f5e84dae4",
+      "grid": 64,
+      "grid_extent": 1.03125,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "f6147c011d74050f7c48a1b0043fea0abb685b36539e9f7a473b36cd209ad45e",
+      "input_dim": 9216,
+      "layer": 32,
+      "learning_rate": 0.001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/DeepSeek-ViT",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 2,
+      "stage": "merged",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 121,
+      "torch": "2.13.0+cu129"
+     }
+    }
+   ]
+  },
+  {
+   "key": "projected_L32",
+   "stage": "projected",
+   "layer": 32,
+   "readout_dir": "/home/shadeform/vtb-work/counting-v3/readouts/count-v4/deepseek_v41/free_raw/projected_L32",
+   "model_id": "immanuelpeter/DeepSeek-ViT",
+   "relative_depth": "1.0000",
+   "tokens_per_image": 121,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "metrics": {
+    "images": 439,
+    "seeds": 3,
+    "mae": 7.374238558945189,
+    "rmse": 12.624923160841766,
+    "rmse_pooled": 12.688593316411497,
+    "exact_match": 0.07593014426727411,
+    "mean_signed_error": 4.221418551450077,
+    "mae_by_seed": [
+     8.08846183138176,
+     6.857118544111491,
+     7.1771353013423145
+    ],
+    "rmse_by_seed": [
+     14.386462915902468,
+     11.443642773193917,
+     12.044663793428912
+    ],
+    "exact_match_by_seed": [
+     0.08200455580865604,
+     0.06150341685649203,
+     0.08428246013667426
+    ],
+    "by_bin": {
+     "le50": {
+      "images": 435,
+      "mae": 6.989736592997993,
+      "rmse": 11.299253726381492,
+      "exact_match": 0.07662835249042145
+     },
+     "50to200": {
+      "images": 3,
+      "mae": 37.48304218716092,
+      "rmse": 45.21985435818504,
+      "exact_match": 0.0
+     },
+     "gt200": {
+      "images": 1,
+      "mae": 84.30618286132812,
+      "rmse": 84.30618286132812,
+      "exact_match": 0.0
+     }
+    }
+   },
+   "seed_readouts": [
+    {
+     "seed": 0,
+     "frozen_state_sha256": "1e5844cbd96695f8e98799024134da1b2152ab3b91201358b287e026b7564a67",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "777854bbaa6d685384a96b257804f9716aa58b91",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/deepseek_v41_448_full",
+      "feature_cache_sha256": "0532413da1d06ddb9c53d4085efce92133f56a52793a678aed112f9f5e84dae4",
+      "grid": 64,
+      "grid_extent": 1.03125,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "10a1f97aa6cebe23b1f65532b4aee9509022da09f41aa5c9b1183b98900ac318",
+      "input_dim": 5120,
+      "layer": 32,
+      "learning_rate": 0.001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/DeepSeek-ViT",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 0,
+      "stage": "projected",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 121,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 1,
+     "frozen_state_sha256": "2c9e9cdb1b7117540af3f227972871f2f5ab63f5891ea74949670a127f961140",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "777854bbaa6d685384a96b257804f9716aa58b91",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/deepseek_v41_448_full",
+      "feature_cache_sha256": "0532413da1d06ddb9c53d4085efce92133f56a52793a678aed112f9f5e84dae4",
+      "grid": 64,
+      "grid_extent": 1.03125,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "10a1f97aa6cebe23b1f65532b4aee9509022da09f41aa5c9b1183b98900ac318",
+      "input_dim": 5120,
+      "layer": 32,
+      "learning_rate": 0.001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/DeepSeek-ViT",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 1,
+      "stage": "projected",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 121,
+      "torch": "2.13.0+cu129"
+     }
+    },
+    {
+     "seed": 2,
+     "frozen_state_sha256": "2150b1ebbc7e806fc2186192e85b45bce3c7803ba4c1ffec8ef5ddd7fe736fa0",
+     "meta": {
+      "arm": "free",
+      "batch_size": 8,
+      "capacity": "raw",
+      "code": "777854bbaa6d685384a96b257804f9716aa58b91",
+      "density_scale": 100.0,
+      "epochs": 10,
+      "feature_cache": "/home/shadeform/vtb-work/counting-v3/features/fsc147/deepseek_v41_448_full",
+      "feature_cache_sha256": "0532413da1d06ddb9c53d4085efce92133f56a52793a678aed112f9f5e84dae4",
+      "grid": 64,
+      "grid_extent": 1.03125,
+      "head": "multiscale",
+      "hidden_dim": 512,
+      "identity": "10a1f97aa6cebe23b1f65532b4aee9509022da09f41aa5c9b1183b98900ac318",
+      "input_dim": 5120,
+      "layer": 32,
+      "learning_rate": 0.001,
+      "manifest_sha256": "5a08592eb2851927300815fc4eac56285aeb27014ce1782ba5969b6614ddfa72",
+      "model_id": "immanuelpeter/DeepSeek-ViT",
+      "pca": false,
+      "protocol": "count-v4",
+      "resolution": 448,
+      "seed": 2,
+      "stage": "projected",
+      "targets_sha256": "d6b8806cd9f07a71ce21c3e2daf22d4b1b34ffa780c09da9a719fabcc979bd81",
+      "task": "count",
+      "tokens": 121,
+      "torch": "2.13.0+cu129"
+     }
+    }
+   ]
+  }
+ ],
+ "stage_differences": {
+  "tower_L32_vs_merged_L32": {
+   "first": "tower_L32",
+   "second": "merged_L32",
+   "images": 439,
+   "seeds_paired": [
+    0,
+    1,
+    2
+   ],
+   "abs_error": {
+    "point_estimate": 0.36671096086502075,
+    "confidence": 0.95,
+    "lower": -0.03504829853773117,
+    "upper": 0.7490203380584717,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "second_minus_first"
+   },
+   "exact_match": {
+    "point_estimate": 0.028853455558419228,
+    "confidence": 0.95,
+    "lower": 0.004555808380246162,
+    "upper": 0.053910404443740845,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second"
+   }
+  },
+  "tower_L32_vs_projected_L32": {
+   "first": "tower_L32",
+   "second": "projected_L32",
+   "images": 439,
+   "seeds_paired": [
+    0,
+    1,
+    2
+   ],
+   "abs_error": {
+    "point_estimate": 1.7179099321365356,
+    "confidence": 0.95,
+    "lower": 1.12168550491333,
+    "upper": 2.2440030574798584,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "second_minus_first"
+   },
+   "exact_match": {
+    "point_estimate": 0.025056947022676468,
+    "confidence": 0.95,
+    "lower": 0.0007593018817715347,
+    "upper": 0.05087319388985634,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second"
+   }
+  },
+  "merged_L32_vs_projected_L32": {
+   "first": "merged_L32",
+   "second": "projected_L32",
+   "images": 439,
+   "seeds_paired": [
+    0,
+    1,
+    2
+   ],
+   "abs_error": {
+    "point_estimate": 1.3511989116668701,
+    "confidence": 0.95,
+    "lower": 0.7467641830444336,
+    "upper": 1.8733972311019897,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "second_minus_first"
+   },
+   "exact_match": {
+    "point_estimate": -0.0037965071387588978,
+    "confidence": 0.95,
+    "lower": -0.024297645315527916,
+    "upper": 0.016704633831977844,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second"
+   }
+  }
+ }
+}
