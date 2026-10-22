@@ -1,8 +1,13 @@
 # CountQA exemplar boxes: annotation request
 
-Status: **pending**. No box has been drawn or approved yet. `../exemplars.json` has
-`"status": "pending"`, and `scripts/countqa_eval.py` will not run the exemplar-conditioned arm
-until a human finishes these steps.
+Status: **pending**. No human has drawn or approved a box. `../exemplars.json` has
+`"status": "pending"`, and the human-box protocol of `scripts/countqa_eval.py` will not run the
+exemplar-conditioned arm until a human finishes these steps.
+
+Separately, AI-authored boxes are in `../exemplars_ai.json`. No human has reviewed them. They
+feed only the experimental protocol `countqa-ai-exemplars-v1` (`countqa_eval.py
+--annotation-source ai`), described in `../README.md`. They are not approved boxes and do not
+satisfy this request.
 
 We need one box per kept question: 439 questions, one per image, all from the frozen subset in
 `../eligibility.json`. Boxing takes about 5 to 10 seconds per image, so plan on roughly an hour.

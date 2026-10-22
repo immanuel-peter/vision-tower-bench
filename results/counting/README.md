@@ -160,7 +160,9 @@ every readout undercounts heavily, so read the per-bin tables.
 Letterbox check. The same frozen heads were run on letterboxed FSC-147 validation
 images. Validation MAE rises by 5.7 to 10.2 against the centre crop (free raw Tower).
 The letterbox count includes every release dot and the crop count only the retained
-ones, so this measures the transfer cost of the CountQA preprocessing only roughly.
+ones, so this measures the transfer cost of the CountQA preprocessing only roughly. For
+exemplar readouts, `centre_crop_val` covers the 1,068 exemplar-eligible validation images
+but the letterbox values cover all 1,286, so those rows do not compare the same images.
 
 These are frozen readouts trained for a fixed ten epochs on one dataset. Differences
 between Towers reflect this protocol, not general counting ability.

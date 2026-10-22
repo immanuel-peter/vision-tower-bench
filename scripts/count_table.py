@@ -155,8 +155,10 @@ def diagnostic_markdown(rows: list[dict]) -> str:
 def markdown(fsc: list[dict], diagnostics: list[dict], countqa: list[dict], label: str | None,
              failed: list[dict] | None = None) -> str:
     parts = []
-    if label:
-        parts.append(f"> **{label.upper()}**: {label} numbers, not final results.\n")
+    if label == "pilot":
+        parts.append("> **PILOT**: pilot numbers, not final results.\n")
+    elif label:
+        parts.append(f"> **{label}**\n")
     if failed:
         parts += ["## Failed cells (reported, not dropped)\n",
                   "| Model | Arm | Capacity | Cell | Error |", "|---|---|---|---|---|"]

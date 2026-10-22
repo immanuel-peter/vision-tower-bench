@@ -60,9 +60,10 @@ has no results.
 
 `exemplars_ai.json` holds user-authorized, AI-authored boxes. Three `gpt-6-astra` instances drew
 them through Codex/T3 (annotation protocol `user-authorized-ai-visual-exemplars-v1`, revision 2,
-export sha256 `3c113eae…b382`). **No human reviewed them:** `annotation_source = "ai"`,
-`box_source = "ai"`, `human_reviewed = false` and `approved_by = null` on the file and on every
-row. The file status is `ai_unreviewed`. The human finalizer (`countqa_annotate.py finalize`) was
+export sha256 `3c113eae…b382`). **No human reviewed them.** `annotation_source = "ai"`,
+`human_reviewed = false` and `approved_by = null` are set on the file and on every row, and
+`box_source = "ai"` on every boxed row. Excluded rows carry no box. The file status is
+`ai_unreviewed`. Each AI-exemplar result repeats this provenance in its `annotation` block. The human finalizer (`countqa_annotate.py finalize`) was
 not run on this export, because it would record the boxes as human-approved. The human loader in
 `countqa_eval.py` also refuses this file.
 
@@ -89,7 +90,9 @@ Review coverage:
 - AI annotators inspected all 439 images.
 - Every final box received an AI overlay recheck.
 - An independent AI adjudicator reviewed 26 items.
-- A parent AI spot-checked 24 items.
+- A parent AI spot-checked 24 items. `review_coverage.parent_ai_spot_check` copies those
+  records verbatim, so their statuses are from before adjudication. Seven differ from the final file: six
+  became `no_clean_instance` and one became `boxed`. `statement` is copied verbatim from the package audit.
 
 None of this is human review. Count answers were not used to choose boxes or exclusions.
 
@@ -134,14 +137,16 @@ The conditioned arm refuses to run unless `exemplars.json` is `approved`.
 
 Metrics:
 
-- MAE and RMSE (the square root of the mean `sq_error` over every seed × image row)
+- MAE, and RMSE as the mean over seeds of each seed's RMSE (`rmse`, the tables' RMSE ± sd);
+  `rmse_pooled` is the square root of the mean `sq_error` over every seed × image row
 - exact match, where a prediction counts as correct when `floor(pred + 0.5)` equals the answer
 - per-bin values and sample counts (`counting.count_bin` of the answer)
 
-Stage differences use the paired image bootstrap (`vtb.geometry_bootstrap.paired_metric_bootstrap`).
-Images are identical across Stages, seed k is paired with seed k, and each image's metric is
-averaged over seeds. It draws 10,000 resamples with bootstrap seed 0 and reports a 95%
-percentile interval.
+Each payload's own `stage_differences` use `vtb.geometry_bootstrap.paired_metric_bootstrap`.
+The committed intervals under `../bootstrap/` come from `scripts/count_bootstrap.py`
+(`vtb.count_bootstrap`), which also resamples RMSE. Both pair identical image IDs and seed k
+with seed k, average each image's metric over seeds, draw 10,000 resamples with bootstrap seed 0
+and report a 95% percentile interval.
 
 ## Results (experimental, supplementary)
 
@@ -163,6 +168,21 @@ under 512-dim reduction. There the exemplar-free arm is better for 5 Towers and 
 are unresolved. With full-width features it is better for 5 Towers, the exemplar for
 1, and 10 are unresolved.
 
-This adds to the FSC-147 finding that the one-channel exemplar conditioning rarely
-helps. It cannot separate a weak conditioning design from AI box errors or the
+This adds to the FSC-147 finding that the one-channel exemplar conditioning usually does
+not help. It cannot separate a weak conditioning design from AI box errors or the
 transfer gap.
+
+Regenerate the CountQA intervals and the AI-exemplar table from the repository root:
+
+```bash
+uv run python -m scripts.count_bootstrap countqa results/counting/countqa/*_count_free_*.json \
+  --out results/counting/bootstrap --relative-to . --label "<label>"
+uv run python -m scripts.count_bootstrap countqa results/counting/countqa/ai_exemplars/*_count_*.json \
+  --out results/counting/bootstrap/ai_exemplars --relative-to . --label "<label>"
+uv run python -m scripts.count_table --results /nonexistent \
+  --countqa results/counting/countqa/ai_exemplars/*_count_*.json \
+  --out results/counting/countqa/ai_exemplars --label "<label>"
+```
+
+The committed outputs record their exact labels.
+

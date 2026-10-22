@@ -1,4 +1,4 @@
-> **EXPERIMENTAL, SUPPLEMENTARY: AI-AUTHORED EXEMPLARS (NOT HUMAN-REVIEWED), 325 OF 439 QUESTIONS**: experimental, supplementary: AI-authored exemplars (not human-reviewed), 325 of 439 questions numbers, not final results.
+> **Experimental, supplementary: AI-authored exemplars (not human-reviewed). Every row, including Test IDs = all, covers only the 325 AI-boxed questions of the 439-question subset; not official CountQA scores.**
 
 ## CountQA-derived transfer (experimental, supplementary; frozen FSC-147 heads)
 

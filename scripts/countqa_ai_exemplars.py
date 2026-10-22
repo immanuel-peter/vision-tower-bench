@@ -156,7 +156,8 @@ def convert(export: dict, export_sha: str, audit: dict, eligibility: dict, eligi
             "inspected": audit.get("visual_inspection_count"),
             "boxed_overlay_rechecked_by_ai": audit.get("boxed_overlay_review_count"),
             "independent_ai_adjudication": audit.get("independent_adjudication_count"),
-            "parent_ai_spot_check": len(parent_qa["items"]) if parent_qa else None,
+            # Verbatim spot-check records; their statuses are as checked, before adjudication.
+            "parent_ai_spot_check": parent_qa.get("items") if parent_qa else None,
             "human_reviewed": 0, "answers_used_for_decisions": False,
             "statement": audit.get("coverage_statement"),
         },
