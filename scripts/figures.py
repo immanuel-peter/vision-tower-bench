@@ -17,7 +17,6 @@ from matplotlib.patches import Patch
 RESULTS = Path(__file__).resolve().parents[1] / "results"
 INDEX = json.loads((RESULTS / "index.json").read_text())
 SOURCES = INDEX["figure_sources"]
-LATER_COHORT = frozenset(INDEX["cohorts"]["v3"]["models"])
 TOWERS: tuple[str, ...] = (
     "dinov2",
     "siglip2",
@@ -30,13 +29,27 @@ TOWERS: tuple[str, ...] = (
     "gemma4",
     "moonvit_v2",
     "minimax_m3",
+    "nemotron35_super",
+    "nemotron35_bolt",
+    "dinov3",
+    "mimo26_pro",
+    "mimo26_flash",
 )
 PROJECTORS: tuple[str, ...] = tuple(
-    model for model in TOWERS if model not in ("dinov2", "siglip2")
+    model for model in TOWERS if model not in ("dinov2", "siglip2", "dinov3")
+)
+# Bolt is released without its Tower Stage, so it appears only where merged or projected cells count.
+NO_TOWER_STAGE = frozenset({"nemotron35_bolt"})
+TOWER_STAGE: tuple[str, ...] = tuple(model for model in TOWERS if model not in NO_TOWER_STAGE)
+OUTLIER_CHANNEL = frozenset({"mimo26_pro", "mimo26_flash"})
+OUTLIER_NOTE = (
+    "\u2020 one outlier channel dominates the final Tower layer; "
+    "see results/diagnostics/mimo26-tower-outlier-channel"
 )
 PALETTE: tuple[str, ...] = (
     "#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b",
     "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#393b79",
+    "#637939", "#b5cf6b", "#6baed6", "#843c39", "#d6616b",
 )
 COLOUR: dict[str, str] = dict(zip(TOWERS, PALETTE, strict=True))
 
@@ -53,7 +66,16 @@ DISPLAY: dict[str, str] = {
     "gemma4": "Gemma 4",
     "moonvit_v2": "Kimi K3",
     "minimax_m3": "MiniMax M3",
+    "nemotron35_super": "Nemotron Super",
+    "nemotron35_bolt": "Nemotron Bolt",
+    "dinov3": "DINOv3",
+    "mimo26_pro": "MiMo 2.6 Pro",
+    "mimo26_flash": "MiMo 2.6 Flash",
 }
+
+
+def flagged(model: str) -> str:
+    return DISPLAY[model] + ("\u2020" if model in OUTLIER_CHANNEL else "")
 
 
 def tower_name(label: str) -> str:
@@ -95,26 +117,27 @@ def projector_intervals() -> dict[str, list[tuple[str, float, float, float]]]:
 
 def projector_matrix(out: Path) -> None:
     panels = projector_intervals()
+    rows = [model for model in PROJECTORS if model not in NO_TOWER_STAGE]
     keys = [k for k in PANELS if k in panels]
     by_panel = {key: {row[0]: row[1:] for row in panels[key]} for key in keys}
     missing = [
         (key, model)
         for key in keys
-        for model in PROJECTORS
+        for model in rows
         if model not in by_panel[key]
     ]
     if missing:
         raise ValueError(f"missing Projector intervals: {missing}")
 
-    states = np.zeros((len(PROJECTORS), len(keys)), dtype=int)
+    states = np.zeros((len(rows), len(keys)), dtype=int)
     points = np.zeros_like(states, dtype=float)
     for x, key in enumerate(keys):
-        for y, model in enumerate(PROJECTORS):
+        for y, model in enumerate(rows):
             point, low, high = by_panel[key][model]
             points[y, x] = point
             states[y, x] = 1 if low > 0 else -1 if high < 0 else 0
 
-    figure, axis = plt.subplots(figsize=(10.8, 5.6))
+    figure, axis = plt.subplots(figsize=(10.8, 6.8))
     axis.imshow(
         states,
         aspect="auto",
@@ -122,7 +145,7 @@ def projector_matrix(out: Path) -> None:
         vmax=1,
         cmap=ListedColormap(("#f3ddd6", "#e6e8eb", "#dcebe4")),
     )
-    for y, model in enumerate(PROJECTORS):
+    for y, model in enumerate(rows):
         for x, key in enumerate(keys):
             suffix = "°" if "normal" in key else ""
             precision = 2 if suffix else 3
@@ -136,7 +159,7 @@ def projector_matrix(out: Path) -> None:
             )
 
     axis.set_xticks(range(len(keys)), [PANELS[key] for key in keys], fontsize=8)
-    axis.set_yticks(range(len(PROJECTORS)), [DISPLAY[model] for model in PROJECTORS], fontsize=8)
+    axis.set_yticks(range(len(rows)), [flagged(model) for model in rows], fontsize=8)
     axis.tick_params(length=0)
     axis.set_title(
         "Projector effect relative to the final Tower layer\n"
@@ -154,6 +177,8 @@ def projector_matrix(out: Path) -> None:
         ncol=3,
         frameon=False,
         fontsize=8,
+        title=OUTLIER_NOTE,
+        title_fontsize=7,
     )
     figure.tight_layout()
     figure.savefig(out, bbox_inches="tight")
@@ -168,24 +193,32 @@ def occlusion_conditions(cell: dict) -> list[dict]:
     ]
 
 
-def label_budget(out: Path, readout: str = "attention") -> None:
+def label_budget_series() -> dict[str, dict[float, float]]:
+    runs = json.loads((RESULTS / SOURCES["label_budget"]).read_text())["runs"]
     series = defaultdict(dict)
-    for path in sorted(RESULTS.glob(f"label-budget/*_probe_{readout}_matched_f*.json")):
-        model = path.stem.split("_probe_")[0]
-        payload = json.loads(path.read_text())
-        series[model][payload["label_fraction"]] = payload["cells"][0]["test_accuracy"]
+    for name, payload in runs.items():
+        model, cell = name.split("_probe_")
+        if cell.startswith("attention_matched_f"):
+            series[model][payload["label_fraction"]] = payload["cells"][0]["test_accuracy"]
+    return series
 
-    figure, axis = plt.subplots(figsize=(6, 4))
+
+def label_budget(out: Path) -> None:
+    series = label_budget_series()
+
+    figure, axis = plt.subplots(figsize=(6.4, 4.6))
     for model in TOWERS:
         points = sorted(series[model].items())
+        label = DISPLAY[model] + (" (merged)" if model in NO_TOWER_STAGE else "")
         axis.plot(
             [f for f, _ in points], [a for _, a in points],
-            marker="o", markersize=4, color=COLOUR[model], label=DISPLAY[model],
+            marker="o", markersize=4, color=COLOUR[model], label=label,
         )
     axis.set_xscale("log")
     axis.set_xticks([0.01, 0.05, 0.20, 1.0], ["1%", "5%", "20%", "100%"])
     axis.set_xlabel("labelled fraction of the training split (log scale)")
-    axis.set_ylabel(f"recognition top-1 ({readout}, matched)")
+    axis.set_ylabel("recognition top-1 (attention, matched)")
+    axis.set_title("Channels standardized before PCA", fontsize=10)
     axis.grid(alpha=0.25)
     axis.legend(fontsize=7, ncol=2)
     figure.tight_layout()
@@ -195,7 +228,7 @@ def label_budget(out: Path, readout: str = "attention") -> None:
 
 def relative_depth(out: Path, readout: str = "attention", arm: str = "matched") -> None:
     figure, axis = plt.subplots(figsize=(6, 4))
-    for model in TOWERS:
+    for model in TOWER_STAGE:
         path = RESULTS / SOURCES["recognition"].format(model=model, readout=readout, arm=arm)
         cells = [c for c in json.loads(path.read_text())["cells"] if c["stage"] == "tower"]
         cells.sort(key=lambda c: c["relative_depth"])
@@ -213,10 +246,14 @@ def relative_depth(out: Path, readout: str = "attention", arm: str = "matched") 
     plt.close(figure)
 
 
+# The MiMo Tower readout fails before any perturbation, so its occlusion curve measures nothing.
+OCCLUSION: tuple[str, ...] = tuple(model for model in TOWER_STAGE if model not in OUTLIER_CHANNEL)
+
+
 def occlusion(out: Path) -> None:
     figure, axis = plt.subplots(figsize=(6, 4))
     for path in sorted(RESULTS.glob("perturbation/*_perturbation.json")):
-        if path.name.removesuffix("_perturbation.json") not in TOWERS:
+        if path.name.removesuffix("_perturbation.json") not in OCCLUSION:
             continue
         payload = json.loads(path.read_text())
         model = tower_name(payload["model"])
@@ -228,7 +265,10 @@ def occlusion(out: Path) -> None:
         )
     axis.set_xlabel("occluded fraction of the image")
     axis.set_ylabel("top-1 accuracy")
-    axis.set_title("Recognition under occlusion", fontsize=10)
+    axis.set_title(
+        "Recognition under occlusion\n"
+        "MiMo 2.6 is omitted: its clean Tower accuracy is at chance", fontsize=10,
+    )
     axis.grid(alpha=0.25)
     axis.legend(fontsize=7, ncol=2)
     figure.tight_layout()
@@ -238,50 +278,56 @@ def occlusion(out: Path) -> None:
 
 def capability_profile(out: Path) -> None:
     axes_names = ["semantic 1%", "semantic 100%", "NAVI", "ScanNet", "SPair", "occlusion 50%"]
-    scores: dict[str, list[float]] = {m: [] for m in TOWERS}
+    scores: dict[str, list[float]] = {m: [] for m in TOWER_STAGE}
 
-    for readout_key in ("f001", "f10"):
-        for model in TOWERS:
-            path = RESULTS / f"label-budget/{model}_probe_attention_matched_{readout_key}.json"
-            scores[model].append(json.loads(path.read_text())["cells"][0]["test_accuracy"])
+    budget = label_budget_series()
+    for fraction in (0.01, 1.0):
+        for model in TOWER_STAGE:
+            scores[model].append(budget[model][fraction])
 
     for dataset, metric in (("navi", "recall_2cm"), ("scannet", "recall_10px"), ("spair", "pck_0.1")):
-        for model in TOWERS:
+        for model in TOWER_STAGE:
             payload = json.loads((RESULTS / f"correspondence/{model}_correspondence_{dataset}.json").read_text())
             tower = next(c for c in payload["cells"] if c["stage"] == "tower")
             scores[model].append(tower[metric])
 
-    for model in TOWERS:
+    for model in TOWER_STAGE:
+        if model not in OCCLUSION:
+            scores[model].append(np.nan)
+            continue
         payload = json.loads((RESULTS / f"perturbation/{model}_perturbation.json").read_text())
         cell = next(c for c in payload["cells"] if c["stage"] == "tower")
         worst = max(occlusion_conditions(cell), key=lambda c: c["value"])
         scores[model].append(worst["accuracy"])
 
-    ranks: dict[str, list[int]] = {m: [] for m in TOWERS}
+    ranks: dict[str, list[float]] = {m: [np.nan] * len(axes_names) for m in TOWER_STAGE}
     for column in range(len(axes_names)):
-        order = sorted(TOWERS, key=lambda m: -scores[m][column])
-        for position, model in enumerate(order, start=1):
-            ranks[model].append(position)
+        ranked = [m for m in TOWER_STAGE if not np.isnan(scores[m][column])]
+        for position, model in enumerate(sorted(ranked, key=lambda m: -scores[m][column]), start=1):
+            ranks[model][column] = position
 
-    figure, axis = plt.subplots(figsize=(7, 4))
-    for model in TOWERS:
+    figure, axis = plt.subplots(figsize=(7.4, 5))
+    for model in TOWER_STAGE:
         axis.plot(range(len(axes_names)), ranks[model], marker="o", color=COLOUR[model], label=DISPLAY[model])
     axis.set_xticks(range(len(axes_names)), axes_names, fontsize=8)
-    axis.set_yticks(range(1, len(TOWERS) + 1))
+    axis.set_yticks(range(1, len(TOWER_STAGE) + 1))
     axis.invert_yaxis()
     axis.set_ylabel("rank (1 is best)")
-    axis.set_title("Capability Profile ranks", fontsize=10)
+    axis.set_title(
+        "Capability Profile ranks\n"
+        "Semantic axes standardize channels; MiMo 2.6 has no occlusion rank", fontsize=10,
+    )
     axis.grid(alpha=0.25)
-    axis.legend(fontsize=7, ncol=3)
+    axis.legend(fontsize=7, loc="upper left", bbox_to_anchor=(1.01, 1.0), frameon=False)
     figure.tight_layout()
     figure.savefig(out, bbox_inches="tight")
     plt.close(figure)
 
 
 def peaks(out: Path) -> None:
-    figure, (top, bottom) = plt.subplots(2, 1, figsize=(6.5, 6.4), sharex=True)
+    figure, (top, bottom) = plt.subplots(2, 1, figsize=(6.5, 6.8), sharex=True)
 
-    for model in TOWERS:
+    for model in TOWER_STAGE:
         path = RESULTS / SOURCES["recognition"].format(
             model=model, readout="attention", arm="matched",
         )
@@ -318,8 +364,9 @@ def peaks(out: Path) -> None:
     for axis in (top, bottom):
         axis.axvline(1.0, color="0.45", linewidth=1, linestyle=":")
         axis.grid(alpha=0.25)
-    top.legend(fontsize=7, ncol=4)
     figure.tight_layout()
+    figure.legend(*top.get_legend_handles_labels(), loc="upper center", bbox_to_anchor=(0.5, 0.0),
+                  ncol=4, fontsize=7, frameon=False)
     figure.savefig(out, bbox_inches="tight")
     plt.close(figure)
 
@@ -328,12 +375,11 @@ def semantic_forest(out: Path) -> None:
     rows = []
     for path in sorted(RESULTS.glob("bootstrap/semantic-*-vs-*.json")):
         payload = json.loads(path.read_text())
-        if {payload["first"]["name"], payload["second"]["name"]} & LATER_COHORT:
-            continue
         protocol, difference = payload["protocol"], payload["difference"]
+        stage = f", {protocol['stage']}" if "stage" in protocol else ""
         label = (
             f"{payload['first']['name']} - {payload['second']['name']}\n"
-            f"{protocol['readout']}, {protocol['arm']}"
+            f"{protocol['readout']}, {protocol['arm']}{stage}"
         )
         rows.append((label, difference["point_estimate"], difference["lower"], difference["upper"]))
 
@@ -363,7 +409,7 @@ def semantic_forest(out: Path) -> None:
 def stage_levels(out: Path) -> None:
     stages = ["tower", "merged", "projected"]
 
-    figure, axis = plt.subplots(figsize=(5.6, 4.2))
+    figure, axis = plt.subplots(figsize=(6.2, 4.8))
     for model in PROJECTORS:
         path = RESULTS / SOURCES["geometry_stage_levels"][model]
         cells = json.loads(path.read_text())["cells"]
@@ -371,15 +417,17 @@ def stage_levels(out: Path) -> None:
         for cell in cells:
             if cell["relative_depth"] == 1.0:
                 deepest[cell["stage"]] = cell["d1"]
-        values = [deepest[s] for s in stages if s in deepest]
-        axis.plot(range(len(values)), values, marker="o", color=COLOUR[model], label=DISPLAY[model])
+        present = [index for index, stage in enumerate(stages) if stage in deepest]
+        axis.plot(present, [deepest[stages[index]] for index in present],
+                  marker="o", color=COLOUR[model], label=flagged(model))
 
     axis.set_xticks(range(len(stages)), stages)
     axis.set_xlabel("Stage, at the deepest Relative Depth")
     axis.set_ylabel("DIODE depth (d1), matched")
     axis.set_title("Deepest-stage DIODE depth\nOriginal six Towers use the deterministic rerun", fontsize=10)
     axis.grid(alpha=0.25, axis="y")
-    axis.legend(fontsize=7, ncol=3)
+    axis.legend(fontsize=7, ncol=3, title=OUTLIER_NOTE, title_fontsize=6,
+                loc="upper center", bbox_to_anchor=(0.5, -0.16), frameon=False)
     figure.tight_layout()
     figure.savefig(out, bbox_inches="tight")
     plt.close(figure)

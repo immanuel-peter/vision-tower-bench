@@ -28,16 +28,18 @@ historical filename slugs `qwen3_5` and `moonvit_v2` mean Qwen3.8 and Kimi K3.
 
 The v1 cohort is DINOv2, SigLIP2, Muse Glimmer, Kimi K2.6, Qwen3.8, and
 Kimi K3. The published v2 report adds GLM 5.3 Flash, Nemotron Omni, DeepSeek V4.1,
-Gemma 4, and MiniMax M3. The default figure command draws this eleven-Tower
-v2 cohort. The six-Tower grouping identifies the scope of older runs and
+Gemma 4, and MiniMax M3. The default figure command draws the v2 cohort and
+the v3 cohort below. The six-Tower grouping identifies the scope of older runs and
 corrections, not the limits of the current publication.
 
 The v3 cohort adds Nemotron Super (`nemotron35_super`), Nemotron Bolt
 (`nemotron35_bolt`), DINOv3 (`dinov3`), MiMo 2.6 Pro (`mimo26_pro`), and MiMo
-2.6 Flash (`mimo26_flash`). Their recognition, geometry,
-correspondence, and perturbation files sit beside the v2 files but are not in
-the default figures, and they have no KITTI or label-budget records yet. Only
-DINOv3 and the MiMo pair have bootstrap records. Super has every
+2.6 Flash (`mimo26_flash`). Their files sit beside the v2 files and are in the
+default figures. Every v3 Tower has label-budget records, with Bolt at merged
+L32. Super and the MiMo pair have KITTI cells and projected-versus-Tower
+intervals. The default label-budget figure reads the channel-standardized runs in
+the [outlier-channel diagnostic](diagnostics/mimo26-tower-outlier-channel/README.md)
+for all sixteen Towers. Super has every
 Stage. Super's Tower cells precede its final LayerNorm, which runs before the
 merge. Bolt has no such LayerNorm and only `merged` and `projected` cells; its
 single final Tower cell is the
@@ -123,6 +125,11 @@ dominates the unscaled PCA in the readout, which the short perturbation training
 cannot escape; standardizing channels restores 72%. These cells are a readout
 failure, so do not read Tower robustness from these files. See the
 [outlier-channel diagnostic](diagnostics/mimo26-tower-outlier-channel/README.md).
+The same channel lowers the matched and raw geometry cells at Tower L28, where
+matched depth d1 falls from 0.64 (Pro) and 0.65 (Flash) at L24 to 0.47 and
+0.46. The MiMo projected-versus-Tower
+intervals compare against that cell, so their Projector advantages partly
+measure the Tower readout.
 
 For matched DIODE comparisons at the deepest layer, use
 `geometry/deterministic/` for the original six Towers. The other five use

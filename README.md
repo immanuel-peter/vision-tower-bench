@@ -55,7 +55,8 @@ uv sync --group figures
 uv run --group figures python scripts/figures.py
 ```
 
-This renders the v2 eleven-Tower suite; the v3 Towers are not in the default figures. See the
+This renders all sixteen Towers. The label-budget figure and the Capability Profile's semantic
+axes use channel-standardized readouts, and MiMo 2.6 is left out of the occlusion figure. See the
 [source-selection notes](results/README.md#choose-the-right-source) for the
 scope of the geometry corrections and the historical layer sweeps.
 
@@ -86,7 +87,7 @@ CONTEXT.md    # project vocabulary
 
 ```bash
 uv run pytest -q                      # full suite, downloads Tower weights
-VTB_SKIP_WEIGHTS=1 uv run pytest -q   # 134 tests, no downloads
+VTB_SKIP_WEIGHTS=1 uv run pytest -q   # 135 tests, no downloads
 ```
 
 ## License

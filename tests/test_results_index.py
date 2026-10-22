@@ -39,7 +39,8 @@ def test_correction_scope_preserves_full_sweeps_and_cohort_membership():
             assert {cell["relative_depth"] for cell in payload["cells"]} == {1.0}
 
     sources = INDEX["figure_sources"]
-    assert set(sources["geometry_stage_levels"]) == v1 | additions
+    v3_projectors = {"nemotron35_super", "nemotron35_bolt", "mimo26_pro", "mimo26_flash"}
+    assert set(sources["geometry_stage_levels"]) == v1 | additions | v3_projectors
     for model in v1 | additions:
         sweep = RESULTS / sources["geometry_layer_sweep"].format(model=model)
         cells = json.loads(sweep.read_text())["cells"]
@@ -58,15 +59,22 @@ def test_correction_scope_preserves_full_sweeps_and_cohort_membership():
                 )).is_file()
 
 
-def test_v3_cohort_uses_the_standard_layout_outside_the_figures():
+def test_v3_cohort_uses_the_standard_layout():
     models = INDEX["cohorts"]["v3"]["models"]
     assert set(models) == {"nemotron35_super", "nemotron35_bolt", "dinov3", "mimo26_pro", "mimo26_flash"}
-    assert not set(models) & set(INDEX["figure_sources"]["geometry_stage_levels"])
+    stage_levels = INDEX["figure_sources"]["geometry_stage_levels"]
+    assert set(models) & set(stage_levels) == set(models) - {"dinov3"}
+    for model in set(models) - {"dinov3"}:
+        assert stage_levels[model] == f"geometry/{model}_geometry_depth_matched.json"
     for model in models:
         paths = [f"perturbation/{model}_perturbation.json"]
         paths += [f"recognition/{model}_probe_{r}_{a}.json" for r in ("attention", "mean") for a in ("raw", "matched")]
         paths += [f"geometry/{model}_geometry_{t}_{a}.json" for t in ("depth", "normal") for a in ("raw", "matched")]
         paths += [f"correspondence/{model}_correspondence_{d}.json" for d in ("navi", "scannet", "spair")]
+        paths += [
+            f"label-budget/{model}_probe_{r}_matched_{f}.json"
+            for r in ("attention", "mean") for f in ("f001", "f005", "f020", "f10")
+        ]
         for path in paths:
             assert (RESULTS / path).is_file(), path
     assert not (RESULTS / "v3").exists()

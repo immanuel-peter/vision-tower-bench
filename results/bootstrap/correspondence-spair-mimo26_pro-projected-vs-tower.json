@@ -1,0 +1,56 @@
+{
+  "protocol": {
+    "dataset": "spair",
+    "metric": "pck_0.1",
+    "pairing": "paired over image pairs",
+    "resolution": 448,
+    "evaluation_side": 64,
+    "num_correspondences": 1000
+  },
+  "model": "mimo26_pro",
+  "model_id": "immanuelpeter/MiMoViT-2.6-Pro",
+  "first": "projected:28",
+  "second": "tower:28",
+  "first_advantage": {
+    "point_estimate": 0.026875128969550133,
+    "confidence": 0.95,
+    "lower": 0.01908217743039131,
+    "upper": 0.03484927862882614,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second",
+    "pairs": 3408
+  },
+  "by_difficulty": {
+    "0": {
+      "point_estimate": 0.02907082624733448,
+      "confidence": 0.95,
+      "lower": 0.018371164798736572,
+      "upper": 0.0400255061686039,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 1802
+    },
+    "1": {
+      "point_estimate": 0.026765016838908195,
+      "confidence": 0.95,
+      "lower": 0.013745722360908985,
+      "upper": 0.039601270109415054,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 1323
+    },
+    "2": {
+      "point_estimate": 0.013408823870122433,
+      "confidence": 0.95,
+      "lower": -0.013600939884781837,
+      "upper": 0.04120120406150818,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 283
+    }
+  }
+}
