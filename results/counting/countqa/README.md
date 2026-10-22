@@ -1,7 +1,10 @@
 # CountQA: curated transfer subset for the FSC-147 count readouts
 
-This is exemplar-based frozen-feature counting on a curated CountQA subset. It is not MLLM
-question answering. Don't put these numbers next to MLLM CountQA scores.
+**Experimental and supplementary.** This is exemplar-based frozen-feature counting transfer on a
+curated CountQA-derived subset, read by FSC-147-trained heads. These are not official CountQA
+benchmark scores, and they are not MLLM question answering. Don't put these numbers next to
+published CountQA MLLM scores. FSC-147 is the primary counting experiment. CountQA adds exploratory
+transfer evidence and should not by itself support headline claims about Tower quality.
 
 Source: `Jayant-Sravan/CountQA` at revision `f92cc6fe46542c61e2916e3d2ae9a911e2216b1a`,
 CC-BY-4.0. Citation: Tamarapalli, Grover, Pande, Yerramilli, *CountQA: How Well Do MLLMs
@@ -50,7 +53,60 @@ orientation.
 ## Exemplars
 
 `exemplars.json` is **pending**. See `annotation/README.md` for the human annotation request,
-the protocol and the local tool.
+the protocol and the local tool. No human box has been approved, so the human-box protocol below
+has no results.
+
+### AI-authored exemplars (experimental protocol `countqa-ai-exemplars-v1`)
+
+`exemplars_ai.json` holds user-authorized, AI-authored boxes. Three `gpt-6-astra` instances drew
+them through Codex/T3 (annotation protocol `user-authorized-ai-visual-exemplars-v1`, revision 2,
+export sha256 `3c113eae…b382`). **No human reviewed them:** `annotation_source = "ai"`,
+`box_source = "ai"`, `human_reviewed = false` and `approved_by = null` on the file and on every
+row. The file status is `ai_unreviewed`. The human finalizer (`countqa_annotate.py finalize`) was
+not run on this export, because it would record the boxes as human-approved. The human loader in
+`countqa_eval.py` also refuses this file.
+
+`scripts/countqa_ai_exemplars.py` builds the file from the delivered package. It checks:
+
+- the package `SHA256SUMS.txt`
+- the frozen sheet and eligibility hashes
+- every source image's sha256 against the prepared manifest
+- image sizes
+- box bounds, at least 2 px per side
+- that each normalized box matches its pixel box
+- the status counts
+
+Coverage of the 439 frozen questions:
+
+| status | questions | use |
+|---|---:|---|
+| `boxed` | 325 | included; one AI box each |
+| `no_clean_instance` | 105 | excluded: no complete, unoccluded instance |
+| `needs_review` | 9 | excluded: unresolved target identity or boundary; never boxed |
+
+Review coverage:
+
+- AI annotators inspected all 439 images.
+- Every final box received an AI overlay recheck.
+- An independent AI adjudicator reviewed 26 items.
+- A parent AI spot-checked 24 items.
+
+None of this is human review. Count answers were not used to choose boxes or exclusions.
+
+`countqa_eval.py --annotation-source ai` scores both arms on exactly the 325 AI-boxed image IDs.
+Conditioned and exemplar-free cells therefore pair image for image. Results go to `ai_exemplars/`.
+Each result records the annotation provenance, the full 439 → 325 breakdown, the sha256 of the
+included IDs, and this label. The exemplar-free score on all 439 questions comes from the default
+mode and stays a separate result.
+
+Limitations:
+
+- Transfer: heads trained on FSC-147 centre crops read letterboxed whole images.
+- Annotation: boxes may contain AI errors in boundary or target identity.
+- Selection: requiring a clean exemplar may remove the hardest images.
+- Robustness: sensitivity to the choice of exemplar, and whether rankings hold under other
+  exemplars or protocol choices, are not established.
+- Calibration: no CountQA result selected any weight, rate, calibration or checkpoint.
 
 ## Evaluation (`scripts/countqa_eval.py`)
 

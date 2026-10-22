@@ -11,6 +11,7 @@ from PIL import Image
 from torch import nn
 from torch.nn.functional import interpolate, softplus
 
+from scripts import countqa_ai_exemplars as ai_ex
 from scripts import countqa_annotate as annotate
 from scripts import countqa_eval as cqe
 from scripts import prep_countqa as prep
@@ -459,3 +460,124 @@ def test_stage_bootstrap_pairs_identical_ids_and_seeds():
     assert diff["exact_match"]["point_estimate"] == pytest.approx(1.0)
     with pytest.raises(ValueError, match="share"):
         cqe.stage_differences([first, second | {"seeds": [0, 2]}], true, 100, 0.95, 0)
+
+
+# ---------------------------------------------------------------- AI-authored exemplars (experimental)
+AI_PROVENANCE = {"annotation_source": "ai", "human_reviewed": False, "approved_by": None}
+
+
+def ai_export(eligibility, statuses):
+    items = []
+    for (image_id, entry), status in zip(sorted(eligibility["kept"].items()), statuses):
+        box = [2.0, 3.0, 10.0, 12.0] if status == "boxed" else None
+        size = [entry["width"], entry["height"]] * 2
+        items.append({"question_id": entry["question_id"], "image_id": image_id, "status": status,
+                      "image_width": entry["width"], "image_height": entry["height"], "box_px": box,
+                      "box_source_unit": [b / s for b, s in zip(box, size)] if box else None,
+                      "box_source": "ai" if box else None, "annotation_model": "m", "confidence": 0.9,
+                      "annotated_at": "t", "note": "n", **AI_PROVENANCE})
+    counts = {s: statuses.count(s) for s in ai_ex.STATUSES}
+    export = {"format": annotate.EXPORT_FORMAT, "annotation_protocol": ai_ex.ANNOTATION_PROTOCOL,
+              "sheet_sha256": "s", "eligibility_sha256": "e", "annotator": "m", "exported_at": "t",
+              "counts": counts, "items": items, **AI_PROVENANCE}
+    audit = {"export_sha256": "x", "answers_used_for_decisions": False, "visual_inspection_count": 3,
+             "boxed_overlay_review_count": counts["boxed"], "independent_adjudication_count": 1,
+             "items": [{"question_id": i["question_id"], "image_id": i["image_id"], "status": i["status"],
+                        "image_sha256": eligibility["kept"][i["image_id"]]["image_sha256"],
+                        "review_status": "r"} for i in items], **AI_PROVENANCE}
+    return export, audit
+
+
+def ai_manifest(eligibility):
+    return {"eligibility_sha256": "e", "images": {
+        image_id: {"question_id": e["question_id"], "width": e["width"], "height": e["height"],
+                   "source_sha256": e["image_sha256"]} for image_id, e in eligibility["kept"].items()}}
+
+
+def test_ai_exemplars_keep_ai_provenance_and_unresolved_status():
+    eligibility = tiny_eligibility()
+    export, audit = ai_export(eligibility, ["boxed", "needs_review", "no_clean_instance"])
+    out = ai_ex.convert(export, "x", audit, eligibility, "e", "s", ai_manifest(eligibility))
+    assert out["status"] == "ai_unreviewed" and out["status"] != "approved"
+    assert out["human_reviewed"] is False and out["approved_by"] is None and out["experimental"] is True
+    assert out["counts"] == {"questions": 3, "boxed": 1, "no_clean_instance": 1, "needs_review": 1}
+    boxed = out["items"]["countqa_0001_aaaaaaaa_q0"]
+    assert boxed["box_source"] == "ai" and boxed["annotation_source"] == "ai" and not boxed["human_reviewed"]
+    assert boxed["box_letterbox_unit"] == pytest.approx([2 / 64, 19 / 64, 10 / 64, 28 / 64])
+    unresolved = out["items"]["countqa_0002_bbbbbbbb_q1"]
+    assert unresolved["status"] == "needs_review" and unresolved["box_px"] is None
+    assert unresolved["excluded_reason"] == "needs_review_unresolved"
+    # the human finalizer is a different protocol and refuses unresolved rows
+    with pytest.raises(ValueError):
+        annotate.finalize(export, "x", eligibility, "e", "s", "Ann")
+
+
+@pytest.mark.parametrize("field, value", [("human_reviewed", True), ("approved_by", "Ann"),
+                                          ("annotation_source", "human")])
+def test_ai_exemplars_refuse_human_provenance(field, value):
+    eligibility = tiny_eligibility()
+    export, audit = ai_export(eligibility, ["boxed", "boxed", "no_clean_instance"])
+    export["items"][0][field] = value
+    with pytest.raises(ValueError, match="human_reviewed=false"):
+        ai_ex.convert(export, "x", audit, eligibility, "e", "s", ai_manifest(eligibility))
+
+
+def test_ai_exemplars_check_image_bytes_and_counts():
+    eligibility = tiny_eligibility()
+    export, audit = ai_export(eligibility, ["boxed", "boxed", "no_clean_instance"])
+    audit["items"][0]["image_sha256"] = "other"
+    with pytest.raises(ValueError, match="image bytes"):
+        ai_ex.convert(export, "x", audit, eligibility, "e", "s", ai_manifest(eligibility))
+    export, audit = ai_export(eligibility, ["boxed", "boxed", "no_clean_instance"])
+    export["counts"]["boxed"] = 3
+    with pytest.raises(ValueError, match="reconcile"):
+        ai_ex.convert(export, "x", audit, eligibility, "e", "s", ai_manifest(eligibility))
+
+
+def ai_fixture(tmp_path, statuses=("boxed", "needs_review", "boxed")):
+    args = build_fixture(tmp_path)
+    eligibility = tiny_eligibility()
+    export, audit = ai_export(eligibility, list(statuses))
+    payload = ai_ex.convert(export, "x", audit, eligibility, "e", "s", ai_manifest(eligibility))
+    path = tmp_path / "exemplars_ai.json"
+    path.write_text(json.dumps(payload))
+    args.exemplars, args.annotation_source = path, "ai"
+    return args
+
+
+def test_ai_eval_pairs_both_arms_on_the_ai_boxed_ids(tmp_path):
+    args = ai_fixture(tmp_path)
+    conditioned = cqe.evaluate(args, Loader(conditioned=True))
+    args.arm = "free"
+    free = cqe.evaluate(args, Loader(conditioned=False))
+    for payload in (conditioned, free):
+        assert payload["label"] == cqe.AI_LABEL and payload["experimental"] is True
+        assert payload["official_countqa_benchmark"] is False
+        assert payload["annotation"]["human_reviewed"] is False and payload["annotation"]["approved_by"] is None
+        assert payload["annotation"]["selection"] == {"questions": 3, "included_boxed": 2,
+                                                      "excluded_no_clean_instance": 0,
+                                                      "excluded_needs_review_unresolved": 1}
+        assert payload["dataset"]["excluded"] == {"countqa_0002_bbbbbbbb": "needs_review_unresolved"}
+        assert payload["dataset"]["evaluated_images"] == 2
+    assert conditioned["_cells"][0]["image_ids"] == free["_cells"][0]["image_ids"]
+    assert "metrics_common_exemplar_subset" not in free["cells"][0]
+
+
+def test_ai_eval_refuses_human_files_and_human_eval_refuses_ai_files(tmp_path):
+    args = ai_fixture(tmp_path)
+    ai_path = args.exemplars
+    args.exemplars = tmp_path / "exemplars.json"  # the approved human file of build_fixture
+    with pytest.raises(cqe.Refused, match="not an vtb-countqa-exemplars-ai-v1"):
+        cqe.evaluate(args, Loader(conditioned=True))
+    args.exemplars, args.annotation_source = ai_path, "human"
+    with pytest.raises(cqe.Refused, match="not 'approved'"):
+        cqe.evaluate(args, Loader(conditioned=True))
+
+
+def test_ai_eval_refuses_a_box_on_an_unresolved_row(tmp_path):
+    args = ai_fixture(tmp_path)
+    data = json.loads(args.exemplars.read_text())
+    data["items"]["countqa_0002_bbbbbbbb_q1"]["box_px"] = [1.0, 1.0, 5.0, 5.0]
+    args.exemplars.write_text(json.dumps(data))
+    with pytest.raises(cqe.Refused, match="carries a box"):
+        cqe.evaluate(args, Loader(conditioned=True))

@@ -177,9 +177,12 @@ def markdown(fsc: list[dict], diagnostics: list[dict], countqa: list[dict], labe
                   "three-box validation error from the cell's `.val.tsv`.\n",
                   diagnostic_markdown(diagnostics), ""]
     if countqa:
-        parts += ["## CountQA transfer (curated subset; frozen FSC-147 heads)\n",
-                  "Exemplar-based frozen-feature counting on a curated CountQA subset; not MLLM question "
-                  "answering and not comparable to MLLM CountQA scores. Exact match: floor(pred + 0.5) == answer.\n",
+        parts += ["## CountQA-derived transfer (experimental, supplementary; frozen FSC-147 heads)\n",
+                  "Experimental, supplementary: exemplar-based frozen-feature counting transfer on a curated "
+                  "CountQA-derived subset. These are not official CountQA benchmark scores, not MLLM question "
+                  "answering, and not comparable to published CountQA MLLM results. Results with AI-authored "
+                  "exemplars (not human-reviewed) carry that provenance in their JSON. "
+                  "Exact match: floor(pred + 0.5) == answer.\n",
                   headline_markdown(countqa), "",
                   "### Per count bin (true answer; † marks n < 30)\n", bin_markdown(countqa), ""]
     return "\n".join(parts) + "\n"

@@ -18,6 +18,17 @@ Primary result: the exemplar-conditioned arm (one approved human box per image),
 Secondary: the exemplar-free arm at every Stage. The conditioned arm refuses to run unless
 results/counting/countqa/exemplars.json has status "approved".
 
+``--annotation-source ai`` is a separate, experimental protocol (countqa-ai-exemplars-v1). It reads
+the AI-authored boxes in results/counting/countqa/exemplars_ai.json (scripts/countqa_ai_exemplars.py),
+keeps their provenance (annotation_source=ai, human_reviewed=false, approved_by=null), excludes the
+no_clean_instance and unresolved needs_review questions, and scores both arms on exactly the
+AI-boxed image IDs so conditioned and exemplar-free cells pair image for image. Outputs go to
+results/counting/countqa/ai_exemplars/. The exemplar-free score on all kept questions comes only from
+the default mode and stays separate.
+
+Every CountQA result here is experimental and supplementary: an FSC-147-trained counting transfer on
+a CountQA-derived subset, not official CountQA benchmark scores.
+
 Metrics per Stage cell: MAE, RMSE (sqrt of the mean squared error over all seed x image rows),
 exact match after floor(pred + 0.5), and per-bin values with sample counts (counting.count_bin
 of the true answer). Stage differences use the paired image bootstrap of
@@ -40,10 +51,13 @@ from pathlib import Path
 import numpy as np
 import torch
 
+from scripts import countqa_ai_exemplars as ai_exemplars
 from vtb import cache, counting
 from vtb.geometry_bootstrap import paired_metric_bootstrap
 
-LABEL = "exemplar-based frozen-feature counting on a curated CountQA subset"
+LABEL = ("experimental, supplementary: exemplar-based frozen-feature counting transfer on a curated "
+         "CountQA-derived subset; not official CountQA benchmark scores")
+AI_LABEL = ai_exemplars.EVALUATION_LABEL
 NOT_MLLM = ("Frozen Tower/Stage features read by FSC-147-trained count heads; not MLLM question "
             "answering and not comparable to MLLM CountQA scores.")
 STAGE_ORDER = ("tower", "merged", "projected")
@@ -52,6 +66,7 @@ VARIANTS = ("raw", "matched")
 TSV_COLUMNS = ("image_id", "split", "stage", "layer", "arm", "seed", "true_count", "predicted_count",
                "signed_error", "abs_error", "sq_error", "bin")
 RESULTS = Path("results/counting/countqa")
+AI_RESULTS = RESULTS / "ai_exemplars"
 CELL_DIR = re.compile(r"^(?P<stage>tower|merged|projected)_L(?P<layer>\d+)$")
 
 
@@ -108,6 +123,58 @@ def load_exemplars(path: Path, manifest: dict) -> tuple[dict[str, np.ndarray], d
             raise Refused(f"{question_id}: stored letterbox box does not match its pixel box")
         boxes[image_id] = unit[None, :].astype(np.float64)
     return boxes, excluded
+
+
+def load_ai_exemplars(path: Path, manifest: dict) -> tuple[dict[str, np.ndarray], dict[str, str], dict]:
+    """AI-authored letterbox unit boxes per image ID, the excluded IDs with reasons, and provenance.
+
+    A separate protocol from load_exemplars: it accepts only the exemplars_ai.json format, keeps
+    every record AI-sourced and unreviewed, and excludes no_clean_instance and needs_review rows.
+    """
+    if path is None or not Path(path).exists():
+        raise Refused("AI-exemplar evaluation needs results/counting/countqa/exemplars_ai.json")
+    data = json.loads(Path(path).read_text())
+    if data.get("format") != ai_exemplars.AI_FORMAT or data.get("status") != ai_exemplars.AI_STATUS:
+        raise Refused(f"{path} is not an {ai_exemplars.AI_FORMAT} file with status {ai_exemplars.AI_STATUS!r}")
+    if data.get("eligibility_sha256") != manifest["eligibility_sha256"]:
+        raise Refused("exemplars were drawn for a different eligibility file")
+    wanted = {entry["question_id"]: image_id for image_id, entry in manifest["images"].items()}
+    if set(data["items"]) != set(wanted):
+        raise Refused("exemplar questions differ from the prepared CountQA images")
+    records = [data, *data["items"].values()]
+    if any(r.get("annotation_source") != "ai" or r.get("human_reviewed") is not False
+           or r.get("approved_by") is not None for r in records):
+        raise Refused("AI exemplars must keep annotation_source='ai', human_reviewed=false, approved_by=null")
+    boxes, excluded = {}, {}
+    for question_id, item in data["items"].items():
+        image_id = wanted[question_id]
+        if item["status"] in ai_exemplars.EXCLUSION:
+            if item.get("box_px") is not None:
+                raise Refused(f"{question_id}: {item['status']} row carries a box")
+            excluded[image_id] = ai_exemplars.EXCLUSION[item["status"]]
+            continue
+        if item["status"] != "boxed" or item.get("box_source") != "ai" or item.get("box_px") is None:
+            raise Refused(f"{question_id}: status {item['status']!r}, source {item.get('box_source')!r}")
+        entry = manifest["images"][image_id]
+        frame = counting.letterbox_frame(entry["width"], entry["height"])
+        unit, kept = counting.clip_box(frame.boxes(np.asarray(item["box_px"], dtype=np.float64))[0])
+        if kept < 1.0 - 1e-9 or not np.allclose(unit, item["box_letterbox_unit"], atol=1e-5):
+            raise Refused(f"{question_id}: stored letterbox box does not match its pixel box")
+        boxes[image_id] = unit[None, :].astype(np.float64)
+    reasons = list(excluded.values())
+    provenance = {
+        "protocol": data["protocol"], "annotation_protocol": data["annotation_protocol"],
+        "annotation_source": "ai", "annotation_model": data["annotation_model"], "human_reviewed": False,
+        "approved_by": None, "annotation_revision": data.get("annotation_revision"),
+        "exemplars_sha256": sha256_file(Path(path)), "source_export_sha256": data["source"]["export_sha256"],
+        "review_coverage": {k: v for k, v in data["review_coverage"].items() if k != "statement"},
+        "selection": {"questions": len(data["items"]), "included_boxed": len(boxes),
+                      "excluded_no_clean_instance": reasons.count("no_clean_instance"),
+                      "excluded_needs_review_unresolved": reasons.count("needs_review_unresolved")},
+        "included_image_ids_sha256": hashlib.sha256("\n".join(sorted(boxes)).encode()).hexdigest(),
+        "limitations": data["limitations"],
+    }
+    return boxes, excluded, provenance
 
 
 def readout_cells(root: Path, arm: str, variant: str, stages: list[str] | None) -> list[tuple[str, int, Path]]:
@@ -261,17 +328,21 @@ def evaluate(args, loader: Callable | None = None) -> dict:
     """Run the evaluation and return the payload (written by main)."""
     manifest = json.loads(Path(args.manifest).read_text())
     frames = load_frames(manifest)
+    ai = getattr(args, "annotation_source", "human") == "ai"
     exemplar_status = (json.loads(Path(args.exemplars).read_text()).get("status")
                        if args.exemplars and Path(args.exemplars).exists() else None)
-    boxes, excluded = None, {}
-    if args.arm == "exemplar":
+    boxes, excluded, annotation = None, {}, None
+    if ai:
+        # Both arms run on the AI-boxed IDs only; refuses before any readout loads.
+        boxes, excluded, annotation = load_ai_exemplars(args.exemplars, manifest)
+    elif args.arm == "exemplar":
         boxes, excluded = load_exemplars(args.exemplars, manifest)  # refuses before any readout loads
     elif exemplar_status == "approved":
         boxes, excluded = load_exemplars(args.exemplars, manifest)  # common-subset report only
     cache_info = check_cache(args.features, Path(args.manifest), args.allow_incomplete_cache)
     loader = loader or default_loader()
 
-    image_ids = sorted(i for i in manifest["images"] if not (args.arm == "exemplar" and i in excluded))
+    image_ids = sorted(i for i in manifest["images"] if not ((ai or args.arm == "exemplar") and i in excluded))
     true = np.array([manifest["images"][i]["answer"] for i in image_ids], dtype=np.float64)
     cells = []
     for stage, layer, directory in readout_cells(args.readouts, args.arm, args.variant, args.stages):
@@ -314,7 +385,7 @@ def evaluate(args, loader: Callable | None = None) -> dict:
                 "tokens_per_image": int(tokens.shape[1]), "seeds": list(args.seeds),
                 "image_ids": image_ids, "predicted": predicted}
         cell["metrics"] = summarise(predicted, true)
-        if args.arm == "free" and boxes is not None:
+        if args.arm == "free" and boxes is not None and not ai:
             common = [k for k, i in enumerate(image_ids) if i not in excluded]
             cell["metrics_common_exemplar_subset"] = summarise(predicted[:, common], true[common])
         cell["seed_readouts"] = seeds_meta
@@ -323,11 +394,19 @@ def evaluate(args, loader: Callable | None = None) -> dict:
 
     differences = stage_differences(cells, true, args.resamples, args.confidence, args.bootstrap_seed)
     primary = next((c["key"] for c in cells if c["stage"] == "tower"), None) if args.arm == "exemplar" else None
+    if ai:
+        role = ("experimental, supplementary: exemplar-conditioned, one AI-authored box (not human-reviewed)"
+                if args.arm == "exemplar" else
+                "experimental, supplementary: exemplar-free on the AI-boxed IDs, paired with the conditioned arm")
+    else:
+        role = ("primary (exemplar-conditioned, one approved human box)" if args.arm == "exemplar"
+                else "secondary (exemplar-free)")
     payload = {
-        "label": LABEL,
+        "label": AI_LABEL if ai else LABEL,
+        "experimental": True, "supplementary": True, "official_countqa_benchmark": False,
         "not_mllm_qa": NOT_MLLM,
-        "role": "primary (exemplar-conditioned, one approved human box)" if args.arm == "exemplar"
-        else "secondary (exemplar-free)",
+        "role": role,
+        "annotation": annotation,
         "primary_cell": primary,
         "model": Path(args.readouts).name,
         "arm": args.arm,
@@ -341,7 +420,7 @@ def evaluate(args, loader: Callable | None = None) -> dict:
             "exemplars_status": exemplar_status,
             "exemplars_sha256": sha256_file(Path(args.exemplars)) if exemplar_status else None,
             "prepared_images": len(manifest["images"]), "evaluated_images": len(image_ids),
-            "excluded": {i: r for i, r in sorted(excluded.items())} if args.arm == "exemplar" else {},
+            "excluded": {i: r for i, r in sorted(excluded.items())} if (ai or args.arm == "exemplar") else {},
         },
         "features": {"dir": str(args.features), **cache_info},
         "protocol": {
@@ -350,8 +429,11 @@ def evaluate(args, loader: Callable | None = None) -> dict:
             "transfer_preprocessing": manifest["transfer_preprocessing"],
             "count": "counting.masked_count(density, counting.coverage(frame.valid, 64))",
             "prototype_valid": "counting.token_valid(frame.valid, side, grid_extent) at the token grid",
-            "exemplars": "one approved human box per image, frame.boxes of the source-pixel box"
-            if args.arm == "exemplar" else "none",
+            "exemplars": ("one AI-authored box per image (countqa-ai-exemplars-v1, not human-reviewed), "
+                          "frame.boxes of the source-pixel box" if ai else
+                          "one approved human box per image, frame.boxes of the source-pixel box")
+            if args.arm == "exemplar" else
+            ("none; scored on the AI-boxed image IDs only" if ai else "none"),
             "exact_match": "floor(pred + 0.5) == integer answer",
             "bins": "counting.count_bin of the true answer",
             "rmse": "mean over seeds of each seed's sqrt(mean sq_error); rmse_pooled pools seed x image rows",
@@ -399,9 +481,14 @@ def parser() -> argparse.ArgumentParser:
     ap.add_argument("--stages", nargs="+", choices=STAGE_ORDER, default=None)
     ap.add_argument("--seeds", type=int, nargs="+", default=[0, 1, 2])
     ap.add_argument("--manifest", type=Path, default=work / "data" / "countqa" / "manifest.json")
-    ap.add_argument("--exemplars", type=Path, default=RESULTS / "exemplars.json")
+    ap.add_argument("--annotation-source", choices=("human", "ai"), default="human",
+                    help="ai: the experimental AI-exemplar protocol (exemplars_ai.json, both arms on the "
+                         "AI-boxed IDs, outputs under ai_exemplars/)")
+    ap.add_argument("--exemplars", type=Path, default=None,
+                    help="default results/counting/countqa/exemplars.json, or exemplars_ai.json with "
+                         "--annotation-source ai")
     ap.add_argument("--out", type=Path, default=None,
-                    help="default results/counting/countqa/<model>_count_<arm>_<variant>.json")
+                    help="default results/counting/countqa/[ai_exemplars/]<model>_count_<arm>_<variant>.json")
     ap.add_argument("--device", default="cpu")
     ap.add_argument("--batch-size", type=int, default=16)
     ap.add_argument("--resamples", type=int, default=10_000)
@@ -414,7 +501,10 @@ def parser() -> argparse.ArgumentParser:
 
 def main(argv=None) -> None:
     args = parser().parse_args(argv)
-    out = args.out or RESULTS / f"{args.readouts.name}_count_{args.arm}_{args.variant}.json"
+    ai = args.annotation_source == "ai"
+    if args.exemplars is None:
+        args.exemplars = RESULTS / ("exemplars_ai.json" if ai else "exemplars.json")
+    out = args.out or (AI_RESULTS if ai else RESULTS) / f"{args.readouts.name}_count_{args.arm}_{args.variant}.json"
     try:
         payload = evaluate(args)
     except Refused as error:
