@@ -39,8 +39,16 @@ batch_size() {
     uv run python -c "
 import json, sys
 entry = json.load(open(sys.argv[1]))['models'].get(sys.argv[2], {})
-print(entry.get('extraction_batch_size') or sys.argv[3])
+print(entry.get('extraction', {}).get('batch_size') or sys.argv[3])
 " "$ROSTER" "$1" "${EXTRACT_BATCH:-16}"
+}
+source_of() {
+    [ -n "$ROSTER" ] && [ -f "$ROSTER" ] || { echo "unrecorded"; return; }
+    uv run python -c "
+import json, sys
+source = json.load(open(sys.argv[1]))['models'][sys.argv[2]]['source']
+print(f\"{source.get('kind')}: {source.get('repo')}@{source.get('revision')}\")
+" "$ROSTER" "$1"
 }
 
 extract() {
@@ -70,7 +78,7 @@ print(max(layer for _, layer in cache.slices(sys.argv[1])))
     # shellcheck disable=SC2046
     uv run python scripts/validate_cache.py --run "$run" --manifest "$MANIFEST" --model "$model" \
         --stages $(stages "$model") --layer "$layer" --log "$log" \
-        --source "${SOURCE_NOTE:-see roster manifest}" >> "$log" 2>&1
+        --source "$(source_of "$model")" >> "$log" 2>&1
 }
 
 train() {
