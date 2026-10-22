@@ -172,3 +172,37 @@ def test_count_targets_align_by_image_id(tmp_path):
     density, counts = geometry_run.count_targets(targets, shuffled, images)
     assert counts.tolist() == [images[i]["count"] for i in shuffled]
     assert density.flatten(1).sum(1).double().tolist() == pytest.approx(counts.tolist(), abs=1e-4)
+
+
+def test_count_head_softplus_cannot_collapse_to_zero():
+    torch.manual_seed(0)
+    head = geometry.CountHead([4], hidden_dim=8)
+    # A ReLU output would be zero with zero gradient everywhere at this bias.
+    with torch.no_grad():
+        head.head.conv_out[-1].bias.fill_(-20.0)
+    feats = torch.randn(2, 4, 8, 8, requires_grad=True)
+    density = head([feats])
+    assert (density > 0).all()
+    density.sum().backward()
+    assert head.head.conv_out[-1].bias.grad.abs().item() > 0 and feats.grad.abs().sum() > 0
+
+
+def test_padded_grid_head_spreads_mass_only_over_the_canvas():
+    head = geometry.CountHead([4], hidden_dim=8, extent=30 / 28)
+    scaled = torch.zeros(1, 1, 240, 240)
+    scaled[..., 224:, :] = 100.0
+    assert head.resample(scaled).abs().sum() == 0
+    scaled = torch.ones(1, 1, 240, 240)
+    assert head.resample(scaled).sum().item() == pytest.approx(64 * 64)
+
+
+def test_grid_extent_matches_the_padding_adapters():
+    from vtb.adapters import deepseek_v41, gemma4
+
+    assert geometry_run.grid_extent(gemma4.MODEL_ID, "tower", 448, 30) == pytest.approx(480 / 448)
+    assert geometry_run.grid_extent(gemma4.MODEL_ID, "merged", 448, 10) == pytest.approx(480 / 448)
+    assert geometry_run.grid_extent(deepseek_v41.MODEL_ID, "tower", 448, 32) == 1.0
+    assert geometry_run.grid_extent(deepseek_v41.MODEL_ID, "projected", 448, 11) == pytest.approx(462 / 448)
+    assert geometry_run.grid_extent("facebook/dinov2-large", "tower", 448, 32) == 1.0
+    with pytest.raises(ValueError):
+        geometry_run.grid_extent(gemma4.MODEL_ID, "tower", 448, 28)

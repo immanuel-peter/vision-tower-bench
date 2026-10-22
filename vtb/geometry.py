@@ -4,9 +4,9 @@ from math import isqrt
 
 import torch
 from torch import nn
-from torch.nn.functional import interpolate
+from torch.nn.functional import interpolate, softplus
 
-from vtb.counting import DENSITY_SCALE, TARGET_GRID
+from vtb.counting import DENSITY_SCALE, TARGET_GRID, area_matrix
 from vtb.feature_batch import FeatureBatch
 
 PROBE3D_COMMIT = "https://github.com/mbanani/probe3d"
@@ -109,8 +109,10 @@ class SurfaceNormalHead(nn.Module):
 class CountHead(nn.Module):
     """Non-negative density on the declared count grid; its sum is the count.
 
-    Area resampling averages every head pixel into one target cell, whatever the
-    patch grid. The head predicts density times ``scale``.
+    Softplus keeps every head pixel positive without dead units. Exact area
+    resampling then averages head pixels into target cells, whatever the patch
+    grid; ``extent`` is the canvas fraction the grid spans when an adapter pads
+    the image. The head predicts density times ``scale``.
     """
 
     def __init__(
@@ -120,14 +122,26 @@ class CountHead(nn.Module):
         hidden_dim: int = 512,
         grid: int = TARGET_GRID,
         scale: float = DENSITY_SCALE,
+        extent: float = 1.0,
     ):
         super().__init__()
         self.head = _build(head, input_dims, 1, hidden_dim)
-        self.grid, self.scale = grid, scale
+        self.grid, self.scale, self.extent = grid, scale, extent
+        self._weights: dict[tuple[int, int, torch.device], torch.Tensor] = {}
+
+    def resample(self, scaled: torch.Tensor) -> torch.Tensor:
+        rows, cols = scaled.shape[-2:]
+        key = (rows, cols, scaled.device)
+        if key not in self._weights:
+            self._weights[key] = tuple(
+                torch.from_numpy(area_matrix(size, self.grid, self.extent)).to(scaled.device)
+                for size in (rows, cols)
+            )
+        along_y, along_x = self._weights[key]
+        return torch.einsum("yh,nchw,xw->ncyx", along_y, scaled, along_x)
 
     def forward(self, feats: list[torch.Tensor]) -> torch.Tensor:
-        scaled = interpolate(self.head(feats), (self.grid, self.grid), mode="area")
-        return scaled.relu() / self.scale
+        return self.resample(softplus(self.head(feats))) / self.scale
 
 
 def _build(head: str, input_dims: list[int], output_dim: int, hidden_dim: int) -> nn.Module:

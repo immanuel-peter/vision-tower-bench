@@ -7,11 +7,11 @@ MLLM question answering; never put these numbers beside MLLM CountQA accuracies.
 Nothing is fit on CountQA. Each saved readout (head, plus PCA for the matched arm) is loaded
 through ``vtb.geometry_run.load_readout`` and applied to the CountQA feature cache as is:
 
-    tokens (cache, keyed by image_id) -> Readout.density(tokens, boxes, valid_tokens)
+    tokens (cache, keyed by image_id) -> Readout.density(tokens, boxes, valid_rects)
     -> (N, 1, 64, 64) density -> counting.masked_count(density, counting.coverage(frame.valid, 64))
 
 where ``frame`` is the letterbox frame from data/countqa/manifest.json and
-``valid_tokens = counting.coverage(frame.valid, side)`` at the cache's token grid. Padding
+``valid_rects = [frame.valid]``, which the readout maps onto its patch grid. Padding
 never counts.
 
 Primary result: the exemplar-conditioned arm (one approved human box per image), Tower Stage.
@@ -130,9 +130,8 @@ def check_cache(features: Path, manifest_path: Path, allow_incomplete: bool) -> 
         raise Refused(f"{complete} is missing; a cache without a valid complete.json is incomplete")
     info = json.loads(complete.read_text())
     expected = sha256_file(manifest_path)
-    for key in ("prep_manifest_sha256", "manifest_sha256"):
-        if key in info and info[key] != expected:
-            raise Refused(f"{complete}: {key} does not match {manifest_path}")
+    if info.get("manifest_sha256") != expected:
+        raise Refused(f"{complete}: manifest_sha256 does not match {manifest_path}")
     return {"complete_json": str(complete), "complete_json_sha256": sha256_file(complete)}
 
 
@@ -177,12 +176,12 @@ def predict_counts(readout, tokens: torch.Tensor, image_ids: list[str], frames: 
     counts = []
     for start in range(0, len(image_ids), batch_size):
         chunk = image_ids[start:start + batch_size]
-        valid_tokens = torch.from_numpy(np.stack([counting.coverage(frames[i].valid, side) for i in chunk]))
         valid_target = torch.from_numpy(np.stack([counting.coverage(frames[i].valid, counting.TARGET_GRID)
                                                   for i in chunk]))
         chunk_boxes = [boxes[i] for i in chunk] if readout.conditioned else None
+        # The readout maps each valid rectangle onto its own patch grid, which may span past the canvas.
         density = readout.density(tokens[start:start + len(chunk)].to(device), boxes=chunk_boxes,
-                                  valid=valid_tokens.to(device))
+                                  valid_rects=[frames[i].valid for i in chunk])
         if density.shape != (len(chunk), 1, counting.TARGET_GRID, counting.TARGET_GRID):
             raise ValueError(f"density shape {tuple(density.shape)}")
         counts.append(counting.masked_count(density.float().cpu(), valid_target))

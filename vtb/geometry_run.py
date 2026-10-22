@@ -233,7 +233,7 @@ def build_head(width: int, task: str, args) -> torch.nn.Module:
     if task == "depth":
         return geometry.DepthHead([width], head=args.head, max_depth=args.max_depth)
     if task == "count":
-        return geometry.CountHead([width], head=args.head)
+        return geometry.CountHead([width], head=args.head, extent=getattr(args, "grid_extent", 1.0))
     return geometry.SurfaceNormalHead([width], head=args.head)
 
 
@@ -314,13 +314,39 @@ def exemplar_boxes(images: dict, image_ids: list[str], rows: list[int], limit: i
     return boxes
 
 
-def exemplar_channel(features: torch.Tensor, boxes: list[np.ndarray], rows: list[int], chunk: int = 256) -> torch.Tensor:
+def grid_extent(model_id: str, stage: str, resolution: int, side: int) -> float:
+    """Canvas fraction the patch grid spans. Two adapters pad the image bottom-right first.
+
+    Gemma 4 pads to a multiple of its 3x3 pool before patching; DeepSeek V4.1
+    pads the Tower grid to a multiple of its 3x3 merge. Every other adapter's
+    grid covers exactly the image.
+    """
+    from vtb.adapters import deepseek_v41, gemma4
+
+    extent = 1.0
+    if model_id == gemma4.MODEL_ID:
+        extent = gemma4.padded_side(resolution) / resolution
+        pixels = gemma4.PATCH_SIZE * (1 if stage == "tower" else gemma4.POOL_SIZE)
+    elif model_id == deepseek_v41.MODEL_ID and stage != "tower":
+        patches = resolution // deepseek_v41.PATCH_SIZE
+        cells = -(-patches // deepseek_v41.DOWNSAMPLE)
+        extent = cells * deepseek_v41.DOWNSAMPLE * deepseek_v41.PATCH_SIZE / resolution
+        pixels = deepseek_v41.PATCH_SIZE * deepseek_v41.DOWNSAMPLE
+    else:
+        return extent
+    if round(side * pixels) != round(extent * resolution):
+        raise ValueError(f"{model_id} {stage}: grid {side} x {pixels} px does not span {extent * resolution:.0f} px")
+    return extent
+
+
+def exemplar_channel(features: torch.Tensor, boxes: list[np.ndarray], rows: list[int], extent: float = 1.0,
+                     chunk: int = 256) -> torch.Tensor:
     """The conditioning channel for ``rows``; other rows stay zero and never enter a split."""
     channel = torch.zeros(features.shape[0], 1, *features.shape[-2:], dtype=features.dtype)
     for start in range(0, len(rows), chunk):
         index = rows[start:start + chunk]
         channel[index] = counting.prototype_similarity(
-            features[index].to(features.device), boxes[start:start + chunk]
+            features[index].to(features.device), boxes[start:start + chunk], extent=extent
         ).cpu()
     return channel
 
@@ -380,8 +406,12 @@ class Readout:
 
     @torch.inference_mode()
     def density(self, tokens: torch.Tensor, boxes: list[np.ndarray] | None = None,
-                valid: torch.Tensor | None = None) -> torch.Tensor:
-        """(N, T, D) cache tokens to (N, 1, G, G) density, on the training numerical path."""
+                valid_rects: list[tuple[float, float, float, float]] | None = None) -> torch.Tensor:
+        """(N, T, D) cache tokens to (N, 1, G, G) density, on the training numerical path.
+
+        ``boxes`` are unit canvas boxes (conditioned readouts only); ``valid_rects`` are
+        each image's valid canvas rectangle, e.g. a letterbox frame's ``valid``.
+        """
         features = tokens.float().cpu()
         if self.reducer is not None:
             features = self.reducer(features)
@@ -393,7 +423,11 @@ class Readout:
         if self.conditioned:
             if boxes is None:
                 raise ValueError("this readout needs exemplar boxes")
-            features = counting.condition(features, boxes, valid)
+            extent = self.meta["grid_extent"]
+            valid = None
+            if valid_rects is not None:
+                valid = torch.from_numpy(np.stack([counting.token_valid(r, side, extent) for r in valid_rects]))
+            features = counting.condition(features, boxes, valid, extent)
         elif boxes is not None:
             raise ValueError("this readout is exemplar-free")
         device = next(self.head.parameters()).device
@@ -406,7 +440,7 @@ def load_readout(directory: Path, seed: int, device: str = "cuda") -> Readout:
         meta = json.loads(handle.metadata()["meta"])
     head = geometry.CountHead(
         [meta["input_dim"]], head=meta["head"], hidden_dim=meta["hidden_dim"],
-        grid=meta["grid"], scale=meta["density_scale"],
+        grid=meta["grid"], scale=meta["density_scale"], extent=meta["grid_extent"],
     )
     head.load_state_dict(load_file(path))
     reducer = None
@@ -421,7 +455,7 @@ def count_identity(args, stage: str, layer: int, provenance: dict) -> str:
     fields = {
         "protocol": counting.PROTOCOL, "grid": counting.TARGET_GRID, "sigma": counting.SIGMA_CELLS,
         "truncate": counting.TRUNCATE_SIGMAS, "scale": counting.DENSITY_SCALE,
-        "arm": args.arm, "matched": args.match_capacity, "width": args.width, "head": args.head,
+        "arm": args.arm, "matched": args.match_capacity, "extent": getattr(args, "grid_extent", 1.0), "width": args.width, "head": args.head,
         "epochs": args.epochs, "batch_size": args.batch_size,
         "learning_rates": [f"{r:g}" for r in args.learning_rates], "seeds": args.seeds,
         "stage": stage, "layer": layer,
@@ -473,7 +507,7 @@ def one_exemplar_val(model, features, targets, counts, split, image_ids, images,
     rows = split.val.tolist()
     saved = features[split.val, -1:].clone()
     single = exemplar_channel(features[split.val, :-1], exemplar_boxes(images, image_ids, rows, limit=1),
-                              list(range(len(rows))))
+                              list(range(len(rows))), args.grid_extent)
     features[split.val, -1:] = single.to(features.device)
     try:
         metrics = score(model, features, targets, counts, split.val, "count", args)
@@ -504,6 +538,9 @@ def count_main(args) -> None:
     cells = []
     for stage, layer in chosen:
         key = f"{stage}_L{layer:02d}"
+        recorded = completion["slices"][key]
+        args.grid_extent = grid_extent(recorded["model_id"], stage, int(recorded["resolution"]),
+                                       math.isqrt(recorded["tokens"]))
         identity = count_identity(args, stage, layer, provenance)
         readouts = args.readouts / name / f"{args.arm}_{capacity}" / key if args.readouts else None
         if done := finished_cell(cells_dir, key, identity, readouts, args.seeds):
@@ -544,7 +581,7 @@ def count_main(args) -> None:
         features = geometry.dense_map(batch).to(args.features_device).float()
         if args.arm == "exemplar":
             rows = sorted(torch.cat([split.train, split.val, split.test]).tolist())
-            channel = exemplar_channel(features, exemplar_boxes(images, order, rows), rows)
+            channel = exemplar_channel(features, exemplar_boxes(images, order, rows), rows, args.grid_extent)
             features = torch.cat([features, channel.to(features.device)], dim=1)
         lap("prepare_features")
 
@@ -553,7 +590,7 @@ def count_main(args) -> None:
             "protocol": counting.PROTOCOL, "task": "count", "arm": args.arm, "capacity": capacity,
             "input_dim": features.shape[1], "head": args.head, "hidden_dim": 512,
             "grid": counting.TARGET_GRID, "density_scale": counting.DENSITY_SCALE,
-            "epochs": args.epochs, "batch_size": args.batch_size, "model_id": batch.model_id,
+            "grid_extent": args.grid_extent, "epochs": args.epochs, "batch_size": args.batch_size, "model_id": batch.model_id,
             "stage": stage, "layer": layer, "feature_cache": str(args.run),
             "feature_cache_sha256": provenance["cache"], "targets_sha256": provenance["targets"],
             "manifest_sha256": provenance["manifest"], "torch": torch.__version__,

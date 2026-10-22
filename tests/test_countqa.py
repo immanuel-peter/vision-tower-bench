@@ -237,7 +237,7 @@ class StandInReadout:
     conditioned: bool
     meta: dict
 
-    def density(self, tokens, boxes=None, valid=None):
+    def density(self, tokens, boxes=None, valid_rects=None):
         x = tokens.float()
         if self.reducer is not None:
             x = self.reducer(x)
@@ -247,6 +247,9 @@ class StandInReadout:
         if self.conditioned:
             if boxes is None:
                 raise ValueError("conditioned readout needs boxes")
+            valid = None
+            if valid_rects is not None:
+                valid = torch.from_numpy(np.stack([counting.token_valid(r, side) for r in valid_rects]))
             fmap = counting.condition(fmap, boxes, valid)
         out = softplus(self.head(fmap))
         grid = counting.TARGET_GRID
@@ -290,7 +293,9 @@ def build_fixture(tmp_path, approved=True, side=4, dim=6):
         FeatureBatch(tokens=torch.randn(len(ids), grid * grid, dim).to(torch.bfloat16), image_ids=ids,
                      model_id="toy", stage=stage, layer_index=2, num_layers=2, resolution=32).save(
             features / f"{stage}_L02_00000.safetensors")
-    (features / "complete.json").write_text(json.dumps({"model_id": "toy"}))
+    (features / "complete.json").write_text(json.dumps({
+        "model_id": "toy", "manifest_sha256": hashlib.sha256(manifest_path.read_bytes()).hexdigest(),
+    }))
     readouts = tmp_path / "toy"
     for arm in ("exemplar", "free"):
         for stage in ("tower", "merged"):

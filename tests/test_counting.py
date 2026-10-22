@@ -91,3 +91,23 @@ def test_dots_on_the_closing_image_edge_are_clamped_onto_the_image():
     assert moved == 2
     frame = counting.centre_crop_frame(384, 384)
     assert counting.inside(frame.points(dots)).tolist() == [True, True, True, False]
+
+
+@pytest.mark.parametrize("source,extent", [(256, 1.0), (224, 1.0), (112, 1.0), (240, 30 / 28), (88, 462 / 448)])
+def test_area_matrix_averages_the_canvas_part_of_the_grid(source, extent):
+    weights = counting.area_matrix(source, 64, extent)
+    assert weights.shape == (64, source) and np.allclose(weights.sum(axis=1), 1.0)
+    # Source pixels beyond the canvas (padding) never feed a target cell.
+    beyond = np.arange(source) * extent / source >= 1.0
+    assert weights[:, beyond].sum() == 0
+    if extent == 1.0 and source % 64 == 0:
+        step = source // 64
+        assert np.allclose(weights[3, 3 * step:4 * step], 1 / step)
+
+
+def test_padded_grids_map_boxes_and_validity_through_the_extent():
+    extent = 30 / 28
+    weights = counting.box_weights(np.array([[0.0, 0.0, 1.0, 1.0]]), 30, extent)
+    assert weights[0, :28, :28].sum() == pytest.approx(1.0) and weights[0, 28:].sum() == 0
+    valid = counting.token_valid((0.0, 0.0, 1.0, 1.0), 30, extent)
+    assert valid[:28, :28].min() == 1.0 and valid[28:].max() == 0.0

@@ -15,7 +15,10 @@ import numpy as np
 import torch
 from torch.nn.functional import normalize
 
-PROTOCOL = "count-v1"
+# count-v1 used a final ReLU, which the pilot saw collapse to an all-zero map
+# (dead units) at several rates and seeds; count-v2 uses softplus and exact
+# area resampling that knows how much of the canvas the patch grid spans.
+PROTOCOL = "count-v2"
 TARGET_GRID = 64
 # One target cell is 1/64 of the canvas side, 6 px for a 384 px FSC-147 crop.
 SIGMA_CELLS = 1.0
@@ -162,9 +165,31 @@ def coverage(rect: tuple[float, float, float, float], grid: int) -> np.ndarray:
     return np.outer(overlap(y0, y1), overlap(x0, x1)).astype(np.float32)
 
 
-def box_weights(boxes: np.ndarray, side: int) -> np.ndarray:
-    """Area-overlap weights of each unit box on a side x side patch grid, each summing to one."""
-    boxes = np.asarray(boxes, dtype=np.float64).reshape(-1, 4)
+def area_matrix(source: int, target: int = TARGET_GRID, extent: float = 1.0) -> np.ndarray:
+    """(target, source) weights averaging source pixels into target cells.
+
+    The ``source`` pixels span [0, extent) of the canvas from its top-left
+    corner; ``extent`` exceeds one when an adapter pads the image before
+    patching. Each target cell averages the source area it overlaps.
+    """
+    if extent < 1.0:
+        raise ValueError("the patch grid must cover the whole canvas")
+    source_edges = np.arange(source + 1, dtype=np.float64) * extent / source
+    target_edges = np.arange(target + 1, dtype=np.float64) / target
+    overlap = np.clip(
+        np.minimum(target_edges[1:, None], source_edges[None, 1:])
+        - np.maximum(target_edges[:-1, None], source_edges[None, :-1]),
+        0.0, None,
+    )
+    return (overlap / overlap.sum(axis=1, keepdims=True)).astype(np.float32)
+
+
+def box_weights(boxes: np.ndarray, side: int, extent: float = 1.0) -> np.ndarray:
+    """Area-overlap weights of each unit box on a side x side patch grid, each summing to one.
+
+    The grid spans [0, extent) of the canvas, so canvas units divide by ``extent``.
+    """
+    boxes = np.asarray(boxes, dtype=np.float64).reshape(-1, 4) / extent
     weights = np.stack([coverage(tuple(box), side) for box in boxes]) if len(boxes) else np.zeros((0, side, side))
     mass = weights.sum(axis=(1, 2), keepdims=True)
     if (mass <= 0).any():
@@ -176,6 +201,7 @@ def prototype_similarity(
     features: torch.Tensor,
     boxes: list[np.ndarray],
     valid: torch.Tensor | None = None,
+    extent: float = 1.0,
 ) -> torch.Tensor:
     """Exemplar correlation channel for the conditioned arm, shape (images, 1, h, w).
 
@@ -184,7 +210,8 @@ def prototype_similarity(
     image's mean feature over valid patches is subtracted from both the prototype
     and every patch, and the channel is their cosine similarity. Any number of
     boxes from one upward is accepted, so a head trained with three FSC-147
-    exemplars can read one CountQA exemplar.
+    exemplars can read one CountQA exemplar. ``valid`` gives each patch's
+    valid-area fraction; by default it is the canvas part of the grid.
     """
     images, dim, height, width = features.shape
     if height != width:
@@ -192,14 +219,14 @@ def prototype_similarity(
     if len(boxes) != images:
         raise ValueError(f"{len(boxes)} box sets for {images} images")
     out = torch.empty(images, 1, height, width, dtype=features.dtype)
+    canvas = torch.from_numpy(token_valid((0.0, 0.0, 1.0, 1.0), height, extent))
     for index, image_boxes in enumerate(boxes):
         if len(image_boxes) == 0:
             raise ValueError(f"image {index} has no exemplar box")
         grid = features[index].float()
-        weights = torch.from_numpy(box_weights(image_boxes, height)).to(grid.device)
+        weights = torch.from_numpy(box_weights(image_boxes, height, extent)).to(grid.device)
         prototype = torch.einsum("khw,dhw->kd", weights, grid).mean(dim=0)
-        mask = (valid[index].float().to(grid.device) if valid is not None
-                else torch.ones(height, width, device=grid.device))
+        mask = (valid[index] if valid is not None else canvas).float().to(grid.device)
         centre = (grid * mask).sum(dim=(1, 2)) / mask.sum().clamp(min=1e-6)
         patches = normalize((grid - centre[:, None, None]).flatten(1), dim=0)
         query = normalize(prototype - centre, dim=0)
@@ -207,9 +234,15 @@ def prototype_similarity(
     return out
 
 
-def condition(features: torch.Tensor, boxes: list[np.ndarray], valid: torch.Tensor | None = None) -> torch.Tensor:
+def condition(features: torch.Tensor, boxes: list[np.ndarray], valid: torch.Tensor | None = None,
+              extent: float = 1.0) -> torch.Tensor:
     """Append the exemplar correlation channel to (images, dim, h, w) features."""
-    return torch.cat([features, prototype_similarity(features, boxes, valid)], dim=1)
+    return torch.cat([features, prototype_similarity(features, boxes, valid, extent)], dim=1)
+
+
+def token_valid(rect: tuple[float, float, float, float], side: int, extent: float = 1.0) -> np.ndarray:
+    """Valid-area fraction of each patch for a unit canvas rectangle, on a grid spanning ``extent``."""
+    return coverage(tuple(v / extent for v in rect), side)
 
 
 def masked_count(density: torch.Tensor, valid: torch.Tensor | None = None) -> torch.Tensor:
