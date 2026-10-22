@@ -282,3 +282,31 @@ def test_count_run_refuses_features_from_other_images(tmp_path, monkeypatch):
     with pytest.raises(SystemExit, match="other images"):
         run_main(monkeypatch, "--task", "count", "--run", run, "--targets", targets, "--device", "cpu",
                  "--out", tmp_path / "x.json", "--seeds", "1", "--epochs", "1", "--learning-rates", "1e-3")
+
+
+def test_half_decade_steps_follow_the_rate_grid():
+    assert geometry_run.half_decade(3e-3, up=True) == pytest.approx(1e-2)
+    assert geometry_run.half_decade(1e-2, up=True) == pytest.approx(3e-2)
+    assert geometry_run.half_decade(1e-5, up=False) == pytest.approx(3e-6)
+    assert geometry_run.half_decade(3e-6, up=False) == pytest.approx(1e-6)
+
+
+@pytest.mark.parametrize("scores,expected", [
+    ({1: 5.0, 2: 4.0, 3: 3.0, 4: 2.0, 5: 9.0}, [4, 5]),   # top edge wins, first extension wins, second loses
+    ({1: 5.0, 2: 4.0, 3: 3.0, 4: 7.0}, [4]),              # extension loses: stop
+    ({1: 2.0, 2: 4.0, 3: 3.0, 0: 1.0, -1: 0.5}, [0, -1]),  # bottom edge, two winning extensions, cap
+    ({1: 5.0, 2: 1.0, 3: 3.0}, []),                       # interior selection: no extension
+])
+def test_edge_extension_follows_the_winning_edge(scores, expected):
+    # Rates are encoded as integers here; the real grid uses half_decade.
+    extended, tried, best = [], [], {"rate": None, "score": None}
+    original = geometry_run.half_decade
+    geometry_run.half_decade = lambda rate, up: rate + 1 if up else rate - 1
+    try:
+        for rate in geometry_run.iter_rates([1, 2, 3], extended, lambda: best["rate"], True):
+            tried.append(rate)
+            if best["score"] is None or scores[rate] < best["score"]:
+                best.update(rate=rate, score=scores[rate])
+    finally:
+        geometry_run.half_decade = original
+    assert extended == expected and tried == [1, 2, 3] + expected

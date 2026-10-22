@@ -393,7 +393,7 @@ def parser() -> argparse.ArgumentParser:
                     help="vtb.extract run dir for the CountQA letterbox images, e.g. "
                     "$VTB_WORK/features/countqa/<model>_<res>_full")
     ap.add_argument("--readouts", type=Path, required=True,
-                    help="$VTB_WORK/readouts/count-v3/<model> (holds <arm>_<variant>/<stage>_L<layer>/)")
+                    help="$VTB_WORK/readouts/count-v4/<model> (holds <arm>_<variant>/<stage>_L<layer>/)")
     ap.add_argument("--arm", choices=ARMS, required=True)
     ap.add_argument("--variant", choices=VARIANTS, default="matched")
     ap.add_argument("--stages", nargs="+", choices=STAGE_ORDER, default=None)

@@ -19,8 +19,9 @@ from torch.nn.functional import normalize
 # count-v1 used a final ReLU, which the pilot saw collapse to an all-zero map.
 # count-v2 used softplus and exact area resampling over the grid's canvas extent,
 # but rates of 1e-2 and above still exploded and collapsed. count-v3 searches
-# 1e-5 to 3e-3 and fails any final seed whose map collapses.
-PROTOCOL = "count-v3"
+# 1e-5 to 3e-3 and fails any final seed whose map collapses. count-v4 extends the
+# search by up to two half-decade steps when the selection lands on an edge.
+PROTOCOL = "count-v4"
 TARGET_GRID = 64
 # One target cell is 1/64 of the canvas side, 6 px for a 384 px FSC-147 crop.
 SIGMA_CELLS = 1.0

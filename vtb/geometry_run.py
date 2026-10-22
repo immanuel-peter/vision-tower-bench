@@ -182,11 +182,18 @@ def summarise(metrics, coverage, image_ids, index, scenes) -> dict:
 
 
 def select_learning_rate(features, targets, valid, split, task, args, curves=None) -> tuple[float, dict]:
-    """Search rates on validation. With ``curves``, record per-epoch curves and survive divergence."""
+    """Search rates on validation. With ``curves``, record per-epoch curves and survive divergence.
+
+    For count, a selection on the edge of the searched rates extends the search
+    outward by half a decade, up to EDGE_EXTENSIONS times, stopping when the new
+    rate collapses or does not improve.
+    """
     metric, higher_is_better = SELECTION[task]
     searched: dict[str, float] = {}
     best_rate, best_score = None, None
-    for rate in args.learning_rates:
+    rates = list(args.learning_rates)
+    extended: list[float] = []
+    for rate in iter_rates(rates, extended, lambda: best_rate, task == "count" and curves is not None):
         if curves is None:
             model = train_cell(features, targets, valid, split, task, args, rate, seed=0)
             value = score(model, features, targets, valid, split.val, task, args)[metric].mean().item()
@@ -211,12 +218,54 @@ def select_learning_rate(features, targets, valid, split, task, args, curves=Non
             best_rate, best_score = rate, value
     if best_rate is None:
         raise Diverged(f"every learning rate diverged: {searched}")
-    return best_rate, {
+    selection = {
         "learning_rate": best_rate,
         "val_metric": metric,
         "val_score": round(best_score, 4),
         "learning_rate_search": searched,
     }
+    if task == "count" and curves is not None:
+        selection["learning_rate_extended"] = extended
+        selection["learning_rate_at_edge"] = best_rate in (min(searched_rates(searched)), max(searched_rates(searched)))
+    return best_rate, selection
+
+
+EDGE_EXTENSIONS = 2
+
+
+def searched_rates(searched: dict[str, float]) -> list[float]:
+    return [float(rate) for rate in searched]
+
+
+def half_decade(rate: float, up: bool) -> float:
+    """The next point on a 1, 3, 10, 30 grid: 3e-3 -> 1e-2 up, 1e-5 -> 3e-6 down."""
+    exponent = math.floor(math.log10(rate) + 1e-9)
+    mantissa = round(rate / 10 ** exponent)
+    if up:
+        return 3 * 10.0 ** exponent if mantissa == 1 else 10.0 ** (exponent + 1)
+    return 10.0 ** exponent if mantissa == 3 else 3 * 10.0 ** (exponent - 1)
+
+
+def iter_rates(rates: list[float], extended: list[float], best, extend: bool):
+    """Yield the grid, then up to EDGE_EXTENSIONS half-decade steps past whichever edge wins.
+
+    Extension stops as soon as the newest rate does not win (it collapsed or scored worse).
+    """
+    tried = list(rates)
+    yield from rates
+    while extend and len(extended) < EDGE_EXTENSIONS:
+        current = best()
+        if current is None or (extended and current != extended[-1]):
+            return
+        if current == max(tried):
+            step = half_decade(current, up=True)
+        elif current == min(tried):
+            step = half_decade(current, up=False)
+        else:
+            return
+        extended.append(step)
+        tried.append(step)
+        yield step
 
 
 def _mean_std(values: list[float]) -> tuple[float, float]:
@@ -465,7 +514,8 @@ def count_identity(args, stage: str, layer: int, provenance: dict) -> str:
     fields = {
         "protocol": counting.PROTOCOL, "grid": counting.TARGET_GRID, "sigma": counting.SIGMA_CELLS,
         "truncate": counting.TRUNCATE_SIGMAS, "scale": counting.DENSITY_SCALE,
-        "arm": args.arm, "matched": args.match_capacity, "extent": getattr(args, "grid_extent", 1.0), "width": args.width, "head": args.head,
+        "arm": args.arm, "matched": args.match_capacity, "extent": getattr(args, "grid_extent", 1.0),
+        "edge_extensions": EDGE_EXTENSIONS, "width": args.width, "head": args.head,
         "epochs": args.epochs, "batch_size": args.batch_size,
         "learning_rates": [f"{r:g}" for r in args.learning_rates], "seeds": args.seeds,
         "stage": stage, "layer": layer,
@@ -666,7 +716,7 @@ def count_main(args) -> None:
             continue
         lap("train_and_score")
         cell |= {
-            "identity": identity, "model_id": batch.model_id, "stage": stage, "layer_index": layer,
+            "protocol": counting.PROTOCOL, "identity": identity, "model_id": batch.model_id, "stage": stage, "layer_index": layer,
             "relative_depth": batch.relative_depth, "token_width": token_width,
             "input_width": features.shape[1], "grid": features.shape[-1],
             "trainable_parameters": parameters,

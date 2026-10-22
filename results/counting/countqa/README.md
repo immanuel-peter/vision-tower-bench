@@ -57,7 +57,7 @@ the protocol and the local tool.
 ```bash
 uv run python -m scripts.countqa_eval --arm exemplar --variant matched \
   --features $VTB_WORK/features/countqa/<model>_<res>_full \
-  --readouts $VTB_WORK/readouts/count-v3/<model> --seeds 0 1 2
+  --readouts $VTB_WORK/readouts/count-v4/<model> --seeds 0 1 2
 ```
 
 The script loads each `<arm>_<variant>/<stage>_L<layer>/` readout through

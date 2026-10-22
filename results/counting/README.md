@@ -1,4 +1,4 @@
-# Counting (protocol count-v2)
+# Counting (protocol count-v4)
 
 Class-agnostic counting with a dense density readout on frozen final-Stage patch
 tokens (issue #8), plus a frozen transfer column on a curated CountQA subset
@@ -58,14 +58,32 @@ Gemma 4 pads its image to 480 px, and DeepSeek V4.1's merged and projected grids
 span 462 px. Their grids therefore extend past the image, and the head maps only
 the image part onto the target grid.
 
-The protocol was renamed from count-v1 before any matrix cell ran. The count-v1
-pilot used a final ReLU, and its Qwen3.8 Tower cell collapsed to an all-zero map
-(validation MAE 51.437, the score of predicting zero everywhere). This happened at
-every rate from 3e-3 up, and for two of three seeds at the selected 1e-3.
+The protocol id changed three times during the pilot, before any matrix result
+was kept:
+
+- count-v1 used a final ReLU. Its Qwen3.8 Tower cell collapsed to an all-zero map
+  (validation MAE 51.437, the score of predicting zero everywhere). This happened
+  at every rate from 3e-3 up, and for two of three seeds at the selected 1e-3.
+- count-v2 replaced the ReLU with softplus. Rates of 1e-2 and above still
+  exploded in the first epoch and then sat at the zero map. One cell selected the
+  grid floor, 1e-4.
+- count-v3 moved the six rates down to 1e-5 to 3e-3. Its first cell selected the
+  new top edge on a flat validation surface.
+- count-v4 extends the search past an edge selection, as described below.
 
 Training follows the geometry protocol: batch 8, 10 epochs, AdamW with weight
-decay 1e-4, cosine schedule, six rates {1e-4, 3e-4, 1e-3, 3e-3, 1e-2, 3e-2}.
-Rates are searched with seed 0 and selected on official-validation count MAE.
+decay 1e-4, cosine schedule. The rate grid is six points one decade below the
+geometry grid, {1e-5, 3e-5, 1e-4, 3e-4, 1e-3, 3e-3}. Rates are searched with seed 0
+and selected on official-validation count MAE. When the selection lands on an
+edge of the searched rates, the search adds the next half-decade rate outward. It
+does this at most twice, and stops when the new rate collapses or does not
+improve. A fit collapses if it predicts less than a tenth of the validation mass,
+or the same count for every image. Collapsed search fits are recorded and skipped.
+A collapsed final seed fails the cell rather than entering the mean. The pilot
+also trained two cells for 20 epochs at their selected rates. Qwen3.8 merged at
+1e-4 improved from 20.8 to 19.0 test MAE (one seed), and Kimi K2.6 projected at
+1e-3 went from 14.8 to 15.1. Low-rate readouts are therefore not fully converged,
+and Stage comparisons hold at a fixed 10-epoch budget.
 The selected rate is then refit with seeds 0, 1 and 2. Every fit records
 per-epoch training loss and validation MAE. Matched capacity reduces features to
 512 dimensions with deterministic PCA fit on the official training split only.
@@ -99,7 +117,7 @@ scripts/fetch_fsc147.sh $VTB_WORK/data/fsc147/raw    # FALLBACK=hf if Drive refu
 uv run python scripts/prep_fsc147.py --raw ... --out $VTB_WORK/data/fsc147
 GPUS=0,1 ROSTER=$VTB_WORK/manifests/roster.json \
   scripts/count_matrix.sh $VTB_WORK/features/fsc147 $VTB_WORK/data/fsc147 \
-  $VTB_WORK/results/fsc147 $VTB_WORK/readouts/count-v2 <model...>
+  $VTB_WORK/results/fsc147 $VTB_WORK/readouts/count-v4 <model...>
 ```
 
 Kimi K2.6 and MiniMax M3 must extract at batch 1, because larger batches mix
