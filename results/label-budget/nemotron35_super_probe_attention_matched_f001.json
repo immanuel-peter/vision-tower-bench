@@ -1,0 +1,37 @@
+{
+  "images": 13000,
+  "label_fraction": 0.01,
+  "train_images": 100,
+  "full_train_images": 9100,
+  "cells": [
+    {
+      "learning_rate": 0.001,
+      "learning_rate_search": {
+        "1e-05": 0.0277,
+        "3e-05": 0.0497,
+        "0.0001": 0.2056,
+        "0.0003": 0.4385,
+        "0.001": 0.4985,
+        "0.003": 0.4641,
+        "0.01": 0.2692,
+        "0.03": 0.1862,
+        "0.1": 0.0631,
+        "0.3": 0.0205,
+        "1": 0.0092
+      },
+      "val_accuracy": 0.4985,
+      "test_accuracy": 0.4821,
+      "test_std": 0.011,
+      "seeds": 3,
+      "model_id": "immanuelpeter/C-RADIOv4-H-3.5-Super",
+      "stage": "tower",
+      "layer_index": 32,
+      "relative_depth": 1.0,
+      "token_width": 1280,
+      "trainable_parameters": 1627748,
+      "label_fraction": 0.01,
+      "train_images": 100,
+      "full_train_images": 9100
+    }
+  ]
+}

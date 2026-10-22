@@ -1,0 +1,66 @@
+{
+  "protocol": {
+    "dataset": "scannet",
+    "metric": "recall_10px",
+    "pairing": "paired over image pairs",
+    "resolution": 448,
+    "evaluation_side": 64,
+    "num_correspondences": 1000
+  },
+  "model": "nemotron35_super",
+  "model_id": "immanuelpeter/C-RADIOv4-H-3.5-Super",
+  "first": "projected:32",
+  "second": "tower:32",
+  "first_advantage": {
+    "point_estimate": -0.06707533448934555,
+    "confidence": 0.95,
+    "lower": -0.07021945714950562,
+    "upper": -0.06394711136817932,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second",
+    "pairs": 1500
+  },
+  "by_difficulty": {
+    "[0,15)": {
+      "point_estimate": -0.09548117965459824,
+      "confidence": 0.95,
+      "lower": -0.1019875630736351,
+      "upper": -0.08899164199829102,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 478
+    },
+    "[15,30)": {
+      "point_estimate": -0.07665953040122986,
+      "confidence": 0.95,
+      "lower": -0.08190876245498657,
+      "upper": -0.071684829890728,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 514
+    },
+    "[30,60)": {
+      "point_estimate": -0.03777778148651123,
+      "confidence": 0.95,
+      "lower": -0.041519589722156525,
+      "upper": -0.03416895121335983,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 360
+    },
+    "[60,180)": {
+      "point_estimate": -0.013310810551047325,
+      "confidence": 0.95,
+      "lower": -0.016588008031249046,
+      "upper": -0.010364865884184837,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 148
+    }
+  }
+}

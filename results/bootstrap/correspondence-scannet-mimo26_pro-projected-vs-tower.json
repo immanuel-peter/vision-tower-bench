@@ -1,0 +1,66 @@
+{
+  "protocol": {
+    "dataset": "scannet",
+    "metric": "recall_10px",
+    "pairing": "paired over image pairs",
+    "resolution": 448,
+    "evaluation_side": 64,
+    "num_correspondences": 1000
+  },
+  "model": "mimo26_pro",
+  "model_id": "immanuelpeter/MiMoViT-2.6-Pro",
+  "first": "projected:28",
+  "second": "tower:28",
+  "first_advantage": {
+    "point_estimate": -0.01706533320248127,
+    "confidence": 0.95,
+    "lower": -0.018030034378170967,
+    "upper": -0.01608929969370365,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second",
+    "pairs": 1500
+  },
+  "by_difficulty": {
+    "[0,15)": {
+      "point_estimate": -0.023523015901446342,
+      "confidence": 0.95,
+      "lower": -0.025590064004063606,
+      "upper": -0.02151668258011341,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 478
+    },
+    "[15,30)": {
+      "point_estimate": -0.0191128421574831,
+      "confidence": 0.95,
+      "lower": -0.02076658606529236,
+      "upper": -0.017513569444417953,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 514
+    },
+    "[30,60)": {
+      "point_estimate": -0.011049999855458736,
+      "confidence": 0.95,
+      "lower": -0.012347222305834293,
+      "upper": -0.009788818657398224,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 360
+    },
+    "[60,180)": {
+      "point_estimate": -0.0037297301460057497,
+      "confidence": 0.95,
+      "lower": -0.005256926640868187,
+      "upper": -0.0022972975857555866,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 148
+    }
+  }
+}

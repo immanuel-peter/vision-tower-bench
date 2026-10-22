@@ -1,0 +1,37 @@
+{
+  "images": 13000,
+  "label_fraction": 0.2,
+  "train_images": 1820,
+  "full_train_images": 9100,
+  "cells": [
+    {
+      "learning_rate": 0.001,
+      "learning_rate_search": {
+        "1e-05": 0.2144,
+        "3e-05": 0.6662,
+        "0.0001": 0.8708,
+        "0.0003": 0.8877,
+        "0.001": 0.8923,
+        "0.003": 0.8846,
+        "0.01": 0.8528,
+        "0.03": 0.8313,
+        "0.1": 0.781,
+        "0.3": 0.7918,
+        "1": 0.0092
+      },
+      "val_accuracy": 0.8923,
+      "test_accuracy": 0.8822,
+      "test_std": 0.0038,
+      "seeds": 3,
+      "model_id": "facebook/dinov3-vitl16-pretrain-lvd1689m",
+      "stage": "tower",
+      "layer_index": 24,
+      "relative_depth": 1.0,
+      "token_width": 1024,
+      "trainable_parameters": 1627748,
+      "label_fraction": 0.2,
+      "train_images": 1820,
+      "full_train_images": 9100
+    }
+  ]
+}

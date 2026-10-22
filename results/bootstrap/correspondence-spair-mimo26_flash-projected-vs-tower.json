@@ -1,0 +1,56 @@
+{
+  "protocol": {
+    "dataset": "spair",
+    "metric": "pck_0.1",
+    "pairing": "paired over image pairs",
+    "resolution": 448,
+    "evaluation_side": 64,
+    "num_correspondences": 1000
+  },
+  "model": "mimo26_flash",
+  "model_id": "immanuelpeter/MiMoViT-2.6-Flash",
+  "first": "projected:28",
+  "second": "tower:28",
+  "first_advantage": {
+    "point_estimate": 0.01891613006591797,
+    "confidence": 0.95,
+    "lower": 0.010816078633069992,
+    "upper": 0.026807667687535286,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second",
+    "pairs": 3408
+  },
+  "by_difficulty": {
+    "0": {
+      "point_estimate": 0.030534492805600166,
+      "confidence": 0.95,
+      "lower": 0.02001350186765194,
+      "upper": 0.041068580001592636,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 1802
+    },
+    "1": {
+      "point_estimate": 0.007560322061181068,
+      "confidence": 0.95,
+      "lower": -0.004652838688343763,
+      "upper": 0.020109359174966812,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 1323
+    },
+    "2": {
+      "point_estimate": -0.0019762886222451925,
+      "confidence": 0.95,
+      "lower": -0.026968475431203842,
+      "upper": 0.023022854700684547,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 283
+    }
+  }
+}

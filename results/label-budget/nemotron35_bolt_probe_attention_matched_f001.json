@@ -1,0 +1,37 @@
+{
+  "images": 13000,
+  "label_fraction": 0.01,
+  "train_images": 100,
+  "full_train_images": 9100,
+  "cells": [
+    {
+      "learning_rate": 0.001,
+      "learning_rate_search": {
+        "1e-05": 0.0231,
+        "3e-05": 0.0374,
+        "0.0001": 0.1892,
+        "0.0003": 0.3944,
+        "0.001": 0.4508,
+        "0.003": 0.4492,
+        "0.01": 0.3472,
+        "0.03": 0.1862,
+        "0.1": 0.0887,
+        "0.3": 0.0636,
+        "1": 0.0092
+      },
+      "val_accuracy": 0.4508,
+      "test_accuracy": 0.4497,
+      "test_std": 0.0094,
+      "seeds": 3,
+      "model_id": "immanuelpeter/C-RADIOv4-H-3.5-Bolt",
+      "stage": "merged",
+      "layer_index": 32,
+      "relative_depth": 1.0,
+      "token_width": 5120,
+      "trainable_parameters": 1627748,
+      "label_fraction": 0.01,
+      "train_images": 100,
+      "full_train_images": 9100
+    }
+  ]
+}

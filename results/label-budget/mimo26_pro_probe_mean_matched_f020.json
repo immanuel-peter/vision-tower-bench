@@ -1,0 +1,37 @@
+{
+  "images": 13000,
+  "label_fraction": 0.2,
+  "train_images": 1820,
+  "full_train_images": 9100,
+  "cells": [
+    {
+      "learning_rate": 0.01,
+      "learning_rate_search": {
+        "1e-05": 0.0138,
+        "3e-05": 0.0149,
+        "0.0001": 0.0267,
+        "0.0003": 0.1267,
+        "0.001": 0.4487,
+        "0.003": 0.6046,
+        "0.01": 0.6349,
+        "0.03": 0.6062,
+        "0.1": 0.6092,
+        "0.3": 0.6333,
+        "1": 0.6251
+      },
+      "val_accuracy": 0.6349,
+      "test_accuracy": 0.6462,
+      "test_std": 0.0078,
+      "seeds": 3,
+      "model_id": "immanuelpeter/MiMoViT-2.6-Pro",
+      "stage": "tower",
+      "layer_index": 28,
+      "relative_depth": 1.0,
+      "token_width": 1280,
+      "trainable_parameters": 51300,
+      "label_fraction": 0.2,
+      "train_images": 1820,
+      "full_train_images": 9100
+    }
+  ]
+}

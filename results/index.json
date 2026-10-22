@@ -27,7 +27,7 @@
         "moonvit_v2",
         "minimax_m3"
       ],
-      "description": "Published eleven-Tower v2 report cohort and default figure roster; includes the original six."
+      "description": "Published eleven-Tower v2 report cohort; includes the original six."
     },
     "v3": {
       "models": [
@@ -37,7 +37,7 @@
         "mimo26_pro",
         "mimo26_flash"
       ],
-      "description": "Nemotron Super, Nemotron Bolt and the DINOv3 ViT-L/16 control, measured after the v2 report and not in the default figures. Super follows the v2 protocols with all three Stages. Bolt covers only the merged and projected Stages, plus one final Tower sanity cell under diagnostics/nemotron35-bolt-tower/. DINOv3 runs at 512 px for a 32x32 grid, equal to DINOv2 at 448 px, with DINOv2's bicubic crop and ImageNet normalization; its 448 px equal-pixel check is under diagnostics/dinov3-equal-pixels/. MiMo 2.6 Pro and MiMo 2.6 Flash follow the v2 protocols with all three Stages at 448 px; each still image is fed as two identical frames, and every Tower depth is restored to raster order. Their paired Pro-versus-Flash intervals are under bootstrap/*-mimo26-pro-vs-flash*.json, and the attention sink check is under diagnostics/mimo26-attention-sinks/."
+      "description": "Nemotron Super, Nemotron Bolt, the DINOv3 ViT-L/16 control and MiMo 2.6 Pro and Flash, measured after the v2 report and included in the default figures. Super follows the v2 protocols with all three Stages. Bolt covers only the merged and projected Stages, plus one final Tower sanity cell under diagnostics/nemotron35-bolt-tower/. DINOv3 runs at 512 px for a 32x32 grid, equal to DINOv2 at 448 px, with DINOv2's bicubic crop and ImageNet normalization; its 448 px equal-pixel check is under diagnostics/dinov3-equal-pixels/. MiMo 2.6 Pro and MiMo 2.6 Flash follow the v2 protocols with all three Stages at 448 px; each still image is fed as two identical frames, and every Tower depth is restored to raster order. Their paired Pro-versus-Flash intervals are under bootstrap/*-mimo26-pro-vs-flash*.json, and the attention sink check is under diagnostics/mimo26-attention-sinks/."
     }
   },
   "experiments": {
@@ -97,7 +97,7 @@
     "label_budget": {
       "path": "label-budget/",
       "protocol": "ImageNet-100 final Tower layer; matched capacity; attention/mean at 1%, 5%, 20% and 100% labels; fixed validation/test splits.",
-      "status": "Includes throughput records for the original six Towers.",
+      "status": "Includes throughput records for the original six Towers. The v3 Towers have both reducer arms; Bolt runs at merged L32, and the channel-standardized runs that the default figure reads are under diagnostics/mimo26-tower-outlier-channel/.",
       "cohort": "v2_eleven"
     },
     "perturbation": {
@@ -109,7 +109,7 @@
     "kitti": {
       "path": "kitti/",
       "protocol": "KITTI selected depth-completion validation set; matched depth readout at final Tower and Projector stages.",
-      "status": "Single transfer column. Paired intervals are under bootstrap/.",
+      "status": "Single transfer column. Paired intervals are under bootstrap/. The v3 cohort adds Nemotron Super and MiMo 2.6 Pro and Flash.",
       "cohort": "v2_eleven"
     },
     "pooling": {
@@ -194,8 +194,13 @@
       "deepseek_v41": "geometry/deepseek_v41_geometry_depth_matched.json",
       "gemma4": "geometry/gemma4_geometry_depth_matched.json",
       "moonvit_v2": "geometry/deterministic/moonvit_v2_geometry_depth_matched.json",
-      "minimax_m3": "geometry/minimax_m3_geometry_depth_matched.json"
-    }
+      "minimax_m3": "geometry/minimax_m3_geometry_depth_matched.json",
+      "nemotron35_super": "geometry/nemotron35_super_geometry_depth_matched.json",
+      "nemotron35_bolt": "geometry/nemotron35_bolt_geometry_depth_matched.json",
+      "mimo26_pro": "geometry/mimo26_pro_geometry_depth_matched.json",
+      "mimo26_flash": "geometry/mimo26_flash_geometry_depth_matched.json"
+    },
+    "label_budget": "diagnostics/mimo26-tower-outlier-channel/label_budget_standardized.json"
   },
   "history": "history/roster-run.md"
 }

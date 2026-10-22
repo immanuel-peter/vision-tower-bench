@@ -298,6 +298,154 @@
         }
       ]
     },
+    "dinov3_probe_attention_matched_f001": {
+      "images": 13000,
+      "label_fraction": 0.01,
+      "train_images": 100,
+      "full_train_images": 9100,
+      "cells": [
+        {
+          "learning_rate": 0.003,
+          "learning_rate_search": {
+            "1e-05": 0.021,
+            "3e-05": 0.0574,
+            "0.0001": 0.3051,
+            "0.0003": 0.4867,
+            "0.001": 0.5138,
+            "0.003": 0.5246,
+            "0.01": 0.4518,
+            "0.03": 0.2913,
+            "0.1": 0.2713,
+            "0.3": 0.279,
+            "1": 0.0092
+          },
+          "val_accuracy": 0.5246,
+          "test_accuracy": 0.5296,
+          "test_std": 0.0098,
+          "seeds": 3,
+          "model_id": "facebook/dinov3-vitl16-pretrain-lvd1689m",
+          "stage": "tower",
+          "layer_index": 24,
+          "relative_depth": 1.0,
+          "token_width": 1024,
+          "trainable_parameters": 1627748,
+          "label_fraction": 0.01,
+          "train_images": 100,
+          "full_train_images": 9100
+        }
+      ]
+    },
+    "dinov3_probe_attention_matched_f005": {
+      "images": 13000,
+      "label_fraction": 0.05,
+      "train_images": 455,
+      "full_train_images": 9100,
+      "cells": [
+        {
+          "learning_rate": 0.001,
+          "learning_rate_search": {
+            "1e-05": 0.0159,
+            "3e-05": 0.1513,
+            "0.0001": 0.6338,
+            "0.0003": 0.8005,
+            "0.001": 0.8241,
+            "0.003": 0.8133,
+            "0.01": 0.7292,
+            "0.03": 0.6646,
+            "0.1": 0.6446,
+            "0.3": 0.5723,
+            "1": 0.0092
+          },
+          "val_accuracy": 0.8241,
+          "test_accuracy": 0.8291,
+          "test_std": 0.0025,
+          "seeds": 3,
+          "model_id": "facebook/dinov3-vitl16-pretrain-lvd1689m",
+          "stage": "tower",
+          "layer_index": 24,
+          "relative_depth": 1.0,
+          "token_width": 1024,
+          "trainable_parameters": 1627748,
+          "label_fraction": 0.05,
+          "train_images": 455,
+          "full_train_images": 9100
+        }
+      ]
+    },
+    "dinov3_probe_attention_matched_f020": {
+      "images": 13000,
+      "label_fraction": 0.2,
+      "train_images": 1820,
+      "full_train_images": 9100,
+      "cells": [
+        {
+          "learning_rate": 0.001,
+          "learning_rate_search": {
+            "1e-05": 0.1872,
+            "3e-05": 0.72,
+            "0.0001": 0.8846,
+            "0.0003": 0.8949,
+            "0.001": 0.8954,
+            "0.003": 0.8815,
+            "0.01": 0.8626,
+            "0.03": 0.8405,
+            "0.1": 0.8005,
+            "0.3": 0.0092,
+            "1": 0.0092
+          },
+          "val_accuracy": 0.8954,
+          "test_accuracy": 0.885,
+          "test_std": 0.0032,
+          "seeds": 3,
+          "model_id": "facebook/dinov3-vitl16-pretrain-lvd1689m",
+          "stage": "tower",
+          "layer_index": 24,
+          "relative_depth": 1.0,
+          "token_width": 1024,
+          "trainable_parameters": 1627748,
+          "label_fraction": 0.2,
+          "train_images": 1820,
+          "full_train_images": 9100
+        }
+      ]
+    },
+    "dinov3_probe_attention_matched_f10": {
+      "images": 13000,
+      "label_fraction": 1.0,
+      "train_images": 9100,
+      "full_train_images": 9100,
+      "cells": [
+        {
+          "learning_rate": 0.0001,
+          "learning_rate_search": {
+            "1e-05": 0.8431,
+            "3e-05": 0.9144,
+            "0.0001": 0.9205,
+            "0.0003": 0.9185,
+            "0.001": 0.9133,
+            "0.003": 0.9113,
+            "0.01": 0.8954,
+            "0.03": 0.8887,
+            "0.1": 0.0092,
+            "0.3": 0.0092,
+            "1": 0.0092
+          },
+          "val_accuracy": 0.9205,
+          "test_accuracy": 0.9154,
+          "test_std": 0.0011,
+          "seeds": 3,
+          "model_id": "facebook/dinov3-vitl16-pretrain-lvd1689m",
+          "stage": "tower",
+          "layer_index": 24,
+          "relative_depth": 1.0,
+          "token_width": 1024,
+          "trainable_parameters": 1627748,
+          "label_fraction": 1.0,
+          "train_images": 9100,
+          "full_train_images": 9100
+        }
+      ]
+    },
     "gemma4_probe_attention_matched_f001": {
       "images": 13000,
       "label_fraction": 0.01,
@@ -742,6 +890,302 @@
         }
       ]
     },
+    "mimo26_flash_probe_attention_matched_f001": {
+      "images": 13000,
+      "label_fraction": 0.01,
+      "train_images": 100,
+      "full_train_images": 9100,
+      "cells": [
+        {
+          "learning_rate": 0.001,
+          "learning_rate_search": {
+            "1e-05": 0.0154,
+            "3e-05": 0.0313,
+            "0.0001": 0.1026,
+            "0.0003": 0.2031,
+            "0.001": 0.2241,
+            "0.003": 0.2,
+            "0.01": 0.1446,
+            "0.03": 0.0938,
+            "0.1": 0.0538,
+            "0.3": 0.0467,
+            "1": 0.0092
+          },
+          "val_accuracy": 0.2241,
+          "test_accuracy": 0.2388,
+          "test_std": 0.0071,
+          "seeds": 3,
+          "model_id": "immanuelpeter/MiMoViT-2.6-Flash",
+          "stage": "tower",
+          "layer_index": 28,
+          "relative_depth": 1.0,
+          "token_width": 1280,
+          "trainable_parameters": 1627748,
+          "label_fraction": 0.01,
+          "train_images": 100,
+          "full_train_images": 9100
+        }
+      ]
+    },
+    "mimo26_flash_probe_attention_matched_f005": {
+      "images": 13000,
+      "label_fraction": 0.05,
+      "train_images": 455,
+      "full_train_images": 9100,
+      "cells": [
+        {
+          "learning_rate": 0.001,
+          "learning_rate_search": {
+            "1e-05": 0.0282,
+            "3e-05": 0.0733,
+            "0.0001": 0.261,
+            "0.0003": 0.4892,
+            "0.001": 0.5528,
+            "0.003": 0.5272,
+            "0.01": 0.4292,
+            "0.03": 0.3246,
+            "0.1": 0.2426,
+            "0.3": 0.1815,
+            "1": 0.0092
+          },
+          "val_accuracy": 0.5528,
+          "test_accuracy": 0.5631,
+          "test_std": 0.0015,
+          "seeds": 3,
+          "model_id": "immanuelpeter/MiMoViT-2.6-Flash",
+          "stage": "tower",
+          "layer_index": 28,
+          "relative_depth": 1.0,
+          "token_width": 1280,
+          "trainable_parameters": 1627748,
+          "label_fraction": 0.05,
+          "train_images": 455,
+          "full_train_images": 9100
+        }
+      ]
+    },
+    "mimo26_flash_probe_attention_matched_f020": {
+      "images": 13000,
+      "label_fraction": 0.2,
+      "train_images": 1820,
+      "full_train_images": 9100,
+      "cells": [
+        {
+          "learning_rate": 0.001,
+          "learning_rate_search": {
+            "1e-05": 0.0908,
+            "3e-05": 0.3241,
+            "0.0001": 0.6708,
+            "0.0003": 0.7436,
+            "0.001": 0.7467,
+            "0.003": 0.7313,
+            "0.01": 0.6595,
+            "0.03": 0.5569,
+            "0.1": 0.3841,
+            "0.3": 0.1015,
+            "1": 0.0092
+          },
+          "val_accuracy": 0.7467,
+          "test_accuracy": 0.7607,
+          "test_std": 0.0024,
+          "seeds": 3,
+          "model_id": "immanuelpeter/MiMoViT-2.6-Flash",
+          "stage": "tower",
+          "layer_index": 28,
+          "relative_depth": 1.0,
+          "token_width": 1280,
+          "trainable_parameters": 1627748,
+          "label_fraction": 0.2,
+          "train_images": 1820,
+          "full_train_images": 9100
+        }
+      ]
+    },
+    "mimo26_flash_probe_attention_matched_f10": {
+      "images": 13000,
+      "label_fraction": 1.0,
+      "train_images": 9100,
+      "full_train_images": 9100,
+      "cells": [
+        {
+          "learning_rate": 0.0001,
+          "learning_rate_search": {
+            "1e-05": 0.5456,
+            "3e-05": 0.7841,
+            "0.0001": 0.8379,
+            "0.0003": 0.8349,
+            "0.001": 0.8272,
+            "0.003": 0.8123,
+            "0.01": 0.7631,
+            "0.03": 0.7128,
+            "0.1": 0.5292,
+            "0.3": 0.0092,
+            "1": 0.0092
+          },
+          "val_accuracy": 0.8379,
+          "test_accuracy": 0.8303,
+          "test_std": 0.0025,
+          "seeds": 3,
+          "model_id": "immanuelpeter/MiMoViT-2.6-Flash",
+          "stage": "tower",
+          "layer_index": 28,
+          "relative_depth": 1.0,
+          "token_width": 1280,
+          "trainable_parameters": 1627748,
+          "label_fraction": 1.0,
+          "train_images": 9100,
+          "full_train_images": 9100
+        }
+      ]
+    },
+    "mimo26_pro_probe_attention_matched_f001": {
+      "images": 13000,
+      "label_fraction": 0.01,
+      "train_images": 100,
+      "full_train_images": 9100,
+      "cells": [
+        {
+          "learning_rate": 0.001,
+          "learning_rate_search": {
+            "1e-05": 0.0097,
+            "3e-05": 0.02,
+            "0.0001": 0.0821,
+            "0.0003": 0.1974,
+            "0.001": 0.2179,
+            "0.003": 0.2,
+            "0.01": 0.1564,
+            "0.03": 0.0769,
+            "0.1": 0.0826,
+            "0.3": 0.0651,
+            "1": 0.0092
+          },
+          "val_accuracy": 0.2179,
+          "test_accuracy": 0.2397,
+          "test_std": 0.0032,
+          "seeds": 3,
+          "model_id": "immanuelpeter/MiMoViT-2.6-Pro",
+          "stage": "tower",
+          "layer_index": 28,
+          "relative_depth": 1.0,
+          "token_width": 1280,
+          "trainable_parameters": 1627748,
+          "label_fraction": 0.01,
+          "train_images": 100,
+          "full_train_images": 9100
+        }
+      ]
+    },
+    "mimo26_pro_probe_attention_matched_f005": {
+      "images": 13000,
+      "label_fraction": 0.05,
+      "train_images": 455,
+      "full_train_images": 9100,
+      "cells": [
+        {
+          "learning_rate": 0.001,
+          "learning_rate_search": {
+            "1e-05": 0.0256,
+            "3e-05": 0.0821,
+            "0.0001": 0.2785,
+            "0.0003": 0.5056,
+            "0.001": 0.5585,
+            "0.003": 0.5395,
+            "0.01": 0.4533,
+            "0.03": 0.3328,
+            "0.1": 0.2015,
+            "0.3": 0.1508,
+            "1": 0.0092
+          },
+          "val_accuracy": 0.5585,
+          "test_accuracy": 0.5617,
+          "test_std": 0.0025,
+          "seeds": 3,
+          "model_id": "immanuelpeter/MiMoViT-2.6-Pro",
+          "stage": "tower",
+          "layer_index": 28,
+          "relative_depth": 1.0,
+          "token_width": 1280,
+          "trainable_parameters": 1627748,
+          "label_fraction": 0.05,
+          "train_images": 455,
+          "full_train_images": 9100
+        }
+      ]
+    },
+    "mimo26_pro_probe_attention_matched_f020": {
+      "images": 13000,
+      "label_fraction": 0.2,
+      "train_images": 1820,
+      "full_train_images": 9100,
+      "cells": [
+        {
+          "learning_rate": 0.0003,
+          "learning_rate_search": {
+            "1e-05": 0.1051,
+            "3e-05": 0.3482,
+            "0.0001": 0.6805,
+            "0.0003": 0.7538,
+            "0.001": 0.7508,
+            "0.003": 0.7179,
+            "0.01": 0.6754,
+            "0.03": 0.56,
+            "0.1": 0.4164,
+            "0.3": 0.0092,
+            "1": 0.0092
+          },
+          "val_accuracy": 0.7538,
+          "test_accuracy": 0.7621,
+          "test_std": 0.0047,
+          "seeds": 3,
+          "model_id": "immanuelpeter/MiMoViT-2.6-Pro",
+          "stage": "tower",
+          "layer_index": 28,
+          "relative_depth": 1.0,
+          "token_width": 1280,
+          "trainable_parameters": 1627748,
+          "label_fraction": 0.2,
+          "train_images": 1820,
+          "full_train_images": 9100
+        }
+      ]
+    },
+    "mimo26_pro_probe_attention_matched_f10": {
+      "images": 13000,
+      "label_fraction": 1.0,
+      "train_images": 9100,
+      "full_train_images": 9100,
+      "cells": [
+        {
+          "learning_rate": 0.0001,
+          "learning_rate_search": {
+            "1e-05": 0.5108,
+            "3e-05": 0.7846,
+            "0.0001": 0.8313,
+            "0.0003": 0.8221,
+            "0.001": 0.8195,
+            "0.003": 0.7974,
+            "0.01": 0.7585,
+            "0.03": 0.74,
+            "0.1": 0.6692,
+            "0.3": 0.0092,
+            "1": 0.0092
+          },
+          "val_accuracy": 0.8313,
+          "test_accuracy": 0.825,
+          "test_std": 0.0043,
+          "seeds": 3,
+          "model_id": "immanuelpeter/MiMoViT-2.6-Pro",
+          "stage": "tower",
+          "layer_index": 28,
+          "relative_depth": 1.0,
+          "token_width": 1280,
+          "trainable_parameters": 1627748,
+          "label_fraction": 1.0,
+          "train_images": 9100,
+          "full_train_images": 9100
+        }
+      ]
+    },
     "minimax_m3_probe_attention_matched_f001": {
       "images": 13000,
       "label_fraction": 0.01,
@@ -1179,6 +1623,302 @@
           "layer_index": 50,
           "relative_depth": 1.0,
           "token_width": 1536,
+          "trainable_parameters": 1627748,
+          "label_fraction": 1.0,
+          "train_images": 9100,
+          "full_train_images": 9100
+        }
+      ]
+    },
+    "nemotron35_bolt_probe_attention_matched_f001": {
+      "images": 13000,
+      "label_fraction": 0.01,
+      "train_images": 100,
+      "full_train_images": 9100,
+      "cells": [
+        {
+          "learning_rate": 0.001,
+          "learning_rate_search": {
+            "1e-05": 0.0087,
+            "3e-05": 0.0323,
+            "0.0001": 0.2185,
+            "0.0003": 0.4451,
+            "0.001": 0.4862,
+            "0.003": 0.4636,
+            "0.01": 0.3636,
+            "0.03": 0.199,
+            "0.1": 0.1733,
+            "0.3": 0.1687,
+            "1": 0.0092
+          },
+          "val_accuracy": 0.4862,
+          "test_accuracy": 0.4841,
+          "test_std": 0.0064,
+          "seeds": 3,
+          "model_id": "immanuelpeter/C-RADIOv4-H-3.5-Bolt",
+          "stage": "merged",
+          "layer_index": 32,
+          "relative_depth": 1.0,
+          "token_width": 5120,
+          "trainable_parameters": 1627748,
+          "label_fraction": 0.01,
+          "train_images": 100,
+          "full_train_images": 9100
+        }
+      ]
+    },
+    "nemotron35_bolt_probe_attention_matched_f005": {
+      "images": 13000,
+      "label_fraction": 0.05,
+      "train_images": 455,
+      "full_train_images": 9100,
+      "cells": [
+        {
+          "learning_rate": 0.001,
+          "learning_rate_search": {
+            "1e-05": 0.0272,
+            "3e-05": 0.1462,
+            "0.0001": 0.5615,
+            "0.0003": 0.7862,
+            "0.001": 0.8205,
+            "0.003": 0.8072,
+            "0.01": 0.7436,
+            "0.03": 0.6672,
+            "0.1": 0.5569,
+            "0.3": 0.4472,
+            "1": 0.0092
+          },
+          "val_accuracy": 0.8205,
+          "test_accuracy": 0.8183,
+          "test_std": 0.0006,
+          "seeds": 3,
+          "model_id": "immanuelpeter/C-RADIOv4-H-3.5-Bolt",
+          "stage": "merged",
+          "layer_index": 32,
+          "relative_depth": 1.0,
+          "token_width": 5120,
+          "trainable_parameters": 1627748,
+          "label_fraction": 0.05,
+          "train_images": 455,
+          "full_train_images": 9100
+        }
+      ]
+    },
+    "nemotron35_bolt_probe_attention_matched_f020": {
+      "images": 13000,
+      "label_fraction": 0.2,
+      "train_images": 1820,
+      "full_train_images": 9100,
+      "cells": [
+        {
+          "learning_rate": 0.0003,
+          "learning_rate_search": {
+            "1e-05": 0.1877,
+            "3e-05": 0.6277,
+            "0.0001": 0.8631,
+            "0.0003": 0.8749,
+            "0.001": 0.8718,
+            "0.003": 0.8636,
+            "0.01": 0.8282,
+            "0.03": 0.7995,
+            "0.1": 0.7774,
+            "0.3": 0.0092,
+            "1": 0.0092
+          },
+          "val_accuracy": 0.8749,
+          "test_accuracy": 0.8785,
+          "test_std": 0.0015,
+          "seeds": 3,
+          "model_id": "immanuelpeter/C-RADIOv4-H-3.5-Bolt",
+          "stage": "merged",
+          "layer_index": 32,
+          "relative_depth": 1.0,
+          "token_width": 5120,
+          "trainable_parameters": 1627748,
+          "label_fraction": 0.2,
+          "train_images": 1820,
+          "full_train_images": 9100
+        }
+      ]
+    },
+    "nemotron35_bolt_probe_attention_matched_f10": {
+      "images": 13000,
+      "label_fraction": 1.0,
+      "train_images": 9100,
+      "full_train_images": 9100,
+      "cells": [
+        {
+          "learning_rate": 0.0001,
+          "learning_rate_search": {
+            "1e-05": 0.8195,
+            "3e-05": 0.8964,
+            "0.0001": 0.9133,
+            "0.0003": 0.9067,
+            "0.001": 0.9077,
+            "0.003": 0.8969,
+            "0.01": 0.8703,
+            "0.03": 0.8662,
+            "0.1": 0.8379,
+            "0.3": 0.0092,
+            "1": 0.0092
+          },
+          "val_accuracy": 0.9133,
+          "test_accuracy": 0.8952,
+          "test_std": 0.0012,
+          "seeds": 3,
+          "model_id": "immanuelpeter/C-RADIOv4-H-3.5-Bolt",
+          "stage": "merged",
+          "layer_index": 32,
+          "relative_depth": 1.0,
+          "token_width": 5120,
+          "trainable_parameters": 1627748,
+          "label_fraction": 1.0,
+          "train_images": 9100,
+          "full_train_images": 9100
+        }
+      ]
+    },
+    "nemotron35_super_probe_attention_matched_f001": {
+      "images": 13000,
+      "label_fraction": 0.01,
+      "train_images": 100,
+      "full_train_images": 9100,
+      "cells": [
+        {
+          "learning_rate": 0.001,
+          "learning_rate_search": {
+            "1e-05": 0.0128,
+            "3e-05": 0.0374,
+            "0.0001": 0.2246,
+            "0.0003": 0.4303,
+            "0.001": 0.4749,
+            "0.003": 0.4667,
+            "0.01": 0.3277,
+            "0.03": 0.2272,
+            "0.1": 0.1841,
+            "0.3": 0.2031,
+            "1": 0.0092
+          },
+          "val_accuracy": 0.4749,
+          "test_accuracy": 0.4805,
+          "test_std": 0.0067,
+          "seeds": 3,
+          "model_id": "immanuelpeter/C-RADIOv4-H-3.5-Super",
+          "stage": "tower",
+          "layer_index": 32,
+          "relative_depth": 1.0,
+          "token_width": 1280,
+          "trainable_parameters": 1627748,
+          "label_fraction": 0.01,
+          "train_images": 100,
+          "full_train_images": 9100
+        }
+      ]
+    },
+    "nemotron35_super_probe_attention_matched_f005": {
+      "images": 13000,
+      "label_fraction": 0.05,
+      "train_images": 455,
+      "full_train_images": 9100,
+      "cells": [
+        {
+          "learning_rate": 0.001,
+          "learning_rate_search": {
+            "1e-05": 0.0344,
+            "3e-05": 0.1451,
+            "0.0001": 0.5415,
+            "0.0003": 0.7892,
+            "0.001": 0.8246,
+            "0.003": 0.8154,
+            "0.01": 0.7149,
+            "0.03": 0.6441,
+            "0.1": 0.52,
+            "0.3": 0.5113,
+            "1": 0.0092
+          },
+          "val_accuracy": 0.8246,
+          "test_accuracy": 0.8272,
+          "test_std": 0.0034,
+          "seeds": 3,
+          "model_id": "immanuelpeter/C-RADIOv4-H-3.5-Super",
+          "stage": "tower",
+          "layer_index": 32,
+          "relative_depth": 1.0,
+          "token_width": 1280,
+          "trainable_parameters": 1627748,
+          "label_fraction": 0.05,
+          "train_images": 455,
+          "full_train_images": 9100
+        }
+      ]
+    },
+    "nemotron35_super_probe_attention_matched_f020": {
+      "images": 13000,
+      "label_fraction": 0.2,
+      "train_images": 1820,
+      "full_train_images": 9100,
+      "cells": [
+        {
+          "learning_rate": 0.0003,
+          "learning_rate_search": {
+            "1e-05": 0.1703,
+            "3e-05": 0.641,
+            "0.0001": 0.8651,
+            "0.0003": 0.8826,
+            "0.001": 0.8785,
+            "0.003": 0.8651,
+            "0.01": 0.84,
+            "0.03": 0.8087,
+            "0.1": 0.7882,
+            "0.3": 0.0092,
+            "1": 0.0092
+          },
+          "val_accuracy": 0.8826,
+          "test_accuracy": 0.8795,
+          "test_std": 0.0029,
+          "seeds": 3,
+          "model_id": "immanuelpeter/C-RADIOv4-H-3.5-Super",
+          "stage": "tower",
+          "layer_index": 32,
+          "relative_depth": 1.0,
+          "token_width": 1280,
+          "trainable_parameters": 1627748,
+          "label_fraction": 0.2,
+          "train_images": 1820,
+          "full_train_images": 9100
+        }
+      ]
+    },
+    "nemotron35_super_probe_attention_matched_f10": {
+      "images": 13000,
+      "label_fraction": 1.0,
+      "train_images": 9100,
+      "full_train_images": 9100,
+      "cells": [
+        {
+          "learning_rate": 0.0001,
+          "learning_rate_search": {
+            "1e-05": 0.8272,
+            "3e-05": 0.9021,
+            "0.0001": 0.9087,
+            "0.0003": 0.9077,
+            "0.001": 0.9077,
+            "0.003": 0.899,
+            "0.01": 0.8862,
+            "0.03": 0.8549,
+            "0.1": 0.8318,
+            "0.3": 0.0092,
+            "1": 0.0092
+          },
+          "val_accuracy": 0.9087,
+          "test_accuracy": 0.9019,
+          "test_std": 0.0029,
+          "seeds": 3,
+          "model_id": "immanuelpeter/C-RADIOv4-H-3.5-Super",
+          "stage": "tower",
+          "layer_index": 32,
+          "relative_depth": 1.0,
+          "token_width": 1280,
           "trainable_parameters": 1627748,
           "label_fraction": 1.0,
           "train_images": 9100,
