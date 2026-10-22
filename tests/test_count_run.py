@@ -310,3 +310,36 @@ def test_edge_extension_follows_the_winning_edge(scores, expected):
     finally:
         geometry_run.half_decade = original
     assert extended == expected and tried == [1, 2, 3] + expected
+
+
+def test_a_collapsed_final_seed_retrains_every_seed_at_the_next_rate(tmp_path, monkeypatch):
+    run, targets, _ = write_fixture(tmp_path)
+    state = {"searched": False, "forced": False}
+    search = geometry_run.select_learning_rate
+
+    def searched(*args, **kwargs):
+        result = search(*args, **kwargs)
+        state["searched"] = True
+        return result
+
+    def flaky(metrics):
+        # Every search fit passes; the first final seed at the selected rate collapses.
+        if state["searched"] and not state["forced"]:
+            state["forced"] = True
+            return "zero map: forced"
+        return None
+
+    monkeypatch.setattr(geometry_run, "select_learning_rate", searched)
+    monkeypatch.setattr(geometry_run, "collapsed", flaky)
+    out = tmp_path / "toy_count_free_raw.json"
+    run_main(monkeypatch, "--task", "count", "--run", run, "--targets", targets, "--out", out, "--name", "toy",
+             "--readouts", tmp_path / "readouts", "--device", "cpu", "--epochs", "1", "--batch-size", "4",
+             "--learning-rates", "1e-3", "1e-2", "--seeds", "2", "--stages", "tower")
+    cell = json.loads(out.read_text())["cells"][0]
+    assert len(cell["seed_fallbacks"]) == 1
+    assert cell["learning_rate"] != cell["learning_rate_selected"]
+    assert cell["seed_fallbacks"][0]["learning_rate"] == cell["learning_rate_selected"]
+    assert cell["curves"]["collapsed_final_seeds"][0]["seed"] == 0
+    assert {cell["curves"][f"seed {s}"]["learning_rate"] for s in range(2)} == {cell["learning_rate"]}
+    saved = tmp_path / "readouts" / "toy" / "free_raw" / "tower_L04" / "seed1.safetensors"
+    assert geometry_run.load_readout(saved.parent, 1, "cpu").meta["learning_rate"] == cell["learning_rate"]

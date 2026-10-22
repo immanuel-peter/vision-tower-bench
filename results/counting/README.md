@@ -79,7 +79,7 @@ edge of the searched rates, the search adds the next half-decade rate outward. I
 does this at most twice, and stops when the new rate collapses or does not
 improve. A fit collapses if it predicts less than a tenth of the validation mass,
 or the same count for every image. Collapsed search fits are recorded and skipped.
-A collapsed final seed fails the cell rather than entering the mean. The pilot
+If any final seed collapses at the selected rate, that rate is treated as unstable and every seed retrains at the next-best validation rate, at most twice. The cell records the original selection and each fallback, and a cell that collapses at every candidate fails rather than averaging a collapse. This rule was added after 13 production cells had finished. None of them had a collapsed seed, so the rule leaves them unchanged; DeepSeek V4.1's raw exemplar Tower cell was the first to trigger it. The pilot
 also trained two cells for 20 epochs at their selected rates. Qwen3.8 merged at
 1e-4 improved from 20.8 to 19.0 test MAE (one seed), and Kimi K2.6 projected at
 1e-3 went from 14.8 to 15.1. Low-rate readouts are therefore not fully converged,

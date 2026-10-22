@@ -563,22 +563,62 @@ def collapsed(metrics: dict[str, torch.Tensor]) -> str | None:
 COLLAPSE_MASS = 0.1
 
 
+# A collapsed final seed retrains every seed at the next-best validation rate, at most this often.
+SEED_FALLBACKS = 2
+
+
 def run_count_cell(features, targets, counts, split, image_ids, images, stage, layer, reducer,
                    readouts, meta, args) -> tuple[dict, list[str], list[str]]:
     curves: dict = {}
     best_rate, selection = select_learning_rate(features, targets, counts, split, "count", args, curves.setdefault("search", {}))
-    per_seed, one_exemplar, test_rows, val_rows = [], [], [], []
+    # Rates by validation MAE. A final seed collapsing at the selected rate marks it unstable;
+    # all seeds then retrain at the next rate, so a published cell never averages a collapse.
+    ranked = sorted((value, float(rate)) for rate, value in selection["learning_rate_search"].items()
+                    if math.isfinite(value))
+    candidates = [best_rate] + [rate for _, rate in ranked if rate != best_rate][:SEED_FALLBACKS]
+    fallbacks = []
+    for rate in candidates:
+        try:
+            outcome = train_seeds(features, targets, counts, split, image_ids, images, stage, layer, rate, curves, args)
+            break
+        except Diverged as error:
+            fallbacks.append({"learning_rate": rate, "reason": str(error)})
+    else:
+        raise Diverged(f"final seeds collapsed at every candidate rate: {fallbacks}")
+    per_seed, one_exemplar, test_rows, val_rows, models = outcome
+    if readouts is not None:
+        for seed, model in enumerate(models):
+            save_readout(readouts, seed, model, reducer, meta | {"learning_rate": rate})
+    # RMSE: each seed's from its squared errors, then mean and std over seeds as for every
+    # metric; rmse_pooled is sqrt of the mean squared error over all seed-image rows.
+    squared = [error for summary in per_seed for error in summary.pop("rmse_pooled_input")]
+    cell = aggregate(per_seed) | selection | {"seeds": args.seeds, "per_seed": per_seed, "curves": curves}
+    cell["rmse_pooled"] = round(math.sqrt(sum(squared) / len(squared)), 4)
+    if fallbacks:
+        cell |= {"learning_rate_selected": best_rate, "learning_rate": rate, "seed_fallbacks": fallbacks}
+    if one_exemplar:
+        cell["one_exemplar_val"] = {"note": "transfer diagnostic only; never used for selection",
+                                    "per_seed": one_exemplar} | aggregate(one_exemplar)
+    return cell, test_rows, val_rows
+
+
+def train_seeds(features, targets, counts, split, image_ids, images, stage, layer, rate, curves, args):
+    """Fit and score every final seed at one rate. Raises Diverged when any seed collapses."""
+    per_seed, one_exemplar, test_rows, val_rows, models = [], [], [], [], []
     for seed in range(args.seeds):
         curve = curves.setdefault(f"seed {seed}", {})
+        curve.clear()
+        curve["learning_rate"] = rate
         began = time.perf_counter()
-        model = train_cell(features, targets, counts, split, "count", args, best_rate, seed,
+        model = train_cell(features, targets, counts, split, "count", args, rate, seed,
                            monitor=epoch_monitor(curve, features, targets, counts, split, "count", args))
         test = score(model, features, targets, counts, split.test, "count", args)
         val = score(model, features, targets, counts, split.val, "count", args)
         curve["seconds"] = round(time.perf_counter() - began, 1)
-        # A collapsed final seed fails the cell instead of entering the mean.
         if reason := collapsed(val):
-            raise Diverged(f"final seed {seed} at lr {best_rate:g}: {reason}")
+            curves.setdefault("collapsed_final_seeds", []).append(
+                {"learning_rate": rate, "seed": seed, "reason": reason, "curve": dict(curve)})
+            raise Diverged(f"final seed {seed} at lr {rate:g}: {reason}")
         summary = summarise_counts(test, bins_for(test["true_count"].tolist()))
         if args.arm == "free":
             # The exemplar arm's test images, for arm comparisons on common IDs.
@@ -591,17 +631,8 @@ def run_count_cell(features, targets, counts, split, image_ids, images, stage, l
         val_rows += prediction_rows(val, image_ids, split.val, "val", stage, layer, args.arm, seed)
         if args.arm == "exemplar":
             one_exemplar.append(one_exemplar_val(model, features, targets, counts, split, image_ids, images, args))
-        if readouts is not None:
-            save_readout(readouts, seed, model, reducer, meta | {"learning_rate": best_rate})
-    # RMSE: each seed's from its squared errors, then mean and std over seeds as for every
-    # metric; rmse_pooled is sqrt of the mean squared error over all seed-image rows.
-    squared = [error for summary in per_seed for error in summary.pop("rmse_pooled_input")]
-    cell = aggregate(per_seed) | selection | {"seeds": args.seeds, "per_seed": per_seed, "curves": curves}
-    cell["rmse_pooled"] = round(math.sqrt(sum(squared) / len(squared)), 4)
-    if one_exemplar:
-        cell["one_exemplar_val"] = {"note": "transfer diagnostic only; never used for selection",
-                                    "per_seed": one_exemplar} | aggregate(one_exemplar)
-    return cell, test_rows, val_rows
+        models.append(model.cpu())
+    return per_seed, one_exemplar, test_rows, val_rows, models
 
 
 def one_exemplar_val(model, features, targets, counts, split, image_ids, images, args) -> dict:
