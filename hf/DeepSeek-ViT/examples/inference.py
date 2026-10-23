@@ -8,7 +8,7 @@ from huggingface_hub import hf_hub_download
 from safetensors.torch import load_file
 from torchvision import transforms
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+sys.path.insert(0, str(Path(__file__).absolute().parents[1]))
 from vision import Aligner, ViT
 
 

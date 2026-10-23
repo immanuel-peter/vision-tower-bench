@@ -7,7 +7,7 @@ import torch
 from huggingface_hub import snapshot_download
 from torchvision import transforms
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+sys.path.insert(0, str(Path(__file__).absolute().parents[1]))
 from vision import load_vision
 
 
