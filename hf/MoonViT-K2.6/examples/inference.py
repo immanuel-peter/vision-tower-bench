@@ -6,7 +6,7 @@ from PIL import Image
 import torch
 from transformers import AutoImageProcessor, AutoModel
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+sys.path.insert(0, str(Path(__file__).absolute().parents[1]))
 from projector import load_projector
 
 
