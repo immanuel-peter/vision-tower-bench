@@ -69,8 +69,8 @@ DISPLAY: dict[str, str] = {
     "nemotron35_super": "Nemotron 3.5 Super",
     "nemotron35_bolt": "Nemotron 3.5 Bolt",
     "dinov3": "DINOv3",
-    "mimo26_pro": "MiMo 2.6 Pro",
-    "mimo26_flash": "MiMo 2.6 Flash",
+    "mimo26_pro": "MiMo V2.6 Pro",
+    "mimo26_flash": "MiMo V2.6 Flash",
 }
 
 
@@ -266,7 +266,7 @@ def occlusion(out: Path) -> None:
     axis.set_ylabel("top-1 accuracy")
     axis.set_title(
         "Recognition under occlusion\n"
-        "MiMo 2.6 is omitted: its clean Tower accuracy is at chance", fontsize=10,
+        "MiMo V2.6 is omitted: its clean Tower accuracy is at chance", fontsize=10,
     )
     axis.grid(alpha=0.25)
     axis.legend(fontsize=7, ncol=2)
@@ -314,7 +314,7 @@ def capability_profile(out: Path) -> None:
     axis.set_ylabel("rank (1 is best)")
     axis.set_title(
         "Capability Profile ranks\n"
-        "Semantic axes standardize channels; MiMo 2.6 has no occlusion rank", fontsize=10,
+        "Semantic axes standardize channels; MiMo V2.6 has no occlusion rank", fontsize=10,
     )
     axis.grid(alpha=0.25)
     axis.legend(fontsize=7, loc="upper left", bbox_to_anchor=(1.01, 1.0), frameon=False)
