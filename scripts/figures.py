@@ -59,15 +59,15 @@ DISPLAY: dict[str, str] = {
     "siglip2": "SigLIP2",
     "muse_glimmer": "Muse Glimmer",
     "glm5": "GLM 5.3 Flash",
-    "nemotron_omni": "Nemotron Omni",
+    "nemotron_omni": "Nemotron 3 Omni",
     "kimi_k26": "Kimi K2.6",
     "qwen3_5": "Qwen3.8",
     "deepseek_v41": "DeepSeek V4.1",
     "gemma4": "Gemma 4",
     "moonvit_v2": "Kimi K3",
     "minimax_m3": "MiniMax M3",
-    "nemotron35_super": "Nemotron Super",
-    "nemotron35_bolt": "Nemotron Bolt",
+    "nemotron35_super": "Nemotron 3.5 Super",
+    "nemotron35_bolt": "Nemotron 3.5 Bolt",
     "dinov3": "DINOv3",
     "mimo26_pro": "MiMo 2.6 Pro",
     "mimo26_flash": "MiMo 2.6 Flash",
@@ -209,10 +209,9 @@ def label_budget(out: Path) -> None:
     figure, axis = plt.subplots(figsize=(6.4, 4.6))
     for model in TOWERS:
         points = sorted(series[model].items())
-        label = DISPLAY[model] + (" (merged)" if model in NO_TOWER_STAGE else "")
         axis.plot(
             [f for f, _ in points], [a for _, a in points],
-            marker="o", markersize=4, color=COLOUR[model], label=label,
+            marker="o", markersize=4, color=COLOUR[model], label=DISPLAY[model],
         )
     axis.set_xscale("log")
     axis.set_xticks([0.01, 0.05, 0.20, 1.0], ["1%", "5%", "20%", "100%"])
@@ -325,22 +324,9 @@ def capability_profile(out: Path) -> None:
 
 
 def peaks(out: Path) -> None:
-    figure, (top, bottom) = plt.subplots(2, 1, figsize=(6.5, 6.8), sharex=True)
+    figure, axis = plt.subplots(figsize=(6.5, 4.2))
 
     for model in TOWER_STAGE:
-        path = RESULTS / SOURCES["recognition"].format(
-            model=model, readout="attention", arm="matched",
-        )
-        cells = [
-            c for c in json.loads(path.read_text())["cells"]
-            if c["stage"] == "tower"
-        ]
-        cells.sort(key=lambda c: c["relative_depth"])
-        top.plot(
-            [c["relative_depth"] for c in cells], [c["test_accuracy"] for c in cells],
-            marker="o", markersize=3, color=COLOUR[model], label=DISPLAY[model],
-        )
-
         path = RESULTS / SOURCES["geometry_layer_sweep"].format(model=model)
         cells = [
             c for c in json.loads(path.read_text())["cells"]
@@ -349,24 +335,59 @@ def peaks(out: Path) -> None:
         cells.sort(key=lambda c: c["relative_depth"])
         depths = [c["relative_depth"] for c in cells]
         scores = [c["d1"] for c in cells]
-        bottom.plot(depths, scores, marker="o", markersize=3, color=COLOUR[model], label=model)
-        bottom.plot([depths[scores.index(max(scores))]], [max(scores)], "*", markersize=15,
-                    color=COLOUR[model], markeredgecolor="white", markeredgewidth=0.6, zorder=5)
+        axis.plot(depths, scores, marker="o", markersize=3, color=COLOUR[model], label=DISPLAY[model])
+        axis.plot([depths[scores.index(max(scores))]], [max(scores)], "*", markersize=15,
+                  color=COLOUR[model], markeredgecolor="white", markeredgewidth=0.6, zorder=5)
 
-    top.set_ylabel("recognition top-1")
-    top.set_title("Recognition", fontsize=9.5, loc="left")
-    bottom.set_ylabel("DIODE depth (d1)")
-    bottom.set_xlabel("Relative Depth")
-    bottom.set_title(
-        "Geometry, DIODE depth  \u00b7  stars mark each Tower's peak\n"
-        "Original six-Tower matched sweeps used unseeded PCA", fontsize=9.5, loc="left",
-    )
-    for axis in (top, bottom):
-        axis.axvline(1.0, color="0.45", linewidth=1, linestyle=":")
-        axis.grid(alpha=0.25)
+    axis.set_ylabel("DIODE depth (d1)")
+    axis.set_xlabel("Relative Depth")
+    axis.axvline(1.0, color="0.45", linewidth=1, linestyle=":")
+    axis.grid(alpha=0.25)
     figure.tight_layout()
-    figure.legend(*top.get_legend_handles_labels(), loc="upper center", bbox_to_anchor=(0.5, 0.0),
+    figure.legend(*axis.get_legend_handles_labels(), loc="upper center", bbox_to_anchor=(0.5, 0.0),
                   ncol=4, fontsize=7, frameon=False)
+    figure.savefig(out, bbox_inches="tight")
+    plt.close(figure)
+
+
+def tower_vs_projector(out: Path) -> None:
+    rows = [model for model in PROJECTORS if model not in NO_TOWER_STAGE]
+    panels = (
+        ("depth", "d1", False, "DIODE depth d1 (higher is better)"),
+        ("normal", "mean_deg", True, "DIODE normal error, degrees (lower is better)"),
+    )
+    levels = {}
+    for task, key, lower, _ in panels:
+        levels[task] = {}
+        for model in rows:
+            path = RESULTS / f"geometry/{model}_geometry_{task}_matched.json"
+            cells = json.loads(path.read_text())["cells"]
+            tower = sorted((c for c in cells if c["stage"] == "tower"), key=lambda c: c["relative_depth"])
+            best = (min if lower else max)(c[key] for c in tower)
+            projected = next(c[key] for c in cells if c["stage"] == "projected")
+            levels[task][model] = (best, tower[-1][key], projected)
+    order = sorted(rows, key=lambda model: levels["depth"][model][0])
+
+    figure, axes = plt.subplots(1, 2, figsize=(10.4, 5.6), sharey=True)
+    for axis, (task, _, lower, xlabel) in zip(axes, panels):
+        for y, model in enumerate(order):
+            best, final, projected = levels[task][model]
+            first = y == 0
+            axis.plot([final, best], [y, y], color="#c6cbd2", linewidth=2, zorder=1)
+            axis.scatter(final, y, s=34, facecolor="white", edgecolor="#6b7280", zorder=2,
+                         label="final Tower layer" if first else None)
+            axis.scatter(best, y, s=34, color="#161a20", zorder=3,
+                         label="best Tower layer" if first else None)
+            axis.scatter(projected, y, s=46, marker="D", color="#9c5a17", zorder=4,
+                         label="Projector output" if first else None)
+        axis.set_xlabel(xlabel, fontsize=9)
+        if lower:
+            axis.invert_xaxis()
+        axis.grid(axis="x", alpha=0.25)
+    axes[0].set_yticks(range(len(order)), [DISPLAY[model] for model in order], fontsize=8)
+    figure.tight_layout()
+    figure.legend(*axes[0].get_legend_handles_labels(), loc="upper center",
+                  bbox_to_anchor=(0.5, 0.0), ncol=3, frameon=False, fontsize=8)
     figure.savefig(out, bbox_inches="tight")
     plt.close(figure)
 
@@ -508,6 +529,7 @@ FIGURES = {
     "stage-levels": stage_levels,
     "occlusion": occlusion,
     "capability-profile": capability_profile,
+    "tower-vs-projector": tower_vs_projector,
 }
 
 
