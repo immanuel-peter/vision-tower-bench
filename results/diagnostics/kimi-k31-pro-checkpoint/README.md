@@ -1,7 +1,7 @@
 # Kimi K3.1 Pro checkpoint validation
 
-This is an in-progress delivery for issue #24, with 151 of 286 required task cells
-validated and 58 completed paired comparisons out of 102. Immutable release reload passed all
+This is an in-progress delivery for issue #24, with 168 of 286 required task cells
+validated and 67 completed paired comparisons out of 102. Immutable release reload passed all
 17 file hashes, 168 parent tensors and 30 bit-exact CPU BF16 math-reference cases. The immutable bundle
 is published at revision 6ab95e2daf86e8100be2e712a7a71c0fba26dac4. Independent
 math-reference conversion parity passes in CPU and CUDA BF16. Production
@@ -205,8 +205,8 @@ training was claimed for those two reused cells.
 
 completed-inventory.json maps these 48 mean cells and the 78 perturbation cells
 below to the inventory written before experiments. The attention budgets and
-compatible reuse below, followed by NAVI, bring remaining work to 135 task cells
-and 44 paired comparisons.
+compatible reuse below, followed by NAVI, bring remaining work to 118 task cells
+and 35 paired comparisons after the complete matched-attention phase below.
 
 ## Complete primary perturbation measurements
 
@@ -301,10 +301,10 @@ The [NAVI figure](navi-stage-comparison.png) reports the controlled Stage scores
 and sibling intervals. These are per-cell intervals and do not establish a
 training cause. Production official TORCH_SDPA BF16 agreement is still not claimed.
 
-Remaining matched-attention recognition work runs as complete full-data cells,
+Matched-attention recognition ran as complete full-data cells,
 with explicit partial-matrix scope, saved test predictions and the unchanged
-LR/seed protocol. Full ten-cell matrices are assembled only after every required
-cell validates. Compatible completed cells and paired predictions are reused.
+LR/seed protocol. Both full ten-cell matrices were assembled after every required
+cell validated. Compatible completed cells and paired predictions are reused.
 
 The coordinator subsequently raised the CPU budget from four to eight threads
 at a natural process boundary. Completed fits retain their original settings;
@@ -314,3 +314,46 @@ retained cell records its actual fit threads, and paired reuse requires matching
 counts. A combined matrix therefore records per-cell provenance rather than
 claiming one thread count for all historical and new fits. LR search, seeds,
 epochs, data and the primary reducer remain unchanged.
+
+
+## Complete matched-attention recognition
+
+Both checkpoints completed all eight Tower depths plus merged and projected
+on the full 13,000-image recognition set. Each cell retains its own 11-rate
+seed-0 search and three selected-rate retrainings. The two identical 100%
+label-budget Tower fits were reused. The remaining 18 cells were fitted across
+the CPU4 and CPU8 phases, with no interrupted fits or numeric payload edits.
+The CPU8 continuation took 7,526.14 seconds and completed 17 new fits plus
+one verified reuse from the preceding safe CPU4 boundary.
+
+Actual thread counts are recorded per cell and match within every sibling
+pair. Final Tower and Projected pairs use four threads. Merged and the other
+seven Tower-depth pairs use eight. All cells share the verified GPU1 BF16
+batch-one frozen-feature producer, image IDs and 9,100/1,950/1,950 split.
+
+| Final Stage, matched attention | Fresh K3 accuracy | Pro accuracy | Pro minus K3, pp, 95% paired interval |
+| --- | ---: | ---: | ---: |
+| Tower | 83.93% | 84.12% | +0.19 [−0.53, +0.91] |
+| Merged | 83.97% | 85.49% | +1.52 [+0.65, +2.41] |
+| Projected | 84.39% | 84.91% | +0.51 [−0.17, +1.21] |
+
+All ten sibling intervals and the Pro Projector-minus-Tower interval use the
+actual saved three-seed predictions on the same 1,950 test IDs. The latter
+is +0.79 percentage points with a 95% interval of [+0.10, +1.49]. All eleven
+10,000-resample seed-0 bootstrap files replayed exactly under their recorded
+bootstrap thread counts. These are per-cell intervals without multiplicity
+adjustment. They support no causal attribution to a particular training phase.
+
+[The content audit](cpu-matched-attention/matched-semantic-complete-audit.json)
+records source hashes, full matrices, exact replay and matching thread counts.
+[The comparison figure](matched-attention-comparison.png) covers every Tower
+depth and final Stage. The default relative-depth semantic panel is regenerated
+under ready-default-figures. Historical K3 results are preserved, with fresh
+controls under sibling-control/recognition.
+
+The inventory now contains 168 of 286 task cells and 67 of 102 comparisons.
+Remaining work is 20 raw-attention recognition cells, 80 geometry cells,
+12 ScanNet/SPair cells, four KITTI cells and two throughput cells, plus
+35 paired comparisons. CPU8 raw-attention fits continue sequentially, with a
+safe stop between cells if a GPU reservation arrives. Production official
+TORCH_SDPA BF16 parity remains failed and is not reclassified by these scores.

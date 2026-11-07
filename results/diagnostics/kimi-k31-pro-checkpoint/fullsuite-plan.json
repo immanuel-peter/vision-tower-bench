@@ -208,10 +208,18 @@
         "scripts/semantic_matrix.sh /tmp/vtb-delivery/issues/24/features/gpu1-bf16-bs1/semantic /tmp/vtb-delivery/data/imagenet100/validation_labels.json /tmp/vtb-delivery/issues/24/measurements/recognition kimi_k31_pro_448_pool4:kimi_k31_pro"
       ],
       "extra_environment": {
-        "READOUTS": "attention"
+        "READOUTS": "attention",
+        "ARMS": "raw"
       },
       "mean_cells_complete_verified": true,
-      "partial_attention_matched_reuse": "one finalTower L27 CPU4 cell at measurements/recognition-cells; skip compatible duplicate fit and preserve per-cell device provenance when assembling full10cell matrices"
+      "matched_cells_complete_verified": true,
+      "matched_cells_per_model": 10,
+      "actual_fit_threads": [
+        4,
+        8
+      ],
+      "status": "raw_attention_pending_cpu8_single_cell_driver",
+      "safe_resume": "Validate exact complete single-cell output and actual CPU8 provenance before reuse; never rerun complete matched cells"
     },
     {
       "phase": "primary",
@@ -673,10 +681,18 @@
         "scripts/semantic_matrix.sh /tmp/vtb-delivery/issues/24/features/gpu1-bf16-bs1/semantic /tmp/vtb-delivery/data/imagenet100/validation_labels.json /tmp/vtb-delivery/issues/24/measurements/recognition moonvit_v2_448_pool4:moonvit_v2"
       ],
       "extra_environment": {
-        "READOUTS": "attention"
+        "READOUTS": "attention",
+        "ARMS": "raw"
       },
       "mean_cells_complete_verified": true,
-      "partial_attention_matched_reuse": "one finalTower L27 CPU4 cell at measurements/recognition-cells; skip compatible duplicate fit and preserve per-cell device provenance when assembling full10cell matrices"
+      "matched_cells_complete_verified": true,
+      "matched_cells_per_model": 10,
+      "actual_fit_threads": [
+        4,
+        8
+      ],
+      "status": "raw_attention_pending_cpu8_single_cell_driver",
+      "safe_resume": "Validate exact complete single-cell output and actual CPU8 provenance before reuse; never rerun complete matched cells"
     },
     {
       "phase": "primary",
@@ -981,7 +997,9 @@
         "cuda:0",
         "--labels",
         "/tmp/vtb-delivery/data/imagenet100/validation_labels.json"
-      ]
+      ],
+      "status": "complete_content_verified_cpu",
+      "result_sha256": "fec87e7b5edf4c5df65af9d6a0bd65a2f96d28e4683b614ac8c71bfc97bed7e6"
     },
     {
       "phase": "paired-fits",
@@ -1014,7 +1032,9 @@
         "cuda:0",
         "--labels",
         "/tmp/vtb-delivery/data/imagenet100/validation_labels.json"
-      ]
+      ],
+      "status": "complete_content_verified_cpu",
+      "result_sha256": "15a0d51fec090c81c885e1d337f66578ce26195beda23440c5a52f969966898b"
     },
     {
       "phase": "paired-fits",
@@ -1047,7 +1067,9 @@
         "cuda:0",
         "--labels",
         "/tmp/vtb-delivery/data/imagenet100/validation_labels.json"
-      ]
+      ],
+      "status": "complete_content_verified_cpu",
+      "result_sha256": "c7adbafb53a5a398d1d135127ded28b400ebda3190cdff6652f4c67e55a14ee8"
     },
     {
       "phase": "paired-fits",
@@ -1080,7 +1102,9 @@
         "cuda:0",
         "--labels",
         "/tmp/vtb-delivery/data/imagenet100/validation_labels.json"
-      ]
+      ],
+      "status": "complete_content_verified_cpu",
+      "result_sha256": "5add564432969f3d0d7789b3cab54ac39ba6a9edacb539d1f8d9075dec290789"
     },
     {
       "phase": "paired-fits",
@@ -1113,7 +1137,9 @@
         "cuda:0",
         "--labels",
         "/tmp/vtb-delivery/data/imagenet100/validation_labels.json"
-      ]
+      ],
+      "status": "complete_content_verified_cpu",
+      "result_sha256": "3ebf436176087232d7714b85e4088e28fcea3a19dc25449ff45e9aa9d790de5a"
     },
     {
       "phase": "paired-fits",
@@ -1146,7 +1172,9 @@
         "cuda:0",
         "--labels",
         "/tmp/vtb-delivery/data/imagenet100/validation_labels.json"
-      ]
+      ],
+      "status": "complete_content_verified_cpu",
+      "result_sha256": "b831da6de591af160db48a24eb3dc5db84165e83901c471087e430313e060bd7"
     },
     {
       "phase": "paired-fits",
@@ -1179,7 +1207,9 @@
         "cuda:0",
         "--labels",
         "/tmp/vtb-delivery/data/imagenet100/validation_labels.json"
-      ]
+      ],
+      "status": "complete_content_verified_cpu",
+      "result_sha256": "1cf9e2775da8bc76426268cf19f07b461895e588ec82242cbab1b5de1cc60f52"
     },
     {
       "phase": "paired-fits",
@@ -1214,7 +1244,8 @@
         "/tmp/vtb-delivery/data/imagenet100/validation_labels.json"
       ],
       "status": "complete_content_verified_cpu",
-      "reuse_proof": "attention-full-budget-reuse.json"
+      "reuse_proof": "attention-full-budget-reuse.json",
+      "result_sha256": "c091a5e32b6ed1a82d5b5d1b3d9b6544383583e46a18f5599e89083f1c28cd81"
     },
     {
       "phase": "paired-fits",
@@ -1247,7 +1278,9 @@
         "cuda:0",
         "--labels",
         "/tmp/vtb-delivery/data/imagenet100/validation_labels.json"
-      ]
+      ],
+      "status": "complete_content_verified_cpu",
+      "result_sha256": "4095adaf607281f296f070f0e19a75d35f141d0a4768ac55d96c4ffea8897ac7"
     },
     {
       "phase": "paired-fits",
@@ -1280,7 +1313,9 @@
         "cuda:0",
         "--labels",
         "/tmp/vtb-delivery/data/imagenet100/validation_labels.json"
-      ]
+      ],
+      "status": "complete_content_verified_cpu",
+      "result_sha256": "b628f486245cc435aa2c2146b17c14e12ac5601c5db5f78cc5f32e94845bcd3b"
     },
     {
       "phase": "paired-fits",
@@ -1313,7 +1348,9 @@
         "cuda:0",
         "--labels",
         "/tmp/vtb-delivery/data/imagenet100/validation_labels.json"
-      ]
+      ],
+      "status": "complete_content_verified_cpu",
+      "result_sha256": "49ff6149455af2de2e2a6b79cdfba617ae1306d33a36d6302eccb2dd7b27d4c1"
     },
     {
       "phase": "paired-fits",
@@ -2775,5 +2812,15 @@
     "workers": 2,
     "dtype": "bfloat16"
   },
-  "remaining_extraction_complete": true
+  "remaining_extraction_complete": true,
+  "cpu_recognition_continuation": {
+    "driver": "/tmp/vtb-delivery/issues/24/cpu_semantic_raw8.py",
+    "cells": 20,
+    "device": "cpu",
+    "threads": 8,
+    "single_job_sequential": true,
+    "stop_request": "/tmp/vtb-delivery/issues/24/cpu-boundary-request.json",
+    "matched_cells_complete": 20,
+    "semantic_paired_cells_complete": 11
+  }
 }

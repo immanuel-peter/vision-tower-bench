@@ -170,8 +170,8 @@
     },
     "kimi_k31_pro_checkpoint": {
       "path": "diagnostics/kimi-k31-pro-checkpoint/",
-      "protocol": "Pinned source identity and independent mathematical-reference conversion parity; full tensor drift; complete same-producer CPU4 mean recognition on13000images/all10slices/raw+matched and mean label budgets1/5/20/100%; unchanged seed0 LR selection and selected-LR3seeds.",
-      "status": "In progress:150/286required task cells and57/102paired comparisons actual-content validated. FullCPU4NAVI555pair/3Stage control complete with per-image native integrity checks and4same-row paired intervals. Remaining matched-attention recognition CPU4 cells next; noGPUgrant. Fullremaining136taskcells/45pairedcomparisons and final checks/figures required. Production official TORCH_SDPA BF16 remains FAILED; mathematical conversion acceptance unchanged.",
+      "protocol": "Pinned source identity and independent mathematical-reference conversion parity; full tensor drift; full-data mean raw/matched and attention matched recognition at all ten slices; unchanged seed-0 LR search and three selected-rate retrainings. CPU4/8 actual threads recorded per cell and matched within sibling pairs. Complete label budgets, opt-in standardized diagnostics, 13-condition perturbation and NAVI controls.",
+      "status": "In progress: 168/286 task cells and 67/102 comparisons content-validated. Complete matched-attention matrices and all 11 semantic bootstrap files replayed exactly. Remaining 118 task cells and 35 comparisons, final figures/checks and PR required. CPU8 raw attention next; no GPU grant. Production official TORCH_SDPA BF16 remains FAILED; mathematical conversion acceptance unchanged.",
       "measurements": {
         "pro_recognition": "recognition/kimi_k31_pro_probe_mean_{arm}.json",
         "pro_mean_label_budget": "label-budget/kimi_k31_pro_probe_mean_matched_f*.json",
@@ -181,7 +181,9 @@
         "perturbation_paired": "bootstrap/perturbation-kimi_k31_pro-*.json",
         "standardized_label_budgets": "diagnostics/kimi-k31-pro-checkpoint/standardized-label-budget/",
         "recognition_partial": "diagnostics/kimi-k31-pro-checkpoint/recognition-cells/",
-        "navi": "correspondence/kimi_k31_pro_correspondence_navi.json"
+        "navi": "correspondence/kimi_k31_pro_correspondence_navi.json",
+        "pro_matched_attention": "recognition/kimi_k31_pro_probe_attention_matched.json",
+        "matched_attention_audit": "diagnostics/kimi-k31-pro-checkpoint/cpu-matched-attention/matched-semantic-complete-audit.json"
       }
     }
   },
