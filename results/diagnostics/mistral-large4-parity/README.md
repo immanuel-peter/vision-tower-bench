@@ -22,9 +22,11 @@ miss a wrong rotary layout or a numeric-order difference.
   tensor bit for bit, and its SHA256 matches `export_manifest.json`; cosine
   is 1 and relative L2 is 0 for all 276. A fresh download of release
   revision `204c1fe3f84c6f017ca12c22732bbde26e6cb182` passes the same check
-  ([hf_reload_identity_204c1fe.json](hf_reload_identity_204c1fe.json)). Later
-  revisions change only code and documentation; the weight files keep the
-  same SHA256.
+  ([hf_reload_identity_204c1fe.json](hf_reload_identity_204c1fe.json)).
+  Revision `3cd67e852deac482eda4a09f71934f02582f21d8` adds the corrected
+  forward and card; its weight files are byte-identical and a fresh download
+  passes the same check
+  ([hf_reload_identity_3cd67e8.json](hf_reload_identity_3cd67e8.json)).
 
 ## Reference
 
@@ -149,8 +151,8 @@ kernel (`diagnosis-3bb47be.json`, variant `hf`/`default`).
   output path).
 - `bf16_floor_breakdown.json`: channel statistics behind the checkpoint's BF16
   sensitivity.
-- `hf_reload_identity_204c1fe.json`: identity check of a fresh download of
-  the first release revision.
+- `hf_reload_identity_{204c1fe,3cd67e8}.json`: identity checks of fresh
+  downloads of both release revisions.
 
 Reproduce with `scripts/validate_mistral_large4.py` (`--reference-attention
 efficient|explicit`), `scripts/mistral_large4_bf16_diagnosis.py` and
