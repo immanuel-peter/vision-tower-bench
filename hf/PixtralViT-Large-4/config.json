@@ -1,8 +1,12 @@
 {
   "architectures": [
-    "PixtralVisionModel"
+    "PixtralLarge4VisionModel"
   ],
   "attention_dropout": 0.0,
+  "auto_map": {
+    "AutoConfig": "modeling_pixtral_large4.PixtralLarge4VisionConfig",
+    "AutoModel": "modeling_pixtral_large4.PixtralLarge4VisionModel"
+  },
   "dtype": "bfloat16",
   "head_dim": 128,
   "hidden_act": "silu",
@@ -10,7 +14,7 @@
   "image_size": 1540,
   "initializer_range": 0.02,
   "intermediate_size": 6144,
-  "model_type": "pixtral",
+  "model_type": "pixtral_large4_vision",
   "num_attention_heads": 16,
   "num_channels": 3,
   "num_hidden_layers": 30,

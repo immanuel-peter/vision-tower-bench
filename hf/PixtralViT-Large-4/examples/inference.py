@@ -21,7 +21,8 @@ def main() -> None:
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     dtype = torch.bfloat16 if device.type == "cuda" else torch.float32
-    tower = AutoModel.from_pretrained(args.model, dtype=dtype).to(device).eval()
+    # trust_remote_code runs modeling_pixtral_large4.py, the parent's BF16 numeric order.
+    tower = AutoModel.from_pretrained(args.model, dtype=dtype, trust_remote_code=True).to(device).eval()
     processor = AutoImageProcessor.from_pretrained(args.model)
     projector = load_projector(args.model).to(device=device, dtype=dtype).eval()
     inputs = processor(images=Image.open(args.image).convert("RGB"), return_tensors="pt")

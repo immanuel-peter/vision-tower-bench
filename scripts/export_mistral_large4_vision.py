@@ -3,7 +3,9 @@
 Only the 276 vision tensors are read, by byte range, from the shard that the
 pinned consolidated index names. Tensors are renamed to HF Pixtral and Mistral3
 names; ``wq`` and ``wk`` rows are reordered per head from Mistral's interleaved
-rotary layout to HF's rotate-half layout. Values are never cast or rounded.
+rotary layout to HF's rotate-half layout. Values are never cast or rounded. The bundle ships vtb/models/pixtral_large4.py
+as modeling_pixtral_large4.py, the forward in the parent's numeric order,
+loaded through auto_map with trust_remote_code.
 """
 
 import argparse
@@ -18,6 +20,8 @@ from safetensors.torch import save_file
 
 from vtb.adapters import mistral_large4 as ml4
 
+MODELING_SOURCE = ml4.ROOT / "vtb/models/pixtral_large4.py"
+MODELING_FILE = "modeling_pixtral_large4.py"
 BUNDLE_FILES = (
     "README.md",
     "NOTICE",
@@ -34,7 +38,7 @@ def projector_settings(source: dict) -> dict:
     """The Mistral3Config fields Mistral3MultiModalProjector reads."""
     text = source["text_config"]
     return {
-        "vision_config": ml4.vision_config(source).to_dict(),
+        "vision_config": ml4.projector_config(source).vision_config.to_dict(),
         "text_config": {"model_type": "mistral", "hidden_size": text["hidden_size"], "rms_norm_eps": text["rms_norm_eps"]},
         "spatial_merge_size": source["spatial_merge_size"],
         "projector_hidden_act": source["projector_hidden_act"],
@@ -74,9 +78,15 @@ def write_bundle(native: dict[str, torch.Tensor], source: dict, processor: dict,
         raise ValueError("expected BF16 tensors")
     out.mkdir(parents=True, exist_ok=True)
     config = ml4.vision_config(source)
-    config.architectures = ["PixtralVisionModel"]
+    config.architectures = ["PixtralLarge4VisionModel"]
     config.dtype = "bfloat16"
+    config.auto_map = {
+        "AutoConfig": "modeling_pixtral_large4.PixtralLarge4VisionConfig",
+        "AutoModel": "modeling_pixtral_large4.PixtralLarge4VisionModel",
+    }
     config.save_pretrained(out)
+    shutil.copyfile(MODELING_SOURCE, out / MODELING_FILE)
+    shutil.copyfile(ml4.ROOT / "LICENSE", out / "LICENSE-CODE")
     save_file({k: v.contiguous() for k, v in tower_state.items()}, out / "model.safetensors", metadata={"format": "pt"})
     save_file(
         {k: v.contiguous() for k, v in projector_state.items()}, out / "projector.safetensors", metadata={"format": "pt"}

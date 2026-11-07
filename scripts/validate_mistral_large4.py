@@ -35,6 +35,7 @@ import numpy as np
 import requests
 import torch
 import transformers
+from transformers import PixtralVisionModel
 from huggingface_hub import HfApi, hf_hub_download
 from PIL import Image
 from safetensors import safe_open
@@ -266,10 +267,35 @@ def candidate_stages(tower, projector, pixels: torch.Tensor, depths: tuple[int, 
     return stages
 
 
+def release_stages(tower, projector, pixels: torch.Tensor, depths: tuple[int, ...]) -> dict[str, torch.Tensor]:
+    """The release's own path: the bundle's modeling code through its forward, then the Projector."""
+    out = tower(pixels, output_hidden_states=True)
+    batch, side = len(pixels), pixels.shape[-1] // ml4.PATCH_SIZE
+    width = out.last_hidden_state.shape[-1]
+    final = out.last_hidden_state.view(batch, side * side, width)
+    merged, projected = ml4.projector_stages(projector, final, side)
+    stages = {f"tower_L{d}": out.hidden_states[d - 1].view(batch, side * side, width) for d in depths}
+    stages["merged"] = merged
+    stages["projected"] = projected
+    if batch == 1:
+        return {name: tensor[0] for name, tensor in stages.items()}
+    return {name: tensor.cpu() for name, tensor in stages.items()}
+
+
+def load_release(bundle: Path, dtype: torch.dtype):
+    from transformers import AutoModel
+
+    tower = AutoModel.from_pretrained(bundle, dtype=dtype, trust_remote_code=True, local_files_only=True).eval()
+    if type(tower).__module__.startswith("vtb."):
+        raise RuntimeError("the release must run its own modeling file")
+    return tower, ml4.load_bundle_projector(bundle, dtype)
+
+
 def hf_packed_stages(tower, projector, pixels: torch.Tensor) -> dict[str, torch.Tensor]:
     """HF's own packed PixtralVisionModel.forward and Mistral3MultiModalProjector.forward."""
     sizes = [tuple(pixels.shape[-2:])] * len(pixels)
-    final = tower(pixels, image_sizes=sizes).last_hidden_state.squeeze(0)
+    # Stock transformers forward, bypassing the release's corrected subclass.
+    final = PixtralVisionModel.forward(tower, pixels, image_sizes=sizes).last_hidden_state.squeeze(0)
     projected = projector(final, sizes)
     return {f"tower_L{tower.config.num_hidden_layers}": final, "projected": projected}
 
@@ -465,14 +491,19 @@ def run_parity(native, args, report) -> None:
     depths = tuple(round(30 * (k + 1) / 8) for k in range(8))
     report["depths"] = list(depths)
     if args.bundle is not None and (args.bundle / "model.safetensors").is_file():
-        candidate_source = f"release bundle {args.bundle}"
-        load_candidate = lambda dtype: ml4.load_bundle_parts(args.bundle, dtype)  # noqa: E731
+        candidate_source = f"release bundle {args.bundle}, AutoModel with trust_remote_code"
+        load_candidate = lambda dtype: load_release(args.bundle, dtype)  # noqa: E731
+        stage_fn = release_stages
+        modeling = args.bundle / "modeling_pixtral_large4.py"
+        report["candidate_modeling_sha256"] = sha256_file(modeling) if modeling.is_file() else None
     else:
         candidate_source = "convert() of the SHA256-verified shard tensors"
         load_candidate = lambda dtype: ml4.build_parts(  # noqa: E731
             *ml4.convert(native), ml4.vision_config(source), ml4.projector_config(source), dtype
         )
+        stage_fn = candidate_stages
     report["candidate"] = candidate_source
+    report["release_equals_adapter"] = []
     report["eps"] = {}
     report["cases"] = []
     report["controls"] = []
@@ -512,15 +543,24 @@ def run_parity(native, args, report) -> None:
                 }
             with torch.inference_mode():
                 outputs[f"adapter_{label}"] = [
-                    {k: v.cpu() for k, v in candidate_stages(tower, projector, x[None].to(device, dtype), depths).items()}
+                    {k: v.cpu() for k, v in stage_fn(tower, projector, x[None].to(device, dtype), depths).items()}
                     for x in pixels
                 ]
+                for x, released in zip(pixels, outputs[f"adapter_{label}"]):
+                    shared = candidate_stages(tower, projector, x[None].to(device, dtype), depths)
+                    report["release_equals_adapter"].append({
+                        "resolution": resolution, "dtype": label,
+                        "bit_exact": all(torch.equal(shared[k].cpu(), released[k]) for k in released),
+                    })
                 outputs[f"hf_packed_{label}"] = [
                     {k: v.cpu() for k, v in hf_packed_stages(tower, projector, x[None].to(device, dtype)).items()}
                     for x in pixels
                 ]
                 batch = torch.stack(pixels).to(device, dtype)
-                batched = candidate_stages_batch(tower, projector, batch, depths)
+                batched = (
+                    release_stages(tower, projector, batch, depths) if stage_fn is release_stages
+                    else candidate_stages_batch(tower, projector, batch, depths)
+                )
             outputs[f"adapter_batch_{label}"] = batched
             del tower, projector
             torch.cuda.empty_cache()
@@ -638,6 +678,10 @@ def validate(
         run_parity(native, args, report)
         report["all_cases_pass"] = all(case["pass"] for case in report["cases"])
         report["all_direct_bf16_cosine_ok"] = all(case["direct_bf16_cosine_ok"] for case in report["cases"])
+        report["all_direct_bf16_bit_exact"] = all(
+            case["adapter_bf16_vs_reference_bf16"]["max_abs"] == 0 for case in report["cases"]
+        )
+        report["release_equals_adapter_all"] = all(item["bit_exact"] for item in report["release_equals_adapter"])
         report["all_controls_detected"] = all(c["detected"] for c in report["controls"] if c["detected"] is not None)
     report["seconds"] = round(time.time() - started, 1)
     out.parent.mkdir(parents=True, exist_ok=True)

@@ -25,10 +25,12 @@ Attribution notice: 2026 - Mistral
 |---|---|---|
 | `model.safetensors` | 272 | Pixtral vision encoder, from the parent's `vision_encoder.*` |
 | `projector.safetensors` | 4 | `pre_mm_projector_norm`, `patch_merger` and `vision_language_adapter` |
+| `modeling_pixtral_large4.py` | | `PixtralVisionModel` subclass whose forward follows the parent's numeric order; loaded with `trust_remote_code` |
 | `projector.py`, `projector_config.json` | | Projector loader built on HF `Mistral3MultiModalProjector` |
-| `config.json`, `preprocessor_config.json` | | `PixtralVisionModel` configuration and the parent's `PixtralImageProcessor` settings |
+| `config.json`, `preprocessor_config.json` | | Vision configuration with `auto_map`, and the parent's `PixtralImageProcessor` settings |
 | `export_manifest.json` | | Source pin, shard SHA256, name map and the SHA256 of every source tensor |
 | `LICENSE`, `NOTICE` | | The parent's license, copied byte for byte, and the attribution notice |
+| `LICENSE-CODE` | | MIT license for the Python files |
 
 ## Architecture
 
@@ -58,25 +60,63 @@ No value is cast or rounded.
 
 ## Usage
 
-See [`examples/inference.py`](examples/inference.py). The Tower loads with
-`AutoModel.from_pretrained`; `projector.py` builds the Projector.
+```python
+from transformers import AutoModel
+
+tower = AutoModel.from_pretrained("immanuelpeter/PixtralViT-Large-4", trust_remote_code=True, dtype="bfloat16")
+```
+
+See [`examples/inference.py`](examples/inference.py) for the Tower, `merged`
+and `projected` outputs. `projector.py` builds the Projector.
+
+## Numerics: the supplied code and stock transformers
+
+`trust_remote_code` loads `PixtralLarge4VisionModel` from
+`modeling_pixtral_large4.py`. It is a `PixtralVisionModel` subclass with the
+same weights and a forward that follows the parent's reference code,
+mistral-inference, in BF16:
+
+- patch embeddings are made contiguous before `ln_pre`, as the parent's
+  `torch.cat` does;
+- the rotary table is built in float32 with `torch.polar`, and q/k are
+  rotated by complex multiplication in float32 before a cast back to BF16;
+- attention runs on q/k in the parent's interleaved channel order, with
+  PyTorch's memory-efficient SDPA kernel, which PyTorch adapted from the
+  xformers kernel mistral-inference calls.
+
+Stock `PixtralVisionModel.from_pretrained` (without `trust_remote_code`)
+loads the same weights and agrees in float32, but in BF16 it rounds
+differently. It casts cos/sin to BF16, rotates in BF16, attends in the
+half-split channel order and normalizes a strided view. Against the parent's
+BF16 forward, its outputs reach cosine 0.9937 at the deepest Stages, against
+bit-identical outputs for the supplied code. It also warns about the
+`pixtral_large4_vision` model type. Use the supplied code for features that
+should match the parent in BF16.
 
 ## Validation
 
 [`scripts/validate_mistral_large4.py`](https://github.com/immanuel-peter/vision-tower-bench/blob/main/scripts/validate_mistral_large4.py)
-checks this release against an independent forward:
+loads this repository with `trust_remote_code` and compares it with an
+independent forward. The reference is mistral-inference 1.6.0, from its
+SHA256-pinned wheel, run with the parent's native tensor names. xformers is
+not installed, so its `memory_efficient_attention` is replaced by PyTorch's
+memory-efficient SDPA kernel; a second run uses explicit float32 attention.
+The check covers four fixed images at 448 and 1540 px, all eight sampled
+Tower depths plus `merged` and `projected`, 80 comparisons per run.
 
 - The source shard matches its pinned LFS SHA256. Every released tensor,
   after undoing the RoPE reordering, equals its source tensor bit for bit.
-- The reference is mistral-inference 1.6.0, from its SHA256-pinned wheel. It
-  reads the parent's native tensor names and applies RoPE as complex
-  multiplication.
-- Four fixed images, at 448 and 1540 px, compared at all eight sampled Tower
-  depths plus `merged` and `projected`. In FP32 the largest relative error is
-  8.6e-6 at 448 px and 2.4e-5 at 1540 px.
-- In BF16, the release's error against the FP32 reference is at most 1.10
-  times the reference's own BF16 error. The large final-layer channels make
-  that floor 17% to 18% relative at Tower L30, for the reference as well.
+- Against the reference with the memory-efficient kernel, this release is
+  bit-identical in float32 and in BF16, in all 80 comparisons.
+- Against the reference with explicit float32 attention, float32 relative
+  error is at most 1.7e-5. In BF16 the cosine is at least 0.9947. That gap is
+  the reference's own sensitivity to the attention kernel: this release's
+  BF16 output equals the reference's memory-efficient BF16 output exactly.
+- The parent's BF16 forward itself drifts from its float32 forward at deep
+  Stages (cosine down to 0.981 at Tower L30, `merged` and `projected`), because
+  of the large final-layer channels. The predeclared check of BF16 against
+  float32 at cosine 0.999 therefore fails in 29 of 80 comparisons, for the
+  parent and this release alike.
 - A plain rename without the RoPE reordering, a merger that reads its input
   kernel-major, and an added final norm each miss by 95% to 125%.
 
@@ -84,11 +124,14 @@ checks this release against an independent forward:
 
 The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/scripts/export_mistral_large4_vision.py)
 range-reads the vision tensors from the shard that the pinned
-`consolidated.safetensors.index.json` names, then writes this repository.
+`consolidated.safetensors.index.json` names, then writes this repository,
+including `modeling_pixtral_large4.py` from the bench's
+`vtb/models/pixtral_large4.py`.
 
 ## Credits
 
-Mistral AI released the Mistral Large 4 weights.
+Mistral AI released the Mistral Large 4 weights and the mistral-inference
+reference code.
 
 ## License
 
@@ -97,4 +140,6 @@ The weights keep the parent's
 Keep the copyright and permission notice in copies. A business that operates
 a Model as a Service needs a separate commercial license from Mistral before
 using the Model or derivative works for any commercial purpose. Read the
-LICENSE file for the full terms.
+LICENSE file for the full terms. `modeling_pixtral_large4.py`, `projector.py`
+and the example are MIT, from the vision-tower-bench repository; see
+`LICENSE-CODE`.

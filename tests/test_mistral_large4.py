@@ -272,3 +272,82 @@ def test_block_forward_matches_the_hf_layer_in_float32():
         expected = layer(hidden, attention_mask=None, position_embeddings=(cos, sin))
         actual = ml4.block_forward(layer, hidden, ml4.rotary_table(8, 8, 16, 10000.0))
     torch.testing.assert_close(actual, expected, rtol=1e-5, atol=1e-5)
+
+
+def test_release_ships_the_shared_modeling_file_and_maps_auto_classes():
+    bundle = ml4.RELEASE_DIR
+    shared = ml4.ROOT / "vtb/models/pixtral_large4.py"
+    assert (bundle / "modeling_pixtral_large4.py").read_bytes() == shared.read_bytes()
+    config = json.loads((bundle / "config.json").read_text())
+    assert config["model_type"] == "pixtral_large4_vision"
+    assert config["architectures"] == ["PixtralLarge4VisionModel"]
+    assert config["auto_map"] == {
+        "AutoConfig": "modeling_pixtral_large4.PixtralLarge4VisionConfig",
+        "AutoModel": "modeling_pixtral_large4.PixtralLarge4VisionModel",
+    }
+
+
+def tiny_corrected_bundle(tmp_path):
+    from transformers import AutoModel
+
+    torch.manual_seed(0)
+    config = ml4.PixtralLarge4VisionConfig(**{k: v for k, v in tiny_tower_config().to_dict().items() if k != "model_type"})
+    config.auto_map = {
+        "AutoConfig": "modeling_pixtral_large4.PixtralLarge4VisionConfig",
+        "AutoModel": "modeling_pixtral_large4.PixtralLarge4VisionModel",
+    }
+    model = ml4.PixtralLarge4VisionModel(config).eval()
+    model.save_pretrained(tmp_path)
+    (tmp_path / "modeling_pixtral_large4.py").write_bytes((ml4.ROOT / "vtb/models/pixtral_large4.py").read_bytes())
+    loaded = AutoModel.from_pretrained(tmp_path, trust_remote_code=True, local_files_only=True).eval()
+    return model, loaded
+
+
+def test_remote_code_bundle_runs_the_shared_forward(tmp_path):
+    model, loaded = tiny_corrected_bundle(tmp_path)
+    assert type(loaded).__name__ == "PixtralLarge4VisionModel"
+    assert type(loaded).__module__ != ml4.PixtralLarge4VisionModel.__module__
+    pixels = torch.randn(2, 3, 112, 112)
+    for dtype in (torch.float32, torch.bfloat16):
+        loaded_d, model_d = loaded.to(dtype), model.to(dtype)
+        with torch.inference_mode():
+            released = loaded_d(pixels.to(dtype), output_hidden_states=True)
+            shared, captured = ml4.encode(model_d, pixels.to(dtype), (2, 4))
+        assert torch.equal(released.last_hidden_state[0], shared.reshape(-1, 32))
+        assert torch.equal(released.hidden_states[1][0], captured[2].reshape(-1, 32))
+    with torch.inference_mode():
+        stock = PixtralVisionModel.forward(model.float(), pixels).last_hidden_state
+        corrected = model.float()(pixels).last_hidden_state
+    torch.testing.assert_close(corrected, stock, rtol=1e-4, atol=1e-4)
+
+
+def test_corrected_forward_packs_mixed_sizes_like_pixtral():
+    tower, _ = tiny_parts()
+    corrected = ml4.PixtralLarge4VisionModel(ml4.PixtralLarge4VisionConfig(
+        **{k: v for k, v in tower.config.to_dict().items() if k != "model_type"})).eval()
+    corrected.load_state_dict(tower.state_dict())
+    pixels = torch.randn(2, 3, 112, 112)
+    sizes = [(112, 84), (56, 112)]
+    with torch.inference_mode():
+        packed = corrected(pixels, image_sizes=sizes).last_hidden_state[0]
+        first, _ = ml4.encode(corrected, pixels[:1, :, :112, :84])
+        second, _ = ml4.encode(corrected, pixels[1:, :, :56, :112])
+        stock = PixtralVisionModel.forward(tower, pixels, image_sizes=sizes).last_hidden_state[0]
+    assert packed.shape == (8 * 6 + 4 * 8, 32)
+    assert torch.equal(packed, torch.cat([first[0], second[0]]))
+    torch.testing.assert_close(packed, stock, rtol=1e-4, atol=1e-4)
+
+
+def test_validator_release_path_equals_the_adapter_path(tmp_path):
+    _, loaded = tiny_corrected_bundle(tmp_path)
+    _, projector = tiny_parts()
+    pixels = torch.randn(2, 3, 112, 112).bfloat16()
+    loaded, projector = loaded.bfloat16(), projector.bfloat16()
+    with torch.inference_mode():
+        released = validate.release_stages(loaded, projector, pixels, (2, 4))
+        single = validate.release_stages(loaded, projector, pixels[:1], (2, 4))
+        shared = validate.candidate_stages(loaded, projector, pixels[:1], (2, 4))
+    assert set(released) == {"tower_L2", "tower_L4", "merged", "projected"}
+    for name, tensor in single.items():
+        assert torch.equal(tensor, shared[name])
+        assert torch.equal(released[name][0], tensor)

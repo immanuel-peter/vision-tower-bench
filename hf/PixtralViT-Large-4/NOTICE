@@ -13,3 +13,8 @@ model weights. Tensor values are unchanged BF16. Names follow HF Pixtral and Mis
 the rows of each attention wq and wk are reordered per head from Mistral's interleaved
 rotary layout to HF's rotate-half layout. export_manifest.json records the SHA256 of
 every source tensor before renaming.
+
+modeling_pixtral_large4.py, projector.py and examples/inference.py come from the
+vision-tower-bench repository under the MIT license in LICENSE-CODE. The modeling
+file subclasses transformers' PixtralVisionModel (Apache-2.0) and follows the
+numeric order of mistral-inference (Apache-2.0); it copies no code from either.

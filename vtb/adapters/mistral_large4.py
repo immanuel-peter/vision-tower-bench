@@ -17,14 +17,20 @@ import torch
 from huggingface_hub import hf_hub_download
 from safetensors.torch import load_file
 from torchvision import transforms
-from torch.nn import functional as F
-from torch.nn.attention import SDPBackend, sdpa_kernel
 from transformers import Mistral3Config, PixtralVisionConfig, PixtralVisionModel
 from transformers.models.mistral3.modeling_mistral3 import Mistral3MultiModalProjector
-from transformers.models.pixtral.modeling_pixtral import rotate_half
 
 from vtb.feature_batch import FeatureBatch
 from vtb.images import square_crop
+from vtb.models.pixtral_large4 import (  # noqa: F401  re-exported for tests and scripts
+    ATTENTION_BACKENDS,
+    PixtralLarge4VisionConfig,
+    PixtralLarge4VisionModel,
+    block_forward,
+    encode,
+    rotary_table,
+    rotate,
+)
 from vtb.shards import load_prefixed
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -139,18 +145,19 @@ def source_weights() -> dict[str, torch.Tensor]:
     return native
 
 
-def vision_config(source: dict | None = None) -> PixtralVisionConfig:
+def vision_config(source: dict | None = None) -> PixtralLarge4VisionConfig:
     source = source or source_json("config.json")
     settings = dict(source["vision_config"])
     settings.pop("model_type", None)
-    return PixtralVisionConfig(**settings)
+    return PixtralLarge4VisionConfig(**settings)
 
 
 def projector_config(source: dict | None = None) -> Mistral3Config:
     source = source or source_json("config.json")
     text = source["text_config"]
+    vision = PixtralVisionConfig(**{k: v for k, v in source["vision_config"].items() if k != "model_type"})
     return Mistral3Config(
-        vision_config=vision_config(source).to_dict(),
+        vision_config=vision.to_dict(),
         text_config={"model_type": "mistral", "hidden_size": text["hidden_size"], "rms_norm_eps": text["rms_norm_eps"]},
         spatial_merge_size=source["spatial_merge_size"],
         projector_hidden_act=source["projector_hidden_act"],
@@ -162,11 +169,11 @@ def projector_config(source: dict | None = None) -> Mistral3Config:
 def build_parts(
     tower_state: dict[str, torch.Tensor],
     projector_state: dict[str, torch.Tensor],
-    tower_config: PixtralVisionConfig,
+    tower_config: PixtralLarge4VisionConfig,
     mm_config: Mistral3Config,
     dtype: torch.dtype,
-) -> tuple[PixtralVisionModel, Mistral3MultiModalProjector]:
-    tower = PixtralVisionModel._from_config(tower_config, dtype=dtype)
+) -> tuple[PixtralLarge4VisionModel, Mistral3MultiModalProjector]:
+    tower = PixtralLarge4VisionModel._from_config(tower_config, dtype=dtype)
     tower.load_state_dict({name: tensor.to(dtype) for name, tensor in tower_state.items()}, strict=True)
     projector = Mistral3MultiModalProjector(mm_config).to(dtype)
     projector.load_state_dict({name: tensor.to(dtype) for name, tensor in projector_state.items()}, strict=True)
@@ -193,7 +200,7 @@ def load_bundle_parts(bundle: Path, dtype: torch.dtype) -> tuple[PixtralVisionMo
     manifest = json.loads((bundle / "export_manifest.json").read_text())
     if (manifest["source_repo"], manifest["source_revision"]) != (SOURCE_REPO, SOURCE_REVISION):
         raise ValueError("bundle provenance does not match the pinned Mistral Large 4 revision")
-    tower_config = PixtralVisionConfig.from_pretrained(bundle, local_files_only=True)
+    tower_config = PixtralLarge4VisionConfig.from_pretrained(bundle, local_files_only=True)
     mm_config = Mistral3Config(**json.loads((bundle / "projector_config.json").read_text()))
     return build_parts(
         load_file(bundle / "model.safetensors"),
@@ -202,6 +209,12 @@ def load_bundle_parts(bundle: Path, dtype: torch.dtype) -> tuple[PixtralVisionMo
         mm_config,
         dtype,
     )
+
+
+def load_bundle_projector(bundle: Path, dtype: torch.dtype) -> Mistral3MultiModalProjector:
+    projector = Mistral3MultiModalProjector(Mistral3Config(**json.loads((bundle / "projector_config.json").read_text())))
+    projector.load_state_dict(load_file(bundle / "projector.safetensors"), strict=True)
+    return projector.to(dtype).eval()
 
 
 def load_parts(dtype: torch.dtype) -> tuple[PixtralVisionModel, Mistral3MultiModalProjector]:
@@ -237,84 +250,13 @@ def collate(samples: list[torch.Tensor]) -> dict[str, torch.Tensor]:
     return {"pixel_values": torch.stack(samples)}
 
 
-# Mistral's attention calls xformers memory_efficient_attention. PyTorch's
-# memory-efficient SDPA kernel is adapted from it; MATH is the CPU fallback.
-ATTENTION_BACKENDS = [SDPBackend.EFFICIENT_ATTENTION, SDPBackend.MATH]
-
-
-def rotary_table(rows: int, cols: int, head_dim: int, theta: float) -> torch.Tensor:
-    """Complex rotations per (row, col) position, built as mistral_inference.rope builds them.
-
-    Float32 on the CPU, then torch.polar, exactly as precompute_freqs_cis_2d
-    does. Entry j rotates the pair (j, j + head_dim / 2) of the HF layout,
-    which is the parent's pair (2j, 2j + 1) after the export permutation.
-    """
-    freqs = 1.0 / (theta ** (torch.arange(0, head_dim, 2).float() / head_dim))
-    freqs_h = torch.outer(torch.arange(rows), freqs[::2]).float()
-    freqs_w = torch.outer(torch.arange(cols), freqs[1::2]).float()
-    grid = torch.cat([freqs_h[:, None, :].repeat(1, cols, 1), freqs_w[None, :, :].repeat(rows, 1, 1)], dim=-1)
-    return torch.polar(torch.ones_like(grid), grid).reshape(rows * cols, head_dim // 2)
-
-
-def rotate(x: torch.Tensor, table: torch.Tensor) -> torch.Tensor:
-    """Complex multiplication in float32, then a cast back, as mistral_inference does.
-
-    Takes q or k in HF's half-split layout and returns it in the parent's
-    interleaved layout, (re, im) pairs side by side. Attention scores are the
-    same either way, but the kernel then sums each q.k product in the
-    parent's channel order. HF Pixtral instead casts cos/sin to the activation
-    dtype and rotates in BF16, which changes about a quarter of the rotated
-    BF16 values.
-    """
-    half = x.shape[-1] // 2
-    x32 = x.float()
-    turned = torch.complex(x32[..., :half], x32[..., half:]) * table
-    return torch.view_as_real(turned).flatten(-2).to(x.dtype)
-
-
-def block_forward(layer, hidden: torch.Tensor, table: torch.Tensor) -> torch.Tensor:
-    """One PixtralAttentionLayer with the parent's numeric order for RoPE and attention."""
-    attention = layer.attention
-    batch, tokens, _ = hidden.shape
-    normed = layer.attention_norm(hidden)
-
-    def heads(projection):
-        return projection(normed).view(batch, tokens, attention.num_heads, attention.head_dim).transpose(1, 2)
-
-    query = rotate(heads(attention.q_proj), table)
-    key = rotate(heads(attention.k_proj), table)
-    value = heads(attention.v_proj)
-    with sdpa_kernel(ATTENTION_BACKENDS):
-        mixed = F.scaled_dot_product_attention(query, key, value, scale=attention.scaling)
-    hidden = hidden + attention.o_proj(mixed.transpose(1, 2).reshape(batch, tokens, -1))
-    return hidden + layer.feed_forward(layer.ffn_norm(hidden))
-
-
 def tower_forward(
     tower: PixtralVisionModel,
     pixel_values: torch.Tensor,
     capture: tuple[int, ...] = (),
 ) -> tuple[torch.Tensor, dict[int, torch.Tensor]]:
-    """Run equal-size images as a batch instead of one block-diagonal sequence.
-
-    The parent packs every image into one sequence with a block-diagonal mask,
-    so images never attend to each other. With equal sizes that is the same as
-    an unmasked batch; tests check the two paths against each other. RoPE and
-    attention follow the parent's numeric order (see block_forward).
-    """
-    embeds = tower.patch_conv(pixel_values.to(tower.patch_conv.weight.dtype))
-    rows, cols = embeds.shape[-2:]
-    # The parent concatenates patch embeddings into a contiguous sequence before
-    # ln_pre. A transposed view changes the RMSNorm reduction order in BF16.
-    hidden = tower.ln_pre(embeds.flatten(2).transpose(1, 2).contiguous())
-    config = tower.config
-    table = rotary_table(rows, cols, config.head_dim, config.rope_parameters["rope_theta"]).to(hidden.device)
-    captured = {}
-    for depth, layer in enumerate(tower.transformer.layers, start=1):
-        hidden = block_forward(layer, hidden, table)
-        if depth in capture:
-            captured[depth] = hidden
-    return hidden, captured
+    """The release's own forward (vtb/models/pixtral_large4.py), in the parent's numeric order."""
+    return encode(tower, pixel_values, capture)
 
 
 def projector_stages(
