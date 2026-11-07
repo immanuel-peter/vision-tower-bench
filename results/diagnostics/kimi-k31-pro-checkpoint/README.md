@@ -357,3 +357,13 @@ Remaining work is 20 raw-attention recognition cells, 80 geometry cells,
 35 paired comparisons. CPU8 raw-attention fits continue sequentially, with a
 safe stop between cells if a GPU reservation arrives. Production official
 TORCH_SDPA BF16 parity remains failed and is not reclassified by these scores.
+
+
+The remaining-suite-preparation directory contains the prepared 43-job GPU
+runner and its exact inventory-coverage audit. Its 98 primary cells and
+27 paired dense comparisons are pending, with eight correspondence comparisons
+to follow on CPU. No CUDA was initialized for this audit. A new explicit grant,
+completed CPU training and the exclusive device lock are required for execution.
+Actual correspondence selection IDs are rechecked before inference; SPair
+exclusions must match each source-confirmed zero-keypoint ID. Prepared scripts
+have compiled successfully, but their runtime validations await measurements.
