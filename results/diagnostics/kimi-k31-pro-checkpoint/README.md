@@ -1,7 +1,7 @@
 # Kimi K3.1 Pro checkpoint validation
 
-This is an in-progress delivery for issue #24, with 144 of 286 required task cells
-validated and 53 completed paired comparisons out of 102. Immutable release reload passed all
+This is an in-progress delivery for issue #24, with 150 of 286 required task cells
+validated and 57 completed paired comparisons out of 102. Immutable release reload passed all
 17 file hashes, 168 parent tensors and 30 bit-exact CPU BF16 math-reference cases. The immutable bundle
 is published at revision 6ab95e2daf86e8100be2e712a7a71c0fba26dac4. Independent
 math-reference conversion parity passes in CPU and CUDA BF16. Production
@@ -205,7 +205,8 @@ training was claimed for those two reused cells.
 
 completed-inventory.json maps these 48 mean cells and the 78 perturbation cells
 below to the inventory written before experiments. The attention budgets and
-compatible reuse below bring remaining work to 142 task cells and 49 paired comparisons.
+compatible reuse below, followed by NAVI, bring remaining work to 136 task cells
+and 45 paired comparisons.
 
 ## Complete primary perturbation measurements
 
@@ -274,3 +275,33 @@ interval of [−0.53, +0.91]. The point and interval come from those same fits.
 Full-budget reuse, source hashes and compatibility evidence are recorded in
 cpu-attention-budgets/full-budget-reuse.json. Later matrix assembly must retain
 each cell's actual fit device and avoid repeating compatible completed fits.
+
+## Complete NAVI correspondence pair
+
+Both pinned checkpoints completed all 555 selected NAVI pairs at all three
+Stages. CPU4 BF16 vision inference uses batch size one and full native grids;
+the unchanged matcher uses evaluation side 64 and 1,000 correspondences.
+All ten native slices, finite BF16 values, shapes and raster merging were
+checked on every image before matching, covering 1,110 image forwards per
+checkpoint. Every actual pair ID and every nonempty-pair metric passed
+validation, with no exclusions. Both producers and matchers use the same CPU4
+settings. The full phase took 4,881.03 seconds.
+
+| Stage | Fresh K3 recall within 2cm | Pro recall within 2cm | Pro − K3, pp, 95% paired interval |
+| --- | ---: | ---: | ---: |
+| Tower | 33.65% | 34.55% | +0.90 [0.68, 1.12] |
+| Merged | 39.32% | 39.63% | +0.31 [0.09, 0.54] |
+| Projected | 39.74% | 40.15% | +0.41 [0.20, 0.63] |
+
+The fourth required comparison, Pro Projector minus Tower, is +5.60 percentage
+points with interval [5.11, 6.08]. All four points were independently checked
+against the same 555 raw pair measurements used for their 10,000-resample,
+seed-0 bootstrap. Within-Stage intervals retain the original pair-mean protocol.
+The [NAVI figure](navi-stage-comparison.png) reports the controlled Stage scores
+and sibling intervals. These are per-cell intervals and do not establish a
+training cause. Production official TORCH_SDPA BF16 agreement is still not claimed.
+
+Remaining matched-attention recognition work runs as complete full-data cells,
+with explicit partial-matrix scope, saved test predictions and the unchanged
+LR/seed protocol. Full ten-cell matrices are assembled only after every required
+cell validates. Compatible completed cells and paired predictions are reused.

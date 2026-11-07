@@ -97,3 +97,11 @@ def test_primary_validator_checks_search_seeds_split_and_capacity_evidence():
     cell["test_predictions_by_seed"][0][0] = 1
     with pytest.raises(ValueError, match="predictions disagree"):
         validate_probe(payload, "model", ids, "label-budget", "matched", "mean", expected_splits=splits)
+    cell["test_predictions_by_seed"][0][0] = 0
+    with pytest.raises(ValueError, match="Stage/depth"):
+        validate_probe(payload, "model", ids, "recognition", "matched", "mean", expected_splits=splits)
+    assert validate_probe(payload, "model", ids, "recognition", "matched", "mean", expected_splits=splits,
+                          expected_slices={("tower", 27)})["passed"]
+    with pytest.raises(ValueError, match="scoped recognition"):
+        validate_probe(payload, "model", ids, "recognition", "matched", "mean", expected_splits=splits,
+                       expected_slices={("tower", 99)})

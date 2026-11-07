@@ -101,7 +101,7 @@ def validate_perturbation(payload, model_id, selected_ids, conditions, expected_
                 feature_device="cuda:0", feature_physical_gpu=1)
 
 
-def validate_probe(payload, model_id, selected_ids, kind, arm, readout="attention", label_fraction=1.0, expected_splits=None):
+def validate_probe(payload, model_id, selected_ids, kind, arm, readout="attention", label_fraction=1.0, expected_splits=None, expected_slices=None):
     semantic = kind in {"recognition", "label-budget", "standardized"}
     expected_count = 13000 if semantic else (1000 if kind == "kitti" else 771)
     if len(selected_ids) != expected_count or len(set(selected_ids)) != expected_count or payload["images"] != expected_count:
@@ -111,6 +111,10 @@ def validate_probe(payload, model_id, selected_ids, kind, arm, readout="attentio
         expected = {("tower", 27)}
     elif kind == "kitti":
         expected = {("tower", 27), ("projected", 27)}
+    if expected_slices is not None:
+        if kind != "recognition" or not expected_slices or not set(expected_slices) <= DEPTH_SLICES:
+            raise ValueError("invalid explicitly scoped recognition slices")
+        expected = set(expected_slices)
     cells = payload["cells"]
     actual = [(cell["stage"], cell["layer_index"]) for cell in cells]
     if set(actual) != expected or len(actual) != len(expected):
