@@ -81,10 +81,22 @@ def flagged(model: str) -> str:
 
 
 def tower_name(label: str) -> str:
-    matches = [tower for tower in TOWERS if label.startswith(tower)]
+    matches = [tower for tower in TOWERS if label == tower or label.startswith(tower + "_")]
     if len(matches) != 1:
         raise ValueError(f"cannot map {label!r} to one Tower")
     return matches[0]
+
+
+def measurement_path(kind: str, model: str, **fields) -> Path:
+    defaults = {
+        "recognition": SOURCES["recognition"],
+        "geometry_layer_sweep": SOURCES["geometry_layer_sweep"],
+        "geometry": "geometry/{model}_geometry_{task}_{arm}.json",
+        "correspondence": "correspondence/{model}_correspondence_{dataset}.json",
+        "perturbation": "perturbation/{model}_perturbation.json",
+    }
+    template = SOURCES.get("model_overrides", {}).get(model, {}).get(kind, defaults[kind])
+    return RESULTS / template.format(model=model, **fields)
 
 # Panel order and axis label for every Projector comparison, keyed by the slug that sits
 # between "geometry-"/"correspondence-" and the model name in results/bootstrap.
@@ -102,13 +114,20 @@ PANELS = {
 
 def projector_intervals() -> dict[str, list[tuple[str, float, float, float]]]:
     panels = defaultdict(list)
-    for path in sorted(RESULTS.glob("bootstrap/*-projected-vs-tower.json")):
+    overrides = SOURCES.get("model_overrides", {})
+    paths = list(RESULTS.glob("bootstrap/*-projected-vs-tower.json"))
+    for settings in overrides.values():
+        if "projector_intervals" in settings:
+            paths.extend(RESULTS.glob(settings["projector_intervals"]))
+    for path in sorted(set(paths)):
         stem = path.stem.removesuffix("-projected-vs-tower")
         rest = stem.split("-", 1)[1]
         matches = [tower for tower in PROJECTORS if rest.endswith(tower)]
         if len(matches) != 1:
             raise ValueError(f"cannot map {path} to one Projector")
         model = matches[0]
+        if "projector_intervals" in overrides.get(model, {}) and path.parent == RESULTS / "bootstrap":
+            continue
         slug = rest.removesuffix(f"-{model}").rstrip("-")
         advantage = json.loads(path.read_text())["first_advantage"]
         panels[slug].append(
@@ -203,6 +222,12 @@ def label_budget_series() -> dict[str, dict[float, float]]:
         if overlap:
             raise ValueError(f"duplicate standardized label-budget runs: {sorted(overlap)}")
         runs.update(additional)
+    for model, source in SOURCES.get("label_budget_overrides", {}).items():
+        additional = json.loads((RESULTS / source).read_text())["runs"]
+        if any(not name.startswith(model + "_probe_") for name in additional):
+            raise ValueError(f"standardized override contains another model: {source}")
+        runs = {name: payload for name, payload in runs.items() if not name.startswith(model + "_probe_")}
+        runs.update(additional)
     series = defaultdict(dict)
     for name, payload in runs.items():
         model, cell = name.split("_probe_")
@@ -236,7 +261,7 @@ def label_budget(out: Path) -> None:
 def relative_depth(out: Path, readout: str = "attention", arm: str = "matched") -> None:
     figure, axis = plt.subplots(figsize=(6, 4))
     for model in TOWER_STAGE:
-        path = RESULTS / SOURCES["recognition"].format(model=model, readout=readout, arm=arm)
+        path = measurement_path("recognition", model, readout=readout, arm=arm)
         cells = [c for c in json.loads(path.read_text())["cells"] if c["stage"] == "tower"]
         cells.sort(key=lambda c: c["relative_depth"])
         axis.plot(
@@ -259,11 +284,10 @@ OCCLUSION: tuple[str, ...] = tuple(model for model in TOWER_STAGE if model not i
 
 def occlusion(out: Path) -> None:
     figure, axis = plt.subplots(figsize=(6, 4))
-    for path in sorted(RESULTS.glob("perturbation/*_perturbation.json")):
-        if path.name.removesuffix("_perturbation.json") not in OCCLUSION:
-            continue
+    for model in OCCLUSION:
+        path = measurement_path("perturbation", model)
         payload = json.loads(path.read_text())
-        model = tower_name(payload["model"])
+        assert model == tower_name(payload["model"])
         cell = next(c for c in payload["cells"] if c["stage"] == "tower")
         points = sorted((c["value"], c["accuracy"]) for c in occlusion_conditions(cell))
         axis.plot(
@@ -294,7 +318,7 @@ def capability_profile(out: Path) -> None:
 
     for dataset, metric in (("navi", "recall_2cm"), ("scannet", "recall_10px"), ("spair", "pck_0.1")):
         for model in TOWER_STAGE:
-            payload = json.loads((RESULTS / f"correspondence/{model}_correspondence_{dataset}.json").read_text())
+            payload = json.loads(measurement_path("correspondence", model, dataset=dataset).read_text())
             tower = next(c for c in payload["cells"] if c["stage"] == "tower")
             scores[model].append(tower[metric])
 
@@ -302,7 +326,7 @@ def capability_profile(out: Path) -> None:
         if model not in OCCLUSION:
             scores[model].append(np.nan)
             continue
-        payload = json.loads((RESULTS / f"perturbation/{model}_perturbation.json").read_text())
+        payload = json.loads(measurement_path("perturbation", model).read_text())
         cell = next(c for c in payload["cells"] if c["stage"] == "tower")
         worst = max(occlusion_conditions(cell), key=lambda c: c["value"])
         scores[model].append(worst["accuracy"])
@@ -335,7 +359,7 @@ def peaks(out: Path) -> None:
     figure, axis = plt.subplots(figsize=(6.5, 4.2))
 
     for model in TOWER_STAGE:
-        path = RESULTS / SOURCES["geometry_layer_sweep"].format(model=model)
+        path = measurement_path("geometry_layer_sweep", model)
         cells = [
             c for c in json.loads(path.read_text())["cells"]
             if c["stage"] == "tower"
@@ -368,7 +392,7 @@ def tower_vs_projector(out: Path) -> None:
     for task, key, lower, _ in panels:
         levels[task] = {}
         for model in rows:
-            path = RESULTS / f"geometry/{model}_geometry_{task}_matched.json"
+            path = measurement_path("geometry", model, task=task, arm="matched")
             cells = json.loads(path.read_text())["cells"]
             tower = sorted((c for c in cells if c["stage"] == "tower"), key=lambda c: c["relative_depth"])
             best = (min if lower else max)(c[key] for c in tower)

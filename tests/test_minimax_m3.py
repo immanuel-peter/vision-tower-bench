@@ -6,6 +6,41 @@ from PIL import Image
 
 from vtb.adapters.minimax_m3 import MERGE_SIZE, PATCH_SIZE, Preprocess, merge_2x2
 from vtb.adapters import minimax_m3 as mm
+from types import SimpleNamespace
+
+
+@pytest.mark.parametrize("cls", [mm.MiniMaxM3Adapter, mm.MiniMaxM31FlashAdapter])
+def test_unrelated_images_cannot_change_another_images_features(cls):
+    class MixingLayer(torch.nn.Module):
+        def forward(self, tokens):
+            return tokens + tokens.mean(dim=1, keepdim=True)
+    class Tower(torch.nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.layers = torch.nn.ModuleList([MixingLayer() for _ in range(8)])
+            self.config = SimpleNamespace(hidden_size=4)
+        def forward(self, pixels, grid):
+            tokens = pixels.unsqueeze(0)
+            for layer in self.layers:
+                tokens = layer(tokens)
+            return SimpleNamespace(last_hidden_state=tokens)
+    class Projector(torch.nn.Module):
+        def forward(self, tokens):
+            return tokens.reshape(-1, 4, 4).sum(dim=1)
+    adapter = object.__new__(cls)
+    adapter.model, adapter.projector = Tower(), Projector()
+    adapter.num_layers, adapter.resolution = 8, 28
+    adapter.device, adapter.dtype = "cpu", torch.float32
+    adapter.model_id = cls.checkpoint.model_id
+    first, second = torch.ones(4, 4), torch.full((4, 4), 10.)
+    alone = list(adapter.extract(mm.collate([first]), ["first"]))
+    paired = list(adapter.extract(mm.collate([first, second]), ["first", "second"]))
+    reversed_pair = list(adapter.extract(mm.collate([second, first]), ["second", "first"]))
+    assert len(alone) == len(paired) == 10
+    for single, batch, reversed_batch in zip(alone, paired, reversed_pair):
+        assert torch.equal(single.tokens[0], batch.tokens[0])
+        assert torch.equal(single.tokens[0], reversed_batch.tokens[1])
+        assert batch.image_ids == ["first", "second"]
 
 
 @pytest.mark.parametrize("checkpoint", [mm.M3, mm.FLASH])

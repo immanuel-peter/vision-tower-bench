@@ -44,6 +44,12 @@
         "minimax_m31_flash"
       ],
       "description": "Training-only sibling comparison with MiniMax M3 at 448 pixels. Identity, all-layer drift and forward validation complete; benchmark inventory pending measurement validation."
+    },
+    "minimax_m3_image_isolation": {
+      "models": [
+        "minimax_m3"
+      ],
+      "description": "Fresh M3 controls with image-independent native forwards. Historical published M3 payloads are preserved; only the explicit additive overrides select these reruns."
     }
   },
   "experiments": {
@@ -173,6 +179,24 @@
       "protocol": "Pinned source identity, full Tower and Projector tensor drift, independent HF parent loading, nominal image-size sensitivity, immutable release reload.",
       "status": "Validation complete. Capability results require the full declared benchmark inventory.",
       "cohort": "minimax_m31_flash"
+    },
+    "minimax_m3_image_isolation": {
+      "path": "diagnostics/minimax-m31-flash/m3-image-isolation/",
+      "protocol": "Same corrected primary readout protocols as Flash, using independent single-image native inference inside external batches. Full M3 controls and standardized figure data are rerun.",
+      "status": "Measurement in progress; historical files are preserved.",
+      "cohort": "minimax_m3_image_isolation",
+      "supersedes": {
+        "scope": "Default figure sources and the new training-only sibling comparison, for M3 only.",
+        "historical_paths": [
+          "recognition/minimax_m3_*",
+          "geometry/minimax_m3_*",
+          "label-budget/minimax_m3_*",
+          "perturbation/minimax_m3_*",
+          "correspondence/minimax_m3_*",
+          "kitti/minimax_m3_*",
+          "bootstrap/*-minimax_m3-projected-vs-tower.json"
+        ]
+      }
     }
   },
   "cell_manifests": [
@@ -206,14 +230,30 @@
       "deepseek_v41": "geometry/deepseek_v41_geometry_depth_matched.json",
       "gemma4": "geometry/gemma4_geometry_depth_matched.json",
       "moonvit_v2": "geometry/deterministic/moonvit_v2_geometry_depth_matched.json",
-      "minimax_m3": "geometry/minimax_m3_geometry_depth_matched.json",
+      "minimax_m3": "diagnostics/minimax-m31-flash/m3-image-isolation/geometry/minimax_m3_geometry_depth_matched.json",
       "nemotron35_super": "geometry/nemotron35_super_geometry_depth_matched.json",
       "nemotron35_bolt": "geometry/nemotron35_bolt_geometry_depth_matched.json",
       "mimo26_pro": "geometry/mimo26_pro_geometry_depth_matched.json",
       "mimo26_flash": "geometry/mimo26_flash_geometry_depth_matched.json",
       "minimax_m31_flash": "geometry/minimax_m31_flash_geometry_depth_matched.json"
     },
-    "label_budget": "diagnostics/mimo26-tower-outlier-channel/label_budget_standardized.json"
+    "label_budget": "diagnostics/mimo26-tower-outlier-channel/label_budget_standardized.json",
+    "model_overrides": {
+      "minimax_m3": {
+        "recognition": "diagnostics/minimax-m31-flash/m3-image-isolation/recognition/{model}_probe_{readout}_{arm}.json",
+        "geometry_layer_sweep": "diagnostics/minimax-m31-flash/m3-image-isolation/geometry/{model}_geometry_depth_matched.json",
+        "geometry": "diagnostics/minimax-m31-flash/m3-image-isolation/geometry/{model}_geometry_{task}_{arm}.json",
+        "correspondence": "diagnostics/minimax-m31-flash/m3-image-isolation/correspondence/{model}_correspondence_{dataset}.json",
+        "perturbation": "diagnostics/minimax-m31-flash/m3-image-isolation/perturbation/{model}_perturbation.json",
+        "projector_intervals": "diagnostics/minimax-m31-flash/m3-image-isolation/bootstrap/*-projected-vs-tower.json"
+      }
+    },
+    "label_budget_additional": [
+      "diagnostics/minimax-m31-flash/label_budget_standardized.json"
+    ],
+    "label_budget_overrides": {
+      "minimax_m3": "diagnostics/minimax-m31-flash/m3-image-isolation/label_budget_standardized.json"
+    }
   },
   "history": "history/roster-run.md"
 }

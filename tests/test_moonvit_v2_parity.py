@@ -1,5 +1,8 @@
 """Verify that standalone MoonViT-V2 weights match the Tower embedded in Kimi K3."""
 
+import os
+
+import pytest
 import torch
 from huggingface_hub import hf_hub_download
 from safetensors.torch import load_file
@@ -7,6 +10,8 @@ from transformers import AutoModel
 
 from scripts.export_moonvit_v2 import PROJECTOR_TENSORS, TOWER_TENSORS, projector_config, read_prefix
 from vtb.adapters.moonvit_v2 import PROJECTOR_PREFIX, PROJECTOR_SHARD, TOWER_PREFIX, TOWER_SHARD, MoonViTV2Adapter
+
+pytestmark = pytest.mark.skipif(os.environ.get("VTB_SKIP_WEIGHTS") == "1", reason="VTB_SKIP_WEIGHTS=1")
 
 
 def test_standalone_tower_matches_the_tower_inside_kimi_k3():

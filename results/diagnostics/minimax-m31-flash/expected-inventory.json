@@ -4,7 +4,10 @@
   "gpu": {
     "physical": 0,
     "logical": "cuda:0",
-    "lock": "/tmp/vtb-delivery/locks/gpu0.lock"
+    "lock": "/tmp/vtb-delivery/locks/gpu0.lock",
+    "threads": 8,
+    "loader_workers_max": 2,
+    "budget_note": "Parent CPU budget update for all jobs after the active M3 recognition extraction finished."
   },
   "checkpoints": {
     "minimax_m3": "f0e1c1e04d40177e4673a22097036854f536e9c0",
@@ -245,5 +248,19 @@
     "epochs": 20,
     "patch_sha256": "f5a2bc1dcda0e6be9a2d6abea9c1bcc9cb5817282ff6406489b5022dc65e330a",
     "patch_source": "r2:vtb/backups/v3/2026-10-19/proposed/reducer-channel-standardization.patch"
+  },
+  "image_inference": "Independent single-image native forwards inside every external batch; no attention across unrelated dataset images.",
+  "m3_image_isolation_control": {
+    "model": "minimax_m3",
+    "recognition_cells": 40,
+    "geometry_cells": 40,
+    "label_budget_cells": 8,
+    "standardized_cells": 4,
+    "correspondence_cells": 9,
+    "perturbation_conditions": 39,
+    "kitti_cells": 2,
+    "throughput_records": 1,
+    "within_model_bootstrap_payloads": 10,
+    "historical_results": "Preserved; new controls and figure source overrides are additive."
   }
 }

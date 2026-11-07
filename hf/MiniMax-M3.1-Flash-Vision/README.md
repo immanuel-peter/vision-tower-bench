@@ -48,11 +48,17 @@ contains no separate modeling Python file; this check uses the native HF impleme
 MiniMax M3 and M3.1-Flash share this architecture and preprocessing, but their
 weights differ. Benchmark results and the complete tensor drift report are maintained
 in [vision-tower-bench](https://github.com/immanuel-peter/vision-tower-bench).
+The native HF vision forward packs supplied images into one attention sequence.
+Forward unrelated images independently. The benchmark adapter isolates both the
+Tower and Projector per image before restoring the external batch layout.
+Its corrected outputs match independently loaded single-image parent forwards
+exactly for batches of 1, 2 and 8, reversed order and changed neighbors, at 56 and
+448 pixels. The reference uses native HF classes, not a second modeling implementation.
 No benchmark score is implied by this release.
 
 ## Reproduce
 
 `python scripts/export_minimax_m3_vision.py --checkpoint minimax_m31_flash`
 
-MiniMax released the parent weights and native Transformers implementation.
+Built with MiniMax M3.1-Flash. MiniMax released the parent weights and native Transformers implementation.
 See LICENSE and NOTICE.

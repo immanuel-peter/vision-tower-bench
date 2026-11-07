@@ -1,8 +1,8 @@
 {
-  "status": "in_progress",
+  "status": "running_corrected_image_independent_full_suite",
   "issue": 21,
   "branch": "t3/complete-issue-21",
-  "head": "6e9796e4e40058f6ce822192e8b98f8c9f7f0bc1",
+  "head": "c82cd47269987ca4a56fb57f944c02b7c395925c",
   "pr": "https://github.com/immanuel-peter/vision-tower-bench/pull/26",
   "hf": {
     "repo": "immanuelpeter/MiniMax-M3.1-Flash-Vision",
@@ -12,8 +12,9 @@
   },
   "tests": {
     "scoped_regression": {
-      "passed": 133,
-      "skipped": 48
+      "passed": 134,
+      "skipped": 51,
+      "exclusions": "Figures await measurements; legacy MoonViT tests now obey VTB_SKIP_WEIGHTS."
     },
     "minimax": {
       "passed": 10
@@ -33,8 +34,8 @@
     "reference": "Independent pinned source loading into native Transformers HF classes; not a second modeling implementation"
   },
   "benchmark_counts": {
-    "recognition_extracted_images": 13000,
-    "recognition_extracted_slices": 10,
+    "recognition_extracted_images": 0,
+    "recognition_extracted_slices": 0,
     "recognition_probe_cells": 0,
     "geometry_probe_cells": 0,
     "correspondence_cells": 0,
@@ -43,7 +44,7 @@
     "kitti_cells": 0,
     "bootstrap_payloads": 0
   },
-  "gpu": "Released; issue22 GPU0 feature extraction. Explicit regrant required.",
+  "gpu": "GPU0 full-suite regrant; 8 threads and at most 2 loaders; all CUDA commands hold exclusive gpu0.lock",
   "timings": {
     "recognition_extraction_seconds_approx": 200,
     "recognition_images_per_second": 65.11
@@ -59,12 +60,29 @@
     "No paper source present in repository",
     "Original LICENSE whitespace preserved"
   ],
-  "head_note": "Last pushed head before the diagnostic-method commit; runtime handoff is refreshed after push.",
+  "head_note": "Verified remote PR head. Committed handoff describes the preceding implementation checkpoint; this runtime handoff is authoritative.",
   "standardization": {
     "patch_sha256": "f5a2bc1dcda0e6be9a2d6abea9c1bcc9cb5817282ff6406489b5022dc65e330a",
     "opt_in": "--standardize-channels --match-capacity",
     "primary_defaults_unchanged": true,
     "four_full_split_runs": "pending GPU regrant"
   },
-  "checks_and_reviews": "suite in progress at initial PR check; reviews absent"
+  "checks_and_reviews": "suite in progress; no reviews",
+  "updated_utc": "2026-11-07T13:04:14.750117+00:00",
+  "resumption": {
+    "controller": "/tmp/vtb-delivery/issues/21/run-corrected-all.py",
+    "runner": "/tmp/vtb-delivery/issues/21/run-suite.py",
+    "session": 53930,
+    "log": "/tmp/vtb-delivery/issues/21/phase-corrected-all.log"
+  },
+  "batch_isolation": {
+    "failure": "batch-isolation-failure.json",
+    "invalid_outputs_archive": "/tmp/vtb-delivery/issues/21/invalid-packed-attention",
+    "correction": "Each unrelated image gets its own native HF Tower and Projector forward; public batch grouping, preprocessing and token layouts are unchanged.",
+    "validation": "isolated-parent-forward.json",
+    "cases": 20,
+    "slice_comparisons": 200,
+    "tolerance_max_abs": 0,
+    "m3_controls": "Fresh full primary matrices and standardized figures will be registered additively; historical M3 files are preserved."
+  }
 }

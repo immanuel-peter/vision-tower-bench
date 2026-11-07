@@ -28,3 +28,10 @@ The Projector's raw tensors retain their source precision despite LM quantizatio
 `expected-inventory.json` declares the required experiment inventory.
 Benchmark completion and per-Stage deltas must be established from the resulting
 measurements. Validation alone supplies no capability result.
+
+The [concatenated-weight sweep](layer-drift.json) also pools float64 dot products
+and norms across all parameters in each of the 32 layers. This differs from the
+arithmetic per-tensor means above. Large-norm parameters can dominate it; the
+aggregate layer drift is not monotonic with depth. The full per-tensor data
+remain the source for individual modules. The standalone figure is generated
+by the retained layer-drift.py script.

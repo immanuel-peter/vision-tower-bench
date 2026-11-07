@@ -49,6 +49,8 @@ def test_correction_scope_preserves_full_sweeps_and_cohort_membership():
         expected = RESULTS / "geometry"
         if model in v1:
             expected /= "deterministic"
+        if model == "minimax_m3":
+            expected = RESULTS / "diagnostics/minimax-m31-flash/m3-image-isolation/geometry"
         assert stage_path == expected / f"{model}_geometry_depth_matched.json"
         assert stage_path.is_file()
 

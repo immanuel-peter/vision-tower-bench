@@ -222,24 +222,35 @@ class MiniMaxAdapter:
     @torch.inference_mode()
     def extract(self, inputs: dict[str, torch.Tensor], image_ids: list[str]) -> Iterator[FeatureBatch]:
         points = self.depth_points()
-        captured: dict[int, torch.Tensor] = {}
+        captured: dict[int, list[torch.Tensor]] = {}
         handles = []
 
         def capture(layer: int):
             def hook(_module, _args, output):
                 tokens = output[0] if isinstance(output, tuple) else output
-                captured[layer] = tokens.detach()
+                captured.setdefault(layer, []).append(tokens.detach())
 
             return hook
 
+        grid = inputs["grid_thw"]
+        if len(grid) != len(image_ids) or not len(image_ids):
+            raise ValueError("grid/image ID count differs or batch is empty")
+        if not torch.all(grid == grid[0]) or grid[0, 0] != 1:
+            raise ValueError("MiniMax image batches require equal still-image grids")
+        counts = grid.prod(dim=1).tolist()
+        if sum(counts) != len(inputs["pixel_values"]):
+            raise ValueError("grid does not describe the input patch count")
         for layer in points:
             handles.append(self.model.layers[layer - 1].register_forward_hook(capture(layer)))
-
+        outputs = []
         try:
-            out = self.model(
-                inputs["pixel_values"].to(self.device, self.dtype),
-                inputs["grid_thw"].to(self.device),
-            )
+            # The native HF model packs all inputs into one attention sequence.
+            # Isolate unrelated images so cached features cannot depend on peers.
+            for pixels, image_grid in zip(inputs["pixel_values"].split(counts), grid):
+                outputs.append(self.model(
+                    pixels.to(self.device, self.dtype),
+                    image_grid.unsqueeze(0).to(self.device),
+                ).last_hidden_state)
         finally:
             for handle in handles:
                 handle.remove()
@@ -253,12 +264,13 @@ class MiniMaxAdapter:
             return tokens.view(rows, -1, width)
 
         for layer in points:
-            yield self._batch(raster(packed(captured[layer]), rows), image_ids, "tower", layer)
+            tokens = torch.cat([value.reshape(1, -1, width) for value in captured[layer]], dim=1)
+            yield self._batch(raster(packed(tokens), rows), image_ids, "tower", layer)
 
-        last_packed = packed(out.last_hidden_state)
+        last_packed = packed(torch.cat([value.reshape(1, -1, width) for value in outputs], dim=1))
         merged = merge_2x2(raster(last_packed, rows))
         yield self._batch(merged, image_ids, "merged", self.num_layers)
-        projected = self.projector(last_packed.reshape(-1, width)).view(rows, merged.shape[1], -1)
+        projected = torch.stack([self.projector(tokens) for tokens in last_packed])
         yield self._batch(projected, image_ids, "projected", self.num_layers)
 
     def _batch(self, tokens: torch.Tensor, image_ids: list[str], stage: str, layer: int) -> FeatureBatch:
