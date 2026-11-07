@@ -1,6 +1,6 @@
 # Kimi K3.1 Pro checkpoint validation
 
-This is an in-progress delivery for issue #24, with 168 of 286 required task cells
+This is an in-progress delivery for issue #24, with 172 of 286 required task cells
 validated and 67 completed paired comparisons out of 102. Immutable release reload passed all
 17 file hashes, 168 parent tensors and 30 bit-exact CPU BF16 math-reference cases. The immutable bundle
 is published at revision 6ab95e2daf86e8100be2e712a7a71c0fba26dac4. Independent
@@ -351,11 +351,13 @@ depth and final Stage. The default relative-depth semantic panel is regenerated
 under ready-default-figures. Historical K3 results are preserved, with fresh
 controls under sibling-control/recognition.
 
-The inventory now contains 168 of 286 task cells and 67 of 102 comparisons.
-Remaining work is 20 raw-attention recognition cells, 80 geometry cells,
+The inventory now contains 172 of 286 task cells and 67 of 102 comparisons.
+Remaining work is 16 raw-attention recognition cells, 80 geometry cells,
 12 ScanNet/SPair cells, four KITTI cells and two throughput cells, plus
-35 paired comparisons. CPU8 raw-attention fits continue sequentially, with a
-safe stop between cells if a GPU reservation arrives. Production official
+35 paired comparisons. Four raw-attention cells completed normally on CPU8 at Tower L3 and L7
+for both siblings. The remaining pairs transition to the explicitly reserved
+GPU0, with no CPU training overlap and unchanged LR/seed/epoch protocol.
+The combined matrices retain each cell's original fit device and protocol. Production official
 TORCH_SDPA BF16 parity remains failed and is not reclassified by these scores.
 
 
@@ -367,3 +369,8 @@ completed CPU training and the exclusive device lock are required for execution.
 Actual correspondence selection IDs are rechecked before inference; SPair
 exclusions must match each source-confirmed zero-keypoint ID. Prepared scripts
 have compiled successfully, but their runtime validations await measurements.
+
+The safe CPU-to-GPU boundary, four retained raw fits and 14 passing transition
+checks are archived under cpu-to-gpu-transition. GPU0 is explicitly reserved
+for the original remaining suite and held exclusively for the full CUDA process.
+No follow-up model-card smoke is included in this reservation.

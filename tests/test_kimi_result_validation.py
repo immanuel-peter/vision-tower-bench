@@ -105,3 +105,28 @@ def test_primary_validator_checks_search_seeds_split_and_capacity_evidence():
     with pytest.raises(ValueError, match="scoped recognition"):
         validate_probe(payload, "model", ids, "recognition", "matched", "mean", expected_splits=splits,
                        expected_slices={("tower", 99)})
+
+    import copy
+    from scripts.validate_kimi_results import DEPTH_SLICES
+    matrix = copy.deepcopy(payload)
+    matrix["protocol"]["device"] = "per-cell"
+    matrix["cells"] = []
+    for index, (stage, layer) in enumerate(sorted(DEPTH_SLICES)):
+        row = copy.deepcopy(cell)
+        device = "cpu" if index == 0 else "cuda:0"
+        row.update(stage=stage, layer_index=layer, relative_depth=layer / 27,
+                   token_width={"tower": 1024, "merged": 4096, "projected": 7168}[stage],
+                   fit_device=device,
+                   source_fit=dict(device=device, protocol=payload["protocol"] | {"device": device}))
+        matrix["cells"].append(row)
+    assert validate_probe(matrix, "model", ids, "recognition", "matched", "mean", expected_splits=splits)["passed"]
+    matrix["cells"][0]["source_fit"]["protocol"]["epochs"] = 19
+    with pytest.raises(ValueError, match="unchanged original recognition protocol"):
+        validate_probe(matrix, "model", ids, "recognition", "matched", "mean", expected_splits=splits)
+    matrix["cells"][0]["source_fit"]["protocol"]["epochs"] = 20
+    matrix["cells"][0].pop("source_fit")
+    with pytest.raises(ValueError, match="per-cell fit device"):
+        validate_probe(matrix, "model", ids, "recognition", "matched", "mean", expected_splits=splits)
+    matrix["protocol"]["device"] = "cpu"
+    with pytest.raises(ValueError, match="fit/search provenance"):
+        validate_probe(matrix, "model", ids, "recognition", "matched", "mean", expected_splits=splits)

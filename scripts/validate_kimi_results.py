@@ -180,6 +180,17 @@ def validate_probe(payload, model_id, selected_ids, kind, arm, readout="attentio
             if cell["trainable_parameters"] != parameters:
                 raise ValueError("readout capacity differs from requested arm")
             if "test_predictions_by_seed" in cell:
+                fit_device = protocol["device"]
+                if fit_device == "per-cell":
+                    source = cell.get("source_fit", {})
+                    original = source.get("protocol", {})
+                    if (kind != "recognition" or expected_slices is not None
+                            or source.get("device") not in {"cpu", "cuda:0"}
+                            or original.get("device") != source.get("device")
+                            or {key: value for key, value in original.items() if key != "device"}
+                            != {key: value for key, value in protocol.items() if key != "device"}):
+                        raise ValueError("per-cell fit device requires an unchanged original recognition protocol")
+                    fit_device = source["device"]
                 predictions, labels = cell["test_predictions_by_seed"], cell["test_labels"]
                 if (cell["test_image_ids"] != expected_splits["test"] or len(labels) != len(expected_splits["test"])
                         or len(predictions) != 3 or any(len(row) != len(labels) for row in predictions)
@@ -193,7 +204,7 @@ def validate_probe(payload, model_id, selected_ids, kind, arm, readout="attentio
                         or any(round(value, 4) != cell["learning_rate_search"][rate] for rate, value in unrounded.items())
                         or cell["validation_accuracy_unrounded"] != max(unrounded.values())
                         or next(value for rate, value in unrounded.items() if float(rate) == cell["learning_rate"]) != max(unrounded.values())
-                        or cell["fit_device"] != protocol["device"]):
+                        or cell["fit_device"] != fit_device):
                     raise ValueError("saved prediction fit/search provenance differs")
         else:
             if payload["epochs"] != 10 or payload["capacity_matched"] != (arm == "matched"):

@@ -108,7 +108,7 @@ def validate(row):
             assert len(search) == 6 and {float(rate) for rate in search} == GEOMETRY_RATES
             best = max(search.values()) if get("--task") == "depth" else min(search.values())
             assert next(value for rate, value in search.items() if float(rate) == cell["learning_rate"]) == best == cell["validation_score"]
-            tensor = torch.tensor([record[name] for record in payload["measurements"]]).T
+            tensor = torch.tensor([record[name] for record in payload["measurements"]]).T.contiguous()
             assert tensor.shape == (3, len(splits["test"])) and torch.isfinite(tensor).all()
             assert torch.equal(tensor.mean(1), torch.tensor(cell["seed_metrics"]))
             assert abs(tensor.mean(1).mean().item() - cell["mean_metric"]) < 1e-7
