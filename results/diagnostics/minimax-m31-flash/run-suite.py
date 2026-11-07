@@ -1,5 +1,5 @@
 """Serial issue-21 commands. Launch only while issue 21 owns GPU 0."""
-import argparse,datetime,hashlib,json,os,shlex,subprocess,time
+import argparse,datetime,hashlib,json,os,shlex,shutil,subprocess,time
 from pathlib import Path
 ROOT=Path("/tmp/vtb-delivery/issues/21")
 DATA=Path("/tmp/vtb-delivery/data")
@@ -74,6 +74,12 @@ for category,name,args,ready in jobs:
   backup.write_bytes(log_path.read_bytes())
  with log_path.open("w") as log:
   rc=subprocess.run(["flock","/tmp/vtb-delivery/locks/gpu0.lock","bash","-ic",command],env=env,stdout=log,stderr=subprocess.STDOUT).returncode
+ if category in ("recognition","geometry","label-budget","perturbation"):
+  directory={"label-budget":"label-budget"}.get(category,category)
+  archive=ROOT/"matrix-metadata"/name;archive.mkdir(parents=True,exist_ok=True)
+  for pattern in ("lane*.log","alerts.log","expected_cells.tsv"):
+   for metadata in (RESULTS/directory).glob(pattern):
+    shutil.copyfile(metadata,archive/metadata.name)
  if rc == 0:
   model = flash if flash in name else "minimax_m3"
   expected = []

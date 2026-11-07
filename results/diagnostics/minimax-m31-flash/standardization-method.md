@@ -21,4 +21,18 @@ replace the primary measurements.
 
 Tests cover the exact recovered formula, sample standard deviation, constant
 channels, scale invariance, training-only fit, RNG preservation and the primary
-default. Measurements remain pending GPU regrant.
+default. Four full-split cells per checkpoint are complete. The final inventory
+report and separate standardized payload retain their content validation.
+
+
+## Measured diagnostic cells
+
+All cells use the full 13,000-image split, fixed 1,950-image test set, seed-zero
+LR search and three-seed retraining. Values are test accuracy percentages.
+
+| Label fraction | Training labels | Flash | M3 control |
+|---|---:|---:|---:|
+| 0.01 | 100 | 8.34 | 8.67 |
+| 0.05 | 455 | 18.77 | 20.10 |
+| 0.2 | 1820 | 40.70 | 40.32 |
+| 1 | 9100 | 58.31 | 57.45 |

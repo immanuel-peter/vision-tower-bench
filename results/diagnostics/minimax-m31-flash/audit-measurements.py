@@ -14,6 +14,9 @@ slices={("tower",x) for x in range(4,33,4)}|{("merged",32),("projected",32)}
 rates_sem={1e-5,3e-5,1e-4,3e-4,1e-3,3e-3,1e-2,3e-2,.1,.3,1.}
 rates_geo={1e-4,3e-4,1e-3,3e-3,1e-2,3e-2}
 report={"files":{},"missing":[],"counts":{}}
+split_manifest=json.loads((root/"selection-manifest.json").read_text())["datasets"]
+label_map=json.loads(Path("/tmp/vtb-delivery/data/imagenet100/validation_labels.json").read_text())["labels"]
+known_labels=set(label_map.values())
 def read(path,kind):
  if not path.exists():
   report["missing"].append(str(path));return None
@@ -75,6 +78,7 @@ for model in dict.fromkeys((flash,"minimax_m3")):
  for dataset in ("navi","scannet","spair"):
   d=read(results/"correspondence"/f"{model}_correspondence_{dataset}.json","correspondence")
   if not d:continue
+  assert d["model_id"]=="immanuelpeter/"+("MiniMax-M3.1-Flash-Vision" if model=="minimax_m31_flash" else "MiniMax-M3-Vision")
   assert d["model"]==model and d["resolution"]==448 and d["evaluation_side"]==64 and d["num_correspondences"]==1000
   assert d["pairs"]==selection[dataset]["pairs"] and len(d["measurements"])==d["pairs"]
   ids=[r["pair_id"] for r in d["measurements"]]
@@ -115,6 +119,8 @@ for model in dict.fromkeys((flash,"minimax_m3")):
 for model in dict.fromkeys((flash,"minimax_m3")):
  d=read(results/"perturbation"/f"{model}_perturbation.json","perturbation")
  if not d:continue
+ assert {c["stage"] for c in d["cells"]}=={"tower","merged","projected"}
+ assert all(c["model_id"]=="immanuelpeter/"+("MiniMax-M3.1-Flash-Vision" if model=="minimax_m31_flash" else "MiniMax-M3-Vision") for c in d["cells"])
  assert d["images"]==2000 and d["protocol"]["seeds"]==3 and d["protocol"]["epochs"]==20
  assert set(d["protocol"]["learning_rates"])==rates_sem and len(d["cells"])==3
  reference_ids=None
@@ -129,8 +135,20 @@ for model in dict.fromkeys((flash,"minimax_m3")):
    if reference_ids is None:reference_ids=ids
    assert ids==reference_ids
    assert all(len(r["clean"])==len(r["perturbed"])==3 for r in rows)
+   assert all(value in (0,1) for row in rows for key in ("clean","perturbed") for value in row[key])
+   expected_ids=sorted(label_map)[:2000]
+   expected_test=[expected_ids[i] for i in probe_run.split_indices(2000).test.tolist()]
+   assert ids==expected_test
+   if condition["condition"]=="identity":assert all(row["clean"]==row["perturbed"] for row in rows)
    measured=torch.tensor([r["perturbed"] for r in rows]).float().mean().item()
    assert abs(measured-condition["accuracy"])<1e-6
+   observed=torch.tensor([r["perturbed"] for r in rows]).float().mean(dim=0)
+   assert all(abs(x-y)<1e-6 for x,y in zip(observed.tolist(),condition["accuracy_by_seed"]))
+   clean=torch.tensor([r["clean"] for r in rows]).float().mean(dim=1)
+   perturbed=torch.tensor([r["perturbed"] for r in rows]).float().mean(dim=1)
+   interval=paired_bootstrap(clean,perturbed)
+   for key in ("point_estimate","lower","upper"):
+    assert abs(interval[key]-condition["clean_minus_condition"][key])<1e-7,(model,c["stage"],condition["condition"],key)
  count("perturbation_conditions" if model==flash else "sibling_perturbation_conditions",39)
 d=read(results/"kitti"/f"{flash}_geometry_depth_matched.json","kitti")
 if d:
@@ -166,6 +184,10 @@ for name in expected_bootstrap:
   first,second=d["first"]["name"],d["second"]["name"]
   assert first!=second
   rows=d["measurements"];ids=[r["image_id"] for r in rows];assert len(ids)==len(set(ids))==d["protocol"]["test_images"]
+  dataset="kitti" if "-kitti-" in name else "diode"
+  assert set(ids)==set(split_manifest[dataset]["splits"]["test"]),(name,"test split mismatch")
+  report["files"]["bootstrap/"+name]["test_split_reference"]=dataset
+  report["files"]["bootstrap/"+name]["test_ids_sha256"]=hashlib.sha256("\n".join(ids).encode()).hexdigest()
   x=torch.tensor([r[first] for r in rows]).T;y=torch.tensor([r[second] for r in rows]).T
   assert x.shape==y.shape and x.shape[0]==3 and torch.isfinite(x).all() and torch.isfinite(y).all()
   expected=paired_metric_bootstrap(x,y,higher_is_better=d["protocol"]["higher_is_better"])
@@ -175,6 +197,11 @@ for name in expected_bootstrap:
  elif name.startswith("semantic-"):
   first,second=d["first"]["name"],d["second"]["name"];assert first!=second
   rows=d["predictions"];ids=[r["image_id"] for r in rows];assert len(ids)==len(set(ids))==1950
+  assert set(ids)==set(split_manifest["recognition"]["splits"]["test"]),(name,"test split mismatch")
+  assert all(row["label"]==label_map[row["image_id"]] for row in rows)
+  assert all(value in known_labels for row in rows for key in (first,second) for value in row[key])
+  report["files"]["bootstrap/"+name]["test_split_reference"]="recognition"
+  report["files"]["bootstrap/"+name]["test_ids_sha256"]=hashlib.sha256("\n".join(ids).encode()).hexdigest()
   labels=torch.tensor([r["label"] for r in rows])
   x=torch.tensor([r[first] for r in rows]).T==labels
   y=torch.tensor([r[second] for r in rows]).T==labels

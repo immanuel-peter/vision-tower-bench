@@ -29,7 +29,8 @@ historical filename slugs `qwen3_5` and `moonvit_v2` mean Qwen3.8 and Kimi K3.
 The v1 cohort is DINOv2, SigLIP2, Muse Glimmer, Kimi K2.6, Qwen3.8, and
 Kimi K3. The published v2 report adds GLM 5.3 Flash, Nemotron Omni, DeepSeek V4.1,
 Gemma 4, and MiniMax M3. The default figure command draws the v2 cohort and
-the v3 cohort below. The six-Tower grouping identifies the scope of older runs and
+the v3 cohort below, plus MiniMax M3.1 Flash with fresh M3 controls.
+The six-Tower grouping identifies the scope of older runs and
 corrections, not the limits of the current publication.
 
 The v3 cohort adds Nemotron Super (`nemotron35_super`), Nemotron Bolt
@@ -39,7 +40,8 @@ default figures. Every v3 Tower has label-budget records, with Bolt at merged
 L32. Super and the MiMo pair have KITTI cells and projected-versus-Tower
 intervals. The default label-budget figure reads the channel-standardized runs in
 the [outlier-channel diagnostic](diagnostics/mimo26-tower-outlier-channel/README.md)
-for all sixteen Towers. Super has every
+for the historical sixteen-Tower cohort. The current figure adds the MiniMax
+diagnostics described below. Super has every
 Stage. Super's Tower cells precede its final LayerNorm, which runs before the
 merge. Bolt has no such LayerNorm and only `merged` and `projected` cells; its
 single final Tower cell is the
@@ -167,9 +169,35 @@ runs in a separate directory when a protocol changes, and update the index with
 the correction's scope. JSON, JSONL, and TSV measurements remain in Git so a
 clone contains the evidence needed to inspect the figures.
 
-MiniMax M3.1 Flash is registered as a training-only sibling comparison with M3.
-Its [validation report](diagnostics/minimax-m31-flash/README.md) includes every
-Tower and Projector tensor, per-layer drift summaries and the nominal image-size
-check. The standalone release is pinned at
-`75a5fc5bba7cfb01cfcf15072a9d823714e54121`. Full capability measurements are
-pending; validation does not establish a per-Stage performance delta.
+## MiniMax M3.1 Flash and compatible M3 controls
+
+MiniMax M3.1 Flash adds a training-only sibling comparison at 448 pixels and
+brings the default roster to seventeen Towers. Both checkpoints have the full
+primary suite, four standardized attention label-budget diagnostics, and fresh
+paired comparisons. The [comparison table](diagnostics/minimax-m31-flash/comparison-writeup.md)
+reports every Stage from the same rerun that supplies its interval.
+
+All three matched-attention recognition intervals include zero. Flash improves
+projected correspondence on all three datasets and projected KITTI depth by
+4.35 percentage points, while Tower NAVI and ScanNet recall fall. Projected
+matched normal error falls by 0.80 degrees, but raw projected DIODE depth falls
+by 10.47 percentage points. The full table retains these differences between
+readouts and Stages, including unresolved comparisons.
+
+The native HF attention path couples images supplied together. These runs
+forward each image separately and use fresh compatible M3 controls. Original
+M3 files remain in place; explicit [index overrides](index.json) select the new
+scope for default figures. Root-directory table globs still list historical M3
+files, so use the indexed control files for the new sibling comparison.
+
+The [validation and inventory report](diagnostics/minimax-m31-flash/README.md)
+links exact source/release tensors, all-layer drift, input and cache manifests,
+complete cell audits, paired source checks and generated figures. The nominal
+image-size field has no effect on these forwards. The independent reference
+loads pinned source weights into native HF classes; it is not a second modeling
+implementation or a full language-model forward. The immutable Flash release is
+`55510a4d372b8ae502a04cc570c0fd06a4361771`.
+
+Perturbation clean accuracies are 31% to 38% under the fixed 2,000-image readout
+protocol. Interpret the condition curves relative to those clean baselines.
+The standardized label-budget measurements remain separate diagnostics.

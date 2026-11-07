@@ -135,7 +135,7 @@ def test_geometry_figures_separate_corrected_stages_from_historical_sweeps(monke
             key=lambda cell: cell["relative_depth"],
         )
         assert len(cells) == 8
-        assert list(sweep_lines[model].get_ydata()) == pytest.approx([cell["d1"] for cell in cells])
+        assert list(sweep_lines[FIGURE_SCRIPT.DISPLAY[model]].get_ydata()) == pytest.approx([cell["d1"] for cell in cells])
 
 
 def test_semantic_forest_includes_the_v3_comparisons(tmp_path):

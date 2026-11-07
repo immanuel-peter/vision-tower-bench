@@ -1,45 +1,45 @@
-# Resume after explicit GPU 0 regrant
+# Reproduce and resume the corrected suite
 
-Issue 21 is CPU-only while issue 22 owns GPU 0. Do not launch these commands
-until the parent explicitly grants GPU 0 back. Every shell uses bash -ic.
+The retained `run-corrected-all.py` controller and `run-suite.py` command inventory
+use independently forwarded images for both pinned MiniMax checkpoints. Every
+CUDA command requires an explicit GPU reservation and holds
+`flock /tmp/vtb-delivery/locks/gpu0.lock` for its full lifetime. Run shells through
+`bash -ic`, with a separate environment and writable output root.
 
-The recognition cache at
-/tmp/vtb-delivery/issues/21/features/recognition/minimax_m31_flash_448_pool4
-is complete and content-validated. Preserve it.
+The delivery configuration is physical GPU 0, logical `cuda:0`, `GPUS=0`,
+`LANES=1`, `THREADS=8`, and at most two loader workers. `HF_HOME` points to the
+shared download cache. Prepared inputs are read-only; commands verify component
+READY markers. Validate actual selected IDs and splits independently of those
+markers.
 
-From this worktree, use .venv/bin/python with the per-issue run-suite.py.
---category CATEGORY --list prints the exact commands without running CUDA.
---only SUBSTRING selects a single command within a category. Each command
-acquires flock /tmp/vtb-delivery/locks/gpu0.lock for its full lifetime and records
-command, UTC start, elapsed time, exit status and source hashes in execution.jsonl.
-GPUS=0, LANES=1, THREADS=10, direct CUDA_VISIBLE_DEVICES=0, and at most four
-loader workers are fixed. No existing primary LR or seed defaults change.
+`run-suite.py --category CATEGORY --list` prints commands without CUDA execution.
+`--only SUBSTRING` restricts execution to a named job. The controller sequences
+extraction, correspondence, priority Projector comparisons, recognition,
+standardized diagnostics, primary label budgets, geometry, KITTI, throughput,
+perturbations, sibling comparisons, and remaining within-model comparisons.
+Commands, UTC starts, elapsed times, exit codes, resource settings, and source
+hashes are retained in `execution.jsonl`. Timings include lock waits.
 
-Recommended order after grant:
-1. extract --only extract-diode-minimax_m31_flash
-2. correspondence --only minimax_m31_flash
-3. bootstrap --only diode
-4. recognition
-5. standardized
-6. label-budget
-7. geometry
-8. Remaining extract commands for M3 recognition, both KITTI caches and M3 DIODE.
-9. Remaining correspondence, perturbation, kitti, throughput and bootstrap jobs.
-10. sibling jobs for independent paired M3 controls.
+Resume only outputs whose actual contents and source epoch have been validated.
+Matrix DONE markers do not establish success. Inspect alerts and every expected
+JSON payload. Pre-correction outputs in `invalid-packed-attention` are excluded.
+The six corrected primary feature caches have full file hashes and split-ID
+manifests; sampled real inputs also match the independent reference exactly.
 
-Do not repeat the already completed Flash recognition extraction. Verify the
-output content of each command before resuming its dependents. Matrix scripts
-write DONE markers even when a child fails, so inspect alerts and actual payloads.
+`postprocess.py` constructs CPU correspondence and perturbation paired intervals
+from their source measurements, records the finite intersection and exclusion
+union, and combines standardized label-budget diagnostics. The visibility audit
+must explain every SPair exclusion from source keypoints. Nonempty pairs require
+finite metrics.
 
-postprocess.py prepares CPU correspondence and perturbation paired intervals
-from the actual measurements and combines the four diagnostic label-budget
-outputs into a separate standardized payload. It preserves per-image pairing
-and points from the same paired run. All model weights and runtime grids are
-pinned in validation.json and the release manifests.
+`audit-paired-source.py` checks paired arrays against primary source payloads.
+`audit-measurements.py` checks the complete inventory for each model, including
+learning-rate grids, seeds, checkpoint identity, finite metrics, selected IDs,
+and recomputed intervals. `publish-measurements.py` requires both complete
+reports and the paired-source audit before copying additive measurements.
+Historical M3 files remain intact. Explicit source overrides select its fresh
+compatible controls for figures.
 
-Before copying measurements into the standard results directories, verify every
-expected cell, LR search count, selected-LR seed count, ID/split hash, checkpoint,
-finite metric and bootstrap pairing against expected-inventory.json. Register
-the diagnostic payload through figure_sources.label_budget_additional, render
-all figures, update per-Stage deltas and replace pending wording. No performance
-delta may be inferred from validation or weight drift alone.
+Regenerate all default figures with `scripts/figures.py`, run the full regression
+suite including figure tests, and refresh per-Stage comparison tables, checklist,
+and handoff after validation. See `image-isolation.md` for source-reference limits.

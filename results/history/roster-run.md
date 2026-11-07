@@ -1788,3 +1788,21 @@ randomized-PCA matched magnitudes.
 Tower (all within 0.02 at matched batch size). Attention shapes stay
 exploratory. Kimi extracts must pin batch size 1; a `bs4` pooled cache
 included here for the record reads 0.21 low for procedural reasons.
+
+
+## Addendum, November 7 2026: MiniMax training-only comparison
+
+MiniMax M3.1 Flash adds the seventeenth Tower. Its complete 448-pixel suite is
+paired with fresh pinned M3 controls using the same primary readouts and
+independent image forwards. Native packed attention couples unrelated images;
+the new adapter isolates them. Historical M3 files remain intact, while index
+overrides select the new compatible controls for default figures.
+
+Both checkpoints have 138 primary score cells, four standardized label-budget
+diagnostics and throughput. Forty-nine paired payloads supply within-model and
+sibling comparisons. The [per-Stage table](../diagnostics/minimax-m31-flash/comparison-writeup.md)
+reports every point from the same run as its interval. Projected correspondence,
+KITTI depth and matched normal error improve for Flash; raw projected DIODE
+depth falls, and matched-attention recognition intervals include zero at all
+three Stages. The weight sweep covers all 515 Tower and eight Projector tensors;
+concatenated layer drift is not monotonic.

@@ -43,7 +43,7 @@
       "models": [
         "minimax_m31_flash"
       ],
-      "description": "Training-only sibling comparison with MiniMax M3 at 448 pixels. Identity, all-layer drift and forward validation complete; benchmark inventory pending measurement validation."
+      "description": "Full image-independent 448-pixel suite for MiniMax M3.1 Flash, with fresh pinned M3 controls under the same inference and readout protocols."
     },
     "minimax_m3_image_isolation": {
       "models": [
@@ -177,13 +177,13 @@
     "minimax_m31_flash_validation": {
       "path": "diagnostics/minimax-m31-flash/",
       "protocol": "Pinned source identity, full Tower and Projector tensor drift, independent HF parent loading, nominal image-size sensitivity, immutable release reload.",
-      "status": "Validation complete. Capability results require the full declared benchmark inventory.",
+      "status": "Complete source/release identity, independent image-wise HF parity, input/cache validation, full primary inventory and paired comparisons.",
       "cohort": "minimax_m31_flash"
     },
     "minimax_m3_image_isolation": {
       "path": "diagnostics/minimax-m31-flash/m3-image-isolation/",
       "protocol": "Same corrected primary readout protocols as Flash, using independent single-image native inference inside external batches. Full M3 controls and standardized figure data are rerun.",
-      "status": "Measurement in progress; historical files are preserved.",
+      "status": "Complete primary matrices, standardized label budgets, correspondence, perturbations, transfer, throughput and paired within-model comparisons. Historical files preserved.",
       "cohort": "minimax_m3_image_isolation",
       "supersedes": {
         "scope": "Default figure sources and the new training-only sibling comparison, for M3 only.",
@@ -197,6 +197,12 @@
           "bootstrap/*-minimax_m3-projected-vs-tower.json"
         ]
       }
+    },
+    "minimax_m31_flash_suite": {
+      "path": "diagnostics/minimax-m31-flash/",
+      "protocol": "All primary protocols at 448, image-independent inference, full eight-depth sweeps, opt-in standardized label-budget diagnostics, matched pinned M3 controls and same-run paired intervals.",
+      "status": "Complete; see measurement-provenance.json and both content-validation reports.",
+      "cohort": "minimax_m31_flash"
     }
   },
   "cell_manifests": [
@@ -214,6 +220,76 @@
       "path": "manifests/expected_cells_geometry_matched.tsv",
       "results_directory": "geometry/",
       "cohort": "v1_six"
+    },
+    {
+      "path": "manifests/expected_cells_minimax_m31_flash_recognition.tsv",
+      "results_directory": "recognition/",
+      "cohort": "minimax_m31_flash"
+    },
+    {
+      "path": "manifests/expected_cells_minimax_m31_flash_geometry.tsv",
+      "results_directory": "geometry/",
+      "cohort": "minimax_m31_flash"
+    },
+    {
+      "path": "manifests/expected_cells_minimax_m31_flash_label_budget.tsv",
+      "results_directory": "label-budget/",
+      "cohort": "minimax_m31_flash"
+    },
+    {
+      "path": "manifests/expected_cells_minimax_m31_flash_correspondence.tsv",
+      "results_directory": "correspondence/",
+      "cohort": "minimax_m31_flash"
+    },
+    {
+      "path": "manifests/expected_cells_minimax_m31_flash_perturbation.tsv",
+      "results_directory": "perturbation/",
+      "cohort": "minimax_m31_flash"
+    },
+    {
+      "path": "manifests/expected_cells_minimax_m31_flash_kitti.tsv",
+      "results_directory": "kitti/",
+      "cohort": "minimax_m31_flash"
+    },
+    {
+      "path": "manifests/expected_cells_minimax_m31_flash_standardized.tsv",
+      "results_directory": "diagnostics/minimax-m31-flash/standardized/",
+      "cohort": "minimax_m31_flash"
+    },
+    {
+      "path": "manifests/expected_cells_minimax_m3_recognition.tsv",
+      "results_directory": "diagnostics/minimax-m31-flash/m3-image-isolation/recognition/",
+      "cohort": "minimax_m3_image_isolation"
+    },
+    {
+      "path": "manifests/expected_cells_minimax_m3_geometry.tsv",
+      "results_directory": "diagnostics/minimax-m31-flash/m3-image-isolation/geometry/",
+      "cohort": "minimax_m3_image_isolation"
+    },
+    {
+      "path": "manifests/expected_cells_minimax_m3_label_budget.tsv",
+      "results_directory": "diagnostics/minimax-m31-flash/m3-image-isolation/label-budget/",
+      "cohort": "minimax_m3_image_isolation"
+    },
+    {
+      "path": "manifests/expected_cells_minimax_m3_correspondence.tsv",
+      "results_directory": "diagnostics/minimax-m31-flash/m3-image-isolation/correspondence/",
+      "cohort": "minimax_m3_image_isolation"
+    },
+    {
+      "path": "manifests/expected_cells_minimax_m3_perturbation.tsv",
+      "results_directory": "diagnostics/minimax-m31-flash/m3-image-isolation/perturbation/",
+      "cohort": "minimax_m3_image_isolation"
+    },
+    {
+      "path": "manifests/expected_cells_minimax_m3_kitti.tsv",
+      "results_directory": "diagnostics/minimax-m31-flash/m3-image-isolation/kitti/",
+      "cohort": "minimax_m3_image_isolation"
+    },
+    {
+      "path": "manifests/expected_cells_minimax_m3_standardized.tsv",
+      "results_directory": "diagnostics/minimax-m31-flash/m3-image-isolation/standardized/",
+      "cohort": "minimax_m3_image_isolation"
     }
   ],
   "figure_sources": {

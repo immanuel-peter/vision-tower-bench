@@ -1,88 +1,149 @@
 {
-  "status": "running_corrected_image_independent_full_suite",
   "issue": 21,
+  "status": "validated_awaiting_delivery_commit",
   "branch": "t3/complete-issue-21",
-  "head": "c82cd47269987ca4a56fb57f944c02b7c395925c",
   "pr": "https://github.com/immanuel-peter/vision-tower-bench/pull/26",
+  "head": "5977358295f02dcbd60edf227e0d38a5005ead58",
+  "head_note": "Pre-delivery implementation checkpoint. Runtime handoff will be updated with the pushed delivery head.",
+  "updated_utc": "2026-11-07T22:57:28.484997+00:00",
   "hf": {
     "repo": "immanuelpeter/MiniMax-M3.1-Flash-Vision",
-    "revision": "75a5fc5bba7cfb01cfcf15072a9d823714e54121",
-    "identity": "523 tensors exact",
-    "release_forward": "CPU BF16 exact at 56 and 448"
+    "revision": "55510a4d372b8ae502a04cc570c0fd06a4361771",
+    "url": "https://huggingface.co/immanuelpeter/MiniMax-M3.1-Flash-Vision/commit/55510a4d372b8ae502a04cc570c0fd06a4361771",
+    "previous_revision": "75a5fc5bba7cfb01cfcf15072a9d823714e54121",
+    "change": "README only; all exact source tensors and configuration files unchanged"
   },
-  "tests": {
-    "scoped_regression": {
-      "passed": 134,
-      "skipped": 51,
-      "exclusions": "Figures await measurements; legacy MoonViT tests now obey VTB_SKIP_WEIGHTS."
+  "benchmark_counts": {
+    "per_model": {
+      "minimax_m31_flash": {
+        "recognition": 40,
+        "geometry": 40,
+        "label_budget": 8,
+        "standardized_diagnostic": 4,
+        "correspondence": 9,
+        "perturbation_stage_conditions": 39,
+        "kitti": 2,
+        "throughput_records": 1,
+        "primary_score_cells": 138
+      },
+      "minimax_m3": {
+        "recognition": 40,
+        "geometry": 40,
+        "label_budget": 8,
+        "standardized_diagnostic": 4,
+        "correspondence": 9,
+        "perturbation_stage_conditions": 39,
+        "kitti": 2,
+        "throughput_records": 1,
+        "primary_score_cells": 138
+      }
     },
-    "minimax": {
-      "passed": 10
-    },
-    "figures": "pending actual measurements",
-    "standardization_and_probe": {
-      "passed": 35
-    }
+    "canonical_measurement_jsons": 103,
+    "original_runtime_jsons": 2,
+    "unique_paired_payloads": 49,
+    "independently_source_checked_correspondence_and_perturbation_payloads": 20
   },
   "parity": {
-    "tolerance": 0,
     "resolutions": [
       56,
       448
     ],
-    "stages": 10,
-    "reference": "Independent pinned source loading into native Transformers HF classes; not a second modeling implementation"
-  },
-  "benchmark_counts": {
-    "recognition_extracted_images": 0,
-    "recognition_extracted_slices": 0,
-    "recognition_probe_cells": 0,
-    "geometry_probe_cells": 0,
-    "correspondence_cells": 0,
-    "label_budget_cells": 0,
-    "perturbation_cells": 0,
-    "kitti_cells": 0,
-    "bootstrap_payloads": 0
-  },
-  "gpu": "GPU0 full-suite regrant; 8 threads and at most 2 loaders; all CUDA commands hold exclusive gpu0.lock",
-  "timings": {
-    "recognition_extraction_seconds_approx": 200,
-    "recognition_images_per_second": 65.11
-  },
-  "remaining": [
-    "Full corrected benchmark inventory and paired controls",
-    "Actual measurement content validation and per-Stage deltas",
-    "Final figures and writeup",
-    "PR head/check status"
-  ],
-  "limitations": [
-    "No separate modeling file in pinned parent repository; HF reference implementation recorded by hash",
-    "No paper source present in repository",
-    "Original LICENSE whitespace preserved"
-  ],
-  "head_note": "Verified remote PR head. Committed handoff describes the preceding implementation checkpoint; this runtime handoff is authoritative.",
-  "standardization": {
-    "patch_sha256": "f5a2bc1dcda0e6be9a2d6abea9c1bcc9cb5817282ff6406489b5022dc65e330a",
-    "opt_in": "--standardize-channels --match-capacity",
-    "primary_defaults_unchanged": true,
-    "four_full_split_runs": "pending GPU regrant"
-  },
-  "checks_and_reviews": "suite in progress; no reviews",
-  "updated_utc": "2026-11-07T13:04:14.750117+00:00",
-  "resumption": {
-    "controller": "/tmp/vtb-delivery/issues/21/run-corrected-all.py",
-    "runner": "/tmp/vtb-delivery/issues/21/run-suite.py",
-    "session": 53930,
-    "log": "/tmp/vtb-delivery/issues/21/phase-corrected-all.log"
-  },
-  "batch_isolation": {
-    "failure": "batch-isolation-failure.json",
-    "invalid_outputs_archive": "/tmp/vtb-delivery/issues/21/invalid-packed-attention",
-    "correction": "Each unrelated image gets its own native HF Tower and Projector forward; public batch grouping, preprocessing and token layouts are unchanged.",
-    "validation": "isolated-parent-forward.json",
+    "batch_sizes": [
+      1,
+      2,
+      8
+    ],
     "cases": 20,
-    "slice_comparisons": 200,
-    "tolerance_max_abs": 0,
-    "m3_controls": "Fresh full primary matrices and standardized figures will be registered additively; historical M3 files are preserved."
-  }
+    "batched_slice_comparisons": 200,
+    "max_abs": 0,
+    "dtype": "BF16",
+    "real_input_image_slice_comparisons": 132,
+    "source_reference_limit": "Independent pinned source loading into native HF classes; not a second modeling implementation or full language-model forward."
+  },
+  "identity": {
+    "tower_tensors_per_checkpoint": 515,
+    "projector_tensors_per_checkpoint": 8,
+    "all_source_values_exact": true,
+    "tower_tensors_different": 509,
+    "projector_tensors_different": 8,
+    "layer_drift": "not monotonic when concatenated; per-tensor and concatenated statistics retained separately"
+  },
+  "tests": {
+    "full_regression": {
+      "passed": 148,
+      "skipped": 51,
+      "flag": "VTB_SKIP_WEIGHTS=1",
+      "all_figure_tests_included": true,
+      "log": "tests-final-full.txt"
+    },
+    "actual_minimax_weights": {
+      "passed": 12,
+      "deselected": 8,
+      "log": "tests-corrected-weights.txt"
+    },
+    "identity_evidence_method": "preservation/idempotence/mismatch tests passed"
+  },
+  "figures": {
+    "plots": 10,
+    "formats": [
+      "svg",
+      "pdf",
+      "png"
+    ],
+    "exports": 30,
+    "source_manifest": "figures/manifest.json",
+    "inspected": [
+      "projector-matrix.png",
+      "capability-profile.png"
+    ]
+  },
+  "gpu": {
+    "status": "released",
+    "utc": "2026-11-07T22:31:25.888023+00:00",
+    "physical_gpu": 0,
+    "lock": "/tmp/vtb-delivery/locks/gpu0.lock",
+    "exclusive_lock_reacquired_and_released": true,
+    "controller_exit_code": 0,
+    "active_compute_processes": [],
+    "hardware": {
+      "index": "0",
+      "name": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+      "uuid": "GPU-8a509feb-b09c-a6ee-fd1a-b69e8ce10484",
+      "driver_version": "580.126.09",
+      "memory_used_mib": "0",
+      "utilization_gpu_percent": "0"
+    },
+    "query_script_sha256": "38ff9d7e2b6dcff9e3c8a5e7d00d6ce7d99f365e6bd820734ca6e313079f9fca"
+  },
+  "data": {
+    "recognition_images": 13000,
+    "diode_images_with_normals": 771,
+    "kitti_images": 1000,
+    "perturbation_images_per_condition": 2000,
+    "perturbation_conditions": 13,
+    "perturbation_shards_verified": 312,
+    "navi_pairs": 555,
+    "scannet_pairs": 1500,
+    "spair_selected_pairs": 3600,
+    "spair_source_verified_empty_pairs": 192,
+    "spair_finite_nonempty_pairs": 3408,
+    "prepared_input_hash_entries": 155352,
+    "prepared_input_manifest_sha256": "255504f8a2ffed47bda8ca945ef0f2b1bbd142a0f4ba95927cfb319b025be8fc"
+  },
+  "timings": {
+    "final_successful_corrected_gpu_commands": 61,
+    "sum_command_seconds_including_lock_wait": 31325.908,
+    "first_corrected_command_start_utc": "2026-11-07T13:48:54.071193+00:00",
+    "gpu_completion_utc": "2026-11-07T22:31:25.888023+00:00",
+    "all_commands": "execution.jsonl"
+  },
+  "limitations": [
+    "Reference shares native HF modeling classes; full LM inference and a second modeling implementation were not evaluated.",
+    "No manuscript source exists; a paper-ready paragraph is included in comparison-writeup.md.",
+    "Perturbation clean accuracy is31-38% under the fixed2000-image readout protocol; condition changes are relative to those baselines."
+  ],
+  "remaining": [
+    "delivery commit/push/link and final remote head/check verification"
+  ],
+  "checks_and_reviews": "Local full suite passes; final delivery push pending."
 }

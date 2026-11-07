@@ -1,0 +1,561 @@
+{
+  "image_inference": "independent native single-image Tower and Projector forwards inside each external batch",
+  "source_reference_limit": "Native HF classes with independent pinned-source loading, not a second modeling implementation or a full LM forward.",
+  "inputs": {
+    "prepared_manifest": "/tmp/vtb-delivery/data-sha256.txt",
+    "prepared_manifest_sha256": "255504f8a2ffed47bda8ca945ef0f2b1bbd142a0f4ba95927cfb319b025be8fc",
+    "archived_manifest": "results/diagnostics/minimax-m31-flash/prepared-data-sha256.txt.gz",
+    "archived_manifest_sha256": "538bf4c3e4205415c5c86bed53cb27c7c38769d0d22dcc63e3dc5605c5422443",
+    "prepared_audit": "results/diagnostics/minimax-m31-flash/prepared-data-audit.json"
+  },
+  "checkpoints": {
+    "minimax_m3": {
+      "repo": "MiniMaxAI/MiniMax-M3",
+      "revision": "f0e1c1e04d40177e4673a22097036854f536e9c0"
+    },
+    "minimax_m31_flash": {
+      "repo": "MiniMaxAI/MiniMax-M3.1-Flash",
+      "revision": "54e4e69dfc452b1e94a426c24a4fdeeaa8e3ad5e"
+    }
+  },
+  "hf_release": {
+    "repo": "immanuelpeter/MiniMax-M3.1-Flash-Vision",
+    "revision": "55510a4d372b8ae502a04cc570c0fd06a4361771",
+    "url": "https://huggingface.co/immanuelpeter/MiniMax-M3.1-Flash-Vision/commit/55510a4d372b8ae502a04cc570c0fd06a4361771",
+    "previous_revision": "75a5fc5bba7cfb01cfcf15072a9d823714e54121",
+    "change": "README only; all exact source tensors and configuration files unchanged"
+  },
+  "files": {
+    "results/bootstrap/correspondence-navi-m31-vs-m3-merged.json": {
+      "sha256": "b8a4493ec226b4a52acdd43af9857d49f3fabdde90d5741363af241cd611f18c",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/correspondence-navi-m31-vs-m3-merged.json",
+      "kind": "bootstrap"
+    },
+    "results/bootstrap/correspondence-navi-m31-vs-m3-projected.json": {
+      "sha256": "b7b5579a4c44053a962ae28197c472dd5d072844965af2665afe19d895545bd2",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/correspondence-navi-m31-vs-m3-projected.json",
+      "kind": "bootstrap"
+    },
+    "results/bootstrap/correspondence-navi-m31-vs-m3-tower.json": {
+      "sha256": "d7c2729d40fc6bbb5d9627bcf260c144775058a61684759729d899105020966b",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/correspondence-navi-m31-vs-m3-tower.json",
+      "kind": "bootstrap"
+    },
+    "results/diagnostics/minimax-m31-flash/m3-image-isolation/bootstrap/correspondence-navi-minimax_m3-projected-vs-tower.json": {
+      "sha256": "070293fe673a99e59dcd21ab231a73b35259a27c48ab4ae66a469dbb6f598a28",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/correspondence-navi-minimax_m3-projected-vs-tower.json",
+      "kind": "bootstrap"
+    },
+    "results/bootstrap/correspondence-navi-minimax_m31_flash-projected-vs-tower.json": {
+      "sha256": "0fef0e36ca936fa8e46e2a0c6f3069b45bfeee36b0219e4f675c5dddd3215a6b",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/correspondence-navi-minimax_m31_flash-projected-vs-tower.json",
+      "kind": "bootstrap"
+    },
+    "results/bootstrap/correspondence-scannet-m31-vs-m3-merged.json": {
+      "sha256": "e21badb2958ce18531d5e7957aca6176b017da8a214b9176410b8208519fb42d",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/correspondence-scannet-m31-vs-m3-merged.json",
+      "kind": "bootstrap"
+    },
+    "results/bootstrap/correspondence-scannet-m31-vs-m3-projected.json": {
+      "sha256": "afebeb53835508b68e7a23595cc03d250bfed4524217c8ae709525bc9f36f3f9",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/correspondence-scannet-m31-vs-m3-projected.json",
+      "kind": "bootstrap"
+    },
+    "results/bootstrap/correspondence-scannet-m31-vs-m3-tower.json": {
+      "sha256": "8ef57d77ca803fa3efcc7c195540c704b6ed49b09560026ab86cd27d435cc95b",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/correspondence-scannet-m31-vs-m3-tower.json",
+      "kind": "bootstrap"
+    },
+    "results/diagnostics/minimax-m31-flash/m3-image-isolation/bootstrap/correspondence-scannet-minimax_m3-projected-vs-tower.json": {
+      "sha256": "18857672d7bd593b0a0440be6ffb9f0cf0b381992a57a2d5174b5a24de29e11b",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/correspondence-scannet-minimax_m3-projected-vs-tower.json",
+      "kind": "bootstrap"
+    },
+    "results/bootstrap/correspondence-scannet-minimax_m31_flash-projected-vs-tower.json": {
+      "sha256": "0335636c7b2ac762dd80ca540972355da467385478cd974d5b6b9e67812491d0",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/correspondence-scannet-minimax_m31_flash-projected-vs-tower.json",
+      "kind": "bootstrap"
+    },
+    "results/bootstrap/correspondence-spair-m31-vs-m3-merged.json": {
+      "sha256": "3d4eb686abd4b482d8bf640f7c93a67375b0a6529fde3f9ccd138bd1f355185e",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/correspondence-spair-m31-vs-m3-merged.json",
+      "kind": "bootstrap"
+    },
+    "results/bootstrap/correspondence-spair-m31-vs-m3-projected.json": {
+      "sha256": "e948d915232eabec06d1e689dca3990feba185e9c1eb61c1256a0468bd5a6d03",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/correspondence-spair-m31-vs-m3-projected.json",
+      "kind": "bootstrap"
+    },
+    "results/bootstrap/correspondence-spair-m31-vs-m3-tower.json": {
+      "sha256": "365de7c8039b28e499b7c8c7a85d9e44eb7e4156030ca8fbb381e18bb431c213",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/correspondence-spair-m31-vs-m3-tower.json",
+      "kind": "bootstrap"
+    },
+    "results/diagnostics/minimax-m31-flash/m3-image-isolation/bootstrap/correspondence-spair-minimax_m3-projected-vs-tower.json": {
+      "sha256": "f288fdf3c25c69ba7dd4ecacdf88a67710a6ca8dc25ca51d17c31b9696979151",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/correspondence-spair-minimax_m3-projected-vs-tower.json",
+      "kind": "bootstrap"
+    },
+    "results/bootstrap/correspondence-spair-minimax_m31_flash-projected-vs-tower.json": {
+      "sha256": "616930e9df6a2581e0c839135040ad62aaa91909c277d990d978f1b76713b46f",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/correspondence-spair-minimax_m31_flash-projected-vs-tower.json",
+      "kind": "bootstrap"
+    },
+    "results/bootstrap/geometry-depth-diode-matched-m31-vs-m3-merged.json": {
+      "sha256": "f947cd8664ac731bf5a7763017d5ad33452fb7757e51f18b2b3a02e0725277d1",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/geometry-depth-diode-matched-m31-vs-m3-merged.json",
+      "kind": "bootstrap"
+    },
+    "results/bootstrap/geometry-depth-diode-matched-m31-vs-m3-projected.json": {
+      "sha256": "faa037c63fa19b974cb624a539e62725e5a10b565c9e876ecbbf04cbf7b5901d",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/geometry-depth-diode-matched-m31-vs-m3-projected.json",
+      "kind": "bootstrap"
+    },
+    "results/bootstrap/geometry-depth-diode-matched-m31-vs-m3-tower.json": {
+      "sha256": "350a0eaa2cd97af64f01426f1c210058fa80d06a614029b99c781154d7f8f50b",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/geometry-depth-diode-matched-m31-vs-m3-tower.json",
+      "kind": "bootstrap"
+    },
+    "results/bootstrap/geometry-depth-diode-raw-m31-vs-m3-merged.json": {
+      "sha256": "24df6e282074b610e3114a874a7a6564f92def1b4666e6290c4b3c4b3c7693c0",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/geometry-depth-diode-raw-m31-vs-m3-merged.json",
+      "kind": "bootstrap"
+    },
+    "results/bootstrap/geometry-depth-diode-raw-m31-vs-m3-projected.json": {
+      "sha256": "898df3f3bee43c5694d66c3191c39f60e0e81ea3d6091b0d850b01b59d3293ea",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/geometry-depth-diode-raw-m31-vs-m3-projected.json",
+      "kind": "bootstrap"
+    },
+    "results/bootstrap/geometry-depth-diode-raw-m31-vs-m3-tower.json": {
+      "sha256": "d72e58e7e879a58571b1eaddd549def2e52de112f1f85eb4085758aafcdcc0b6",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/geometry-depth-diode-raw-m31-vs-m3-tower.json",
+      "kind": "bootstrap"
+    },
+    "results/bootstrap/geometry-depth-kitti-matched-m31-vs-m3-projected.json": {
+      "sha256": "e92631dfa0094d8bb0f9ffa12cb424dd7cb8cc2e7f922d62c3c4a414fb90f28c",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/geometry-depth-kitti-matched-m31-vs-m3-projected.json",
+      "kind": "bootstrap"
+    },
+    "results/bootstrap/geometry-depth-kitti-matched-m31-vs-m3-tower.json": {
+      "sha256": "a145045736c9c1d87a96e900f3567f6cad5f7b57118ceecefdb9a5ca38ad1941",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/geometry-depth-kitti-matched-m31-vs-m3-tower.json",
+      "kind": "bootstrap"
+    },
+    "results/diagnostics/minimax-m31-flash/m3-image-isolation/bootstrap/geometry-depth-kitti-matched-minimax_m3-projected-vs-tower.json": {
+      "sha256": "f562951a494beb0fd23c6136cf2a70aae8202ae36ea0ff41a66ebd7984521932",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/geometry-depth-kitti-matched-minimax_m3-projected-vs-tower.json",
+      "kind": "bootstrap"
+    },
+    "results/bootstrap/geometry-depth-kitti-matched-minimax_m31_flash-projected-vs-tower.json": {
+      "sha256": "0f1c3f5fce3ef475a2c3777b4a4224d0daa9e7bcf1bd055bbb461c7771a447aa",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/geometry-depth-kitti-matched-minimax_m31_flash-projected-vs-tower.json",
+      "kind": "bootstrap"
+    },
+    "results/diagnostics/minimax-m31-flash/m3-image-isolation/bootstrap/geometry-depth-matched-minimax_m3-projected-vs-tower.json": {
+      "sha256": "9da18aab91bf643bf54f5b48f4b0732d4a93e7f081dab9e8ef573918be73a692",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/geometry-depth-matched-minimax_m3-projected-vs-tower.json",
+      "kind": "bootstrap"
+    },
+    "results/bootstrap/geometry-depth-matched-minimax_m31_flash-projected-vs-tower.json": {
+      "sha256": "14930c76115b01c8fd904b04b05467b4f1649043b096496ec1bd00dde617eb9e",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/geometry-depth-matched-minimax_m31_flash-projected-vs-tower.json",
+      "kind": "bootstrap"
+    },
+    "results/diagnostics/minimax-m31-flash/m3-image-isolation/bootstrap/geometry-depth-raw-minimax_m3-projected-vs-tower.json": {
+      "sha256": "966876a8c608558d601d36addb0f2a0397ecf41627894f7a2d8b4b720e7c3a1d",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/geometry-depth-raw-minimax_m3-projected-vs-tower.json",
+      "kind": "bootstrap"
+    },
+    "results/bootstrap/geometry-depth-raw-minimax_m31_flash-projected-vs-tower.json": {
+      "sha256": "c1498863638f7805fe58d33ac69ceb4c4012dda1db000efdef1110b16ed09e88",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/geometry-depth-raw-minimax_m31_flash-projected-vs-tower.json",
+      "kind": "bootstrap"
+    },
+    "results/bootstrap/geometry-normal-diode-matched-m31-vs-m3-merged.json": {
+      "sha256": "384743079a961cdeb2f76844d88140f05da7f4871883930b203f4a9e4ee06ca5",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/geometry-normal-diode-matched-m31-vs-m3-merged.json",
+      "kind": "bootstrap"
+    },
+    "results/bootstrap/geometry-normal-diode-matched-m31-vs-m3-projected.json": {
+      "sha256": "511f4cea943c8bed58b887bdc855964757d7a07ff2cd3984344141ffcb41f08c",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/geometry-normal-diode-matched-m31-vs-m3-projected.json",
+      "kind": "bootstrap"
+    },
+    "results/bootstrap/geometry-normal-diode-matched-m31-vs-m3-tower.json": {
+      "sha256": "d11e21f39e4cd7f921535cb1aad1056160c46bddab2a862ae01da7d3a4b11eca",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/geometry-normal-diode-matched-m31-vs-m3-tower.json",
+      "kind": "bootstrap"
+    },
+    "results/bootstrap/geometry-normal-diode-raw-m31-vs-m3-merged.json": {
+      "sha256": "033bb0794e56e27a4fb93dc6c1aa636f0d0c50f9717ac97be4c6c2cdf9183093",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/geometry-normal-diode-raw-m31-vs-m3-merged.json",
+      "kind": "bootstrap"
+    },
+    "results/bootstrap/geometry-normal-diode-raw-m31-vs-m3-projected.json": {
+      "sha256": "c270c1e759f0806de8fd17475287b507021afc0cdc895e163fae032e13f145b6",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/geometry-normal-diode-raw-m31-vs-m3-projected.json",
+      "kind": "bootstrap"
+    },
+    "results/bootstrap/geometry-normal-diode-raw-m31-vs-m3-tower.json": {
+      "sha256": "cb7a195211d7a23737a0e60b94f4494a7570d61107ca958c830d946646ea8dc2",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/geometry-normal-diode-raw-m31-vs-m3-tower.json",
+      "kind": "bootstrap"
+    },
+    "results/diagnostics/minimax-m31-flash/m3-image-isolation/bootstrap/geometry-normal-matched-minimax_m3-projected-vs-tower.json": {
+      "sha256": "0fd8464e5722750c7e7517221337ddb1d2fcb638b249dfbcd7de8a03bbd49c67",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/geometry-normal-matched-minimax_m3-projected-vs-tower.json",
+      "kind": "bootstrap"
+    },
+    "results/bootstrap/geometry-normal-matched-minimax_m31_flash-projected-vs-tower.json": {
+      "sha256": "74ccaf2250146eab8ec0228a78c7c26a9bbbc35c50132eff87f7ed7f6e050200",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/geometry-normal-matched-minimax_m31_flash-projected-vs-tower.json",
+      "kind": "bootstrap"
+    },
+    "results/diagnostics/minimax-m31-flash/m3-image-isolation/bootstrap/geometry-normal-raw-minimax_m3-projected-vs-tower.json": {
+      "sha256": "07b5da1e0b884f08a0a0a2c8d631fc50ab49c478f771cbcfb772ddb7baa282a2",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/geometry-normal-raw-minimax_m3-projected-vs-tower.json",
+      "kind": "bootstrap"
+    },
+    "results/bootstrap/geometry-normal-raw-minimax_m31_flash-projected-vs-tower.json": {
+      "sha256": "4abcd0a0ccbb40793621b5ab5c9371e2832f68ce1266dd74e36e7308390f7398",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/geometry-normal-raw-minimax_m31_flash-projected-vs-tower.json",
+      "kind": "bootstrap"
+    },
+    "results/bootstrap/perturbation-m31-vs-m3-merged.json": {
+      "sha256": "653d01d9fc5e7bd7925d1967e423b2f6714330007fa7d7c182d5c0bfef221c09",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/perturbation-m31-vs-m3-merged.json",
+      "kind": "bootstrap"
+    },
+    "results/bootstrap/perturbation-m31-vs-m3-projected.json": {
+      "sha256": "e643921b476947035024e802d09fbb853465f5aa70671e5072f0ffe91905c758",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/perturbation-m31-vs-m3-projected.json",
+      "kind": "bootstrap"
+    },
+    "results/bootstrap/perturbation-m31-vs-m3-tower.json": {
+      "sha256": "bf75e9e1732a6e578f169f52a620bdb00d613db1d896f509585b39ab17fc745a",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/perturbation-m31-vs-m3-tower.json",
+      "kind": "bootstrap"
+    },
+    "results/diagnostics/minimax-m31-flash/m3-image-isolation/bootstrap/perturbation-minimax_m3.json": {
+      "sha256": "852ac8b9008db32372517f9bcaa27e8f9dd6c5bbac789256cb7a6d68af846e6d",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/perturbation-minimax_m3.json",
+      "kind": "bootstrap"
+    },
+    "results/bootstrap/perturbation-minimax_m31_flash.json": {
+      "sha256": "9f0cb0b0ae721a7a7b95c51ec0b25878974a96273292c69580be17410f932cab",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/perturbation-minimax_m31_flash.json",
+      "kind": "bootstrap"
+    },
+    "results/diagnostics/minimax-m31-flash/m3-image-isolation/bootstrap/semantic-attention-matched-minimax_m3-projected-minus-tower.json": {
+      "sha256": "5bef500e4103a11dae4dcdb0ae465e7f693a4b20d9eadc700c335e2eb3a0382b",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/semantic-attention-matched-minimax_m3-projected-minus-tower.json",
+      "kind": "bootstrap"
+    },
+    "results/bootstrap/semantic-attention-matched-minimax_m31_flash-projected-minus-tower.json": {
+      "sha256": "41b6dd9d957983da9bd40f8816b47ecaee9733ce52b321d3ca3fdcca240a25e8",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/semantic-attention-matched-minimax_m31_flash-projected-minus-tower.json",
+      "kind": "bootstrap"
+    },
+    "results/bootstrap/semantic-m31-vs-m3-merged.json": {
+      "sha256": "5c6882a39920e95af9db47dcac13e923148afe2d3b55456d3187a22e1ddb8878",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/semantic-m31-vs-m3-merged.json",
+      "kind": "bootstrap"
+    },
+    "results/bootstrap/semantic-m31-vs-m3-projected.json": {
+      "sha256": "985edc64363716c3d750a15ac9303cdcdc5c762bfb50e0df09bd45b37b7ed073",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/semantic-m31-vs-m3-projected.json",
+      "kind": "bootstrap"
+    },
+    "results/bootstrap/semantic-m31-vs-m3-tower.json": {
+      "sha256": "64b972f1535515d34a183f02fa251b1703bf45e3fa70a813912450522b1ed31c",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/bootstrap/semantic-m31-vs-m3-tower.json",
+      "kind": "bootstrap"
+    },
+    "results/correspondence/minimax_m31_flash_correspondence_navi.json": {
+      "sha256": "c82755bd207129b10ff2faea04fb7046487a553e7d6fcd1eb45a656885f8ed66",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/correspondence/minimax_m31_flash_correspondence_navi.json",
+      "kind": "correspondence"
+    },
+    "results/correspondence/minimax_m31_flash_correspondence_scannet.json": {
+      "sha256": "11ff667b545128111f8aec4c3be1ec93469fcb6ffb39e2debe7b673d42ce33bb",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/correspondence/minimax_m31_flash_correspondence_scannet.json",
+      "kind": "correspondence"
+    },
+    "results/correspondence/minimax_m31_flash_correspondence_spair.json": {
+      "sha256": "b84c82a0ea7708049c0b6af7d37cbfe2ff1c147e7a7c58270e7584b312c62e7e",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/correspondence/minimax_m31_flash_correspondence_spair.json",
+      "kind": "correspondence"
+    },
+    "results/diagnostics/minimax-m31-flash/m3-image-isolation/correspondence/minimax_m3_correspondence_navi.json": {
+      "sha256": "d7878af0d4d6ec1ecfa87f2b4651bd4c0999fa9e86bcd6638bd412b67adcc503",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/correspondence/minimax_m3_correspondence_navi.json",
+      "kind": "correspondence"
+    },
+    "results/diagnostics/minimax-m31-flash/m3-image-isolation/correspondence/minimax_m3_correspondence_scannet.json": {
+      "sha256": "4117b9e16d4fa111ad0accff0bdef2f66364357fabffef17e3b00cf0157c9b89",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/correspondence/minimax_m3_correspondence_scannet.json",
+      "kind": "correspondence"
+    },
+    "results/diagnostics/minimax-m31-flash/m3-image-isolation/correspondence/minimax_m3_correspondence_spair.json": {
+      "sha256": "6738aec9f5f69a0988f5f2b919c03d25c7a3e2ad1df7355a165939262bd3f950",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/correspondence/minimax_m3_correspondence_spair.json",
+      "kind": "correspondence"
+    },
+    "results/geometry/minimax_m31_flash_geometry_depth_matched.json": {
+      "sha256": "46874b9568272519bcf916201ebe3083c4844a0c751b78631036cc8b207a5d5c",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/geometry/minimax_m31_flash_geometry_depth_matched.json",
+      "kind": "geometry"
+    },
+    "results/geometry/minimax_m31_flash_geometry_depth_raw.json": {
+      "sha256": "dac08807d7d2e6fbdef5f6460bb6a45ecd82f5a60307285dba3dd0c24e798e64",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/geometry/minimax_m31_flash_geometry_depth_raw.json",
+      "kind": "geometry"
+    },
+    "results/geometry/minimax_m31_flash_geometry_normal_matched.json": {
+      "sha256": "351a2d5b8e2bcca8f73da03635676a70307a8eb7baa6ec262495eb392f8a6fbf",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/geometry/minimax_m31_flash_geometry_normal_matched.json",
+      "kind": "geometry"
+    },
+    "results/geometry/minimax_m31_flash_geometry_normal_raw.json": {
+      "sha256": "6a5610b57d13f6ccac58a4d62a3c13c8530bc1ea21288cbd8682619de2e126df",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/geometry/minimax_m31_flash_geometry_normal_raw.json",
+      "kind": "geometry"
+    },
+    "results/diagnostics/minimax-m31-flash/m3-image-isolation/geometry/minimax_m3_geometry_depth_matched.json": {
+      "sha256": "96aa076484ed3821b71e9c5b8d24770221067068b0582e2ea9d8f96a3d4a2fb3",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/geometry/minimax_m3_geometry_depth_matched.json",
+      "kind": "geometry"
+    },
+    "results/diagnostics/minimax-m31-flash/m3-image-isolation/geometry/minimax_m3_geometry_depth_raw.json": {
+      "sha256": "499ad08384177cb511a932b7aa7e2bb93915a07addb74b390ff52722bf44933a",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/geometry/minimax_m3_geometry_depth_raw.json",
+      "kind": "geometry"
+    },
+    "results/diagnostics/minimax-m31-flash/m3-image-isolation/geometry/minimax_m3_geometry_normal_matched.json": {
+      "sha256": "64bc817d613f5ba16e0008c4d5116cf228cd8cf126acd604a73a92e77145aa8f",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/geometry/minimax_m3_geometry_normal_matched.json",
+      "kind": "geometry"
+    },
+    "results/diagnostics/minimax-m31-flash/m3-image-isolation/geometry/minimax_m3_geometry_normal_raw.json": {
+      "sha256": "1846402969381bee4725baefc74c894f11be295dbd82ae24121860f0b74a3127",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/geometry/minimax_m3_geometry_normal_raw.json",
+      "kind": "geometry"
+    },
+    "results/kitti/minimax_m31_flash_geometry_depth_matched.json": {
+      "sha256": "594ae83b728fb9b21c6a7b210862dadda8af8db855490aef309306ecfed1afd7",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/kitti/minimax_m31_flash_geometry_depth_matched.json",
+      "kind": "kitti"
+    },
+    "results/diagnostics/minimax-m31-flash/m3-image-isolation/kitti/minimax_m3_geometry_depth_matched.json": {
+      "sha256": "fcebc7d52241c806f94b1175293d2fdd8ac4532b5fafa70a8b888b6e2a497e7f",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/kitti/minimax_m3_geometry_depth_matched.json",
+      "kind": "kitti"
+    },
+    "results/label-budget/minimax_m31_flash_probe_attention_matched_f001.json": {
+      "sha256": "453a8ff7e515f76181fc00fce43f2fb61a245ee05e5178e60520409941f73aa0",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/label-budget/minimax_m31_flash_probe_attention_matched_f001.json",
+      "kind": "label-budget"
+    },
+    "results/label-budget/minimax_m31_flash_probe_attention_matched_f005.json": {
+      "sha256": "bae39029c80388c59b0a641c5c633d7e24ad4fb0d32ec787f2988c726db3282d",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/label-budget/minimax_m31_flash_probe_attention_matched_f005.json",
+      "kind": "label-budget"
+    },
+    "results/label-budget/minimax_m31_flash_probe_attention_matched_f020.json": {
+      "sha256": "96a7c5b1398c823e25e9e60a21f45fd62960d16d3acf35db76153ce75a29dd09",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/label-budget/minimax_m31_flash_probe_attention_matched_f020.json",
+      "kind": "label-budget"
+    },
+    "results/label-budget/minimax_m31_flash_probe_attention_matched_f10.json": {
+      "sha256": "df0fd3874808884460cc5a88d54967385322dafc188124791e92f5a7dd9a5414",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/label-budget/minimax_m31_flash_probe_attention_matched_f10.json",
+      "kind": "label-budget"
+    },
+    "results/label-budget/minimax_m31_flash_probe_mean_matched_f001.json": {
+      "sha256": "9f176127591a30bbae9b9a8bdd6529714dc87e37727256876335c1519f4a06f5",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/label-budget/minimax_m31_flash_probe_mean_matched_f001.json",
+      "kind": "label-budget"
+    },
+    "results/label-budget/minimax_m31_flash_probe_mean_matched_f005.json": {
+      "sha256": "b13941c8a6600a6b3b1e7620fd8310733fa4c3fb3a1aab8060d439d2f81104f2",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/label-budget/minimax_m31_flash_probe_mean_matched_f005.json",
+      "kind": "label-budget"
+    },
+    "results/label-budget/minimax_m31_flash_probe_mean_matched_f020.json": {
+      "sha256": "469f77f97f074d0632c43b7d8e512f7249fb0d78f336a2f38f25d19a6c40223a",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/label-budget/minimax_m31_flash_probe_mean_matched_f020.json",
+      "kind": "label-budget"
+    },
+    "results/label-budget/minimax_m31_flash_probe_mean_matched_f10.json": {
+      "sha256": "c85f4309fd9df946d368c8f43f6d24c71568d37e7e71c2836337888c863f637c",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/label-budget/minimax_m31_flash_probe_mean_matched_f10.json",
+      "kind": "label-budget"
+    },
+    "results/diagnostics/minimax-m31-flash/m3-image-isolation/label-budget/minimax_m3_probe_attention_matched_f001.json": {
+      "sha256": "6c8bf90bb3449acd3d55b24e4ad438178016e33cf7e8120c87ebf6f61c9a299f",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/label-budget/minimax_m3_probe_attention_matched_f001.json",
+      "kind": "label-budget"
+    },
+    "results/diagnostics/minimax-m31-flash/m3-image-isolation/label-budget/minimax_m3_probe_attention_matched_f005.json": {
+      "sha256": "6cf2fdffee9df5d55eb621382d4a221a5f26b7b22cb491218ad7097ac22fd588",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/label-budget/minimax_m3_probe_attention_matched_f005.json",
+      "kind": "label-budget"
+    },
+    "results/diagnostics/minimax-m31-flash/m3-image-isolation/label-budget/minimax_m3_probe_attention_matched_f020.json": {
+      "sha256": "66daf5d4d4dabafc268109bf5cd5386976c690183408ac8b4695eae1502f4033",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/label-budget/minimax_m3_probe_attention_matched_f020.json",
+      "kind": "label-budget"
+    },
+    "results/diagnostics/minimax-m31-flash/m3-image-isolation/label-budget/minimax_m3_probe_attention_matched_f10.json": {
+      "sha256": "533fac568bc082f1978e761a2663518648859a2bd7d39f6fe1f55b7ada650f45",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/label-budget/minimax_m3_probe_attention_matched_f10.json",
+      "kind": "label-budget"
+    },
+    "results/diagnostics/minimax-m31-flash/m3-image-isolation/label-budget/minimax_m3_probe_mean_matched_f001.json": {
+      "sha256": "519a704a66dc0a25f53efdce13adb2f220ea6a8f83c547126c73de05e629a38f",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/label-budget/minimax_m3_probe_mean_matched_f001.json",
+      "kind": "label-budget"
+    },
+    "results/diagnostics/minimax-m31-flash/m3-image-isolation/label-budget/minimax_m3_probe_mean_matched_f005.json": {
+      "sha256": "dc1a40145aa7123ab5ed57e0490ed0c717618be2daf985971a2994b0955e4998",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/label-budget/minimax_m3_probe_mean_matched_f005.json",
+      "kind": "label-budget"
+    },
+    "results/diagnostics/minimax-m31-flash/m3-image-isolation/label-budget/minimax_m3_probe_mean_matched_f020.json": {
+      "sha256": "ef13e96e0bbe9a35376fa7c994dc8f4adaa3e3837ca27bfcdc70c73a07c2cf20",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/label-budget/minimax_m3_probe_mean_matched_f020.json",
+      "kind": "label-budget"
+    },
+    "results/diagnostics/minimax-m31-flash/m3-image-isolation/label-budget/minimax_m3_probe_mean_matched_f10.json": {
+      "sha256": "676bf2e83d72c7d797265dea5142b34fe3af79fa3a9cad06db3c0da354094ffd",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/label-budget/minimax_m3_probe_mean_matched_f10.json",
+      "kind": "label-budget"
+    },
+    "results/perturbation/minimax_m31_flash_perturbation.json": {
+      "sha256": "7929954306122b0c729529e18c03ca005dd86b28c63af272db739dc411fb4371",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/perturbation/minimax_m31_flash_perturbation.json",
+      "kind": "perturbation"
+    },
+    "results/diagnostics/minimax-m31-flash/m3-image-isolation/perturbation/minimax_m3_perturbation.json": {
+      "sha256": "5a34a6c72c5e28208bb9cccde7fbcb30e1453ed7937091dd9cc5184a55182af2",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/perturbation/minimax_m3_perturbation.json",
+      "kind": "perturbation"
+    },
+    "results/recognition/minimax_m31_flash_probe_attention_matched.json": {
+      "sha256": "d080595015809be166c38b6414e60f1b5489424362ffa81ccf93d3c41f8a2268",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/recognition/minimax_m31_flash_probe_attention_matched.json",
+      "kind": "recognition"
+    },
+    "results/recognition/minimax_m31_flash_probe_attention_raw.json": {
+      "sha256": "11789335a8ab766f211f643359afa3da2e3310941fa3f268f46f7bdab4e18e97",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/recognition/minimax_m31_flash_probe_attention_raw.json",
+      "kind": "recognition"
+    },
+    "results/recognition/minimax_m31_flash_probe_mean_matched.json": {
+      "sha256": "a6161d6823649ef832a6467894be8a336fa4e15f7ccdafaa14afa7d5779d94d8",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/recognition/minimax_m31_flash_probe_mean_matched.json",
+      "kind": "recognition"
+    },
+    "results/recognition/minimax_m31_flash_probe_mean_raw.json": {
+      "sha256": "b3fb2690d1ce57a45d557a8cbd2e3bd6957a3042510ec8b9dc6ac6f857a1c2bb",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/recognition/minimax_m31_flash_probe_mean_raw.json",
+      "kind": "recognition"
+    },
+    "results/diagnostics/minimax-m31-flash/m3-image-isolation/recognition/minimax_m3_probe_attention_matched.json": {
+      "sha256": "0e7922190ea76a02fa10bb8040de24dee96d9d0073b4b6e94f6ed27d9ec2d471",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/recognition/minimax_m3_probe_attention_matched.json",
+      "kind": "recognition"
+    },
+    "results/diagnostics/minimax-m31-flash/m3-image-isolation/recognition/minimax_m3_probe_attention_raw.json": {
+      "sha256": "326aa69cd3c0b265ae830b8eff6c198fae2ae274896659af348501ae438e708b",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/recognition/minimax_m3_probe_attention_raw.json",
+      "kind": "recognition"
+    },
+    "results/diagnostics/minimax-m31-flash/m3-image-isolation/recognition/minimax_m3_probe_mean_matched.json": {
+      "sha256": "b04b695e8a494e5f1ad046158edef9f0783b187743425226325269fa61c8321c",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/recognition/minimax_m3_probe_mean_matched.json",
+      "kind": "recognition"
+    },
+    "results/diagnostics/minimax-m31-flash/m3-image-isolation/recognition/minimax_m3_probe_mean_raw.json": {
+      "sha256": "f95397f0ef560ae25516d659e7394e10148fe0c47a184fd300719a27693d2641",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/recognition/minimax_m3_probe_mean_raw.json",
+      "kind": "recognition"
+    },
+    "results/diagnostics/minimax-m31-flash/label_budget_standardized.json": {
+      "sha256": "f57f6901f50d35fc76289d0385b8a127b7fab07acc07fc596be825bef618be3e",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/standardized/minimax_m31_flash_label_budget_standardized.json",
+      "kind": "standardized"
+    },
+    "results/diagnostics/minimax-m31-flash/standardized/minimax_m31_flash_probe_attention_matched_f001.json": {
+      "sha256": "27361965ba3fa237594835720d59570f2f79086f6e6edc6aa5d01dbf27d3f799",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/standardized/minimax_m31_flash_probe_attention_matched_f001.json",
+      "kind": "standardized"
+    },
+    "results/diagnostics/minimax-m31-flash/standardized/minimax_m31_flash_probe_attention_matched_f005.json": {
+      "sha256": "79aa20ed2e5656b0b28e8377e9581bb7b599219b0d7c3773420806103c23829f",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/standardized/minimax_m31_flash_probe_attention_matched_f005.json",
+      "kind": "standardized"
+    },
+    "results/diagnostics/minimax-m31-flash/standardized/minimax_m31_flash_probe_attention_matched_f02.json": {
+      "sha256": "2354cf01ded4e9ead2ff7c25ac6e11f7300c3fd89c3cb95d070f7e29f00ff277",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/standardized/minimax_m31_flash_probe_attention_matched_f02.json",
+      "kind": "standardized"
+    },
+    "results/diagnostics/minimax-m31-flash/standardized/minimax_m31_flash_probe_attention_matched_f10.json": {
+      "sha256": "db8b84809e4d44cc4fd868f302ad2852f2fb930646e0957534391abff35bbaee",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/standardized/minimax_m31_flash_probe_attention_matched_f10.json",
+      "kind": "standardized"
+    },
+    "results/diagnostics/minimax-m31-flash/m3-image-isolation/label_budget_standardized.json": {
+      "sha256": "f7c1fb34f24b691f57574679f97613df6ca4fe7655a15b1acdca561f98de4360",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/standardized/minimax_m3_label_budget_standardized.json",
+      "kind": "standardized"
+    },
+    "results/diagnostics/minimax-m31-flash/m3-image-isolation/standardized/minimax_m3_probe_attention_matched_f001.json": {
+      "sha256": "21c6afb5a439d603a958a9b8673c5153cb3ead975c9b77dbc79b7dab0ad30a83",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/standardized/minimax_m3_probe_attention_matched_f001.json",
+      "kind": "standardized"
+    },
+    "results/diagnostics/minimax-m31-flash/m3-image-isolation/standardized/minimax_m3_probe_attention_matched_f005.json": {
+      "sha256": "8f66a1fad9d8f140d290dc92bc768c1dd4a417e1212663fec6f56f64fc6bc071",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/standardized/minimax_m3_probe_attention_matched_f005.json",
+      "kind": "standardized"
+    },
+    "results/diagnostics/minimax-m31-flash/m3-image-isolation/standardized/minimax_m3_probe_attention_matched_f02.json": {
+      "sha256": "09bd57386b2b5007a5f6b5731ef8b52e1ece0ab295d15c348b0a47ba1cac8735",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/standardized/minimax_m3_probe_attention_matched_f02.json",
+      "kind": "standardized"
+    },
+    "results/diagnostics/minimax-m31-flash/m3-image-isolation/standardized/minimax_m3_probe_attention_matched_f10.json": {
+      "sha256": "58fb926522842b4a6b1a7799ad214e7825098249b3e857747f8d38ccf3e95a83",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/standardized/minimax_m3_probe_attention_matched_f10.json",
+      "kind": "standardized"
+    },
+    "results/diagnostics/minimax-m31-flash/m3-image-isolation/throughput/minimax_m3.json": {
+      "sha256": "e6353b00f10a2573c9566699851d764c03fb15f24ff1ca6b05f284301b12070d",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/throughput/minimax_m3.json",
+      "kind": "throughput"
+    },
+    "results/throughput/minimax_m31_flash.json": {
+      "sha256": "45f847c1ffc8b98b62186dbf5e3972e195bb75c0879e781993993afa198037c1",
+      "raw_source": "/tmp/vtb-delivery/issues/21/measurements/throughput/minimax_m31_flash.json",
+      "kind": "throughput"
+    }
+  },
+  "original_runtime_payloads": {
+    "results/diagnostics/minimax-m31-flash/raw-probe-payloads/minimax_m31_flash_perturbation.json": {
+      "sha256": "6f03211d29e065e6bb7c035615745b8b12ed71896f5e32422ce08fe454bce712",
+      "purpose": "Exact runner output before lossless identity-row materialization; scores/protocol unchanged."
+    },
+    "results/diagnostics/minimax-m31-flash/raw-probe-payloads/minimax_m3_perturbation.json": {
+      "sha256": "b39df4a95e359f36f2d78483eae83947ae14e1b9e36c79fce9a291af6b46ebe8",
+      "purpose": "Exact runner output before lossless identity-row materialization; scores/protocol unchanged."
+    }
+  },
+  "materialization_source_snapshot": {
+    "path": "results/diagnostics/minimax-m31-flash/postprocess-source-at-run.py.gz",
+    "compressed_sha256": "4350ca9d1aa71babfdb8d83d455baccebfb3e5d2c9a0f1f5f95a412e38fbba52",
+    "decompressed_sha256": "7465ee7637162a3953e01b5e13f136a8ec702897cff9a922d06e422d3f3f73ee",
+    "working_helper_difference": "Trailing whitespace normalized only; exact source used for materialization is retained in this archive."
+  }
+}

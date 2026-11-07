@@ -9,4 +9,7 @@ All primary recognition and geometry cells, both label-budget readouts, all
 correspondence datasets, 13 perturbation conditions, KITTI transfer, throughput,
 within-model comparisons, and four standardized attention label-budget cells are
 rerun under the existing corrected LR and selected-LR seed protocol.
-Measurement completion remains pending the validated inventory.
+All required measurements are complete and content-validated in
+[the full control inventory](../measurement-validation-minimax_m3.json).
+The control throughput record also lives in this scope.
+The paired comparison and all figure selections use these compatible reruns.
