@@ -304,7 +304,9 @@ def tower_forward(
     """
     embeds = tower.patch_conv(pixel_values.to(tower.patch_conv.weight.dtype))
     rows, cols = embeds.shape[-2:]
-    hidden = tower.ln_pre(embeds.flatten(2).transpose(1, 2))
+    # The parent concatenates patch embeddings into a contiguous sequence before
+    # ln_pre. A transposed view changes the RMSNorm reduction order in BF16.
+    hidden = tower.ln_pre(embeds.flatten(2).transpose(1, 2).contiguous())
     config = tower.config
     table = rotary_table(rows, cols, config.head_dim, config.rope_parameters["rope_theta"]).to(hidden.device)
     captured = {}
