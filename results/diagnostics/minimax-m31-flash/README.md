@@ -100,3 +100,9 @@ The [standardization method](standardization-method.md) preserves the recovered
 patch, training-only sample statistics and RNG rules. It leaves the primary
 Reducer unchanged. The [resume instructions](resume.md), helper hashes,
 execution log, checklist and handoff retain the commands and validation scope.
+
+## HF package follow-up
+
+The [card and inference follow-up](hf-followup/README.md) records the house-template
+card, complete file manifest and fresh-download CUDA BF16 batch-one proof.
+Both weight files and every original measurement payload are unchanged.

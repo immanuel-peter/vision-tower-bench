@@ -142,3 +142,14 @@ Validated code and measurement delivery commit: `0efce77f7716fd0401fe9a3f5b74658
 Remote PR is OPEN, non-draft and targets main. Prior bot change requests remain
 on older commits; `review-resolution.json` maps all findings to delivered evidence.
 The runtime handoff records the final metadata-only head and live check state.
+
+## Queued HF package follow-up
+
+- [x] Eight-heading house card, 64 to 68 lines and 402 to 297 words; original audit text retained.
+- [x] Complete source/file manifest, both weight hashes unchanged, metadata/code-only upload.
+- [x] Fresh-download real-image CUDA BF16 batch-one example passed all three shapes at revision b161cf1d04676db7a695762ac6208713fa352861.
+- [x] Driver checked before Torch, GPU0 released with 0 MiB/no processes and lock reacquired.
+- [x] CPU regression 152 passed / 51 skipped, including four new packaging cases.
+- [x] Original 103 benchmark payload hashes remain unchanged.
+
+Evidence: `hf-followup/report.json`, `cuda-smoke.txt`, `tests-full.txt` and `gpu-release.json`.

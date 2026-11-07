@@ -4,61 +4,65 @@ license_name: minimax-community
 license_link: LICENSE
 pipeline_tag: image-feature-extraction
 library_name: transformers
-base_model:
-- MiniMaxAI/MiniMax-M3.1-Flash
 tags:
 - vision
+base_model:
+- MiniMaxAI/MiniMax-M3.1-Flash
 ---
 
 # MiniMax-M3.1-Flash Vision
 
-Standalone Tower and Projector extracted from MiniMaxAI/MiniMax-M3.1-Flash,
-revision `54e4e69dfc452b1e94a426c24a4fdeeaa8e3ad5e`. No language-model weights
-are included. The accompanying MiniMax Community License applies to these weights.
+Standalone Tower and Projector from [MiniMax M3.1 Flash](https://huggingface.co/MiniMaxAI/MiniMax-M3.1-Flash).
+No language-model weights are included.
 
-The Tower has 32 layers, width 1280, 16 heads, MLP width 5120, patch size 14,
-temporal patch size 2, and 3D RoPE. The nominal image size is 672.
-At 448 pixels it produces 1024 Tower tokens of width 1280. The bench merges
-2x2 spatial neighbors into 256 tokens of width 5120. The Projector outputs
-256 tokens of width 6144.
+## Contents
 
-The bundle contains 515 Tower tensors in `model.safetensors` and eight Projector
-tensors in `projector.safetensors`. All tensors preserve their pinned source
-values and dtypes. `export_manifest.json` records checkpoint identity and file hashes.
-Shard selection comes from the pinned source index, rather than M3 shard numbers.
+| File | Contents |
+|---|---|
+| `model.safetensors` | 515 Tower tensors |
+| `projector.safetensors` | Eight Projector tensors |
+| `projector.py`, `projector_config.json` | Standalone Projector and loader |
+| `config.json`, `preprocessor_config.json` | Vision and image-processing configuration |
+| `examples/inference.py` | Three-Stage image example |
+| `README.md`, `export_manifest.json`, `.gitattributes` | Documentation, source pin, file hashes and storage rules |
+| `LICENSE`, `LICENSE-CODE`, `NOTICE` | Weight license, helper-code license and attribution |
 
-## Use
+## Architecture
 
-Requires Transformers 5.17.0, PyTorch and Pillow. See `examples/inference.py`.
-Load the Tower with `MiniMaxM3VLVisionModel.from_pretrained`; use `projector.py`
-to load the separate Projector. The native parent processor uses dynamic resizing.
-The benchmark uses a bicubic short-side resize and center crop at 448, CLIP
-normalization and two repeated frames.
+| Component | Details and batch-one output at 448 pixels |
+|---|---|
+| Tower | 32 layers, width 1280, 16 heads, MLP 5120, patch 14, 3D RoPE; `(1, 1024, 1280)` |
+| Merged | Lossless 2x2 spatial concatenation; `(1, 256, 5120)` |
+| Projector | Four linear layers with GELU and learned 2x2 compression; `(1, 256, 6144)` |
+
+Still images repeat as two frames for the temporal patch embedding.
+The nominal image size is 672; the example uses a 448-pixel bicubic center crop.
+
+## Usage
+
+Requires Transformers 5.17.0, PyTorch, torchvision and Pillow.
+See [examples/inference.py](examples/inference.py) for local bundle loading and BF16 features.
+
+```bash
+python examples/inference.py /path/to/image.jpg
+```
+
+Forward images independently: native HF attention couples images in one call.
 
 ## Validation
 
-`scripts/validate_minimax_m3.py` in vision-tower-bench independently loads the
-pinned source tensors into native HF parent classes. Every Tower and Projector
-tensor matches exactly. On fixed synthetic images at 56 and 448 pixels, all
-eight Tower depths, merged tokens and projected tokens match exactly in BF16.
-Changing nominal image size between 672 and 2016 leaves those outputs unchanged.
-The report records the Transformers source hash. The pinned HF parent repository
-contains no separate modeling Python file; this check uses the native HF implementation.
+Source tensors are preserved exactly, including their original dtypes.
+Native-HF reference checks and inference limits are recorded in the [bench evidence](https://github.com/immanuel-peter/vision-tower-bench/tree/t3/complete-issue-21/results/diagnostics/minimax-m31-flash).
 
-MiniMax M3 and M3.1-Flash share this architecture and preprocessing, but their
-weights differ. Benchmark results and the complete tensor drift report are maintained
-in [vision-tower-bench](https://github.com/immanuel-peter/vision-tower-bench).
-The native HF vision forward packs supplied images into one attention sequence.
-Forward unrelated images independently. The benchmark adapter isolates both the
-Tower and Projector per image before restoring the external batch layout.
-Its corrected outputs match independently loaded single-image parent forwards
-exactly for batches of 1, 2 and 8, reversed order and changed neighbors, at 56 and
-448 pixels. The reference uses native HF classes, not a second modeling implementation.
-No benchmark score is implied by this release.
+## Reproduction
 
-## Reproduce
+The pinned, index-driven [exporter](https://github.com/immanuel-peter/vision-tower-bench/blob/main/scripts/export_minimax_m3_vision.py) accepts `--checkpoint minimax_m31_flash`.
+`export_manifest.json` records source shards and every distributed file hash except itself.
 
-`python scripts/export_minimax_m3_vision.py --checkpoint minimax_m31_flash`
+## Credits
 
-Built with MiniMax M3.1-Flash. MiniMax released the parent weights and native Transformers implementation.
-See LICENSE and NOTICE.
+MiniMax released the parent weights; Transformers provides the native Tower implementation.
+
+## License
+
+Weights retain the [MiniMax Community License](LICENSE). Original helper code is [MIT](LICENSE-CODE); see [NOTICE](NOTICE).
