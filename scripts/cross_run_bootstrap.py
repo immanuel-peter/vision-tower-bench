@@ -25,6 +25,10 @@ def parser() -> argparse.ArgumentParser:
     ap.add_argument("--second", type=Path, required=True)
     ap.add_argument("--second-name", required=True)
     ap.add_argument("--stage", default="tower", choices=("tower", "merged", "projected"))
+    ap.add_argument("--first-stage", default=None, choices=("tower", "merged", "projected"),
+                    help="Stage of --first; defaults to --stage")
+    ap.add_argument("--second-stage", default=None, choices=("tower", "merged", "projected"),
+                    help="Stage of --second; defaults to --stage. Set both to pair Stages of one run")
     ap.add_argument("--metric", default=None, help="Correspondence metric; defaults to the dataset's primary metric")
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--resamples", type=int, default=10_000)
@@ -47,6 +51,10 @@ def stage_cell(payload: dict, stage: str) -> dict:
     if len(cells) != 1:
         raise ValueError(f"expected one {stage} cell, found {len(cells)}")
     return cells[0]
+
+
+def stages(args) -> tuple[str, str]:
+    return args.first_stage or args.stage, args.second_stage or args.stage
 
 
 def class_macro_bootstrap(rows: list[dict], names: tuple[str, str], args) -> dict:
@@ -78,7 +86,8 @@ def correspondence(first: dict, second: dict, names: tuple[str, str], args) -> d
         if first[key] != second[key]:
             raise ValueError(f"correspondence protocol differs: {key}")
     metric = args.metric or PRIMARY[first["dataset"]]
-    keys = [f"{cell['stage']}:{cell['layer_index']}" for cell in (stage_cell(first, args.stage), stage_cell(second, args.stage))]
+    first_stage, second_stage = stages(args)
+    keys = [f"{cell['stage']}:{cell['layer_index']}" for cell in (stage_cell(first, first_stage), stage_cell(second, second_stage))]
     rows, excluded = [], []
     for a, b in pair_rows(first["measurements"], second["measurements"], "pair_id"):
         values = (a["cells"][keys[0]][metric], b["cells"][keys[1]][metric])
@@ -110,7 +119,8 @@ def correspondence(first: dict, second: dict, names: tuple[str, str], args) -> d
 def perturbation(first: dict, second: dict, names: tuple[str, str], args) -> dict:
     if first["images"] != second["images"] or first["protocol"] != second["protocol"]:
         raise ValueError("perturbation probing protocol differs")
-    a, b = stage_cell(first, args.stage), stage_cell(second, args.stage)
+    first_stage, second_stage = stages(args)
+    a, b = stage_cell(first, first_stage), stage_cell(second, second_stage)
     if a["measurements"].keys() != b["measurements"].keys():
         raise ValueError("perturbation conditions differ")
     conditions, clean = {}, None
@@ -155,6 +165,7 @@ def main() -> None:
     result["protocol"] = {
         "first_source": str(args.first), "second_source": str(args.second),
         "difference": f"{names[0]}_minus_{names[1]}",
+        "stages": dict(zip(("first", "second"), stages(args))),
         "bootstrap_seed": args.bootstrap_seed, "resamples": args.resamples, "confidence": args.confidence,
     }
     args.out.parent.mkdir(parents=True, exist_ok=True)
