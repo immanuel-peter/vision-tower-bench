@@ -1,0 +1,59 @@
+{
+  "status": "in_progress",
+  "issue": 21,
+  "branch": "t3/complete-issue-21",
+  "head": "8246f97ba347027472f4f1e7960180e43e354fd7",
+  "pr": null,
+  "hf": {
+    "repo": "immanuelpeter/MiniMax-M3.1-Flash-Vision",
+    "revision": "75a5fc5bba7cfb01cfcf15072a9d823714e54121",
+    "identity": "523 tensors exact",
+    "release_forward": "CPU BF16 exact at 56 and 448"
+  },
+  "tests": {
+    "scoped_regression": {
+      "passed": 130,
+      "skipped": 48
+    },
+    "minimax": {
+      "passed": 10
+    },
+    "figures": "pending actual measurements"
+  },
+  "parity": {
+    "tolerance": 0,
+    "resolutions": [
+      56,
+      448
+    ],
+    "stages": 10,
+    "reference": "Independent pinned source loading into native Transformers HF classes; not a second modeling implementation"
+  },
+  "benchmark_counts": {
+    "recognition_extracted_images": 13000,
+    "recognition_extracted_slices": 10,
+    "recognition_probe_cells": 0,
+    "geometry_probe_cells": 0,
+    "correspondence_cells": 0,
+    "label_budget_cells": 0,
+    "perturbation_cells": 0,
+    "kitti_cells": 0,
+    "bootstrap_payloads": 0
+  },
+  "gpu": "Released; issue22 GPU0 feature extraction. Explicit regrant required.",
+  "timings": {
+    "recognition_extraction_seconds_approx": 200,
+    "recognition_images_per_second": 65.11
+  },
+  "remaining": [
+    "Full corrected benchmark inventory and paired controls",
+    "Actual measurement content validation and per-Stage deltas",
+    "Final figures and writeup",
+    "PR head/check status"
+  ],
+  "limitations": [
+    "No separate modeling file in pinned parent repository; HF reference implementation recorded by hash",
+    "No paper source present in repository",
+    "Original LICENSE whitespace preserved"
+  ]
+}

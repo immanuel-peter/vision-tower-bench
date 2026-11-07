@@ -61,8 +61,8 @@ All 10 hashed tensors differ. The Tower drifts more with depth, which fits conti
 - Full experiments: recognition extraction complete and content-validated, 13000 images x ten slices. No probe or correspondence measurement claimed complete.
 - GPU 0 explicitly released after recognition extraction. Await explicit parent regrant before any CUDA command.
 - Resumable full commands: /tmp/vtb-delivery/issues/21/run-suite.py. Use --category CATEGORY --list to inspect commands. GPU jobs are serial and hold flock for full process lifetime.
-- Regression: tests-regression-scoped.log has 130 passed, 48 skipped. Legacy MoonViT weight tests ignore VTB_SKIP_WEIGHTS and are excluded to avoid unrelated shard downloads. Figure tests await complete new results. Seven offline MiniMax tests pass; eight actual-weight tests passed before two additional provenance rejection tests were added.
-- Prepared inputs: imagenet-provenance.json verifies 13000 IDs and 100 labels. prepared-provenance.json verifies 2000 images x 13 conditions and 1000 KITTI images. DIODE/correspondence audit running.
+- Regression: tests-regression-scoped.log has 130 passed, 48 skipped. Legacy MoonViT weight tests ignore VTB_SKIP_WEIGHTS and are excluded to avoid unrelated shard downloads. Figure tests await complete new results. Seven offline MiniMax tests pass; ten actual-weight and provenance tests pass in tests-weights-final.log.
+- Prepared inputs: imagenet-provenance.json verifies 13000 IDs and 100 labels. prepared-provenance.json verifies 2000 images x 13 conditions and 1000 KITTI images. Actual pair selection in correspondence-selection.json verifies ScanNet1500, SPair3600, NAVI555 unique IDs and selected image files.
 - Writeup/index/roster/figure registration exists with explicit pending status; final per-Stage deltas and figure generation await actual measurements.
 - No paper source exists in this worktree; results writeup is the available paper-ready record.
 - Commit, push and separate non-draft PR remain pending. Never claim issue delivery complete before measurements and PR are ready.
