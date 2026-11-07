@@ -526,3 +526,12 @@ def test_primary_reducer_and_flags_stay_unstandardized():
     assert torch.equal(primary.basis, reference.basis)
     standardized = probe_run.fit_reducer(features, split, 4, standardize=True)
     assert type(standardized) is probe.StandardizedReducer
+
+
+def test_perturbation_runner_keeps_the_primary_reducer_by_default():
+    from scripts.perturbation_run import parser
+
+    base = ["--clean-run", "a", "--features-root", "b", "--model-dir", "c", "--labels", "d",
+            "--transform-manifest", "e", "--out", "f"]
+    assert parser().parse_args(base).standardize_channels is False
+    assert parser().parse_args(base + ["--standardize-channels"]).standardize_channels is True

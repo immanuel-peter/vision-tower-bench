@@ -58,6 +58,12 @@ def parser() -> argparse.ArgumentParser:
     ap.add_argument("--device", default="cuda")
     ap.add_argument("--learning-rates", type=float, nargs="+", default=list(probe_run.LEARNING_RATES))
     ap.add_argument("--resamples", type=int, default=10_000)
+    ap.add_argument(
+        "--standardize-channels",
+        action="store_true",
+        help="diagnostic only: scale channels to unit variance before the PCA, as in the "
+        "outlier-channel diagnostic; primary measurements never set this",
+    )
     return ap
 
 
@@ -78,7 +84,7 @@ def main() -> None:
         tokens, image_ids, meta = cache.load(args.clean_run, stage, layer)
         labels = torch.tensor([label_map[image_id] for image_id in image_ids])
         split = probe_run.split_indices(len(image_ids))
-        reducer = probe_run.fit_reducer(tokens.float(), split, args.width)
+        reducer = probe_run.fit_reducer(tokens.float(), split, args.width, args.standardize_channels)
         clean = reducer(tokens.float())
 
         search = {}
