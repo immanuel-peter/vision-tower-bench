@@ -144,12 +144,15 @@ def selected_slices(
     ]
 
 
-def fit_reducer(features: torch.Tensor, split: Split, width: int) -> probe.Reducer:
+def fit_reducer(
+    features: torch.Tensor, split: Split, width: int, standardize: bool = False
+) -> probe.Reducer | probe.StandardizedReducer:
     # torch.svd_lowrank is randomized. Seed it per cell without changing the RNG state
     # used by the readout, so a --depth-points invocation matches a matrix invocation.
+    reducer = probe.StandardizedReducer if standardize else probe.Reducer
     with torch.random.fork_rng(devices=[]):
         torch.random.default_generator.manual_seed(0)
-        return probe.Reducer.fit(features[split.train], width)
+        return reducer.fit(features[split.train], width)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -164,6 +167,12 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="fit a frozen PCA reduction to --width first, so every cell trains the same "
         "number of parameters regardless of token width",
+    )
+    parser.add_argument(
+        "--standardize-channels",
+        action="store_true",
+        help="diagnostic only: scale channels to unit variance before the --match-capacity PCA, "
+        "as in the outlier-channel diagnostic; primary measurements never set this",
     )
     parser.add_argument("--epochs", type=int, default=20)
     parser.add_argument("--batch-size", type=int, default=256)
@@ -201,6 +210,8 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main() -> None:
     args = build_parser().parse_args()
+    if args.standardize_channels and not args.match_capacity:
+        raise SystemExit("--standardize-channels only changes the --match-capacity reduction")
 
     label_map = json.loads(args.labels.read_text())["labels"]
     num_classes = len(set(label_map.values()))
@@ -216,7 +227,7 @@ def main() -> None:
 
         features = tokens.float()
         if args.match_capacity:
-            reducer = fit_reducer(features, split, args.width)
+            reducer = fit_reducer(features, split, args.width, args.standardize_channels)
             features = reducer(features)
 
         result = run_cell(features, labels, split, num_classes, args)

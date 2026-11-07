@@ -47,6 +47,32 @@ class Reducer:
         return cls(basis=v[:, :width].contiguous(), mean=mean)
 
 
+@dataclass(frozen=True)
+class StandardizedReducer:
+    """Diagnostic reducer: scale each channel to unit variance before the PCA.
+
+    Reproduces r2:vtb/backups/v3/2026-10-19/proposed/reducer-channel-standardization.patch
+    (SHA256 f5a2bc1dcda0e6be9a2d6abea9c1bcc9cb5817282ff6406489b5022dc65e330a), which
+    produced the standardized label-budget runs under
+    results/diagnostics/mimo26-tower-outlier-channel/. Primary measurements keep Reducer.
+    """
+
+    basis: torch.Tensor
+    mean: torch.Tensor
+    scale: torch.Tensor
+
+    def __call__(self, tokens: torch.Tensor) -> torch.Tensor:
+        return ((tokens - self.mean) / self.scale) @ self.basis
+
+    @classmethod
+    def fit(cls, tokens: torch.Tensor, width: int, oversample: int = 16) -> "StandardizedReducer":
+        flat = tokens.reshape(-1, tokens.shape[-1]).float()
+        mean = flat.mean(dim=0, keepdim=True)
+        scale = flat.std(dim=0, keepdim=True).clamp_min(1e-6)
+        _, _, v = torch.svd_lowrank((flat - mean) / scale, q=min(width + oversample, min(flat.shape)))
+        return cls(basis=v[:, :width].contiguous(), mean=mean, scale=scale)
+
+
 def build(kind: str, dim: int, num_classes: int, width: int = 512) -> nn.Module:
     if kind == "attention":
         return AttentionPool(dim, num_classes, width)
