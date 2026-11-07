@@ -28,6 +28,7 @@ Four capability axes:
 | Kimi K3 | multimodal | [immanuelpeter/MoonViT-V2](https://huggingface.co/immanuelpeter/MoonViT-V2) |
 | Gemma 4 31B | multimodal | [immanuelpeter/Gemma4-31B-Vision](https://huggingface.co/immanuelpeter/Gemma4-31B-Vision) |
 | GLM-5.3 Flash | multimodal | [immanuelpeter/GLM-5.3-Flash-Vision](https://huggingface.co/immanuelpeter/GLM-5.3-Flash-Vision) |
+| MiniMax M3.1 Flash | multimodal, validation complete; benchmarks pending | [immanuelpeter/MiniMax-M3.1-Flash-Vision](https://huggingface.co/immanuelpeter/MiniMax-M3.1-Flash-Vision) |
 | MiniMax M3 | multimodal | [immanuelpeter/MiniMax-M3-Vision](https://huggingface.co/immanuelpeter/MiniMax-M3-Vision) |
 | Nemotron 3 Nano Omni | multimodal | [immanuelpeter/C-RADIOv4-H-3-Omni](https://huggingface.co/immanuelpeter/C-RADIOv4-H-3-Omni) |
 | Nemotron 3.5 Super VL | multimodal | [immanuelpeter/C-RADIOv4-H-3.5-Super](https://huggingface.co/immanuelpeter/C-RADIOv4-H-3.5-Super) |
@@ -92,4 +93,4 @@ VTB_SKIP_WEIGHTS=1 uv run pytest -q   # 135 tests, no downloads
 
 ## License
 
-MIT covers code and results here, not weights. Published Towers keep parent terms. Apache-2.0 for Qwen3.8, Muse Glimmer, and Gemma 4. MIT for GLM-5.3 Flash and DeepSeek-ViT. Kimi License for both Kimi Towers. NVIDIA Open Model Agreement for C-RADIOv4-H-3-Omni. OpenMDW-1.1 for C-RADIOv4-H-3.5 Super and Bolt. MIT for MiMoViT-2.6 Pro and Flash. MiniMax Community License for MiniMax M3. Each release ships its license.
+MIT covers code and results here, not weights. Published Towers keep parent terms. Apache-2.0 for Qwen3.8, Muse Glimmer, and Gemma 4. MIT for GLM-5.3 Flash and DeepSeek-ViT. Kimi License for both Kimi Towers. NVIDIA Open Model Agreement for C-RADIOv4-H-3-Omni. OpenMDW-1.1 for C-RADIOv4-H-3.5 Super and Bolt. MIT for MiMoViT-2.6 Pro and Flash. MiniMax Community License for MiniMax M3 and M3.1 Flash. Each release ships its license.

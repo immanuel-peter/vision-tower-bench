@@ -1,0 +1,223 @@
+{
+  "issue": 21,
+  "resolution": 448,
+  "gpu": {
+    "physical": 0,
+    "logical": "cuda:0",
+    "lock": "/tmp/vtb-delivery/locks/gpu0.lock"
+  },
+  "checkpoints": {
+    "minimax_m3": "f0e1c1e04d40177e4673a22097036854f536e9c0",
+    "minimax_m31_flash": "54e4e69dfc452b1e94a426c24a4fdeeaa8e3ad5e"
+  },
+  "slices": [
+    [
+      "tower",
+      4
+    ],
+    [
+      "tower",
+      8
+    ],
+    [
+      "tower",
+      12
+    ],
+    [
+      "tower",
+      16
+    ],
+    [
+      "tower",
+      20
+    ],
+    [
+      "tower",
+      24
+    ],
+    [
+      "tower",
+      28
+    ],
+    [
+      "tower",
+      32
+    ],
+    [
+      "merged",
+      32
+    ],
+    [
+      "projected",
+      32
+    ]
+  ],
+  "recognition": {
+    "cells": 40,
+    "readouts": [
+      "attention",
+      "mean"
+    ],
+    "arms": [
+      "raw",
+      "matched"
+    ],
+    "learning_rates": [
+      1e-05,
+      3e-05,
+      0.0001,
+      0.0003,
+      0.001,
+      0.003,
+      0.01,
+      0.03,
+      0.1,
+      0.3,
+      1
+    ],
+    "seeds": [
+      0,
+      1,
+      2
+    ],
+    "epochs": 20,
+    "pool": [
+      4,
+      4
+    ],
+    "lr_search_seeds": [
+      0
+    ],
+    "selected_lr_retrain_seeds": [
+      0,
+      1,
+      2
+    ]
+  },
+  "geometry": {
+    "cells": 40,
+    "tasks": [
+      "depth",
+      "normal"
+    ],
+    "arms": [
+      "raw",
+      "matched"
+    ],
+    "learning_rates": [
+      0.0001,
+      0.0003,
+      0.001,
+      0.003,
+      0.01,
+      0.03
+    ],
+    "epochs": 10,
+    "seeds": [
+      0,
+      1,
+      2
+    ],
+    "tokens": "full",
+    "lr_search_seeds": [
+      0
+    ],
+    "selected_lr_retrain_seeds": [
+      0,
+      1,
+      2
+    ]
+  },
+  "correspondence": {
+    "datasets": [
+      "navi",
+      "scannet",
+      "spair"
+    ],
+    "stages": [
+      "tower",
+      "merged",
+      "projected"
+    ],
+    "cells": 9,
+    "tokens": "full"
+  },
+  "label_budget": {
+    "cells": 8,
+    "fractions": [
+      0.01,
+      0.05,
+      0.2,
+      1
+    ],
+    "readouts": [
+      "attention",
+      "mean"
+    ],
+    "arms": [
+      "matched"
+    ],
+    "slice": [
+      "tower",
+      32
+    ],
+    "lr_search_seeds": [
+      0
+    ],
+    "selected_lr_retrain_seeds": [
+      0,
+      1,
+      2
+    ]
+  },
+  "perturbation": {
+    "conditions": 13,
+    "stages": [
+      "tower",
+      "merged",
+      "projected"
+    ],
+    "cells": 39
+  },
+  "throughput": {
+    "resolution": 448
+  },
+  "kitti": {
+    "stages": [
+      "tower",
+      "projected"
+    ],
+    "task": "depth",
+    "arm": "matched"
+  },
+  "bootstrap": {
+    "within_flash": [
+      "recognition",
+      "depth",
+      "normal",
+      "navi",
+      "scannet",
+      "spair",
+      "perturbation",
+      "kitti"
+    ],
+    "sibling": [
+      "recognition",
+      "depth",
+      "normal",
+      "navi",
+      "scannet",
+      "spair",
+      "perturbation",
+      "kitti"
+    ],
+    "stages": [
+      "tower",
+      "merged",
+      "projected"
+    ],
+    "points": "same paired runs only"
+  },
+  "reuse_policy": "No baseline reuse until sample IDs, splits, seeds and checkpoint identity are audited.",
+  "protocol_note": "Current corrected runner defaults; seed-0 LR search then selected LR retraining with three seeds."
+}

@@ -166,3 +166,10 @@ Matrix scripts accept an output directory. Use `results/recognition/` for
 runs in a separate directory when a protocol changes, and update the index with
 the correction's scope. JSON, JSONL, and TSV measurements remain in Git so a
 clone contains the evidence needed to inspect the figures.
+
+MiniMax M3.1 Flash is registered as a training-only sibling comparison with M3.
+Its [validation report](diagnostics/minimax-m31-flash/README.md) includes every
+Tower and Projector tensor, per-layer drift summaries and the nominal image-size
+check. The standalone release is pinned at
+`75a5fc5bba7cfb01cfcf15072a9d823714e54121`. Full capability measurements are
+pending; validation does not establish a per-Stage performance delta.

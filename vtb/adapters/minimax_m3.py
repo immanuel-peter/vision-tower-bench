@@ -1,9 +1,11 @@
+import os
 from collections.abc import Iterator
 from dataclasses import dataclass, field
 from json import loads
 from pathlib import Path
 
 import torch
+from huggingface_hub import hf_hub_download
 from safetensors.torch import load_file
 from torch import nn
 from torchvision import transforms
@@ -20,16 +22,33 @@ from vtb.feature_batch import FeatureBatch
 from vtb.images import square_crop
 from vtb.shards import load_prefixed
 
-MODEL_ID = "immanuelpeter/MiniMax-M3-Vision"
-BUNDLE = Path(__file__).resolve().parents[2] / "hf/MiniMax-M3-Vision"
+ROOT = Path(__file__).resolve().parents[2]
 
-SOURCE_REPO = "MiniMaxAI/MiniMax-M3"
-SOURCE_REVISION = "f0e1c1e04d40177e4673a22097036854f536e9c0"
-VISION_SHARD = "model-00059-of-00059.safetensors"
-PROJECTOR_SHARDS = (
-    "model-00026-of-00059.safetensors",
-    "model-00059-of-00059.safetensors",
-)
+
+@dataclass(frozen=True)
+class Checkpoint:
+    name: str
+    model_id: str
+    repo: str
+    revision: str
+
+    @property
+    def release_dir(self) -> Path:
+        return ROOT / "hf" / self.model_id.split("/")[-1]
+
+    @property
+    def bundle(self) -> Path:
+        override = os.environ.get(f"VTB_{self.name.upper()}_BUNDLE")
+        return Path(override) if override else self.release_dir
+
+
+M3 = Checkpoint("minimax_m3", "immanuelpeter/MiniMax-M3-Vision",
+               "MiniMaxAI/MiniMax-M3", "f0e1c1e04d40177e4673a22097036854f536e9c0")
+FLASH = Checkpoint("minimax_m31_flash", "immanuelpeter/MiniMax-M3.1-Flash-Vision",
+                  "MiniMaxAI/MiniMax-M3.1-Flash", "54e4e69dfc452b1e94a426c24a4fdeeaa8e3ad5e")
+CHECKPOINTS = {item.name: item for item in (M3, FLASH)}
+MODEL_ID, BUNDLE = M3.model_id, M3.bundle
+SOURCE_REPO, SOURCE_REVISION = M3.repo, M3.revision
 TOWER_PREFIX = "vision_tower.vision_model."
 PROJECTOR_PREFIX = "multi_modal_projector."
 MERGE_MLP_PREFIX = "patch_merge_mlp."
@@ -109,24 +128,37 @@ def merge_2x2(tokens: torch.Tensor) -> torch.Tensor:
     return blocks.permute(0, 1, 3, 2, 4, 5).reshape(rows, -1, MERGE_SIZE * MERGE_SIZE * width)
 
 
-def load_source_parts(dtype: torch.dtype = torch.bfloat16) -> tuple[MiniMaxM3VLVisionModel, nn.Module]:
-    config = MiniMaxM3VLConfig.from_pretrained(SOURCE_REPO, revision=SOURCE_REVISION)
+def source_json(checkpoint: Checkpoint, filename: str) -> dict:
+    return loads(Path(hf_hub_download(checkpoint.repo, filename, revision=checkpoint.revision)).read_text())
+
+
+def source_weights(checkpoint: Checkpoint) -> tuple[dict, dict]:
+    index = source_json(checkpoint, "model.safetensors.index.json")["weight_map"]
+
+    def read(prefix):
+        selected = {name: shard for name, shard in index.items() if name.startswith(prefix)}
+        if not selected:
+            raise ValueError(f"no {prefix} tensors in pinned index")
+        weights = load_prefixed(checkpoint.repo, sorted(set(selected.values())), prefix, revision=checkpoint.revision)
+        if {prefix + name for name in weights} != set(selected):
+            raise ValueError(f"incomplete {checkpoint.name} {prefix} state")
+        return weights
+
+    tower = remap_tower(read(TOWER_PREFIX))
+    projector = remap_projector(read(PROJECTOR_PREFIX), read(MERGE_MLP_PREFIX))
+    if len(tower) != 515 or len(projector) != 8:
+        raise ValueError(f"expected 515 Tower and 8 Projector tensors, got {len(tower)}, {len(projector)}")
+    return tower, projector
+
+
+def load_source_parts(dtype: torch.dtype = torch.bfloat16, checkpoint: Checkpoint = M3):
+    config = MiniMaxM3VLConfig.from_pretrained(checkpoint.repo, revision=checkpoint.revision)
+    tower_weights, projector_weights = source_weights(checkpoint)
     tower = MiniMaxM3VLVisionModel._from_config(config.vision_config, dtype=dtype)
-    tower.load_state_dict({
-        name: tensor.to(dtype)
-        for name, tensor in remap_tower(
-            load_prefixed(SOURCE_REPO, [VISION_SHARD], TOWER_PREFIX, revision=SOURCE_REVISION)
-        ).items()
-    })
-    projector = MiniMaxM3VLMultiModalProjector(config)
-    projector.load_state_dict({
-        name: tensor.to(dtype)
-        for name, tensor in remap_projector(
-            load_prefixed(SOURCE_REPO, list(PROJECTOR_SHARDS), PROJECTOR_PREFIX, revision=SOURCE_REVISION),
-            load_prefixed(SOURCE_REPO, list(PROJECTOR_SHARDS), MERGE_MLP_PREFIX, revision=SOURCE_REVISION),
-        ).items()
-    })
-    return tower.eval(), projector.to(dtype).eval()
+    tower.load_state_dict({name: tensor.to(dtype) for name, tensor in tower_weights.items()}, strict=True)
+    projector = MiniMaxM3VLMultiModalProjector(config).to(dtype)
+    projector.load_state_dict({name: tensor.to(dtype) for name, tensor in projector_weights.items()}, strict=True)
+    return tower.eval(), projector.eval()
 
 
 def projector_from_settings(settings: dict, dtype: torch.dtype) -> nn.Module:
@@ -142,29 +174,38 @@ def projector_from_settings(settings: dict, dtype: torch.dtype) -> nn.Module:
     return projector.to(dtype).eval()
 
 
-def load_parts(dtype: torch.dtype) -> tuple[MiniMaxM3VLVisionModel, nn.Module]:
-    if (BUNDLE / "model.safetensors").exists():
-        config = MiniMaxM3VLVisionConfig.from_pretrained(BUNDLE)
+def load_parts(dtype: torch.dtype, checkpoint: Checkpoint = M3, bundle: Path | None = None) -> tuple[MiniMaxM3VLVisionModel, nn.Module]:
+    bundle = checkpoint.bundle if bundle is None else bundle
+    if (bundle / "model.safetensors").exists():
+        manifest = bundle / "export_manifest.json"
+        if checkpoint == FLASH and not manifest.is_file():
+            raise ValueError("Flash bundles require export_manifest.json checkpoint provenance")
+        if manifest.exists():
+            provenance = loads(manifest.read_text())
+            if (provenance["source_repo"], provenance["source_revision"]) != (checkpoint.repo, checkpoint.revision):
+                raise ValueError(f"bundle provenance does not match {checkpoint.name}")
+        config = MiniMaxM3VLVisionConfig.from_pretrained(bundle, local_files_only=True)
         tower = MiniMaxM3VLVisionModel._from_config(config, dtype=dtype)
         tower.load_state_dict({
-            name: tensor.to(dtype) for name, tensor in load_file(BUNDLE / "model.safetensors").items()
+            name: tensor.to(dtype) for name, tensor in load_file(bundle / "model.safetensors").items()
         })
-        settings = loads((BUNDLE / "projector_config.json").read_text())
+        settings = loads((bundle / "projector_config.json").read_text())
         projector = projector_from_settings(settings, dtype)
         projector.load_state_dict({
-            name: tensor.to(dtype) for name, tensor in load_file(BUNDLE / "projector.safetensors").items()
+            name: tensor.to(dtype) for name, tensor in load_file(bundle / "projector.safetensors").items()
         })
         return tower.eval(), projector.to(dtype).eval()
-    return load_source_parts(dtype)
+    return load_source_parts(dtype, checkpoint)
 
 
-class MiniMaxM3Adapter:
-    model_id = MODEL_ID
+class MiniMaxAdapter:
+    checkpoint = M3
     stages = ("tower", "merged", "projected")
     collate = staticmethod(collate)
 
-    def __init__(self, resolution: int = 448, dtype=torch.bfloat16, device: str = "mps"):
-        tower, projector = load_parts(dtype)
+    def __init__(self, resolution: int = 448, dtype=torch.bfloat16, device: str = "mps", *, bundle: Path | None = None):
+        tower, projector = load_parts(dtype, self.checkpoint, bundle)
+        self.model_id = self.checkpoint.model_id
         self.model = tower.to(device)
         self.projector = projector.to(device)
         self.resolution = resolution
@@ -230,3 +271,11 @@ class MiniMaxM3Adapter:
             num_layers=self.num_layers,
             resolution=self.resolution,
         )
+
+
+class MiniMaxM3Adapter(MiniMaxAdapter):
+    checkpoint = M3
+
+
+class MiniMaxM31FlashAdapter(MiniMaxAdapter):
+    checkpoint = FLASH

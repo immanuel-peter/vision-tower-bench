@@ -15,7 +15,7 @@ FIGURE_SCRIPT = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(FIGURE_SCRIPT)
 
 
-def test_roster_covers_the_sixteen_tower_suite():
+def test_roster_covers_the_seventeen_tower_suite():
     assert FIGURE_SCRIPT.TOWERS == (
         "dinov2",
         "siglip2",
@@ -28,6 +28,7 @@ def test_roster_covers_the_sixteen_tower_suite():
         "gemma4",
         "moonvit_v2",
         "minimax_m3",
+        "minimax_m31_flash",
         "nemotron35_super",
         "nemotron35_bolt",
         "dinov3",

@@ -92,41 +92,12 @@ def test_glm5_tower_matches_parent_checkpoint():
     assert_bit_exact(loaded, checkpoint_weights, 347)
 
 
-def test_minimax_m3_tower_and_projector_match_parent_checkpoint():
-    tower, projector = minimax_m3.load_source_parts(torch.bfloat16)
-    checkpoint_weights = minimax_m3.remap_tower(
-        load_prefixed(
-            minimax_m3.SOURCE_REPO,
-            [minimax_m3.VISION_SHARD],
-            minimax_m3.TOWER_PREFIX,
-            revision=minimax_m3.SOURCE_REVISION,
-        )
-    )
-    loaded = {k: v for k, v in tower.state_dict().items() if k in checkpoint_weights}
-    assert set(loaded) == set(checkpoint_weights)
-    assert len(checkpoint_weights) == 515
-    for name, weight in checkpoint_weights.items():
-        assert torch.equal(loaded[name], weight.to(loaded[name].dtype)), name
-
-    checkpoint_weights = minimax_m3.remap_projector(
-        load_prefixed(
-            minimax_m3.SOURCE_REPO,
-            list(minimax_m3.PROJECTOR_SHARDS),
-            minimax_m3.PROJECTOR_PREFIX,
-            revision=minimax_m3.SOURCE_REVISION,
-        ),
-        load_prefixed(
-            minimax_m3.SOURCE_REPO,
-            list(minimax_m3.PROJECTOR_SHARDS),
-            minimax_m3.MERGE_MLP_PREFIX,
-            revision=minimax_m3.SOURCE_REVISION,
-        ),
-    )
-    loaded = {k: v for k, v in projector.state_dict().items() if k in checkpoint_weights}
-    assert set(loaded) == set(checkpoint_weights)
-    assert len(checkpoint_weights) == 8
-    for name, weight in checkpoint_weights.items():
-        assert torch.equal(loaded[name], weight.to(loaded[name].dtype)), name
+@pytest.mark.parametrize("checkpoint", [minimax_m3.M3, minimax_m3.FLASH])
+def test_minimax_tower_and_projector_match_parent_checkpoint(checkpoint):
+    tower, projector = minimax_m3.load_parts(torch.bfloat16, checkpoint)
+    tower_weights, projector_weights = minimax_m3.source_weights(checkpoint)
+    assert_bit_exact(tower.state_dict(), {k: v.to(torch.bfloat16) for k, v in tower_weights.items()}, 515)
+    assert_bit_exact(projector.state_dict(), {k: v.to(torch.bfloat16) for k, v in projector_weights.items()}, 8)
 
 
 def test_nemotron_omni_tower_and_projector_match_parent_checkpoint():

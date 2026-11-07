@@ -29,6 +29,7 @@ TOWERS: tuple[str, ...] = (
     "gemma4",
     "moonvit_v2",
     "minimax_m3",
+    "minimax_m31_flash",
     "nemotron35_super",
     "nemotron35_bolt",
     "dinov3",
@@ -48,7 +49,7 @@ OUTLIER_NOTE = (
 )
 PALETTE: tuple[str, ...] = (
     "#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b",
-    "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#393b79",
+    "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#393b79", "#9e9ac8",
     "#637939", "#b5cf6b", "#6baed6", "#843c39", "#d6616b",
 )
 COLOUR: dict[str, str] = dict(zip(TOWERS, PALETTE, strict=True))
@@ -66,6 +67,7 @@ DISPLAY: dict[str, str] = {
     "gemma4": "Gemma 4",
     "moonvit_v2": "Kimi K3",
     "minimax_m3": "MiniMax M3",
+    "minimax_m31_flash": "MiniMax M3.1 Flash",
     "nemotron35_super": "Nemotron 3.5 Super",
     "nemotron35_bolt": "Nemotron 3.5 Bolt",
     "dinov3": "DINOv3",
