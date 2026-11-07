@@ -2,71 +2,67 @@
 license: other
 license_name: qwen-community-1.0
 license_link: LICENSE
+pipeline_tag: image-feature-extraction
 library_name: transformers
 tags:
 - vision
-- feature-extraction
-- qwen3_5
-base_model: Qwen/Qwen3.8-Flash-Next
+base_model:
+- Qwen/Qwen3.8-Flash-Next
 ---
 
 # Qwen3.8-Flash-Next Vision
 
-Standalone Tower and Projector extracted from
-[Qwen/Qwen3.8-Flash-Next](https://huggingface.co/Qwen/Qwen3.8-Flash-Next/tree/de4b8e4d43b917e7706784d8bb445c9af86a3540).
-The source revision is `de4b8e4d43b917e7706784d8bb445c9af86a3540`.
-The 333 `model.visual.*` tensors are copied exactly in BF16, with the prefix removed.
+This repository packages the Tower and learned merger from
+[Qwen3.8-Flash-Next](https://huggingface.co/Qwen/Qwen3.8-Flash-Next).
 
-The Tower has 27 blocks, width 1152, 16 attention heads, 16-pixel patches,
-two-frame temporal patches, and 2 by 2 spatial merging. The Projector input is
-4608 wide and its output is 2560 wide.
+## Contents
 
-The release uses `Qwen3_5VisionModel`. The source config's `model_type` is
-rewritten to `qwen3_5_vision` and `out_hidden_size` is set to 2560. No tensor is
-reshaped or initialized. Strict loading confirms that the model requires no
-additional persistent buffer.
+| File | Tensors | What it holds |
+|---|---|---|
+| `model.safetensors` | 333 | BF16 Tower and in-model learned merger |
+| `config.json` | | Vision-only Transformers configuration |
+| `preprocessor_config.json` | | Image preprocessing configuration |
+| `examples/inference.py` | | Single-image extraction example |
+| `export_manifest.json` | | Pinned source, component counts and file SHA256s |
+| `LICENSE` | | Qwen Community License 1.0 |
+| `README.md`, `.gitattributes` | | Model card and Hub storage metadata |
 
-## Load
+The merger lives inside `Qwen3_5VisionModel`; no separate Projector file is needed.
 
-```python
-import torch
-from transformers import AutoModel, AutoImageProcessor
+## Architecture
 
-model = AutoModel.from_pretrained(
-    "immanuelpeter/Qwen3.8-Flash-Next-Vision", dtype=torch.bfloat16
-).eval()
-processor = AutoImageProcessor.from_pretrained(
-    "immanuelpeter/Qwen3.8-Flash-Next-Vision"
-)
+| Component | Details at a 448-pixel square input |
+|---|---|
+| Tower | 27 blocks, width 1152, 16 heads, 16-pixel patches; `(1, 784, 1152)` |
+| Merged | 2x2 spatial grouping; `(1, 196, 4608)` |
+| Projector | LayerNorm, linear, GELU, linear; `(1, 196, 2560)` |
+
+## Usage
+
+With PyTorch, Pillow, torchvision and Transformers 5.17 or later installed, run
+[`examples/inference.py`](examples/inference.py) on one image from this repository's downloaded snapshot:
+
+```bash
+python examples/inference.py test-image.jpg
 ```
 
-Use an immutable release revision for reproducible experiments.
-`last_hidden_state` contains Tower tokens in the parent's merge-block order.
-`pooler_output` contains projected tokens. The bench adapter restores Tower
-tokens to raster order and groups final Tower tokens into the 4608-wide
-`merged` Stage. The bench uses a 448-pixel square crop and normalization with
-mean and standard deviation 0.5. Parent processor dynamic resizing is separate.
+The example uses CUDA BF16 when available, crops to 448 pixels, and prints all three shapes.
+It loads the snapshot with `AutoModel` and `AutoImageProcessor`.
 
 ## Validation
 
-All 333 release tensors match the pinned parent exactly. Independent forward
-validation uses the parent's `Qwen4ExpVisionModel`, its original config and its
-pinned source tensors. At 96 and 448 pixels, two fixed random images match
-exactly in CPU FP32, CPU BF16 and CUDA BF16. All eight Tower depths, the merged
-Stage and the projected Stage match with `rtol=0` and `atol=0`.
-The release also loads independently through `AutoModel`.
+All 333 tensors equal the pinned parent; fixed-image outputs match its vision implementation.
+[Validation and provenance](https://github.com/immanuel-peter/vision-tower-bench/tree/t3/qwen-flash-vision-compatibility/results/evidence/qwen38-flash-next) are retained in the bench.
 
-Validation used Transformers 5.17.0. Source-code hashes, image hashes and
-per-tensor identity are recorded with the bench's issue 22 evidence.
-Run `python -m scripts.validate_qwen38_flash_next --out parity.json` from
-[vision-tower-bench](https://github.com/immanuel-peter/vision-tower-bench).
+## Reproduction
 
-All 331 shared-shaped tensors differ from the pinned Qwen3.8-27B checkpoint.
-Tower and merged Stage comparisons isolate weight changes. Projected Stage
-comparisons also change output width, from 5120 to 2560.
+The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/t3/qwen-flash-vision-compatibility/scripts/export_qwen3_8_vision.py)
+uses `--checkpoint qwen38_flash_next` and reads only the indexed vision shard at the pinned revision.
+
+## Credits
+
+Qwen released the weights and the original vision implementation.
 
 ## License
 
-The weights retain the parent's Qwen Community License 1.0, copied verbatim in
-[LICENSE](LICENSE). These weights are licensed under qwen-community-1.0.
-
+[Qwen Community License 1.0](LICENSE), retained from the parent checkpoint.

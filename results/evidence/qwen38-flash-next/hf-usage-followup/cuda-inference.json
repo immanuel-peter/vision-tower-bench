@@ -1,0 +1,46 @@
+{
+  "repo": "immanuelpeter/Qwen3.8-Flash-Next-Vision",
+  "hf_revision": "2ba22b3e25ad94207418df9809d8b707eef9ded3",
+  "snapshot": "/tmp/vtb-delivery/hf-followup/22/fresh-cache/hub/models--immanuelpeter--Qwen3.8-Flash-Next-Vision/snapshots/2ba22b3e25ad94207418df9809d8b707eef9ded3",
+  "command": "python examples/inference.py test-image.jpg",
+  "cwd": "/tmp/vtb-delivery/hf-followup/22/fresh-cache/hub/models--immanuelpeter--Qwen3.8-Flash-Next-Vision/snapshots/2ba22b3e25ad94207418df9809d8b707eef9ded3",
+  "device": "cuda:0",
+  "physical_gpu": 0,
+  "gpu": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+  "dtype": "bfloat16",
+  "batch_size": 1,
+  "lock": "/tmp/vtb-delivery/locks/gpu0.lock",
+  "image": "/tmp/vtb-delivery/data/imagenet100/validation/validation_000000.jpg",
+  "image_sha256": "dc4d456ce66cf18cc246831b3fe8b54133b507de981490a29f1623d86ddbeae3",
+  "image_original_size": [
+    500,
+    334
+  ],
+  "processed_size": [
+    448,
+    448
+  ],
+  "shapes": {
+    "tower": [
+      1,
+      784,
+      1152
+    ],
+    "merged": [
+      1,
+      196,
+      4608
+    ],
+    "projected": [
+      1,
+      196,
+      2560
+    ]
+  },
+  "returncode": 0,
+  "passed": true,
+  "elapsed_seconds": 4.2707032520047505,
+  "inline_snippets": "No inline Python snippet; the card shell command was executed verbatim. The example executes AutoModel and AutoImageProcessor.",
+  "timestamp": "2026-11-07T23:34:20.069446+00:00",
+  "fresh_download_file_hashes_pass": true
+}

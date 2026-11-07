@@ -1,0 +1,80 @@
+{
+  "before": {
+    "lines": 72,
+    "words": 343
+  },
+  "after": {
+    "lines": 68,
+    "words": 287,
+    "headings": 8
+  },
+  "files_added": [
+    "examples/inference.py",
+    ".gitattributes (local copy of existing HF metadata)"
+  ],
+  "files_modified": [
+    "README.md",
+    "export_manifest.json"
+  ],
+  "files_moved": [],
+  "files_renamed": [],
+  "weight_files_uploaded": false,
+  "weight_sha256": "cc4fb365b3b086e7c73264c40b18705b80c16b1c8199222565c70806136fbb78",
+  "manifest_schema": {
+    "tower_tensors": 327,
+    "projector_tensors": 6,
+    "in_model_merger": true,
+    "all_file_hashes": true,
+    "self_hash_excluded": "export_manifest.json"
+  },
+  "hf_revision": "2ba22b3e25ad94207418df9809d8b707eef9ded3",
+  "fresh_download_cuda_example": {
+    "repo": "immanuelpeter/Qwen3.8-Flash-Next-Vision",
+    "hf_revision": "2ba22b3e25ad94207418df9809d8b707eef9ded3",
+    "snapshot": "/tmp/vtb-delivery/hf-followup/22/fresh-cache/hub/models--immanuelpeter--Qwen3.8-Flash-Next-Vision/snapshots/2ba22b3e25ad94207418df9809d8b707eef9ded3",
+    "command": "python examples/inference.py test-image.jpg",
+    "cwd": "/tmp/vtb-delivery/hf-followup/22/fresh-cache/hub/models--immanuelpeter--Qwen3.8-Flash-Next-Vision/snapshots/2ba22b3e25ad94207418df9809d8b707eef9ded3",
+    "device": "cuda:0",
+    "physical_gpu": 0,
+    "gpu": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+    "dtype": "bfloat16",
+    "batch_size": 1,
+    "lock": "/tmp/vtb-delivery/locks/gpu0.lock",
+    "image": "/tmp/vtb-delivery/data/imagenet100/validation/validation_000000.jpg",
+    "image_sha256": "dc4d456ce66cf18cc246831b3fe8b54133b507de981490a29f1623d86ddbeae3",
+    "image_original_size": [
+      500,
+      334
+    ],
+    "processed_size": [
+      448,
+      448
+    ],
+    "shapes": {
+      "tower": [
+        1,
+        784,
+        1152
+      ],
+      "merged": [
+        1,
+        196,
+        4608
+      ],
+      "projected": [
+        1,
+        196,
+        2560
+      ]
+    },
+    "returncode": 0,
+    "passed": true,
+    "elapsed_seconds": 4.2707032520047505,
+    "inline_snippets": "No inline Python snippet; the card shell command was executed verbatim. The example executes AutoModel and AutoImageProcessor.",
+    "timestamp": "2026-11-07T23:34:20.069446+00:00",
+    "fresh_download_file_hashes_pass": true
+  },
+  "cpu_regression": "162 passed,50 expected skips",
+  "benchmark_methods_or_scores_changed": false,
+  "pr": "https://github.com/immanuel-peter/vision-tower-bench/pull/27"
+}
