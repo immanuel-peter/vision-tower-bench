@@ -147,3 +147,9 @@ figures regenerated, and the sibling interval figure passed a visual check.
 `final-validation.json` records source selection, preserved historical payloads,
 license/patch/runner hashes, and the secrets scan. Original failed validator and
 stale figure-test reports remain beside the corrected passing evidence.
+
+The adapter loads the local exported bundle when present and otherwise the pinned
+standalone Hub release, including offline cached snapshots. Parent-shard
+reconstruction is reserved for explicit export and source-validation tooling.
+The loading regression found during review has four mocked local/Hub cases;
+the complete CPU suite passes with 160 tests and 50 expected weight skips.

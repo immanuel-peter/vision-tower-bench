@@ -1,3 +1,5 @@
+from types import SimpleNamespace
+
 import pytest
 import torch
 from transformers import Qwen3_5VisionConfig, Qwen3_5VisionModel
@@ -50,3 +52,33 @@ def test_invalid_resolution_fails_before_model_load(resolution):
     with pytest.raises(ValueError, match="multiple of 32"):
         qwen.Preprocess(resolution)
 
+
+
+@pytest.mark.parametrize("checkpoint", qwen.CHECKPOINTS.values())
+@pytest.mark.parametrize("local", [False, True])
+def test_adapter_loads_standalone_bundle_without_parent_access(monkeypatch, tmp_path, checkpoint, local):
+    bundle = tmp_path / "bundle"
+    monkeypatch.setenv(f"VTB_{checkpoint.name.upper()}_BUNDLE", str(bundle))
+    monkeypatch.setenv("HF_HUB_OFFLINE", "1")
+    if local:
+        bundle.mkdir()
+        (bundle / "model.safetensors").touch()
+    model = torch.nn.Identity()
+    model.config = SimpleNamespace(out_hidden_size=checkpoint.out_hidden_size)
+    calls = []
+
+    def load(location, **kwargs):
+        calls.append((location, kwargs))
+        return model
+
+    def unexpected_source(*args, **kwargs):
+        pytest.fail("adapter must not reconstruct from the parent checkpoint")
+
+    monkeypatch.setattr(qwen.AutoModel, "from_pretrained", load)
+    monkeypatch.setattr(qwen, "load_source_tower", unexpected_source)
+    assert qwen.load_tower(torch.bfloat16, checkpoint) is model
+    if local:
+        assert calls == [(bundle, {"dtype": torch.bfloat16, "local_files_only": True})]
+    else:
+        assert calls == [(checkpoint.model_id, {"revision": checkpoint.release_revision,
+                                               "dtype": torch.bfloat16})]
