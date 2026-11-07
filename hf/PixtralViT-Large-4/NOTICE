@@ -1,0 +1,15 @@
+Attribution notice: 2026 - Mistral
+
+Weights: mistralai/Mistral-Large-4-1T-A52B at f12dabdc0c1e99e7f7924461a6f308859b05af4d,
+shard consolidated-00053-of-00054.safetensors
+(SHA256 d3289cad598653fec78adfd49f939504f92c4c0e9d8b9e66c8750b2e917dde90).
+LICENSE is the parent's Mistral Ecosystem Open-Weight License, copied byte for byte.
+It is a modified MIT license. Its Section 2 requires a separate commercial license from
+Mistral before a Model as a Service business uses the Model or derivative works for any
+commercial purpose.
+
+Only the 272 vision encoder and 4 multimodal projector tensors are included. No language
+model weights. Tensor values are unchanged BF16. Names follow HF Pixtral and Mistral3, and
+the rows of each attention wq and wk are reordered per head from Mistral's interleaved
+rotary layout to HF's rotate-half layout. export_manifest.json records the SHA256 of
+every source tensor before renaming.

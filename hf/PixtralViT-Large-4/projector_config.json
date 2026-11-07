@@ -1,0 +1,47 @@
+{
+  "vision_config": {
+    "transformers_version": "5.17.0",
+    "architectures": null,
+    "output_hidden_states": false,
+    "return_dict": true,
+    "dtype": null,
+    "chunk_size_feed_forward": 0,
+    "is_encoder_decoder": false,
+    "id2label": {
+      "0": "LABEL_0",
+      "1": "LABEL_1"
+    },
+    "label2id": {
+      "LABEL_0": 0,
+      "LABEL_1": 1
+    },
+    "problem_type": null,
+    "hidden_size": 2048,
+    "intermediate_size": 6144,
+    "num_hidden_layers": 30,
+    "num_attention_heads": 16,
+    "num_channels": 3,
+    "image_size": 1540,
+    "patch_size": 14,
+    "hidden_act": "silu",
+    "attention_dropout": 0.0,
+    "rope_parameters": {
+      "rope_theta": 10000.0,
+      "rope_type": "axial"
+    },
+    "initializer_range": 0.02,
+    "head_dim": 128,
+    "_name_or_path": "",
+    "model_type": "pixtral",
+    "output_attentions": false
+  },
+  "text_config": {
+    "model_type": "mistral",
+    "hidden_size": 6144,
+    "rms_norm_eps": 1e-05
+  },
+  "spatial_merge_size": 2,
+  "projector_hidden_act": "gelu",
+  "multimodal_projector_bias": false,
+  "vision_feature_layer": -1
+}
