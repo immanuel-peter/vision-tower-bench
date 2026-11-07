@@ -1,19 +1,73 @@
+import json
+import os
+from pathlib import Path
+
+from huggingface_hub import hf_hub_download
 from collections.abc import Iterator
 from dataclasses import dataclass, field
 
 import torch
 from torchvision import transforms
-from transformers import AutoModel, Qwen3_5VisionModel
+from transformers import AutoModel, Qwen3_5VisionConfig, Qwen3_5VisionModel
+
+from vtb.shards import load_prefixed
 
 from vtb.feature_batch import FeatureBatch
 from vtb.images import square_crop
 
-MODEL_ID = "immanuelpeter/Qwen3.8-27B-Vision"
-
-# Qwen3.8-27B is where scripts/export_qwen3_8_vision.py reads the Tower from.
-SOURCE_REPO = "Qwen/Qwen3.8-27B"
-VISION_SHARD = "model-00001-of-00018.safetensors"
+ROOT = Path(__file__).resolve().parents[2]
 VISION_PREFIX = "model.visual."
+TOWER_TENSORS = 333
+
+
+@dataclass(frozen=True)
+class Checkpoint:
+    name: str
+    model_id: str
+    repo: str
+    revision: str
+    out_hidden_size: int
+    license: str
+
+    @property
+    def bundle(self) -> Path:
+        override = os.environ.get(f"VTB_{self.name.upper()}_BUNDLE")
+        return Path(override) if override else ROOT / "hf" / self.model_id.split("/")[-1]
+
+
+QWEN27B = Checkpoint(
+    "qwen3_5", "immanuelpeter/Qwen3.8-27B-Vision", "Qwen/Qwen3.8-27B",
+    "1d4bf0f2ff6012fd82039f2fa52739d0dd7c60c0", 5120, "apache-2.0",
+)
+FLASH_NEXT = Checkpoint(
+    "qwen38_flash_next", "immanuelpeter/Qwen3.8-Flash-Next-Vision", "Qwen/Qwen3.8-Flash-Next",
+    "de4b8e4d43b917e7706784d8bb445c9af86a3540", 2560, "qwen-community-1.0",
+)
+CHECKPOINTS = {c.name: c for c in (QWEN27B, FLASH_NEXT)}
+MODEL_ID, SOURCE_REPO = QWEN27B.model_id, QWEN27B.repo
+
+
+def source_json(checkpoint: Checkpoint, filename: str) -> dict:
+    return json.loads(Path(hf_hub_download(checkpoint.repo, filename, revision=checkpoint.revision)).read_text())
+
+
+def source_weights(checkpoint: Checkpoint) -> dict[str, torch.Tensor]:
+    index = source_json(checkpoint, "model.safetensors.index.json")["weight_map"]
+    selected = {k: v for k, v in index.items() if k.startswith(VISION_PREFIX)}
+    weights = load_prefixed(checkpoint.repo, sorted(set(selected.values())), VISION_PREFIX, revision=checkpoint.revision)
+    if len(weights) != TOWER_TENSORS or {VISION_PREFIX + k for k in weights} != set(selected):
+        raise ValueError(f"incomplete {checkpoint.name} vision state: {len(weights)} tensors")
+    return weights
+
+
+def load_source_tower(checkpoint: Checkpoint, dtype=torch.bfloat16) -> Qwen3_5VisionModel:
+    config = source_json(checkpoint, "config.json")["vision_config"]
+    config.update(model_type="qwen3_5_vision", out_hidden_size=checkpoint.out_hidden_size)
+    model = Qwen3_5VisionModel._from_config(Qwen3_5VisionConfig(**config), dtype=dtype)
+    model.load_state_dict(source_weights(checkpoint), strict=True)
+    return model.eval()
+
+
 PATCH_SIZE = 16
 TEMPORAL_PATCH_SIZE = 2
 MERGE_SIZE = 2
@@ -27,6 +81,8 @@ class Preprocess:
     pipeline: transforms.Compose = field(init=False, repr=False)
 
     def __post_init__(self) -> None:
+        if self.resolution <= 0 or self.resolution % (PATCH_SIZE * MERGE_SIZE):
+            raise ValueError("Qwen resolution must be a positive multiple of 32")
         object.__setattr__(
             self,
             "pipeline",
@@ -68,17 +124,29 @@ def raster(tokens: torch.Tensor, rows: int) -> torch.Tensor:
     return grid.permute(0, 1, 3, 2, 4, 5).reshape(rows, side * side, width)
 
 
-def load_tower(dtype: torch.dtype) -> Qwen3_5VisionModel:
-    return AutoModel.from_pretrained(MODEL_ID, dtype=dtype).eval()
+def load_tower(dtype: torch.dtype, checkpoint: Checkpoint = QWEN27B) -> Qwen3_5VisionModel:
+    if (checkpoint.bundle / "model.safetensors").is_file():
+        manifest = checkpoint.bundle / "export_manifest.json"
+        if manifest.is_file():
+            provenance = json.loads(manifest.read_text())
+            if (provenance["source_repo"], provenance["source_revision"]) != (checkpoint.repo, checkpoint.revision):
+                raise ValueError(f"bundle provenance does not match {checkpoint.name}")
+        model = AutoModel.from_pretrained(checkpoint.bundle, dtype=dtype, local_files_only=True).eval()
+        if model.config.out_hidden_size != checkpoint.out_hidden_size:
+            raise ValueError(f"wrong Projector width for {checkpoint.name}")
+        return model
+    return load_source_tower(checkpoint, dtype)
 
 
-class Qwen3_5Adapter:
-    model_id = MODEL_ID
+class QwenAdapter:
+    checkpoint = QWEN27B
     stages = ("tower", "merged", "projected")
     collate = staticmethod(collate)
 
     def __init__(self, resolution: int = 448, dtype=torch.bfloat16, device: str = "mps"):
-        self.model = load_tower(dtype).to(device)
+        Preprocess(resolution)
+        self.model = load_tower(dtype, self.checkpoint).to(device)
+        self.model_id = self.checkpoint.model_id
         self.resolution = resolution
         self.device = device
         self.dtype = dtype
@@ -134,3 +202,13 @@ class Qwen3_5Adapter:
             num_layers=self.num_layers,
             resolution=self.resolution,
         )
+
+
+class Qwen3_5Adapter(QwenAdapter):
+    checkpoint = QWEN27B
+    model_id = QWEN27B.model_id
+
+
+class Qwen38FlashNextAdapter(QwenAdapter):
+    checkpoint = FLASH_NEXT
+    model_id = FLASH_NEXT.model_id

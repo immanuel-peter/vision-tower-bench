@@ -33,6 +33,7 @@ def test_roster_covers_the_sixteen_tower_suite():
         "dinov3",
         "mimo26_pro",
         "mimo26_flash",
+        "qwen38_flash_next",
     )
     assert set(FIGURE_SCRIPT.COLOUR) == set(FIGURE_SCRIPT.TOWERS)
     assert set(FIGURE_SCRIPT.DISPLAY) == set(FIGURE_SCRIPT.TOWERS)

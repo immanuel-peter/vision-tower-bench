@@ -1,0 +1,208 @@
+{
+  "schema_version": 1,
+  "issue": 22,
+  "created_at": "2026-11-07T12:43:40.357219+00:00",
+  "resolution": 448,
+  "checkpoint": {
+    "repo": "Qwen/Qwen3.8-Flash-Next",
+    "revision": "de4b8e4d43b917e7706784d8bb445c9af86a3540"
+  },
+  "slices": [
+    {
+      "stage": "tower",
+      "layer": 3
+    },
+    {
+      "stage": "tower",
+      "layer": 7
+    },
+    {
+      "stage": "tower",
+      "layer": 10
+    },
+    {
+      "stage": "tower",
+      "layer": 14
+    },
+    {
+      "stage": "tower",
+      "layer": 17
+    },
+    {
+      "stage": "tower",
+      "layer": 20
+    },
+    {
+      "stage": "tower",
+      "layer": 24
+    },
+    {
+      "stage": "tower",
+      "layer": 27
+    },
+    {
+      "stage": "merged",
+      "layer": 27
+    },
+    {
+      "stage": "projected",
+      "layer": 27
+    }
+  ],
+  "recognition": {
+    "cells": 40,
+    "trials": 560,
+    "readouts": [
+      "attention",
+      "mean"
+    ],
+    "arms": [
+      "raw",
+      "matched"
+    ],
+    "learning_rates": [
+      1e-05,
+      3e-05,
+      0.0001,
+      0.0003,
+      0.001,
+      0.003,
+      0.01,
+      0.03,
+      0.1,
+      0.3,
+      1
+    ],
+    "seeds": [
+      0,
+      1,
+      2
+    ],
+    "epochs": 20,
+    "pool": 4,
+    "selection_seed": 0,
+    "selection_fits": 440,
+    "selected_rate_fits": 120
+  },
+  "geometry": {
+    "cells": 40,
+    "trials": 360,
+    "tasks": [
+      "depth",
+      "normal"
+    ],
+    "arms": [
+      "raw",
+      "matched"
+    ],
+    "learning_rates": [
+      0.0001,
+      0.0003,
+      0.001,
+      0.003,
+      0.01,
+      0.03
+    ],
+    "seeds": [
+      0,
+      1,
+      2
+    ],
+    "epochs": 10,
+    "pool": null,
+    "selection_seed": 0,
+    "selection_fits": 240,
+    "selected_rate_fits": 120
+  },
+  "correspondence": {
+    "cells": 9,
+    "datasets": [
+      "navi",
+      "scannet",
+      "spair"
+    ],
+    "stages": [
+      "tower",
+      "merged",
+      "projected"
+    ],
+    "pool": null
+  },
+  "label_budget": {
+    "cells": 8,
+    "fractions": [
+      0.01,
+      0.05,
+      0.2,
+      1.0
+    ],
+    "readouts": [
+      "attention",
+      "mean"
+    ],
+    "arm": "matched",
+    "stage": "tower",
+    "layer": 27
+  },
+  "perturbation": {
+    "stage_cells": 3,
+    "condition_cells": 39,
+    "conditions": 13,
+    "stages": [
+      "tower",
+      "merged",
+      "projected"
+    ]
+  },
+  "throughput": {
+    "required": true
+  },
+  "kitti": {
+    "cells": 2,
+    "stages": [
+      "tower",
+      "projected"
+    ],
+    "arm": "matched"
+  },
+  "paired_bootstraps": {
+    "projected_vs_tower": [
+      "recognition",
+      "depth_raw",
+      "depth_matched",
+      "normal_raw",
+      "normal_matched",
+      "navi",
+      "scannet",
+      "spair",
+      "perturbation",
+      "kitti"
+    ],
+    "flash_next_vs_27b": {
+      "stages": [
+        "tower",
+        "merged",
+        "projected"
+      ],
+      "tasks": [
+        "recognition",
+        "depth",
+        "normal",
+        "navi",
+        "scannet",
+        "spair",
+        "perturbation",
+        "kitti"
+      ],
+      "same_paired_run_points": true
+    }
+  },
+  "validation": {
+    "finite_metrics": true,
+    "exact_ids_splits_seeds": true,
+    "source_identity_before_runs": true,
+    "independent_forward_before_runs": true,
+    "baseline_provenance_audit": true
+  },
+  "protocol_note": "Every LR searched with seed 0; selected LR retrained with seeds 0,1,2. Parent clarified inventory shorthand; no search-seeds3 experiments ran."
+}

@@ -166,3 +166,9 @@ Matrix scripts accept an output directory. Use `results/recognition/` for
 runs in a separate directory when a protocol changes, and update the index with
 the correction's scope. JSON, JSONL, and TSV measurements remain in Git so a
 clone contains the evidence needed to inspect the figures.
+
+Qwen3.8 Flash-Next source identity, independent forward parity, immutable release
+reload and all-layer sibling weight drift are recorded in
+[evidence/qwen38-flash-next/](evidence/qwen38-flash-next/). Its 448-pixel
+benchmark suite is in progress. Tower and merged comparisons change weights
+only; the projected Stage also changes output width, from 5120 to 2560.

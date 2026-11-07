@@ -152,7 +152,7 @@
     },
     "mimo26_attention_sinks": {
       "path": "diagnostics/mimo26-attention-sinks/",
-      "protocol": "Pinned vLLM Triton prefill kernel with sinks_bias_key0 against HF key-0 sink semantics in PyTorch SDPA; two packed BF16 images at 36, 196 and 784 tokens, 32 query and 8 KV heads, ±64-token window.",
+      "protocol": "Pinned vLLM Triton prefill kernel with sinks_bias_key0 against HF key-0 sink semantics in PyTorch SDPA; two packed BF16 images at 36, 196 and 784 tokens, 32 query and 8 KV heads, \u00b164-token window.",
       "status": "Agreement within BF16 rounding. Kernel-level check only; no benchmark arm changed.",
       "cohort": "v3"
     },
@@ -161,6 +161,11 @@
       "protocol": "MiMo 2.6 Tower L28 perturbation readout with the published reducer and with channels standardized before PCA, plus Pro-minus-Flash intervals from cross_run_bootstrap.py; channel and PCA statistics on 1,000 ImageNet-100 images at every tapped depth for MiMo and the eleven v2 Towers, with 1%-label readouts at the final Tower layer; the attention-matched label budget for the eleven v2 Towers on the full recognition split, unchanged and standardized; and Qwen3.8 Tower L20, L24 and L27 depth probes.",
       "status": "The published MiMo Tower L28 perturbation cells are a readout failure, not a robustness measurement. Standardized results are diagnostic only; no published file or benchmark arm changed.",
       "cohort": "v3"
+    },
+    "qwen38_flash_next_source": {
+      "path": "evidence/qwen38-flash-next/",
+      "protocol": "Pinned source tensor identity; independent Qwen4ExpVisionModel forward at 96/448 pixels in CPU FP32, CPU BF16 and CUDA BF16; full 333-tensor sibling drift; immutable HF reload.",
+      "status": "Exact source and forward parity passed. Full 448-pixel benchmark suite in progress; no performance delta claimed."
     }
   },
   "cell_manifests": [

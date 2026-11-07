@@ -34,6 +34,7 @@ TOWERS: tuple[str, ...] = (
     "dinov3",
     "mimo26_pro",
     "mimo26_flash",
+    "qwen38_flash_next",
 )
 PROJECTORS: tuple[str, ...] = tuple(
     model for model in TOWERS if model not in ("dinov2", "siglip2", "dinov3")
@@ -49,7 +50,7 @@ OUTLIER_NOTE = (
 PALETTE: tuple[str, ...] = (
     "#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b",
     "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#393b79",
-    "#637939", "#b5cf6b", "#6baed6", "#843c39", "#d6616b",
+    "#637939", "#b5cf6b", "#6baed6", "#843c39", "#d6616b", "#a55194",
 )
 COLOUR: dict[str, str] = dict(zip(TOWERS, PALETTE, strict=True))
 
@@ -62,6 +63,7 @@ DISPLAY: dict[str, str] = {
     "nemotron_omni": "Nemotron 3 Omni",
     "kimi_k26": "Kimi K2.6",
     "qwen3_5": "Qwen3.8",
+    "qwen38_flash_next": "Qwen3.8 Flash-Next",
     "deepseek_v41": "DeepSeek V4.1",
     "gemma4": "Gemma 4",
     "moonvit_v2": "Kimi K3",

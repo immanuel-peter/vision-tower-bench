@@ -92,4 +92,4 @@ VTB_SKIP_WEIGHTS=1 uv run pytest -q   # 135 tests, no downloads
 
 ## License
 
-MIT covers code and results here, not weights. Published Towers keep parent terms. Apache-2.0 for Qwen3.8, Muse Glimmer, and Gemma 4. MIT for GLM-5.3 Flash and DeepSeek-ViT. Kimi License for both Kimi Towers. NVIDIA Open Model Agreement for C-RADIOv4-H-3-Omni. OpenMDW-1.1 for C-RADIOv4-H-3.5 Super and Bolt. MIT for MiMoViT-2.6 Pro and Flash. MiniMax Community License for MiniMax M3. Each release ships its license.
+MIT covers code and results here, not weights. Published Towers keep parent terms. qwen-community-1.0 for Qwen3.8-Flash-Next. Apache-2.0 for Qwen3.8-27B, Muse Glimmer, and Gemma 4. MIT for GLM-5.3 Flash and DeepSeek-ViT. Kimi License for both Kimi Towers. NVIDIA Open Model Agreement for C-RADIOv4-H-3-Omni. OpenMDW-1.1 for C-RADIOv4-H-3.5 Super and Bolt. MIT for MiMoViT-2.6 Pro and Flash. MiniMax Community License for MiniMax M3. Each release ships its license.

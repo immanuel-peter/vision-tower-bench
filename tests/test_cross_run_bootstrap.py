@@ -5,6 +5,17 @@ from scripts.cross_run_bootstrap import correspondence, pair_rows, parser, pertu
 NAMES = ("first", "second")
 
 
+def test_perturbation_can_pair_projected_against_tower_in_one_run():
+    payload = {"images": 2000, "protocol": {"seeds": 3}, "cells": [
+        {"stage": stage, "layer_index": 27, "measurements": {"occlusion_l1": [
+            {"image_id": "fixed", "clean": [value] * 3, "perturbed": [value] * 3}
+        ]}} for stage, value in [("tower", 0.0), ("projected", 1.0)]
+    ]}
+    result = perturbation(payload, payload, NAMES, args("--stage", "projected", "--second-stage", "tower"))
+    assert result["clean"]["difference"]["point_estimate"] == 1.0
+    assert result["conditions"]["occlusion_l1"]["difference"]["point_estimate"] == 1.0
+
+
 def args(*extra):
     return parser().parse_args(["correspondence", "--first", "a", "--first-name", "first",
                                 "--second", "b", "--second-name", "second", "--out", "o", *extra])

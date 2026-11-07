@@ -36,12 +36,11 @@ def test_siglip2_tower_matches_published_checkpoint():
     assert_bit_exact(tower.state_dict(), checkpoint_weights, 448)
 
 
-def test_qwen_tower_matches_parent_checkpoint():
-    tower = qwen3_5.load_tower(torch.bfloat16)
-    checkpoint_weights = load_prefixed(
-        qwen3_5.SOURCE_REPO, [qwen3_5.VISION_SHARD], qwen3_5.VISION_PREFIX
-    )
-    assert_bit_exact(tower.state_dict(), checkpoint_weights, 333)
+@pytest.mark.parametrize("checkpoint", qwen3_5.CHECKPOINTS.values(), ids=qwen3_5.CHECKPOINTS)
+def test_qwen_tower_matches_parent_checkpoint(checkpoint):
+    tower = qwen3_5.load_tower(torch.bfloat16, checkpoint)
+    assert_bit_exact(tower.state_dict(), qwen3_5.source_weights(checkpoint), 333)
+    assert tower.merger.linear_fc2.weight.shape == (checkpoint.out_hidden_size, 4608)
 
 
 def test_muse_tower_and_projector_match_parent_checkpoint():

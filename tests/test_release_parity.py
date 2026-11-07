@@ -52,15 +52,22 @@ def load_projector_module(bundle: Path):
     return module.load_projector(bundle)
 
 
-def test_qwen_release_weights_match_the_pinned_parent():
-    source = load_prefixed(
-        qwen3_5.SOURCE_REPO,
-        [qwen3_5.VISION_SHARD],
-        qwen3_5.VISION_PREFIX,
-        revision=QWEN_REVISION,
-    )
+@pytest.mark.parametrize("checkpoint", qwen3_5.CHECKPOINTS.values(), ids=qwen3_5.CHECKPOINTS)
+def test_qwen_release_weights_match_the_pinned_parent(checkpoint):
+    source = qwen3_5.source_weights(checkpoint)
     assert len(source) == 333
-    assert_bit_exact(load_file(QWEN_BUNDLE / "model.safetensors"), source)
+    actual = load_file(checkpoint.bundle / "model.safetensors")
+    assert_bit_exact(actual, source)
+    assert actual["merger.linear_fc2.weight"].shape == (checkpoint.out_hidden_size, 4608)
+
+
+def test_qwen_siblings_do_not_share_the_exported_weights():
+    first = load_file(qwen3_5.QWEN27B.bundle / "model.safetensors")
+    second = load_file(qwen3_5.FLASH_NEXT.bundle / "model.safetensors")
+    assert set(first) == set(second)
+    shared = [name for name in first if first[name].shape == second[name].shape]
+    assert len(shared) == 331
+    assert all(not torch.equal(first[name], second[name]) for name in shared)
 
 
 def test_muse_release_weights_match_the_pinned_parent():
@@ -110,10 +117,11 @@ def test_kimi_release_weights_match_the_pinned_parent():
         assert_bit_exact(load_file(KIMI_BUNDLE / filename), source)
 
 
-def test_qwen_release_forward_matches_the_parent():
-    source = load_qwen_source(DTYPE).to(DEVICE)
+@pytest.mark.parametrize("checkpoint", qwen3_5.CHECKPOINTS.values(), ids=qwen3_5.CHECKPOINTS)
+def test_qwen_release_forward_matches_the_parent(checkpoint):
+    source = load_qwen_source(DTYPE, checkpoint).to(DEVICE)
     released = AutoModel.from_pretrained(
-        QWEN_BUNDLE,
+        checkpoint.bundle,
         dtype=DTYPE,
         local_files_only=True,
     ).to(DEVICE)
