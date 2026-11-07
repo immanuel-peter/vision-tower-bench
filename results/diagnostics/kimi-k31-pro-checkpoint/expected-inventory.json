@@ -1,0 +1,2930 @@
+{
+  "issue": 24,
+  "base": "a2277c8dd9d9f81bbf29cc4a5c545f8fd6513902",
+  "resolution": 448,
+  "extraction_batch": 1,
+  "semantic_pool": 4,
+  "dense_pool": null,
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "lr_search_seeds": [
+    0
+  ],
+  "recognition_lrs": [
+    1e-05,
+    3e-05,
+    0.0001,
+    0.0003,
+    0.001,
+    0.003,
+    0.01,
+    0.03,
+    0.1,
+    0.3,
+    1.0
+  ],
+  "geometry_lrs": [
+    0.0001,
+    0.0003,
+    0.001,
+    0.003,
+    0.01,
+    0.03
+  ],
+  "recognition_epochs": 20,
+  "geometry_epochs": 10,
+  "cells": [
+    {
+      "task": "recognition",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 3,
+      "arm": "raw",
+      "readout": "attention"
+    },
+    {
+      "task": "recognition",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 3,
+      "arm": "raw",
+      "readout": "mean"
+    },
+    {
+      "task": "depth",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 3,
+      "arm": "raw"
+    },
+    {
+      "task": "normal",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 3,
+      "arm": "raw"
+    },
+    {
+      "task": "recognition",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 3,
+      "arm": "matched",
+      "readout": "attention"
+    },
+    {
+      "task": "recognition",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 3,
+      "arm": "matched",
+      "readout": "mean"
+    },
+    {
+      "task": "depth",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 3,
+      "arm": "matched"
+    },
+    {
+      "task": "normal",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 3,
+      "arm": "matched"
+    },
+    {
+      "task": "recognition",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 7,
+      "arm": "raw",
+      "readout": "attention"
+    },
+    {
+      "task": "recognition",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 7,
+      "arm": "raw",
+      "readout": "mean"
+    },
+    {
+      "task": "depth",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 7,
+      "arm": "raw"
+    },
+    {
+      "task": "normal",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 7,
+      "arm": "raw"
+    },
+    {
+      "task": "recognition",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 7,
+      "arm": "matched",
+      "readout": "attention"
+    },
+    {
+      "task": "recognition",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 7,
+      "arm": "matched",
+      "readout": "mean"
+    },
+    {
+      "task": "depth",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 7,
+      "arm": "matched"
+    },
+    {
+      "task": "normal",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 7,
+      "arm": "matched"
+    },
+    {
+      "task": "recognition",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 10,
+      "arm": "raw",
+      "readout": "attention"
+    },
+    {
+      "task": "recognition",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 10,
+      "arm": "raw",
+      "readout": "mean"
+    },
+    {
+      "task": "depth",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 10,
+      "arm": "raw"
+    },
+    {
+      "task": "normal",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 10,
+      "arm": "raw"
+    },
+    {
+      "task": "recognition",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 10,
+      "arm": "matched",
+      "readout": "attention"
+    },
+    {
+      "task": "recognition",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 10,
+      "arm": "matched",
+      "readout": "mean"
+    },
+    {
+      "task": "depth",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 10,
+      "arm": "matched"
+    },
+    {
+      "task": "normal",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 10,
+      "arm": "matched"
+    },
+    {
+      "task": "recognition",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 14,
+      "arm": "raw",
+      "readout": "attention"
+    },
+    {
+      "task": "recognition",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 14,
+      "arm": "raw",
+      "readout": "mean"
+    },
+    {
+      "task": "depth",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 14,
+      "arm": "raw"
+    },
+    {
+      "task": "normal",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 14,
+      "arm": "raw"
+    },
+    {
+      "task": "recognition",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 14,
+      "arm": "matched",
+      "readout": "attention"
+    },
+    {
+      "task": "recognition",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 14,
+      "arm": "matched",
+      "readout": "mean"
+    },
+    {
+      "task": "depth",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 14,
+      "arm": "matched"
+    },
+    {
+      "task": "normal",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 14,
+      "arm": "matched"
+    },
+    {
+      "task": "recognition",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 17,
+      "arm": "raw",
+      "readout": "attention"
+    },
+    {
+      "task": "recognition",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 17,
+      "arm": "raw",
+      "readout": "mean"
+    },
+    {
+      "task": "depth",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 17,
+      "arm": "raw"
+    },
+    {
+      "task": "normal",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 17,
+      "arm": "raw"
+    },
+    {
+      "task": "recognition",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 17,
+      "arm": "matched",
+      "readout": "attention"
+    },
+    {
+      "task": "recognition",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 17,
+      "arm": "matched",
+      "readout": "mean"
+    },
+    {
+      "task": "depth",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 17,
+      "arm": "matched"
+    },
+    {
+      "task": "normal",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 17,
+      "arm": "matched"
+    },
+    {
+      "task": "recognition",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 20,
+      "arm": "raw",
+      "readout": "attention"
+    },
+    {
+      "task": "recognition",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 20,
+      "arm": "raw",
+      "readout": "mean"
+    },
+    {
+      "task": "depth",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 20,
+      "arm": "raw"
+    },
+    {
+      "task": "normal",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 20,
+      "arm": "raw"
+    },
+    {
+      "task": "recognition",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 20,
+      "arm": "matched",
+      "readout": "attention"
+    },
+    {
+      "task": "recognition",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 20,
+      "arm": "matched",
+      "readout": "mean"
+    },
+    {
+      "task": "depth",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 20,
+      "arm": "matched"
+    },
+    {
+      "task": "normal",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 20,
+      "arm": "matched"
+    },
+    {
+      "task": "recognition",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 24,
+      "arm": "raw",
+      "readout": "attention"
+    },
+    {
+      "task": "recognition",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 24,
+      "arm": "raw",
+      "readout": "mean"
+    },
+    {
+      "task": "depth",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 24,
+      "arm": "raw"
+    },
+    {
+      "task": "normal",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 24,
+      "arm": "raw"
+    },
+    {
+      "task": "recognition",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 24,
+      "arm": "matched",
+      "readout": "attention"
+    },
+    {
+      "task": "recognition",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 24,
+      "arm": "matched",
+      "readout": "mean"
+    },
+    {
+      "task": "depth",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 24,
+      "arm": "matched"
+    },
+    {
+      "task": "normal",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 24,
+      "arm": "matched"
+    },
+    {
+      "task": "recognition",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 27,
+      "arm": "raw",
+      "readout": "attention"
+    },
+    {
+      "task": "recognition",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 27,
+      "arm": "raw",
+      "readout": "mean"
+    },
+    {
+      "task": "depth",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 27,
+      "arm": "raw"
+    },
+    {
+      "task": "normal",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 27,
+      "arm": "raw"
+    },
+    {
+      "task": "recognition",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 27,
+      "arm": "matched",
+      "readout": "attention"
+    },
+    {
+      "task": "recognition",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 27,
+      "arm": "matched",
+      "readout": "mean"
+    },
+    {
+      "task": "depth",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 27,
+      "arm": "matched"
+    },
+    {
+      "task": "normal",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 27,
+      "arm": "matched"
+    },
+    {
+      "task": "recognition",
+      "model": "kimi_k31_pro",
+      "stage": "merged",
+      "layer": 27,
+      "arm": "raw",
+      "readout": "attention"
+    },
+    {
+      "task": "recognition",
+      "model": "kimi_k31_pro",
+      "stage": "merged",
+      "layer": 27,
+      "arm": "raw",
+      "readout": "mean"
+    },
+    {
+      "task": "depth",
+      "model": "kimi_k31_pro",
+      "stage": "merged",
+      "layer": 27,
+      "arm": "raw"
+    },
+    {
+      "task": "normal",
+      "model": "kimi_k31_pro",
+      "stage": "merged",
+      "layer": 27,
+      "arm": "raw"
+    },
+    {
+      "task": "recognition",
+      "model": "kimi_k31_pro",
+      "stage": "merged",
+      "layer": 27,
+      "arm": "matched",
+      "readout": "attention"
+    },
+    {
+      "task": "recognition",
+      "model": "kimi_k31_pro",
+      "stage": "merged",
+      "layer": 27,
+      "arm": "matched",
+      "readout": "mean"
+    },
+    {
+      "task": "depth",
+      "model": "kimi_k31_pro",
+      "stage": "merged",
+      "layer": 27,
+      "arm": "matched"
+    },
+    {
+      "task": "normal",
+      "model": "kimi_k31_pro",
+      "stage": "merged",
+      "layer": 27,
+      "arm": "matched"
+    },
+    {
+      "task": "recognition",
+      "model": "kimi_k31_pro",
+      "stage": "projected",
+      "layer": 27,
+      "arm": "raw",
+      "readout": "attention"
+    },
+    {
+      "task": "recognition",
+      "model": "kimi_k31_pro",
+      "stage": "projected",
+      "layer": 27,
+      "arm": "raw",
+      "readout": "mean"
+    },
+    {
+      "task": "depth",
+      "model": "kimi_k31_pro",
+      "stage": "projected",
+      "layer": 27,
+      "arm": "raw"
+    },
+    {
+      "task": "normal",
+      "model": "kimi_k31_pro",
+      "stage": "projected",
+      "layer": 27,
+      "arm": "raw"
+    },
+    {
+      "task": "recognition",
+      "model": "kimi_k31_pro",
+      "stage": "projected",
+      "layer": 27,
+      "arm": "matched",
+      "readout": "attention"
+    },
+    {
+      "task": "recognition",
+      "model": "kimi_k31_pro",
+      "stage": "projected",
+      "layer": 27,
+      "arm": "matched",
+      "readout": "mean"
+    },
+    {
+      "task": "depth",
+      "model": "kimi_k31_pro",
+      "stage": "projected",
+      "layer": 27,
+      "arm": "matched"
+    },
+    {
+      "task": "normal",
+      "model": "kimi_k31_pro",
+      "stage": "projected",
+      "layer": 27,
+      "arm": "matched"
+    },
+    {
+      "task": "label_budget",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 27,
+      "arm": "matched",
+      "readout": "attention",
+      "fraction": 0.01
+    },
+    {
+      "task": "label_budget",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 27,
+      "arm": "matched",
+      "readout": "mean",
+      "fraction": 0.01
+    },
+    {
+      "task": "standardized_label_budget",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 27,
+      "arm": "matched",
+      "readout": "attention",
+      "fraction": 0.01
+    },
+    {
+      "task": "label_budget",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 27,
+      "arm": "matched",
+      "readout": "attention",
+      "fraction": 0.05
+    },
+    {
+      "task": "label_budget",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 27,
+      "arm": "matched",
+      "readout": "mean",
+      "fraction": 0.05
+    },
+    {
+      "task": "standardized_label_budget",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 27,
+      "arm": "matched",
+      "readout": "attention",
+      "fraction": 0.05
+    },
+    {
+      "task": "label_budget",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 27,
+      "arm": "matched",
+      "readout": "attention",
+      "fraction": 0.2
+    },
+    {
+      "task": "label_budget",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 27,
+      "arm": "matched",
+      "readout": "mean",
+      "fraction": 0.2
+    },
+    {
+      "task": "standardized_label_budget",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 27,
+      "arm": "matched",
+      "readout": "attention",
+      "fraction": 0.2
+    },
+    {
+      "task": "label_budget",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 27,
+      "arm": "matched",
+      "readout": "attention",
+      "fraction": 1.0
+    },
+    {
+      "task": "label_budget",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 27,
+      "arm": "matched",
+      "readout": "mean",
+      "fraction": 1.0
+    },
+    {
+      "task": "standardized_label_budget",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 27,
+      "arm": "matched",
+      "readout": "attention",
+      "fraction": 1.0
+    },
+    {
+      "task": "navi",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 27
+    },
+    {
+      "task": "navi",
+      "model": "kimi_k31_pro",
+      "stage": "merged",
+      "layer": 27
+    },
+    {
+      "task": "navi",
+      "model": "kimi_k31_pro",
+      "stage": "projected",
+      "layer": 27
+    },
+    {
+      "task": "scannet",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 27
+    },
+    {
+      "task": "scannet",
+      "model": "kimi_k31_pro",
+      "stage": "merged",
+      "layer": 27
+    },
+    {
+      "task": "scannet",
+      "model": "kimi_k31_pro",
+      "stage": "projected",
+      "layer": 27
+    },
+    {
+      "task": "spair",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 27
+    },
+    {
+      "task": "spair",
+      "model": "kimi_k31_pro",
+      "stage": "merged",
+      "layer": 27
+    },
+    {
+      "task": "spair",
+      "model": "kimi_k31_pro",
+      "stage": "projected",
+      "layer": 27
+    },
+    {
+      "task": "perturbation",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "condition": "identity"
+    },
+    {
+      "task": "perturbation",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "condition": "scale_l1"
+    },
+    {
+      "task": "perturbation",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "condition": "scale_l2"
+    },
+    {
+      "task": "perturbation",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "condition": "scale_l3"
+    },
+    {
+      "task": "perturbation",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "condition": "scale_l4"
+    },
+    {
+      "task": "perturbation",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "condition": "occlusion_l1"
+    },
+    {
+      "task": "perturbation",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "condition": "occlusion_l2"
+    },
+    {
+      "task": "perturbation",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "condition": "occlusion_l3"
+    },
+    {
+      "task": "perturbation",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "condition": "occlusion_l4"
+    },
+    {
+      "task": "perturbation",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "condition": "motion_blur_l1"
+    },
+    {
+      "task": "perturbation",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "condition": "motion_blur_l2"
+    },
+    {
+      "task": "perturbation",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "condition": "motion_blur_l3"
+    },
+    {
+      "task": "perturbation",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "condition": "motion_blur_l4"
+    },
+    {
+      "task": "perturbation",
+      "model": "kimi_k31_pro",
+      "stage": "merged",
+      "condition": "identity"
+    },
+    {
+      "task": "perturbation",
+      "model": "kimi_k31_pro",
+      "stage": "merged",
+      "condition": "scale_l1"
+    },
+    {
+      "task": "perturbation",
+      "model": "kimi_k31_pro",
+      "stage": "merged",
+      "condition": "scale_l2"
+    },
+    {
+      "task": "perturbation",
+      "model": "kimi_k31_pro",
+      "stage": "merged",
+      "condition": "scale_l3"
+    },
+    {
+      "task": "perturbation",
+      "model": "kimi_k31_pro",
+      "stage": "merged",
+      "condition": "scale_l4"
+    },
+    {
+      "task": "perturbation",
+      "model": "kimi_k31_pro",
+      "stage": "merged",
+      "condition": "occlusion_l1"
+    },
+    {
+      "task": "perturbation",
+      "model": "kimi_k31_pro",
+      "stage": "merged",
+      "condition": "occlusion_l2"
+    },
+    {
+      "task": "perturbation",
+      "model": "kimi_k31_pro",
+      "stage": "merged",
+      "condition": "occlusion_l3"
+    },
+    {
+      "task": "perturbation",
+      "model": "kimi_k31_pro",
+      "stage": "merged",
+      "condition": "occlusion_l4"
+    },
+    {
+      "task": "perturbation",
+      "model": "kimi_k31_pro",
+      "stage": "merged",
+      "condition": "motion_blur_l1"
+    },
+    {
+      "task": "perturbation",
+      "model": "kimi_k31_pro",
+      "stage": "merged",
+      "condition": "motion_blur_l2"
+    },
+    {
+      "task": "perturbation",
+      "model": "kimi_k31_pro",
+      "stage": "merged",
+      "condition": "motion_blur_l3"
+    },
+    {
+      "task": "perturbation",
+      "model": "kimi_k31_pro",
+      "stage": "merged",
+      "condition": "motion_blur_l4"
+    },
+    {
+      "task": "perturbation",
+      "model": "kimi_k31_pro",
+      "stage": "projected",
+      "condition": "identity"
+    },
+    {
+      "task": "perturbation",
+      "model": "kimi_k31_pro",
+      "stage": "projected",
+      "condition": "scale_l1"
+    },
+    {
+      "task": "perturbation",
+      "model": "kimi_k31_pro",
+      "stage": "projected",
+      "condition": "scale_l2"
+    },
+    {
+      "task": "perturbation",
+      "model": "kimi_k31_pro",
+      "stage": "projected",
+      "condition": "scale_l3"
+    },
+    {
+      "task": "perturbation",
+      "model": "kimi_k31_pro",
+      "stage": "projected",
+      "condition": "scale_l4"
+    },
+    {
+      "task": "perturbation",
+      "model": "kimi_k31_pro",
+      "stage": "projected",
+      "condition": "occlusion_l1"
+    },
+    {
+      "task": "perturbation",
+      "model": "kimi_k31_pro",
+      "stage": "projected",
+      "condition": "occlusion_l2"
+    },
+    {
+      "task": "perturbation",
+      "model": "kimi_k31_pro",
+      "stage": "projected",
+      "condition": "occlusion_l3"
+    },
+    {
+      "task": "perturbation",
+      "model": "kimi_k31_pro",
+      "stage": "projected",
+      "condition": "occlusion_l4"
+    },
+    {
+      "task": "perturbation",
+      "model": "kimi_k31_pro",
+      "stage": "projected",
+      "condition": "motion_blur_l1"
+    },
+    {
+      "task": "perturbation",
+      "model": "kimi_k31_pro",
+      "stage": "projected",
+      "condition": "motion_blur_l2"
+    },
+    {
+      "task": "perturbation",
+      "model": "kimi_k31_pro",
+      "stage": "projected",
+      "condition": "motion_blur_l3"
+    },
+    {
+      "task": "perturbation",
+      "model": "kimi_k31_pro",
+      "stage": "projected",
+      "condition": "motion_blur_l4"
+    },
+    {
+      "task": "kitti",
+      "model": "kimi_k31_pro",
+      "stage": "tower",
+      "layer": 27,
+      "arm": "matched"
+    },
+    {
+      "task": "kitti",
+      "model": "kimi_k31_pro",
+      "stage": "projected",
+      "layer": 27,
+      "arm": "matched"
+    },
+    {
+      "task": "throughput",
+      "model": "kimi_k31_pro"
+    },
+    {
+      "task": "recognition",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 3,
+      "arm": "raw",
+      "readout": "attention"
+    },
+    {
+      "task": "recognition",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 3,
+      "arm": "raw",
+      "readout": "mean"
+    },
+    {
+      "task": "depth",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 3,
+      "arm": "raw"
+    },
+    {
+      "task": "normal",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 3,
+      "arm": "raw"
+    },
+    {
+      "task": "recognition",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 3,
+      "arm": "matched",
+      "readout": "attention"
+    },
+    {
+      "task": "recognition",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 3,
+      "arm": "matched",
+      "readout": "mean"
+    },
+    {
+      "task": "depth",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 3,
+      "arm": "matched"
+    },
+    {
+      "task": "normal",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 3,
+      "arm": "matched"
+    },
+    {
+      "task": "recognition",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 7,
+      "arm": "raw",
+      "readout": "attention"
+    },
+    {
+      "task": "recognition",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 7,
+      "arm": "raw",
+      "readout": "mean"
+    },
+    {
+      "task": "depth",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 7,
+      "arm": "raw"
+    },
+    {
+      "task": "normal",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 7,
+      "arm": "raw"
+    },
+    {
+      "task": "recognition",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 7,
+      "arm": "matched",
+      "readout": "attention"
+    },
+    {
+      "task": "recognition",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 7,
+      "arm": "matched",
+      "readout": "mean"
+    },
+    {
+      "task": "depth",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 7,
+      "arm": "matched"
+    },
+    {
+      "task": "normal",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 7,
+      "arm": "matched"
+    },
+    {
+      "task": "recognition",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 10,
+      "arm": "raw",
+      "readout": "attention"
+    },
+    {
+      "task": "recognition",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 10,
+      "arm": "raw",
+      "readout": "mean"
+    },
+    {
+      "task": "depth",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 10,
+      "arm": "raw"
+    },
+    {
+      "task": "normal",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 10,
+      "arm": "raw"
+    },
+    {
+      "task": "recognition",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 10,
+      "arm": "matched",
+      "readout": "attention"
+    },
+    {
+      "task": "recognition",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 10,
+      "arm": "matched",
+      "readout": "mean"
+    },
+    {
+      "task": "depth",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 10,
+      "arm": "matched"
+    },
+    {
+      "task": "normal",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 10,
+      "arm": "matched"
+    },
+    {
+      "task": "recognition",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 14,
+      "arm": "raw",
+      "readout": "attention"
+    },
+    {
+      "task": "recognition",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 14,
+      "arm": "raw",
+      "readout": "mean"
+    },
+    {
+      "task": "depth",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 14,
+      "arm": "raw"
+    },
+    {
+      "task": "normal",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 14,
+      "arm": "raw"
+    },
+    {
+      "task": "recognition",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 14,
+      "arm": "matched",
+      "readout": "attention"
+    },
+    {
+      "task": "recognition",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 14,
+      "arm": "matched",
+      "readout": "mean"
+    },
+    {
+      "task": "depth",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 14,
+      "arm": "matched"
+    },
+    {
+      "task": "normal",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 14,
+      "arm": "matched"
+    },
+    {
+      "task": "recognition",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 17,
+      "arm": "raw",
+      "readout": "attention"
+    },
+    {
+      "task": "recognition",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 17,
+      "arm": "raw",
+      "readout": "mean"
+    },
+    {
+      "task": "depth",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 17,
+      "arm": "raw"
+    },
+    {
+      "task": "normal",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 17,
+      "arm": "raw"
+    },
+    {
+      "task": "recognition",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 17,
+      "arm": "matched",
+      "readout": "attention"
+    },
+    {
+      "task": "recognition",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 17,
+      "arm": "matched",
+      "readout": "mean"
+    },
+    {
+      "task": "depth",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 17,
+      "arm": "matched"
+    },
+    {
+      "task": "normal",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 17,
+      "arm": "matched"
+    },
+    {
+      "task": "recognition",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 20,
+      "arm": "raw",
+      "readout": "attention"
+    },
+    {
+      "task": "recognition",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 20,
+      "arm": "raw",
+      "readout": "mean"
+    },
+    {
+      "task": "depth",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 20,
+      "arm": "raw"
+    },
+    {
+      "task": "normal",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 20,
+      "arm": "raw"
+    },
+    {
+      "task": "recognition",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 20,
+      "arm": "matched",
+      "readout": "attention"
+    },
+    {
+      "task": "recognition",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 20,
+      "arm": "matched",
+      "readout": "mean"
+    },
+    {
+      "task": "depth",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 20,
+      "arm": "matched"
+    },
+    {
+      "task": "normal",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 20,
+      "arm": "matched"
+    },
+    {
+      "task": "recognition",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 24,
+      "arm": "raw",
+      "readout": "attention"
+    },
+    {
+      "task": "recognition",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 24,
+      "arm": "raw",
+      "readout": "mean"
+    },
+    {
+      "task": "depth",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 24,
+      "arm": "raw"
+    },
+    {
+      "task": "normal",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 24,
+      "arm": "raw"
+    },
+    {
+      "task": "recognition",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 24,
+      "arm": "matched",
+      "readout": "attention"
+    },
+    {
+      "task": "recognition",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 24,
+      "arm": "matched",
+      "readout": "mean"
+    },
+    {
+      "task": "depth",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 24,
+      "arm": "matched"
+    },
+    {
+      "task": "normal",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 24,
+      "arm": "matched"
+    },
+    {
+      "task": "recognition",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 27,
+      "arm": "raw",
+      "readout": "attention"
+    },
+    {
+      "task": "recognition",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 27,
+      "arm": "raw",
+      "readout": "mean"
+    },
+    {
+      "task": "depth",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 27,
+      "arm": "raw"
+    },
+    {
+      "task": "normal",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 27,
+      "arm": "raw"
+    },
+    {
+      "task": "recognition",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 27,
+      "arm": "matched",
+      "readout": "attention"
+    },
+    {
+      "task": "recognition",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 27,
+      "arm": "matched",
+      "readout": "mean"
+    },
+    {
+      "task": "depth",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 27,
+      "arm": "matched"
+    },
+    {
+      "task": "normal",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 27,
+      "arm": "matched"
+    },
+    {
+      "task": "recognition",
+      "model": "moonvit_v2",
+      "stage": "merged",
+      "layer": 27,
+      "arm": "raw",
+      "readout": "attention"
+    },
+    {
+      "task": "recognition",
+      "model": "moonvit_v2",
+      "stage": "merged",
+      "layer": 27,
+      "arm": "raw",
+      "readout": "mean"
+    },
+    {
+      "task": "depth",
+      "model": "moonvit_v2",
+      "stage": "merged",
+      "layer": 27,
+      "arm": "raw"
+    },
+    {
+      "task": "normal",
+      "model": "moonvit_v2",
+      "stage": "merged",
+      "layer": 27,
+      "arm": "raw"
+    },
+    {
+      "task": "recognition",
+      "model": "moonvit_v2",
+      "stage": "merged",
+      "layer": 27,
+      "arm": "matched",
+      "readout": "attention"
+    },
+    {
+      "task": "recognition",
+      "model": "moonvit_v2",
+      "stage": "merged",
+      "layer": 27,
+      "arm": "matched",
+      "readout": "mean"
+    },
+    {
+      "task": "depth",
+      "model": "moonvit_v2",
+      "stage": "merged",
+      "layer": 27,
+      "arm": "matched"
+    },
+    {
+      "task": "normal",
+      "model": "moonvit_v2",
+      "stage": "merged",
+      "layer": 27,
+      "arm": "matched"
+    },
+    {
+      "task": "recognition",
+      "model": "moonvit_v2",
+      "stage": "projected",
+      "layer": 27,
+      "arm": "raw",
+      "readout": "attention"
+    },
+    {
+      "task": "recognition",
+      "model": "moonvit_v2",
+      "stage": "projected",
+      "layer": 27,
+      "arm": "raw",
+      "readout": "mean"
+    },
+    {
+      "task": "depth",
+      "model": "moonvit_v2",
+      "stage": "projected",
+      "layer": 27,
+      "arm": "raw"
+    },
+    {
+      "task": "normal",
+      "model": "moonvit_v2",
+      "stage": "projected",
+      "layer": 27,
+      "arm": "raw"
+    },
+    {
+      "task": "recognition",
+      "model": "moonvit_v2",
+      "stage": "projected",
+      "layer": 27,
+      "arm": "matched",
+      "readout": "attention"
+    },
+    {
+      "task": "recognition",
+      "model": "moonvit_v2",
+      "stage": "projected",
+      "layer": 27,
+      "arm": "matched",
+      "readout": "mean"
+    },
+    {
+      "task": "depth",
+      "model": "moonvit_v2",
+      "stage": "projected",
+      "layer": 27,
+      "arm": "matched"
+    },
+    {
+      "task": "normal",
+      "model": "moonvit_v2",
+      "stage": "projected",
+      "layer": 27,
+      "arm": "matched"
+    },
+    {
+      "task": "label_budget",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 27,
+      "arm": "matched",
+      "readout": "attention",
+      "fraction": 0.01
+    },
+    {
+      "task": "label_budget",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 27,
+      "arm": "matched",
+      "readout": "mean",
+      "fraction": 0.01
+    },
+    {
+      "task": "standardized_label_budget",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 27,
+      "arm": "matched",
+      "readout": "attention",
+      "fraction": 0.01
+    },
+    {
+      "task": "label_budget",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 27,
+      "arm": "matched",
+      "readout": "attention",
+      "fraction": 0.05
+    },
+    {
+      "task": "label_budget",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 27,
+      "arm": "matched",
+      "readout": "mean",
+      "fraction": 0.05
+    },
+    {
+      "task": "standardized_label_budget",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 27,
+      "arm": "matched",
+      "readout": "attention",
+      "fraction": 0.05
+    },
+    {
+      "task": "label_budget",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 27,
+      "arm": "matched",
+      "readout": "attention",
+      "fraction": 0.2
+    },
+    {
+      "task": "label_budget",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 27,
+      "arm": "matched",
+      "readout": "mean",
+      "fraction": 0.2
+    },
+    {
+      "task": "standardized_label_budget",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 27,
+      "arm": "matched",
+      "readout": "attention",
+      "fraction": 0.2
+    },
+    {
+      "task": "label_budget",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 27,
+      "arm": "matched",
+      "readout": "attention",
+      "fraction": 1.0
+    },
+    {
+      "task": "label_budget",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 27,
+      "arm": "matched",
+      "readout": "mean",
+      "fraction": 1.0
+    },
+    {
+      "task": "standardized_label_budget",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 27,
+      "arm": "matched",
+      "readout": "attention",
+      "fraction": 1.0
+    },
+    {
+      "task": "navi",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 27
+    },
+    {
+      "task": "navi",
+      "model": "moonvit_v2",
+      "stage": "merged",
+      "layer": 27
+    },
+    {
+      "task": "navi",
+      "model": "moonvit_v2",
+      "stage": "projected",
+      "layer": 27
+    },
+    {
+      "task": "scannet",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 27
+    },
+    {
+      "task": "scannet",
+      "model": "moonvit_v2",
+      "stage": "merged",
+      "layer": 27
+    },
+    {
+      "task": "scannet",
+      "model": "moonvit_v2",
+      "stage": "projected",
+      "layer": 27
+    },
+    {
+      "task": "spair",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 27
+    },
+    {
+      "task": "spair",
+      "model": "moonvit_v2",
+      "stage": "merged",
+      "layer": 27
+    },
+    {
+      "task": "spair",
+      "model": "moonvit_v2",
+      "stage": "projected",
+      "layer": 27
+    },
+    {
+      "task": "perturbation",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "condition": "identity"
+    },
+    {
+      "task": "perturbation",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "condition": "scale_l1"
+    },
+    {
+      "task": "perturbation",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "condition": "scale_l2"
+    },
+    {
+      "task": "perturbation",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "condition": "scale_l3"
+    },
+    {
+      "task": "perturbation",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "condition": "scale_l4"
+    },
+    {
+      "task": "perturbation",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "condition": "occlusion_l1"
+    },
+    {
+      "task": "perturbation",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "condition": "occlusion_l2"
+    },
+    {
+      "task": "perturbation",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "condition": "occlusion_l3"
+    },
+    {
+      "task": "perturbation",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "condition": "occlusion_l4"
+    },
+    {
+      "task": "perturbation",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "condition": "motion_blur_l1"
+    },
+    {
+      "task": "perturbation",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "condition": "motion_blur_l2"
+    },
+    {
+      "task": "perturbation",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "condition": "motion_blur_l3"
+    },
+    {
+      "task": "perturbation",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "condition": "motion_blur_l4"
+    },
+    {
+      "task": "perturbation",
+      "model": "moonvit_v2",
+      "stage": "merged",
+      "condition": "identity"
+    },
+    {
+      "task": "perturbation",
+      "model": "moonvit_v2",
+      "stage": "merged",
+      "condition": "scale_l1"
+    },
+    {
+      "task": "perturbation",
+      "model": "moonvit_v2",
+      "stage": "merged",
+      "condition": "scale_l2"
+    },
+    {
+      "task": "perturbation",
+      "model": "moonvit_v2",
+      "stage": "merged",
+      "condition": "scale_l3"
+    },
+    {
+      "task": "perturbation",
+      "model": "moonvit_v2",
+      "stage": "merged",
+      "condition": "scale_l4"
+    },
+    {
+      "task": "perturbation",
+      "model": "moonvit_v2",
+      "stage": "merged",
+      "condition": "occlusion_l1"
+    },
+    {
+      "task": "perturbation",
+      "model": "moonvit_v2",
+      "stage": "merged",
+      "condition": "occlusion_l2"
+    },
+    {
+      "task": "perturbation",
+      "model": "moonvit_v2",
+      "stage": "merged",
+      "condition": "occlusion_l3"
+    },
+    {
+      "task": "perturbation",
+      "model": "moonvit_v2",
+      "stage": "merged",
+      "condition": "occlusion_l4"
+    },
+    {
+      "task": "perturbation",
+      "model": "moonvit_v2",
+      "stage": "merged",
+      "condition": "motion_blur_l1"
+    },
+    {
+      "task": "perturbation",
+      "model": "moonvit_v2",
+      "stage": "merged",
+      "condition": "motion_blur_l2"
+    },
+    {
+      "task": "perturbation",
+      "model": "moonvit_v2",
+      "stage": "merged",
+      "condition": "motion_blur_l3"
+    },
+    {
+      "task": "perturbation",
+      "model": "moonvit_v2",
+      "stage": "merged",
+      "condition": "motion_blur_l4"
+    },
+    {
+      "task": "perturbation",
+      "model": "moonvit_v2",
+      "stage": "projected",
+      "condition": "identity"
+    },
+    {
+      "task": "perturbation",
+      "model": "moonvit_v2",
+      "stage": "projected",
+      "condition": "scale_l1"
+    },
+    {
+      "task": "perturbation",
+      "model": "moonvit_v2",
+      "stage": "projected",
+      "condition": "scale_l2"
+    },
+    {
+      "task": "perturbation",
+      "model": "moonvit_v2",
+      "stage": "projected",
+      "condition": "scale_l3"
+    },
+    {
+      "task": "perturbation",
+      "model": "moonvit_v2",
+      "stage": "projected",
+      "condition": "scale_l4"
+    },
+    {
+      "task": "perturbation",
+      "model": "moonvit_v2",
+      "stage": "projected",
+      "condition": "occlusion_l1"
+    },
+    {
+      "task": "perturbation",
+      "model": "moonvit_v2",
+      "stage": "projected",
+      "condition": "occlusion_l2"
+    },
+    {
+      "task": "perturbation",
+      "model": "moonvit_v2",
+      "stage": "projected",
+      "condition": "occlusion_l3"
+    },
+    {
+      "task": "perturbation",
+      "model": "moonvit_v2",
+      "stage": "projected",
+      "condition": "occlusion_l4"
+    },
+    {
+      "task": "perturbation",
+      "model": "moonvit_v2",
+      "stage": "projected",
+      "condition": "motion_blur_l1"
+    },
+    {
+      "task": "perturbation",
+      "model": "moonvit_v2",
+      "stage": "projected",
+      "condition": "motion_blur_l2"
+    },
+    {
+      "task": "perturbation",
+      "model": "moonvit_v2",
+      "stage": "projected",
+      "condition": "motion_blur_l3"
+    },
+    {
+      "task": "perturbation",
+      "model": "moonvit_v2",
+      "stage": "projected",
+      "condition": "motion_blur_l4"
+    },
+    {
+      "task": "kitti",
+      "model": "moonvit_v2",
+      "stage": "tower",
+      "layer": 27,
+      "arm": "matched"
+    },
+    {
+      "task": "kitti",
+      "model": "moonvit_v2",
+      "stage": "projected",
+      "layer": 27,
+      "arm": "matched"
+    },
+    {
+      "task": "throughput",
+      "model": "moonvit_v2"
+    }
+  ],
+  "cell_count": 286,
+  "baseline_reuse": "only after provenance compatibility audit",
+  "paired_comparisons": {
+    "projected_vs_tower": [
+      "recognition",
+      "depth",
+      "normal",
+      "navi",
+      "scannet",
+      "spair",
+      "perturbation",
+      "kitti"
+    ],
+    "pro_vs_k3": "all Stages and eight relative depths; paired run point estimates only"
+  },
+  "data_root": "/tmp/vtb-delivery/data",
+  "data_sha256": "255504f8a2ffed47bda8ca945ef0f2b1bbd142a0f4ba95927cfb319b025be8fc",
+  "correspondence_roots": {
+    "navi": "/tmp/vtb-delivery/data/correspondence/navi/navi_v1",
+    "scannet": "/tmp/vtb-delivery/data/correspondence/scannet/scannet_test_1500",
+    "spair": "/tmp/vtb-delivery/data/correspondence/spair/SPair-71k"
+  },
+  "standardization_patch_sha256": "f5a2bc1dcda0e6be9a2d6abea9c1bcc9cb5817282ff6406489b5022dc65e330a",
+  "paired_comparison_cells": [
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "recognition",
+      "first_stage": "tower",
+      "second_stage": "tower",
+      "first_layer": 3,
+      "second_layer": 3,
+      "arm": "matched",
+      "readout": "attention"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "recognition",
+      "first_stage": "tower",
+      "second_stage": "tower",
+      "first_layer": 7,
+      "second_layer": 7,
+      "arm": "matched",
+      "readout": "attention"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "recognition",
+      "first_stage": "tower",
+      "second_stage": "tower",
+      "first_layer": 10,
+      "second_layer": 10,
+      "arm": "matched",
+      "readout": "attention"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "recognition",
+      "first_stage": "tower",
+      "second_stage": "tower",
+      "first_layer": 14,
+      "second_layer": 14,
+      "arm": "matched",
+      "readout": "attention"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "recognition",
+      "first_stage": "tower",
+      "second_stage": "tower",
+      "first_layer": 17,
+      "second_layer": 17,
+      "arm": "matched",
+      "readout": "attention"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "recognition",
+      "first_stage": "tower",
+      "second_stage": "tower",
+      "first_layer": 20,
+      "second_layer": 20,
+      "arm": "matched",
+      "readout": "attention"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "recognition",
+      "first_stage": "tower",
+      "second_stage": "tower",
+      "first_layer": 24,
+      "second_layer": 24,
+      "arm": "matched",
+      "readout": "attention"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "recognition",
+      "first_stage": "tower",
+      "second_stage": "tower",
+      "first_layer": 27,
+      "second_layer": 27,
+      "arm": "matched",
+      "readout": "attention"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "recognition",
+      "first_stage": "merged",
+      "second_stage": "merged",
+      "first_layer": 27,
+      "second_layer": 27,
+      "arm": "matched",
+      "readout": "attention"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "recognition",
+      "first_stage": "projected",
+      "second_stage": "projected",
+      "first_layer": 27,
+      "second_layer": 27,
+      "arm": "matched",
+      "readout": "attention"
+    },
+    {
+      "comparison": "kimi_k31_pro-projected-minus-tower",
+      "task": "recognition",
+      "first_stage": "projected",
+      "second_stage": "tower",
+      "first_layer": 27,
+      "second_layer": 27,
+      "arm": "matched",
+      "readout": "attention"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "depth",
+      "first_stage": "tower",
+      "second_stage": "tower",
+      "first_layer": 3,
+      "second_layer": 3,
+      "arm": "matched",
+      "readout": null
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "depth",
+      "first_stage": "tower",
+      "second_stage": "tower",
+      "first_layer": 7,
+      "second_layer": 7,
+      "arm": "matched",
+      "readout": null
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "depth",
+      "first_stage": "tower",
+      "second_stage": "tower",
+      "first_layer": 10,
+      "second_layer": 10,
+      "arm": "matched",
+      "readout": null
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "depth",
+      "first_stage": "tower",
+      "second_stage": "tower",
+      "first_layer": 14,
+      "second_layer": 14,
+      "arm": "matched",
+      "readout": null
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "depth",
+      "first_stage": "tower",
+      "second_stage": "tower",
+      "first_layer": 17,
+      "second_layer": 17,
+      "arm": "matched",
+      "readout": null
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "depth",
+      "first_stage": "tower",
+      "second_stage": "tower",
+      "first_layer": 20,
+      "second_layer": 20,
+      "arm": "matched",
+      "readout": null
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "depth",
+      "first_stage": "tower",
+      "second_stage": "tower",
+      "first_layer": 24,
+      "second_layer": 24,
+      "arm": "matched",
+      "readout": null
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "depth",
+      "first_stage": "tower",
+      "second_stage": "tower",
+      "first_layer": 27,
+      "second_layer": 27,
+      "arm": "matched",
+      "readout": null
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "depth",
+      "first_stage": "merged",
+      "second_stage": "merged",
+      "first_layer": 27,
+      "second_layer": 27,
+      "arm": "matched",
+      "readout": null
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "depth",
+      "first_stage": "projected",
+      "second_stage": "projected",
+      "first_layer": 27,
+      "second_layer": 27,
+      "arm": "matched",
+      "readout": null
+    },
+    {
+      "comparison": "kimi_k31_pro-projected-minus-tower",
+      "task": "depth",
+      "first_stage": "projected",
+      "second_stage": "tower",
+      "first_layer": 27,
+      "second_layer": 27,
+      "arm": "matched",
+      "readout": null
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "normal",
+      "first_stage": "tower",
+      "second_stage": "tower",
+      "first_layer": 3,
+      "second_layer": 3,
+      "arm": "matched",
+      "readout": null
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "normal",
+      "first_stage": "tower",
+      "second_stage": "tower",
+      "first_layer": 7,
+      "second_layer": 7,
+      "arm": "matched",
+      "readout": null
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "normal",
+      "first_stage": "tower",
+      "second_stage": "tower",
+      "first_layer": 10,
+      "second_layer": 10,
+      "arm": "matched",
+      "readout": null
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "normal",
+      "first_stage": "tower",
+      "second_stage": "tower",
+      "first_layer": 14,
+      "second_layer": 14,
+      "arm": "matched",
+      "readout": null
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "normal",
+      "first_stage": "tower",
+      "second_stage": "tower",
+      "first_layer": 17,
+      "second_layer": 17,
+      "arm": "matched",
+      "readout": null
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "normal",
+      "first_stage": "tower",
+      "second_stage": "tower",
+      "first_layer": 20,
+      "second_layer": 20,
+      "arm": "matched",
+      "readout": null
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "normal",
+      "first_stage": "tower",
+      "second_stage": "tower",
+      "first_layer": 24,
+      "second_layer": 24,
+      "arm": "matched",
+      "readout": null
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "normal",
+      "first_stage": "tower",
+      "second_stage": "tower",
+      "first_layer": 27,
+      "second_layer": 27,
+      "arm": "matched",
+      "readout": null
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "normal",
+      "first_stage": "merged",
+      "second_stage": "merged",
+      "first_layer": 27,
+      "second_layer": 27,
+      "arm": "matched",
+      "readout": null
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "normal",
+      "first_stage": "projected",
+      "second_stage": "projected",
+      "first_layer": 27,
+      "second_layer": 27,
+      "arm": "matched",
+      "readout": null
+    },
+    {
+      "comparison": "kimi_k31_pro-projected-minus-tower",
+      "task": "normal",
+      "first_stage": "projected",
+      "second_stage": "tower",
+      "first_layer": 27,
+      "second_layer": 27,
+      "arm": "matched",
+      "readout": null
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "navi",
+      "first_stage": "tower",
+      "second_stage": "tower"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "navi",
+      "first_stage": "merged",
+      "second_stage": "merged"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "navi",
+      "first_stage": "projected",
+      "second_stage": "projected"
+    },
+    {
+      "comparison": "kimi_k31_pro-projected-minus-tower",
+      "task": "navi",
+      "first_stage": "projected",
+      "second_stage": "tower"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "scannet",
+      "first_stage": "tower",
+      "second_stage": "tower"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "scannet",
+      "first_stage": "merged",
+      "second_stage": "merged"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "scannet",
+      "first_stage": "projected",
+      "second_stage": "projected"
+    },
+    {
+      "comparison": "kimi_k31_pro-projected-minus-tower",
+      "task": "scannet",
+      "first_stage": "projected",
+      "second_stage": "tower"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "spair",
+      "first_stage": "tower",
+      "second_stage": "tower"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "spair",
+      "first_stage": "merged",
+      "second_stage": "merged"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "spair",
+      "first_stage": "projected",
+      "second_stage": "projected"
+    },
+    {
+      "comparison": "kimi_k31_pro-projected-minus-tower",
+      "task": "spair",
+      "first_stage": "projected",
+      "second_stage": "tower"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "perturbation",
+      "condition": "identity",
+      "first_stage": "tower",
+      "second_stage": "tower"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "perturbation",
+      "condition": "identity",
+      "first_stage": "merged",
+      "second_stage": "merged"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "perturbation",
+      "condition": "identity",
+      "first_stage": "projected",
+      "second_stage": "projected"
+    },
+    {
+      "comparison": "kimi_k31_pro-projected-minus-tower",
+      "task": "perturbation",
+      "condition": "identity",
+      "first_stage": "projected",
+      "second_stage": "tower"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "perturbation",
+      "condition": "scale_l1",
+      "first_stage": "tower",
+      "second_stage": "tower"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "perturbation",
+      "condition": "scale_l1",
+      "first_stage": "merged",
+      "second_stage": "merged"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "perturbation",
+      "condition": "scale_l1",
+      "first_stage": "projected",
+      "second_stage": "projected"
+    },
+    {
+      "comparison": "kimi_k31_pro-projected-minus-tower",
+      "task": "perturbation",
+      "condition": "scale_l1",
+      "first_stage": "projected",
+      "second_stage": "tower"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "perturbation",
+      "condition": "scale_l2",
+      "first_stage": "tower",
+      "second_stage": "tower"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "perturbation",
+      "condition": "scale_l2",
+      "first_stage": "merged",
+      "second_stage": "merged"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "perturbation",
+      "condition": "scale_l2",
+      "first_stage": "projected",
+      "second_stage": "projected"
+    },
+    {
+      "comparison": "kimi_k31_pro-projected-minus-tower",
+      "task": "perturbation",
+      "condition": "scale_l2",
+      "first_stage": "projected",
+      "second_stage": "tower"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "perturbation",
+      "condition": "scale_l3",
+      "first_stage": "tower",
+      "second_stage": "tower"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "perturbation",
+      "condition": "scale_l3",
+      "first_stage": "merged",
+      "second_stage": "merged"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "perturbation",
+      "condition": "scale_l3",
+      "first_stage": "projected",
+      "second_stage": "projected"
+    },
+    {
+      "comparison": "kimi_k31_pro-projected-minus-tower",
+      "task": "perturbation",
+      "condition": "scale_l3",
+      "first_stage": "projected",
+      "second_stage": "tower"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "perturbation",
+      "condition": "scale_l4",
+      "first_stage": "tower",
+      "second_stage": "tower"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "perturbation",
+      "condition": "scale_l4",
+      "first_stage": "merged",
+      "second_stage": "merged"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "perturbation",
+      "condition": "scale_l4",
+      "first_stage": "projected",
+      "second_stage": "projected"
+    },
+    {
+      "comparison": "kimi_k31_pro-projected-minus-tower",
+      "task": "perturbation",
+      "condition": "scale_l4",
+      "first_stage": "projected",
+      "second_stage": "tower"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "perturbation",
+      "condition": "occlusion_l1",
+      "first_stage": "tower",
+      "second_stage": "tower"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "perturbation",
+      "condition": "occlusion_l1",
+      "first_stage": "merged",
+      "second_stage": "merged"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "perturbation",
+      "condition": "occlusion_l1",
+      "first_stage": "projected",
+      "second_stage": "projected"
+    },
+    {
+      "comparison": "kimi_k31_pro-projected-minus-tower",
+      "task": "perturbation",
+      "condition": "occlusion_l1",
+      "first_stage": "projected",
+      "second_stage": "tower"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "perturbation",
+      "condition": "occlusion_l2",
+      "first_stage": "tower",
+      "second_stage": "tower"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "perturbation",
+      "condition": "occlusion_l2",
+      "first_stage": "merged",
+      "second_stage": "merged"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "perturbation",
+      "condition": "occlusion_l2",
+      "first_stage": "projected",
+      "second_stage": "projected"
+    },
+    {
+      "comparison": "kimi_k31_pro-projected-minus-tower",
+      "task": "perturbation",
+      "condition": "occlusion_l2",
+      "first_stage": "projected",
+      "second_stage": "tower"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "perturbation",
+      "condition": "occlusion_l3",
+      "first_stage": "tower",
+      "second_stage": "tower"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "perturbation",
+      "condition": "occlusion_l3",
+      "first_stage": "merged",
+      "second_stage": "merged"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "perturbation",
+      "condition": "occlusion_l3",
+      "first_stage": "projected",
+      "second_stage": "projected"
+    },
+    {
+      "comparison": "kimi_k31_pro-projected-minus-tower",
+      "task": "perturbation",
+      "condition": "occlusion_l3",
+      "first_stage": "projected",
+      "second_stage": "tower"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "perturbation",
+      "condition": "occlusion_l4",
+      "first_stage": "tower",
+      "second_stage": "tower"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "perturbation",
+      "condition": "occlusion_l4",
+      "first_stage": "merged",
+      "second_stage": "merged"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "perturbation",
+      "condition": "occlusion_l4",
+      "first_stage": "projected",
+      "second_stage": "projected"
+    },
+    {
+      "comparison": "kimi_k31_pro-projected-minus-tower",
+      "task": "perturbation",
+      "condition": "occlusion_l4",
+      "first_stage": "projected",
+      "second_stage": "tower"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "perturbation",
+      "condition": "motion_blur_l1",
+      "first_stage": "tower",
+      "second_stage": "tower"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "perturbation",
+      "condition": "motion_blur_l1",
+      "first_stage": "merged",
+      "second_stage": "merged"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "perturbation",
+      "condition": "motion_blur_l1",
+      "first_stage": "projected",
+      "second_stage": "projected"
+    },
+    {
+      "comparison": "kimi_k31_pro-projected-minus-tower",
+      "task": "perturbation",
+      "condition": "motion_blur_l1",
+      "first_stage": "projected",
+      "second_stage": "tower"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "perturbation",
+      "condition": "motion_blur_l2",
+      "first_stage": "tower",
+      "second_stage": "tower"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "perturbation",
+      "condition": "motion_blur_l2",
+      "first_stage": "merged",
+      "second_stage": "merged"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "perturbation",
+      "condition": "motion_blur_l2",
+      "first_stage": "projected",
+      "second_stage": "projected"
+    },
+    {
+      "comparison": "kimi_k31_pro-projected-minus-tower",
+      "task": "perturbation",
+      "condition": "motion_blur_l2",
+      "first_stage": "projected",
+      "second_stage": "tower"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "perturbation",
+      "condition": "motion_blur_l3",
+      "first_stage": "tower",
+      "second_stage": "tower"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "perturbation",
+      "condition": "motion_blur_l3",
+      "first_stage": "merged",
+      "second_stage": "merged"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "perturbation",
+      "condition": "motion_blur_l3",
+      "first_stage": "projected",
+      "second_stage": "projected"
+    },
+    {
+      "comparison": "kimi_k31_pro-projected-minus-tower",
+      "task": "perturbation",
+      "condition": "motion_blur_l3",
+      "first_stage": "projected",
+      "second_stage": "tower"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "perturbation",
+      "condition": "motion_blur_l4",
+      "first_stage": "tower",
+      "second_stage": "tower"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "perturbation",
+      "condition": "motion_blur_l4",
+      "first_stage": "merged",
+      "second_stage": "merged"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "perturbation",
+      "condition": "motion_blur_l4",
+      "first_stage": "projected",
+      "second_stage": "projected"
+    },
+    {
+      "comparison": "kimi_k31_pro-projected-minus-tower",
+      "task": "perturbation",
+      "condition": "motion_blur_l4",
+      "first_stage": "projected",
+      "second_stage": "tower"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "kitti",
+      "first_stage": "tower",
+      "second_stage": "tower"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "task": "kitti",
+      "first_stage": "projected",
+      "second_stage": "projected"
+    },
+    {
+      "comparison": "kimi_k31_pro-projected-minus-tower",
+      "task": "kitti",
+      "first_stage": "projected",
+      "second_stage": "tower"
+    },
+    {
+      "comparison": "kimi_k31_pro-projected-minus-tower",
+      "task": "depth",
+      "first_stage": "projected",
+      "second_stage": "tower",
+      "first_layer": 27,
+      "second_layer": 27,
+      "arm": "raw",
+      "readout": null
+    },
+    {
+      "comparison": "kimi_k31_pro-projected-minus-tower",
+      "task": "normal",
+      "first_stage": "projected",
+      "second_stage": "tower",
+      "first_layer": 27,
+      "second_layer": 27,
+      "arm": "raw",
+      "readout": null
+    }
+  ],
+  "paired_comparison_cell_count": 102,
+  "bootstrap_protocol": {
+    "resamples": 10000,
+    "confidence": 0.95,
+    "seed": 0,
+    "pairing": "exact same image/pair IDs; point estimates and intervals from same paired rerun"
+  },
+  "spair_validation": {
+    "selected": 3600,
+    "source_visibility_nonempty": 3408,
+    "source_visibility_empty": 192,
+    "excluded_ids_source": "spair-visibility-audit.json",
+    "rule": "every nonempty pair metric finite; all aggregate metrics finite; paired finite intersection and exclusion union explicitly reported; verify empty IDs from each run match source visibility audit"
+  },
+  "cpu_geometry_extraction": {
+    "namespace": "/tmp/vtb-delivery/issues/24/features/cpu4-bf16-bs1/geometry",
+    "models": [
+      "kimi_k31_pro",
+      "moonvit_v2"
+    ],
+    "device": "cpu",
+    "dtype": "bfloat16",
+    "batch_size": 1,
+    "threads": 4,
+    "workers": 0,
+    "images_per_model": 771,
+    "slices_per_image": 10,
+    "images_per_shard": 8,
+    "initial_duration_guard_seconds_per_model": 5400,
+    "no_truncated_result": true,
+    "resume": "verified atomic chunks only; CPU/GPU namespaces remain separate"
+  }
+}

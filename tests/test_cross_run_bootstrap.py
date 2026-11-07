@@ -83,3 +83,15 @@ def test_perturbation_also_pairs_clean_correctness_once():
     result = perturbation(payload(1.0), payload(0.0), NAMES, args())
     assert result["clean"]["difference"]["point_estimate"] == 1
     assert result["clean"]["test_images"] == 2
+
+
+def test_perturbation_compares_projected_and_tower_in_the_same_measured_run():
+    payload = {"images": 2000, "protocol": {"seeds": 3}, "cells": [
+        {"stage": stage, "layer_index": 27, "measurements": {"scale_l1": [
+            {"image_id": identity, "clean": [score] * 3, "perturbed": [score] * 3}
+            for identity in ("a", "b")
+        ]}} for stage, score in (("tower", 0.0), ("projected", 1.0))
+    ]}
+    result = perturbation(payload, payload, NAMES, args("--stage", "projected", "--second-stage", "tower"))
+    assert result["clean"]["difference"]["point_estimate"] == 1.0
+    assert result["conditions"]["scale_l1"]["difference"]["point_estimate"] == 1.0

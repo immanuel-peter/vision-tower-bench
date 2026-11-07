@@ -15,7 +15,7 @@ FIGURE_SCRIPT = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(FIGURE_SCRIPT)
 
 
-def test_roster_covers_the_sixteen_tower_suite():
+def test_roster_covers_the_seventeen_tower_suite():
     assert FIGURE_SCRIPT.TOWERS == (
         "dinov2",
         "siglip2",
@@ -27,6 +27,7 @@ def test_roster_covers_the_sixteen_tower_suite():
         "deepseek_v41",
         "gemma4",
         "moonvit_v2",
+        "kimi_k31_pro",
         "minimax_m3",
         "nemotron35_super",
         "nemotron35_bolt",
@@ -37,7 +38,7 @@ def test_roster_covers_the_sixteen_tower_suite():
     assert set(FIGURE_SCRIPT.COLOUR) == set(FIGURE_SCRIPT.TOWERS)
     assert set(FIGURE_SCRIPT.DISPLAY) == set(FIGURE_SCRIPT.TOWERS)
     assert FIGURE_SCRIPT.DISPLAY["glm5"] == "GLM 5.3 Flash"
-    assert FIGURE_SCRIPT.DISPLAY["nemotron_omni"] == "Nemotron Omni"
+    assert FIGURE_SCRIPT.DISPLAY["nemotron_omni"] == "Nemotron 3 Omni"
     assert FIGURE_SCRIPT.DISPLAY["deepseek_v41"] == "DeepSeek V4.1"
     assert FIGURE_SCRIPT.DISPLAY["minimax_m3"] == "MiniMax M3"
     assert len(set(FIGURE_SCRIPT.COLOUR.values())) == len(FIGURE_SCRIPT.TOWERS)

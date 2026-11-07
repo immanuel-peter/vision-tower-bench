@@ -1,4 +1,5 @@
 import argparse
+import hashlib
 import json
 from dataclasses import dataclass
 from pathlib import Path
@@ -126,6 +127,9 @@ def run_cell(features, labels, split, num_classes, args) -> dict:
         "test_accuracy": round(scores.mean().item(), 4),
         "test_std": round(scores.std(unbiased=False).item(), 4),
         "seeds": args.seeds,
+        "seed_ids": list(range(args.seeds)),
+        "learning_rate_search_seed": 0,
+        "test_accuracy_by_seed": tests,
     }
 
 
@@ -144,12 +148,25 @@ def selected_slices(
     ]
 
 
-def fit_reducer(features: torch.Tensor, split: Split, width: int) -> probe.Reducer:
+def fit_reducer(
+    features: torch.Tensor, split: Split, width: int, *, standardize: bool = False
+) -> probe.Reducer | probe.StandardizedReducer:
     # torch.svd_lowrank is randomized. Seed it per cell without changing the RNG state
     # used by the readout, so a --depth-points invocation matches a matrix invocation.
     with torch.random.fork_rng(devices=[]):
         torch.random.default_generator.manual_seed(0)
-        return probe.Reducer.fit(features[split.train], width)
+        reducer_type = probe.StandardizedReducer if standardize else probe.Reducer
+        return reducer_type.fit(features[split.train], width)
+
+
+def feature_provenance(run: Path) -> dict:
+    for name in ("provenance.json", "summary.json"):
+        path = run / name
+        if path.is_file():
+            return {"cache_run": str(run), "metadata_file": name,
+                    "metadata_sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+                    "details": json.loads(path.read_text())}
+    return {"cache_run": str(run), "metadata_file": None}
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -165,6 +182,7 @@ def build_parser() -> argparse.ArgumentParser:
         help="fit a frozen PCA reduction to --width first, so every cell trains the same "
         "number of parameters regardless of token width",
     )
+    parser.add_argument("--standardize-channels", action="store_true", help="diagnostic: standardize training channels before matched PCA")
     parser.add_argument("--epochs", type=int, default=20)
     parser.add_argument("--batch-size", type=int, default=256)
     parser.add_argument("--seeds", type=int, default=3)
@@ -202,6 +220,9 @@ def build_parser() -> argparse.ArgumentParser:
 def main() -> None:
     args = build_parser().parse_args()
 
+    if args.standardize_channels and not args.match_capacity:
+        raise ValueError("--standardize-channels requires --match-capacity")
+
     label_map = json.loads(args.labels.read_text())["labels"]
     num_classes = len(set(label_map.values()))
 
@@ -216,7 +237,7 @@ def main() -> None:
 
         features = tokens.float()
         if args.match_capacity:
-            reducer = fit_reducer(features, split, args.width)
+            reducer = fit_reducer(features, split, args.width, standardize=args.standardize_channels)
             features = reducer(features)
 
         result = run_cell(features, labels, split, num_classes, args)
@@ -230,8 +251,14 @@ def main() -> None:
                 probe.build(args.readout, features.shape[-1], num_classes)
             ),
             "label_fraction": args.label_fraction,
+            "standardize_channels": args.standardize_channels,
             "train_images": len(split.train),
             "full_train_images": len(full_split.train),
+            "sample_ids_sha256": hashlib.sha256(json.dumps(image_ids).encode()).hexdigest(),
+            "split_ids_sha256": {
+                name: hashlib.sha256(json.dumps([image_ids[i] for i in getattr(split, name).tolist()]).encode()).hexdigest()
+                for name in ("train", "val", "test")
+            },
         }
         cells.append(result)
         print(
@@ -244,7 +271,14 @@ def main() -> None:
     out = args.out or args.run / f"probe_{args.readout}_{'matched' if args.match_capacity else 'raw'}.json"
     out.write_text(json.dumps({
         "images": image_count,
+        "feature_provenance": feature_provenance(args.run),
+        "protocol": {"readout": args.readout, "capacity_matched": args.match_capacity,
+                     "width": args.width, "classes": num_classes, "epochs": args.epochs,
+                     "batch_size": args.batch_size, "device": args.device,
+                     "learning_rates": args.learning_rates, "learning_rate_search_seed": 0,
+                     "retraining_seeds": list(range(args.seeds))},
         "label_fraction": args.label_fraction,
+        "standardize_channels": args.standardize_channels,
         "train_images": cells[0]["train_images"] if cells else 0,
         "full_train_images": cells[0]["full_train_images"] if cells else 0,
         "cells": cells,

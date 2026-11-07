@@ -28,6 +28,7 @@ TOWERS: tuple[str, ...] = (
     "deepseek_v41",
     "gemma4",
     "moonvit_v2",
+    "kimi_k31_pro",
     "minimax_m3",
     "nemotron35_super",
     "nemotron35_bolt",
@@ -48,7 +49,7 @@ OUTLIER_NOTE = (
 )
 PALETTE: tuple[str, ...] = (
     "#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b",
-    "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#393b79",
+    "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#31a354", "#393b79",
     "#637939", "#b5cf6b", "#6baed6", "#843c39", "#d6616b",
 )
 COLOUR: dict[str, str] = dict(zip(TOWERS, PALETTE, strict=True))
@@ -65,6 +66,7 @@ DISPLAY: dict[str, str] = {
     "deepseek_v41": "DeepSeek V4.1",
     "gemma4": "Gemma 4",
     "moonvit_v2": "Kimi K3",
+    "kimi_k31_pro": "Kimi K3.1 Pro",
     "minimax_m3": "MiniMax M3",
     "nemotron35_super": "Nemotron 3.5 Super",
     "nemotron35_bolt": "Nemotron 3.5 Bolt",

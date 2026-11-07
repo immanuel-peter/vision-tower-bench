@@ -166,3 +166,10 @@ Matrix scripts accept an output directory. Use `results/recognition/` for
 runs in a separate directory when a protocol changes, and update the index with
 the correction's scope. JSON, JSONL, and TSV measurements remain in Git so a
 clone contains the evidence needed to inspect the figures.
+
+Kimi K3.1 Pro checkpoint validation is in progress under
+[diagnostics/kimi-k31-pro-checkpoint/](diagnostics/kimi-k31-pro-checkpoint/).
+It contains exact source identity, CPU/CUDA mathematical-reference conversion
+parity, immutable release reload and weight drift evidence. Production BF16
+SDPA agreement failed and remains a documented limitation. Full capability
+measurements are pending.

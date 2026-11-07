@@ -1,6 +1,7 @@
 import argparse
 import json
 import time
+import torch
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
@@ -16,7 +17,7 @@ from vtb.adapters.glm5 import GLM5Adapter
 from vtb.adapters.kimi_k26 import KimiK26Adapter
 from vtb.adapters.mimo26 import MiMo26FlashAdapter, MiMo26ProAdapter
 from vtb.adapters.minimax_m3 import MiniMaxM3Adapter
-from vtb.adapters.moonvit_v2 import MoonViTV2Adapter
+from vtb.adapters.moonvit_v2 import KimiK31ProAdapter, MoonViTV2Adapter
 from vtb.adapters.muse_glimmer import MuseGlimmerAdapter
 from vtb.adapters.nemotron_omni import NemotronOmniAdapter
 from vtb.adapters.nemotron35 import Nemotron35BoltAdapter, Nemotron35SuperAdapter
@@ -35,6 +36,7 @@ ADAPTERS = {
     "mimo26_flash": MiMo26FlashAdapter,
     "minimax_m3": MiniMaxM3Adapter,
     "moonvit_v2": MoonViTV2Adapter,
+    "kimi_k31_pro": KimiK31ProAdapter,
     "muse_glimmer": MuseGlimmerAdapter,
     "nemotron_omni": NemotronOmniAdapter,
     "nemotron35_super": Nemotron35SuperAdapter,
@@ -144,6 +146,7 @@ def main() -> None:
         written_bytes,
         time.perf_counter() - start,
         args.final_stages or list(adapter.stages),
+        batch_size=args.batch_size, workers=args.workers, device=args.device, dtype=str(batch.tokens.dtype),
     )
 
 
@@ -157,12 +160,17 @@ class Collate:
         return self.batch(list(values)), list(image_ids)
 
 
-def report(run_dir, adapter, pool, tokens, slice_count, images, written_bytes, elapsed, stages) -> None:
+def report(run_dir, adapter, pool, tokens, slice_count, images, written_bytes, elapsed, stages,
+           *, batch_size=None, workers=None, device=None, dtype=None) -> None:
     per_image = written_bytes / images
     on_disk = sum(p.stat().st_size for p in run_dir.glob("*.safetensors"))
 
     summary = {
         "model_id": adapter.model_id,
+        "device": device or str(getattr(adapter, "device", "unknown")),
+        "dtype": dtype or str(getattr(adapter, "dtype", "unknown")),
+        "batch_size": batch_size, "workers": workers, "torch_threads": torch.get_num_threads(),
+        "model_revision": getattr(getattr(getattr(adapter, "model", None), "config", None), "_commit_hash", None),
         "resolution": adapter.resolution,
         "pooled_to": pool,
         "tokens_per_image": tokens,

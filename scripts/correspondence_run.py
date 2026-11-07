@@ -299,7 +299,7 @@ class SPairPairs:
 
 
 DATASETS = {"scannet": ScanNetPairs, "navi": NAVIPairs, "spair": SPairPairs}
-BATCH_ONE = {"kimi_k26", "moonvit_v2"}
+BATCH_ONE = {"kimi_k26", "moonvit_v2", "kimi_k31_pro"}
 
 
 def extract_pair(adapter, images, model_name: str):
