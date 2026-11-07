@@ -62,10 +62,10 @@ Relative L2 uses the 27B tensor norm as its denominator.
 
 ## Benchmark status
 
-The full 448-pixel suite is in progress. No benchmark point estimate or sibling
-performance delta is claimed by this source and release evidence. The expected
-inventory records the required coverage. Learning-rate selection uses seed 0
-at every prescribed rate, followed by three seeds at the selected rate.
+The full 448-pixel suite and 33 primary paired comparisons are complete. The
+[benchmark summary](benchmark-summary.md) reports the per-Stage sibling deltas,
+full requirement audit, protocols, timings, and limitations. Learning-rate selection
+uses seed 0 at every prescribed rate, followed by seeds 0, 1, and 2 at the selected rate.
 
 Reproduce source extraction and validation from the repository root:
 
@@ -115,8 +115,8 @@ every process exited with code 0. The other attention cell reuses the audited
 100% label-budget result. Mean cells and label-budget runs use CPU hardware;
 GPU attention uses physical GPU 1 with eight threads. Per-job records retain
 the actual device and thread count. All eight primary label-budget cells and
-all four standardized diagnostic fractions are complete. The rest of the
-benchmark suite remains in progress.
+all four standardized diagnostic fractions are complete. Geometry, correspondence, transfer, throughput, and the complete paired suite
+are also complete, as recorded in the requirement audit.
 
 The independent raw-source audit additionally verifies each complete pinned
 vision-containing shard against its Hub SHA256, then reads each tensor with
@@ -135,5 +135,15 @@ same six-thread CPU protocol. Training-only channel standardization recovers
 FlashNext's weak clean readouts. Its matched comparisons, complete loss logs,
 channel statistics, source hashes, hardware, and timings are retained separately.
 These results establish readout sensitivity. Training causes and a shared cause
-with MiMo remain untested. This diagnostic does not replace the remaining
-geometry, correspondence, transfer, throughput, or paired experiments.
+with MiMo remain untested. This diagnostic is separate from the completed primary geometry, correspondence,
+transfer, throughput, and paired experiments.
+
+## Final validation
+
+The [delivery checklist](delivery-checklist.md) maps every scientific requirement
+to the complete suite. The final CPU test run passed 156 tests with 50 expected
+weight-dependent skips. Seven Qwen weighted tests passed separately. All twelve
+figures regenerated, and the sibling interval figure passed a visual check.
+`final-validation.json` records source selection, preserved historical payloads,
+license/patch/runner hashes, and the secrets scan. Original failed validator and
+stale figure-test reports remain beside the corrected passing evidence.

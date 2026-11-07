@@ -1,0 +1,2177 @@
+[
+  {
+    "name": "bootstrap-projector-depth-matched",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "scripts.geometry_bootstrap",
+      "--first-run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--first-name",
+      "projected",
+      "--first-stage",
+      "projected",
+      "--first-layer",
+      "27",
+      "--second-run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--second-name",
+      "tower",
+      "--second-stage",
+      "tower",
+      "--second-layer",
+      "27",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "depth",
+      "--arm",
+      "matched",
+      "--device",
+      "cuda:0",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/bootstrap/geometry-depth-matched-qwen38_flash_next-projected-vs-tower.json"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/bootstrap/geometry-depth-matched-qwen38_flash_next-projected-vs-tower.json",
+    "kind": "json",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "/tmp/vtb-delivery/data/diode.READY"
+    ],
+    "expect": {}
+  },
+  {
+    "name": "bootstrap-projector-depth-raw",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "scripts.geometry_bootstrap",
+      "--first-run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--first-name",
+      "projected",
+      "--first-stage",
+      "projected",
+      "--first-layer",
+      "27",
+      "--second-run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--second-name",
+      "tower",
+      "--second-stage",
+      "tower",
+      "--second-layer",
+      "27",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "depth",
+      "--arm",
+      "raw",
+      "--device",
+      "cuda:0",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/bootstrap/geometry-depth-raw-qwen38_flash_next-projected-vs-tower.json"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/bootstrap/geometry-depth-raw-qwen38_flash_next-projected-vs-tower.json",
+    "kind": "json",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "/tmp/vtb-delivery/data/diode.READY"
+    ],
+    "expect": {}
+  },
+  {
+    "name": "bootstrap-projector-normal-matched",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "scripts.geometry_bootstrap",
+      "--first-run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--first-name",
+      "projected",
+      "--first-stage",
+      "projected",
+      "--first-layer",
+      "27",
+      "--second-run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--second-name",
+      "tower",
+      "--second-stage",
+      "tower",
+      "--second-layer",
+      "27",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "normal",
+      "--arm",
+      "matched",
+      "--device",
+      "cuda:0",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/bootstrap/geometry-normal-matched-qwen38_flash_next-projected-vs-tower.json"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/bootstrap/geometry-normal-matched-qwen38_flash_next-projected-vs-tower.json",
+    "kind": "json",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "/tmp/vtb-delivery/data/diode.READY"
+    ],
+    "expect": {}
+  },
+  {
+    "name": "bootstrap-projector-normal-raw",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "scripts.geometry_bootstrap",
+      "--first-run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--first-name",
+      "projected",
+      "--first-stage",
+      "projected",
+      "--first-layer",
+      "27",
+      "--second-run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--second-name",
+      "tower",
+      "--second-stage",
+      "tower",
+      "--second-layer",
+      "27",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "normal",
+      "--arm",
+      "raw",
+      "--device",
+      "cuda:0",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/bootstrap/geometry-normal-raw-qwen38_flash_next-projected-vs-tower.json"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/bootstrap/geometry-normal-raw-qwen38_flash_next-projected-vs-tower.json",
+    "kind": "json",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "/tmp/vtb-delivery/data/diode.READY"
+    ],
+    "expect": {}
+  },
+  {
+    "name": "qwen38_flash_next_depth_raw_tower_L03",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "vtb.geometry_run",
+      "--run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--device",
+      "cuda:0",
+      "--seeds",
+      "3",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_depth_raw_tower_L03.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "depth",
+      "--only",
+      "tower:3"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_depth_raw_tower_L03.json",
+    "kind": "matrix",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full"
+    ],
+    "expect": {
+      "model": "qwen38_flash_next",
+      "cells": 1,
+      "slices": [
+        [
+          "tower",
+          3
+        ]
+      ],
+      "grid": 6,
+      "images": 771
+    }
+  },
+  {
+    "name": "qwen38_flash_next_depth_raw_tower_L07",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "vtb.geometry_run",
+      "--run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--device",
+      "cuda:0",
+      "--seeds",
+      "3",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_depth_raw_tower_L07.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "depth",
+      "--only",
+      "tower:7"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_depth_raw_tower_L07.json",
+    "kind": "matrix",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full"
+    ],
+    "expect": {
+      "model": "qwen38_flash_next",
+      "cells": 1,
+      "slices": [
+        [
+          "tower",
+          7
+        ]
+      ],
+      "grid": 6,
+      "images": 771
+    }
+  },
+  {
+    "name": "qwen38_flash_next_depth_raw_tower_L10",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "vtb.geometry_run",
+      "--run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--device",
+      "cuda:0",
+      "--seeds",
+      "3",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_depth_raw_tower_L10.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "depth",
+      "--only",
+      "tower:10"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_depth_raw_tower_L10.json",
+    "kind": "matrix",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full"
+    ],
+    "expect": {
+      "model": "qwen38_flash_next",
+      "cells": 1,
+      "slices": [
+        [
+          "tower",
+          10
+        ]
+      ],
+      "grid": 6,
+      "images": 771
+    }
+  },
+  {
+    "name": "qwen38_flash_next_depth_raw_tower_L14",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "vtb.geometry_run",
+      "--run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--device",
+      "cuda:0",
+      "--seeds",
+      "3",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_depth_raw_tower_L14.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "depth",
+      "--only",
+      "tower:14"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_depth_raw_tower_L14.json",
+    "kind": "matrix",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full"
+    ],
+    "expect": {
+      "model": "qwen38_flash_next",
+      "cells": 1,
+      "slices": [
+        [
+          "tower",
+          14
+        ]
+      ],
+      "grid": 6,
+      "images": 771
+    }
+  },
+  {
+    "name": "qwen38_flash_next_depth_raw_tower_L17",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "vtb.geometry_run",
+      "--run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--device",
+      "cuda:0",
+      "--seeds",
+      "3",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_depth_raw_tower_L17.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "depth",
+      "--only",
+      "tower:17"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_depth_raw_tower_L17.json",
+    "kind": "matrix",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full"
+    ],
+    "expect": {
+      "model": "qwen38_flash_next",
+      "cells": 1,
+      "slices": [
+        [
+          "tower",
+          17
+        ]
+      ],
+      "grid": 6,
+      "images": 771
+    }
+  },
+  {
+    "name": "qwen38_flash_next_depth_raw_tower_L20",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "vtb.geometry_run",
+      "--run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--device",
+      "cuda:0",
+      "--seeds",
+      "3",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_depth_raw_tower_L20.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "depth",
+      "--only",
+      "tower:20"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_depth_raw_tower_L20.json",
+    "kind": "matrix",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full"
+    ],
+    "expect": {
+      "model": "qwen38_flash_next",
+      "cells": 1,
+      "slices": [
+        [
+          "tower",
+          20
+        ]
+      ],
+      "grid": 6,
+      "images": 771
+    }
+  },
+  {
+    "name": "qwen38_flash_next_depth_raw_tower_L24",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "vtb.geometry_run",
+      "--run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--device",
+      "cuda:0",
+      "--seeds",
+      "3",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_depth_raw_tower_L24.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "depth",
+      "--only",
+      "tower:24"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_depth_raw_tower_L24.json",
+    "kind": "matrix",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full"
+    ],
+    "expect": {
+      "model": "qwen38_flash_next",
+      "cells": 1,
+      "slices": [
+        [
+          "tower",
+          24
+        ]
+      ],
+      "grid": 6,
+      "images": 771
+    }
+  },
+  {
+    "name": "qwen38_flash_next_depth_raw_tower_L27",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "vtb.geometry_run",
+      "--run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--device",
+      "cuda:0",
+      "--seeds",
+      "3",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_depth_raw_tower_L27.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "depth",
+      "--only",
+      "tower:27"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_depth_raw_tower_L27.json",
+    "kind": "matrix",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full"
+    ],
+    "expect": {
+      "model": "qwen38_flash_next",
+      "cells": 1,
+      "slices": [
+        [
+          "tower",
+          27
+        ]
+      ],
+      "grid": 6,
+      "images": 771
+    }
+  },
+  {
+    "name": "qwen38_flash_next_depth_raw_merged_L27",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "vtb.geometry_run",
+      "--run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--device",
+      "cuda:0",
+      "--seeds",
+      "3",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_depth_raw_merged_L27.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "depth",
+      "--only",
+      "merged:27"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_depth_raw_merged_L27.json",
+    "kind": "matrix",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full"
+    ],
+    "expect": {
+      "model": "qwen38_flash_next",
+      "cells": 1,
+      "slices": [
+        [
+          "merged",
+          27
+        ]
+      ],
+      "grid": 6,
+      "images": 771
+    }
+  },
+  {
+    "name": "qwen38_flash_next_depth_raw_projected_L27",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "vtb.geometry_run",
+      "--run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--device",
+      "cuda:0",
+      "--seeds",
+      "3",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_depth_raw_projected_L27.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "depth",
+      "--only",
+      "projected:27"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_depth_raw_projected_L27.json",
+    "kind": "matrix",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full"
+    ],
+    "expect": {
+      "model": "qwen38_flash_next",
+      "cells": 1,
+      "slices": [
+        [
+          "projected",
+          27
+        ]
+      ],
+      "grid": 6,
+      "images": 771
+    }
+  },
+  {
+    "name": "qwen38_flash_next_depth_matched_tower_L03",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "vtb.geometry_run",
+      "--run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--device",
+      "cuda:0",
+      "--seeds",
+      "3",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_depth_matched_tower_L03.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "depth",
+      "--only",
+      "tower:3",
+      "--match-capacity"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_depth_matched_tower_L03.json",
+    "kind": "matrix",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full"
+    ],
+    "expect": {
+      "model": "qwen38_flash_next",
+      "cells": 1,
+      "slices": [
+        [
+          "tower",
+          3
+        ]
+      ],
+      "grid": 6,
+      "images": 771
+    }
+  },
+  {
+    "name": "qwen38_flash_next_depth_matched_tower_L07",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "vtb.geometry_run",
+      "--run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--device",
+      "cuda:0",
+      "--seeds",
+      "3",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_depth_matched_tower_L07.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "depth",
+      "--only",
+      "tower:7",
+      "--match-capacity"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_depth_matched_tower_L07.json",
+    "kind": "matrix",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full"
+    ],
+    "expect": {
+      "model": "qwen38_flash_next",
+      "cells": 1,
+      "slices": [
+        [
+          "tower",
+          7
+        ]
+      ],
+      "grid": 6,
+      "images": 771
+    }
+  },
+  {
+    "name": "qwen38_flash_next_depth_matched_tower_L10",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "vtb.geometry_run",
+      "--run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--device",
+      "cuda:0",
+      "--seeds",
+      "3",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_depth_matched_tower_L10.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "depth",
+      "--only",
+      "tower:10",
+      "--match-capacity"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_depth_matched_tower_L10.json",
+    "kind": "matrix",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full"
+    ],
+    "expect": {
+      "model": "qwen38_flash_next",
+      "cells": 1,
+      "slices": [
+        [
+          "tower",
+          10
+        ]
+      ],
+      "grid": 6,
+      "images": 771
+    }
+  },
+  {
+    "name": "qwen38_flash_next_depth_matched_tower_L14",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "vtb.geometry_run",
+      "--run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--device",
+      "cuda:0",
+      "--seeds",
+      "3",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_depth_matched_tower_L14.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "depth",
+      "--only",
+      "tower:14",
+      "--match-capacity"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_depth_matched_tower_L14.json",
+    "kind": "matrix",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full"
+    ],
+    "expect": {
+      "model": "qwen38_flash_next",
+      "cells": 1,
+      "slices": [
+        [
+          "tower",
+          14
+        ]
+      ],
+      "grid": 6,
+      "images": 771
+    }
+  },
+  {
+    "name": "qwen38_flash_next_depth_matched_tower_L17",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "vtb.geometry_run",
+      "--run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--device",
+      "cuda:0",
+      "--seeds",
+      "3",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_depth_matched_tower_L17.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "depth",
+      "--only",
+      "tower:17",
+      "--match-capacity"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_depth_matched_tower_L17.json",
+    "kind": "matrix",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full"
+    ],
+    "expect": {
+      "model": "qwen38_flash_next",
+      "cells": 1,
+      "slices": [
+        [
+          "tower",
+          17
+        ]
+      ],
+      "grid": 6,
+      "images": 771
+    }
+  },
+  {
+    "name": "qwen38_flash_next_depth_matched_tower_L20",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "vtb.geometry_run",
+      "--run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--device",
+      "cuda:0",
+      "--seeds",
+      "3",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_depth_matched_tower_L20.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "depth",
+      "--only",
+      "tower:20",
+      "--match-capacity"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_depth_matched_tower_L20.json",
+    "kind": "matrix",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full"
+    ],
+    "expect": {
+      "model": "qwen38_flash_next",
+      "cells": 1,
+      "slices": [
+        [
+          "tower",
+          20
+        ]
+      ],
+      "grid": 6,
+      "images": 771
+    }
+  },
+  {
+    "name": "qwen38_flash_next_depth_matched_tower_L24",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "vtb.geometry_run",
+      "--run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--device",
+      "cuda:0",
+      "--seeds",
+      "3",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_depth_matched_tower_L24.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "depth",
+      "--only",
+      "tower:24",
+      "--match-capacity"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_depth_matched_tower_L24.json",
+    "kind": "matrix",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full"
+    ],
+    "expect": {
+      "model": "qwen38_flash_next",
+      "cells": 1,
+      "slices": [
+        [
+          "tower",
+          24
+        ]
+      ],
+      "grid": 6,
+      "images": 771
+    }
+  },
+  {
+    "name": "qwen38_flash_next_depth_matched_tower_L27",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "vtb.geometry_run",
+      "--run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--device",
+      "cuda:0",
+      "--seeds",
+      "3",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_depth_matched_tower_L27.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "depth",
+      "--only",
+      "tower:27",
+      "--match-capacity"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_depth_matched_tower_L27.json",
+    "kind": "matrix",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full"
+    ],
+    "expect": {
+      "model": "qwen38_flash_next",
+      "cells": 1,
+      "slices": [
+        [
+          "tower",
+          27
+        ]
+      ],
+      "grid": 6,
+      "images": 771
+    }
+  },
+  {
+    "name": "qwen38_flash_next_depth_matched_merged_L27",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "vtb.geometry_run",
+      "--run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--device",
+      "cuda:0",
+      "--seeds",
+      "3",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_depth_matched_merged_L27.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "depth",
+      "--only",
+      "merged:27",
+      "--match-capacity"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_depth_matched_merged_L27.json",
+    "kind": "matrix",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full"
+    ],
+    "expect": {
+      "model": "qwen38_flash_next",
+      "cells": 1,
+      "slices": [
+        [
+          "merged",
+          27
+        ]
+      ],
+      "grid": 6,
+      "images": 771
+    }
+  },
+  {
+    "name": "qwen38_flash_next_depth_matched_projected_L27",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "vtb.geometry_run",
+      "--run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--device",
+      "cuda:0",
+      "--seeds",
+      "3",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_depth_matched_projected_L27.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "depth",
+      "--only",
+      "projected:27",
+      "--match-capacity"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_depth_matched_projected_L27.json",
+    "kind": "matrix",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full"
+    ],
+    "expect": {
+      "model": "qwen38_flash_next",
+      "cells": 1,
+      "slices": [
+        [
+          "projected",
+          27
+        ]
+      ],
+      "grid": 6,
+      "images": 771
+    }
+  },
+  {
+    "name": "qwen38_flash_next_normal_raw_tower_L03",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "vtb.geometry_run",
+      "--run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--device",
+      "cuda:0",
+      "--seeds",
+      "3",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_normal_raw_tower_L03.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "normal",
+      "--only",
+      "tower:3"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_normal_raw_tower_L03.json",
+    "kind": "matrix",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full"
+    ],
+    "expect": {
+      "model": "qwen38_flash_next",
+      "cells": 1,
+      "slices": [
+        [
+          "tower",
+          3
+        ]
+      ],
+      "grid": 6,
+      "images": 771
+    }
+  },
+  {
+    "name": "qwen38_flash_next_normal_raw_tower_L07",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "vtb.geometry_run",
+      "--run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--device",
+      "cuda:0",
+      "--seeds",
+      "3",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_normal_raw_tower_L07.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "normal",
+      "--only",
+      "tower:7"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_normal_raw_tower_L07.json",
+    "kind": "matrix",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full"
+    ],
+    "expect": {
+      "model": "qwen38_flash_next",
+      "cells": 1,
+      "slices": [
+        [
+          "tower",
+          7
+        ]
+      ],
+      "grid": 6,
+      "images": 771
+    }
+  },
+  {
+    "name": "qwen38_flash_next_normal_raw_tower_L10",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "vtb.geometry_run",
+      "--run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--device",
+      "cuda:0",
+      "--seeds",
+      "3",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_normal_raw_tower_L10.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "normal",
+      "--only",
+      "tower:10"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_normal_raw_tower_L10.json",
+    "kind": "matrix",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full"
+    ],
+    "expect": {
+      "model": "qwen38_flash_next",
+      "cells": 1,
+      "slices": [
+        [
+          "tower",
+          10
+        ]
+      ],
+      "grid": 6,
+      "images": 771
+    }
+  },
+  {
+    "name": "qwen38_flash_next_normal_raw_tower_L14",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "vtb.geometry_run",
+      "--run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--device",
+      "cuda:0",
+      "--seeds",
+      "3",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_normal_raw_tower_L14.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "normal",
+      "--only",
+      "tower:14"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_normal_raw_tower_L14.json",
+    "kind": "matrix",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full"
+    ],
+    "expect": {
+      "model": "qwen38_flash_next",
+      "cells": 1,
+      "slices": [
+        [
+          "tower",
+          14
+        ]
+      ],
+      "grid": 6,
+      "images": 771
+    }
+  },
+  {
+    "name": "qwen38_flash_next_normal_raw_tower_L17",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "vtb.geometry_run",
+      "--run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--device",
+      "cuda:0",
+      "--seeds",
+      "3",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_normal_raw_tower_L17.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "normal",
+      "--only",
+      "tower:17"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_normal_raw_tower_L17.json",
+    "kind": "matrix",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full"
+    ],
+    "expect": {
+      "model": "qwen38_flash_next",
+      "cells": 1,
+      "slices": [
+        [
+          "tower",
+          17
+        ]
+      ],
+      "grid": 6,
+      "images": 771
+    }
+  },
+  {
+    "name": "qwen38_flash_next_normal_raw_tower_L20",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "vtb.geometry_run",
+      "--run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--device",
+      "cuda:0",
+      "--seeds",
+      "3",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_normal_raw_tower_L20.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "normal",
+      "--only",
+      "tower:20"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_normal_raw_tower_L20.json",
+    "kind": "matrix",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full"
+    ],
+    "expect": {
+      "model": "qwen38_flash_next",
+      "cells": 1,
+      "slices": [
+        [
+          "tower",
+          20
+        ]
+      ],
+      "grid": 6,
+      "images": 771
+    }
+  },
+  {
+    "name": "qwen38_flash_next_normal_raw_tower_L24",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "vtb.geometry_run",
+      "--run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--device",
+      "cuda:0",
+      "--seeds",
+      "3",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_normal_raw_tower_L24.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "normal",
+      "--only",
+      "tower:24"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_normal_raw_tower_L24.json",
+    "kind": "matrix",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full"
+    ],
+    "expect": {
+      "model": "qwen38_flash_next",
+      "cells": 1,
+      "slices": [
+        [
+          "tower",
+          24
+        ]
+      ],
+      "grid": 6,
+      "images": 771
+    }
+  },
+  {
+    "name": "qwen38_flash_next_normal_raw_tower_L27",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "vtb.geometry_run",
+      "--run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--device",
+      "cuda:0",
+      "--seeds",
+      "3",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_normal_raw_tower_L27.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "normal",
+      "--only",
+      "tower:27"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_normal_raw_tower_L27.json",
+    "kind": "matrix",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full"
+    ],
+    "expect": {
+      "model": "qwen38_flash_next",
+      "cells": 1,
+      "slices": [
+        [
+          "tower",
+          27
+        ]
+      ],
+      "grid": 6,
+      "images": 771
+    }
+  },
+  {
+    "name": "qwen38_flash_next_normal_raw_merged_L27",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "vtb.geometry_run",
+      "--run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--device",
+      "cuda:0",
+      "--seeds",
+      "3",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_normal_raw_merged_L27.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "normal",
+      "--only",
+      "merged:27"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_normal_raw_merged_L27.json",
+    "kind": "matrix",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full"
+    ],
+    "expect": {
+      "model": "qwen38_flash_next",
+      "cells": 1,
+      "slices": [
+        [
+          "merged",
+          27
+        ]
+      ],
+      "grid": 6,
+      "images": 771
+    }
+  },
+  {
+    "name": "qwen38_flash_next_normal_raw_projected_L27",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "vtb.geometry_run",
+      "--run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--device",
+      "cuda:0",
+      "--seeds",
+      "3",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_normal_raw_projected_L27.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "normal",
+      "--only",
+      "projected:27"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_normal_raw_projected_L27.json",
+    "kind": "matrix",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full"
+    ],
+    "expect": {
+      "model": "qwen38_flash_next",
+      "cells": 1,
+      "slices": [
+        [
+          "projected",
+          27
+        ]
+      ],
+      "grid": 6,
+      "images": 771
+    }
+  },
+  {
+    "name": "qwen38_flash_next_normal_matched_tower_L03",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "vtb.geometry_run",
+      "--run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--device",
+      "cuda:0",
+      "--seeds",
+      "3",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_normal_matched_tower_L03.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "normal",
+      "--only",
+      "tower:3",
+      "--match-capacity"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_normal_matched_tower_L03.json",
+    "kind": "matrix",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full"
+    ],
+    "expect": {
+      "model": "qwen38_flash_next",
+      "cells": 1,
+      "slices": [
+        [
+          "tower",
+          3
+        ]
+      ],
+      "grid": 6,
+      "images": 771
+    }
+  },
+  {
+    "name": "qwen38_flash_next_normal_matched_tower_L07",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "vtb.geometry_run",
+      "--run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--device",
+      "cuda:0",
+      "--seeds",
+      "3",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_normal_matched_tower_L07.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "normal",
+      "--only",
+      "tower:7",
+      "--match-capacity"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_normal_matched_tower_L07.json",
+    "kind": "matrix",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full"
+    ],
+    "expect": {
+      "model": "qwen38_flash_next",
+      "cells": 1,
+      "slices": [
+        [
+          "tower",
+          7
+        ]
+      ],
+      "grid": 6,
+      "images": 771
+    }
+  },
+  {
+    "name": "qwen38_flash_next_normal_matched_tower_L10",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "vtb.geometry_run",
+      "--run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--device",
+      "cuda:0",
+      "--seeds",
+      "3",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_normal_matched_tower_L10.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "normal",
+      "--only",
+      "tower:10",
+      "--match-capacity"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_normal_matched_tower_L10.json",
+    "kind": "matrix",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full"
+    ],
+    "expect": {
+      "model": "qwen38_flash_next",
+      "cells": 1,
+      "slices": [
+        [
+          "tower",
+          10
+        ]
+      ],
+      "grid": 6,
+      "images": 771
+    }
+  },
+  {
+    "name": "qwen38_flash_next_normal_matched_tower_L14",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "vtb.geometry_run",
+      "--run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--device",
+      "cuda:0",
+      "--seeds",
+      "3",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_normal_matched_tower_L14.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "normal",
+      "--only",
+      "tower:14",
+      "--match-capacity"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_normal_matched_tower_L14.json",
+    "kind": "matrix",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full"
+    ],
+    "expect": {
+      "model": "qwen38_flash_next",
+      "cells": 1,
+      "slices": [
+        [
+          "tower",
+          14
+        ]
+      ],
+      "grid": 6,
+      "images": 771
+    }
+  },
+  {
+    "name": "qwen38_flash_next_normal_matched_tower_L17",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "vtb.geometry_run",
+      "--run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--device",
+      "cuda:0",
+      "--seeds",
+      "3",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_normal_matched_tower_L17.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "normal",
+      "--only",
+      "tower:17",
+      "--match-capacity"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_normal_matched_tower_L17.json",
+    "kind": "matrix",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full"
+    ],
+    "expect": {
+      "model": "qwen38_flash_next",
+      "cells": 1,
+      "slices": [
+        [
+          "tower",
+          17
+        ]
+      ],
+      "grid": 6,
+      "images": 771
+    }
+  },
+  {
+    "name": "qwen38_flash_next_normal_matched_tower_L20",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "vtb.geometry_run",
+      "--run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--device",
+      "cuda:0",
+      "--seeds",
+      "3",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_normal_matched_tower_L20.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "normal",
+      "--only",
+      "tower:20",
+      "--match-capacity"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_normal_matched_tower_L20.json",
+    "kind": "matrix",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full"
+    ],
+    "expect": {
+      "model": "qwen38_flash_next",
+      "cells": 1,
+      "slices": [
+        [
+          "tower",
+          20
+        ]
+      ],
+      "grid": 6,
+      "images": 771
+    }
+  },
+  {
+    "name": "qwen38_flash_next_normal_matched_tower_L24",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "vtb.geometry_run",
+      "--run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--device",
+      "cuda:0",
+      "--seeds",
+      "3",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_normal_matched_tower_L24.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "normal",
+      "--only",
+      "tower:24",
+      "--match-capacity"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_normal_matched_tower_L24.json",
+    "kind": "matrix",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full"
+    ],
+    "expect": {
+      "model": "qwen38_flash_next",
+      "cells": 1,
+      "slices": [
+        [
+          "tower",
+          24
+        ]
+      ],
+      "grid": 6,
+      "images": 771
+    }
+  },
+  {
+    "name": "qwen38_flash_next_normal_matched_tower_L27",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "vtb.geometry_run",
+      "--run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--device",
+      "cuda:0",
+      "--seeds",
+      "3",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_normal_matched_tower_L27.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "normal",
+      "--only",
+      "tower:27",
+      "--match-capacity"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_normal_matched_tower_L27.json",
+    "kind": "matrix",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full"
+    ],
+    "expect": {
+      "model": "qwen38_flash_next",
+      "cells": 1,
+      "slices": [
+        [
+          "tower",
+          27
+        ]
+      ],
+      "grid": 6,
+      "images": 771
+    }
+  },
+  {
+    "name": "qwen38_flash_next_normal_matched_merged_L27",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "vtb.geometry_run",
+      "--run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--device",
+      "cuda:0",
+      "--seeds",
+      "3",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_normal_matched_merged_L27.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "normal",
+      "--only",
+      "merged:27",
+      "--match-capacity"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_normal_matched_merged_L27.json",
+    "kind": "matrix",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full"
+    ],
+    "expect": {
+      "model": "qwen38_flash_next",
+      "cells": 1,
+      "slices": [
+        [
+          "merged",
+          27
+        ]
+      ],
+      "grid": 6,
+      "images": 771
+    }
+  },
+  {
+    "name": "qwen38_flash_next_normal_matched_projected_L27",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "vtb.geometry_run",
+      "--run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--device",
+      "cuda:0",
+      "--seeds",
+      "3",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_normal_matched_projected_L27.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "normal",
+      "--only",
+      "projected:27",
+      "--match-capacity"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/geometry/cells/qwen38_flash_next_normal_matched_projected_L27.json",
+    "kind": "matrix",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full"
+    ],
+    "expect": {
+      "model": "qwen38_flash_next",
+      "cells": 1,
+      "slices": [
+        [
+          "projected",
+          27
+        ]
+      ],
+      "grid": 6,
+      "images": 771
+    }
+  },
+  {
+    "name": "kitti-qwen38_flash_next_depth_matched_tower_L27",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "vtb.geometry_run",
+      "--run",
+      "/tmp/vtb-delivery/issues/22/features/kitti/qwen38_flash_next_448_full",
+      "--device",
+      "cuda:0",
+      "--seeds",
+      "3",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/kitti/cells/qwen38_flash_next_depth_matched_tower_L27.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/kitti/val_targets.npz",
+      "--task",
+      "depth",
+      "--only",
+      "tower:27",
+      "--match-capacity"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/kitti/cells/qwen38_flash_next_depth_matched_tower_L27.json",
+    "kind": "matrix",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/kitti/qwen38_flash_next_448_full"
+    ],
+    "expect": {
+      "model": "qwen38_flash_next",
+      "cells": 1,
+      "slices": [
+        [
+          "tower",
+          27
+        ]
+      ],
+      "grid": 6,
+      "images": 1000
+    }
+  },
+  {
+    "name": "kitti-qwen38_flash_next_depth_matched_projected_L27",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "vtb.geometry_run",
+      "--run",
+      "/tmp/vtb-delivery/issues/22/features/kitti/qwen38_flash_next_448_full",
+      "--device",
+      "cuda:0",
+      "--seeds",
+      "3",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/kitti/cells/qwen38_flash_next_depth_matched_projected_L27.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/kitti/val_targets.npz",
+      "--task",
+      "depth",
+      "--only",
+      "projected:27",
+      "--match-capacity"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/kitti/cells/qwen38_flash_next_depth_matched_projected_L27.json",
+    "kind": "matrix",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/kitti/qwen38_flash_next_448_full"
+    ],
+    "expect": {
+      "model": "qwen38_flash_next",
+      "cells": 1,
+      "slices": [
+        [
+          "projected",
+          27
+        ]
+      ],
+      "grid": 6,
+      "images": 1000
+    }
+  },
+  {
+    "name": "bootstrap-projector-kitti-projected",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "scripts.geometry_bootstrap",
+      "--first-run",
+      "/tmp/vtb-delivery/issues/22/features/kitti/qwen38_flash_next_448_full",
+      "--first-name",
+      "qwen38_flash_next-projected",
+      "--first-stage",
+      "projected",
+      "--first-layer",
+      "27",
+      "--second-run",
+      "/tmp/vtb-delivery/issues/22/features/kitti/qwen38_flash_next_448_full",
+      "--second-name",
+      "tower",
+      "--second-stage",
+      "tower",
+      "--second-layer",
+      "27",
+      "--device",
+      "cuda:0",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/bootstrap/kitti-qwen38_flash_next-projector-projected.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/kitti/val_targets.npz",
+      "--task",
+      "depth"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/bootstrap/kitti-qwen38_flash_next-projector-projected.json",
+    "kind": "json",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/kitti/qwen38_flash_next_448_full",
+      "/tmp/vtb-delivery/issues/22/features/kitti/qwen38_flash_next_448_full"
+    ],
+    "expect": {}
+  },
+  {
+    "name": "bootstrap-sibling-depth-tower",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "scripts.geometry_bootstrap",
+      "--first-run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--first-name",
+      "qwen38_flash_next-tower",
+      "--first-stage",
+      "tower",
+      "--first-layer",
+      "27",
+      "--second-run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen3_5_448_full",
+      "--second-name",
+      "qwen3_5-tower",
+      "--second-stage",
+      "tower",
+      "--second-layer",
+      "27",
+      "--device",
+      "cuda:0",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/bootstrap/depth-qwen38_flash_next-sibling-tower.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "depth"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/bootstrap/depth-qwen38_flash_next-sibling-tower.json",
+    "kind": "json",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen3_5_448_full"
+    ],
+    "expect": {}
+  },
+  {
+    "name": "bootstrap-sibling-normal-tower",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "scripts.geometry_bootstrap",
+      "--first-run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--first-name",
+      "qwen38_flash_next-tower",
+      "--first-stage",
+      "tower",
+      "--first-layer",
+      "27",
+      "--second-run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen3_5_448_full",
+      "--second-name",
+      "qwen3_5-tower",
+      "--second-stage",
+      "tower",
+      "--second-layer",
+      "27",
+      "--device",
+      "cuda:0",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/bootstrap/normal-qwen38_flash_next-sibling-tower.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "normal"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/bootstrap/normal-qwen38_flash_next-sibling-tower.json",
+    "kind": "json",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen3_5_448_full"
+    ],
+    "expect": {}
+  },
+  {
+    "name": "bootstrap-sibling-kitti-tower",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "scripts.geometry_bootstrap",
+      "--first-run",
+      "/tmp/vtb-delivery/issues/22/features/kitti/qwen38_flash_next_448_full",
+      "--first-name",
+      "qwen38_flash_next-tower",
+      "--first-stage",
+      "tower",
+      "--first-layer",
+      "27",
+      "--second-run",
+      "/tmp/vtb-delivery/issues/22/features/kitti/qwen3_5_448_full",
+      "--second-name",
+      "qwen3_5-tower",
+      "--second-stage",
+      "tower",
+      "--second-layer",
+      "27",
+      "--device",
+      "cuda:0",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/bootstrap/kitti-qwen38_flash_next-sibling-tower.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/kitti/val_targets.npz",
+      "--task",
+      "depth"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/bootstrap/kitti-qwen38_flash_next-sibling-tower.json",
+    "kind": "json",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/kitti/qwen38_flash_next_448_full",
+      "/tmp/vtb-delivery/issues/22/features/kitti/qwen3_5_448_full"
+    ],
+    "expect": {}
+  },
+  {
+    "name": "bootstrap-sibling-depth-merged",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "scripts.geometry_bootstrap",
+      "--first-run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--first-name",
+      "qwen38_flash_next-merged",
+      "--first-stage",
+      "merged",
+      "--first-layer",
+      "27",
+      "--second-run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen3_5_448_full",
+      "--second-name",
+      "qwen3_5-merged",
+      "--second-stage",
+      "merged",
+      "--second-layer",
+      "27",
+      "--device",
+      "cuda:0",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/bootstrap/depth-qwen38_flash_next-sibling-merged.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "depth"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/bootstrap/depth-qwen38_flash_next-sibling-merged.json",
+    "kind": "json",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen3_5_448_full"
+    ],
+    "expect": {}
+  },
+  {
+    "name": "bootstrap-sibling-normal-merged",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "scripts.geometry_bootstrap",
+      "--first-run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--first-name",
+      "qwen38_flash_next-merged",
+      "--first-stage",
+      "merged",
+      "--first-layer",
+      "27",
+      "--second-run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen3_5_448_full",
+      "--second-name",
+      "qwen3_5-merged",
+      "--second-stage",
+      "merged",
+      "--second-layer",
+      "27",
+      "--device",
+      "cuda:0",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/bootstrap/normal-qwen38_flash_next-sibling-merged.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "normal"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/bootstrap/normal-qwen38_flash_next-sibling-merged.json",
+    "kind": "json",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen3_5_448_full"
+    ],
+    "expect": {}
+  },
+  {
+    "name": "bootstrap-sibling-depth-projected",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "scripts.geometry_bootstrap",
+      "--first-run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--first-name",
+      "qwen38_flash_next-projected",
+      "--first-stage",
+      "projected",
+      "--first-layer",
+      "27",
+      "--second-run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen3_5_448_full",
+      "--second-name",
+      "qwen3_5-projected",
+      "--second-stage",
+      "projected",
+      "--second-layer",
+      "27",
+      "--device",
+      "cuda:0",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/bootstrap/depth-qwen38_flash_next-sibling-projected.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "depth"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/bootstrap/depth-qwen38_flash_next-sibling-projected.json",
+    "kind": "json",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen3_5_448_full"
+    ],
+    "expect": {}
+  },
+  {
+    "name": "bootstrap-sibling-normal-projected",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "scripts.geometry_bootstrap",
+      "--first-run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "--first-name",
+      "qwen38_flash_next-projected",
+      "--first-stage",
+      "projected",
+      "--first-layer",
+      "27",
+      "--second-run",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen3_5_448_full",
+      "--second-name",
+      "qwen3_5-projected",
+      "--second-stage",
+      "projected",
+      "--second-layer",
+      "27",
+      "--device",
+      "cuda:0",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/bootstrap/normal-qwen38_flash_next-sibling-projected.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "normal"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/bootstrap/normal-qwen38_flash_next-sibling-projected.json",
+    "kind": "json",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen38_flash_next_448_full",
+      "/tmp/vtb-delivery/issues/22/features/geometry/qwen3_5_448_full"
+    ],
+    "expect": {}
+  },
+  {
+    "name": "bootstrap-sibling-kitti-projected",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "scripts.geometry_bootstrap",
+      "--first-run",
+      "/tmp/vtb-delivery/issues/22/features/kitti/qwen38_flash_next_448_full",
+      "--first-name",
+      "qwen38_flash_next-projected",
+      "--first-stage",
+      "projected",
+      "--first-layer",
+      "27",
+      "--second-run",
+      "/tmp/vtb-delivery/issues/22/features/kitti/qwen3_5_448_full",
+      "--second-name",
+      "qwen3_5-projected",
+      "--second-stage",
+      "projected",
+      "--second-layer",
+      "27",
+      "--device",
+      "cuda:0",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/bootstrap/kitti-qwen38_flash_next-sibling-projected.json",
+      "--targets",
+      "/tmp/vtb-delivery/data/kitti/val_targets.npz",
+      "--task",
+      "depth"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/bootstrap/kitti-qwen38_flash_next-sibling-projected.json",
+    "kind": "json",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/kitti/qwen38_flash_next_448_full",
+      "/tmp/vtb-delivery/issues/22/features/kitti/qwen3_5_448_full"
+    ],
+    "expect": {}
+  }
+]

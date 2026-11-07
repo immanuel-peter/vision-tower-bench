@@ -1,0 +1,1559 @@
+{
+  "task": "normal",
+  "images": 771,
+  "train_images": 541,
+  "capacity_matched": false,
+  "head": "multiscale",
+  "epochs": 10,
+  "seeds": 3,
+  "learning_rates": [
+    0.0001,
+    0.0003,
+    0.001,
+    0.003,
+    0.01,
+    0.03
+  ],
+  "cells": [
+    {
+      "d1": 0.2075,
+      "d1_std": 0.0141,
+      "d2": 0.414,
+      "d2_std": 0.0278,
+      "d3": 0.5368,
+      "d3_std": 0.0279,
+      "rmse": 38.7806,
+      "rmse_std": 1.1989,
+      "mean_deg": 32.1649,
+      "mean_deg_std": 1.3146,
+      "images": 115,
+      "coverage": 0.7751,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.1118,
+          "d1_std": 0.0237,
+          "d2": 0.3341,
+          "d2_std": 0.0455,
+          "d3": 0.4858,
+          "d3_std": 0.0434,
+          "rmse": 39.5919,
+          "rmse_std": 1.789,
+          "mean_deg": 34.4818,
+          "mean_deg_std": 2.0745,
+          "images": 51,
+          "coverage": 0.9803
+        },
+        "outdoor": {
+          "d1": 0.2838,
+          "d1_std": 0.0071,
+          "d2": 0.4777,
+          "d2_std": 0.0138,
+          "d3": 0.5773,
+          "d3_std": 0.0157,
+          "rmse": 38.134,
+          "rmse_std": 0.731,
+          "mean_deg": 30.3187,
+          "mean_deg_std": 0.7164,
+          "images": 64,
+          "coverage": 0.6116
+        }
+      },
+      "learning_rate": 0.0003,
+      "val_metric": "mean_deg",
+      "val_score": 31.7684,
+      "learning_rate_search": {
+        "0.0001": 33.0649,
+        "0.0003": 31.7684,
+        "0.001": 36.3974,
+        "0.003": 45.3981,
+        "0.01": 45.3954,
+        "0.03": 45.3947
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.2084,
+          "d2": 0.4225,
+          "d3": 0.5464,
+          "rmse": 38.3109,
+          "mean_deg": 31.6894,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.1178,
+              "d2": 0.3517,
+              "d3": 0.5034,
+              "rmse": 38.8113,
+              "mean_deg": 33.5852,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.2806,
+              "d2": 0.4789,
+              "d3": 0.5806,
+              "rmse": 37.9121,
+              "mean_deg": 30.1787,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.2243,
+          "d2": 0.443,
+          "d3": 0.5651,
+          "rmse": 37.6045,
+          "mean_deg": 30.8462,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.1373,
+              "d2": 0.3789,
+              "d3": 0.5279,
+              "rmse": 37.898,
+              "mean_deg": 32.511,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.2936,
+              "d2": 0.494,
+              "d3": 0.5947,
+              "rmse": 37.3706,
+              "mean_deg": 29.5196,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.1899,
+          "d2": 0.3766,
+          "d3": 0.4988,
+          "rmse": 40.4263,
+          "mean_deg": 33.9592,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.0803,
+              "d2": 0.2716,
+              "d3": 0.4261,
+              "rmse": 42.0664,
+              "mean_deg": 37.3493,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.2772,
+              "d2": 0.4602,
+              "d3": 0.5567,
+              "rmse": 39.1194,
+              "mean_deg": 31.2577,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/Qwen3.8-Flash-Next-Vision",
+      "stage": "tower",
+      "layer_index": 3,
+      "relative_depth": 0.1111111111111111,
+      "token_width": 1152,
+      "grid": 28,
+      "trainable_parameters": 1642499,
+      "seconds": 180.4
+    },
+    {
+      "d1": 0.2932,
+      "d1_std": 0.0192,
+      "d2": 0.5382,
+      "d2_std": 0.0245,
+      "d3": 0.655,
+      "d3_std": 0.02,
+      "rmse": 33.8066,
+      "rmse_std": 0.651,
+      "mean_deg": 26.7302,
+      "mean_deg_std": 0.8283,
+      "images": 115,
+      "coverage": 0.7751,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.2338,
+          "d1_std": 0.026,
+          "d2": 0.5227,
+          "d2_std": 0.0354,
+          "d3": 0.6668,
+          "d3_std": 0.03,
+          "rmse": 32.4998,
+          "rmse_std": 0.9458,
+          "mean_deg": 26.6297,
+          "mean_deg_std": 1.1524,
+          "images": 51,
+          "coverage": 0.9803
+        },
+        "outdoor": {
+          "d1": 0.3406,
+          "d1_std": 0.0138,
+          "d2": 0.5505,
+          "d2_std": 0.0158,
+          "d3": 0.6456,
+          "d3_std": 0.0122,
+          "rmse": 34.8479,
+          "rmse_std": 0.4179,
+          "mean_deg": 26.8103,
+          "mean_deg_std": 0.5708,
+          "images": 64,
+          "coverage": 0.6116
+        }
+      },
+      "learning_rate": 0.0003,
+      "val_metric": "mean_deg",
+      "val_score": 26.8319,
+      "learning_rate_search": {
+        "0.0001": 28.9242,
+        "0.0003": 26.8319,
+        "0.001": 32.7361,
+        "0.003": 35.6471,
+        "0.01": 45.3953,
+        "0.03": 45.3946
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.2952,
+          "d2": 0.5424,
+          "d3": 0.6589,
+          "rmse": 33.6517,
+          "mean_deg": 26.5739,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.2353,
+              "d2": 0.5269,
+              "d3": 0.6716,
+              "rmse": 32.331,
+              "mean_deg": 26.4554,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.3429,
+              "d2": 0.5547,
+              "d3": 0.6487,
+              "rmse": 34.7041,
+              "mean_deg": 26.6683,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.3157,
+          "d2": 0.5659,
+          "d3": 0.6774,
+          "rmse": 33.0982,
+          "mean_deg": 25.803,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.2649,
+              "d2": 0.5639,
+              "d3": 0.7009,
+              "rmse": 31.4351,
+              "mean_deg": 25.3136,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.3562,
+              "d2": 0.5674,
+              "d3": 0.6587,
+              "rmse": 34.4234,
+              "mean_deg": 26.193,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.2688,
+          "d2": 0.5064,
+          "d3": 0.6288,
+          "rmse": 34.67,
+          "mean_deg": 27.8137,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.2012,
+              "d2": 0.4774,
+              "d3": 0.6279,
+              "rmse": 33.7334,
+              "mean_deg": 28.1202,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.3227,
+              "d2": 0.5295,
+              "d3": 0.6294,
+              "rmse": 35.4163,
+              "mean_deg": 27.5695,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/Qwen3.8-Flash-Next-Vision",
+      "stage": "tower",
+      "layer_index": 7,
+      "relative_depth": 0.25925925925925924,
+      "token_width": 1152,
+      "grid": 28,
+      "trainable_parameters": 1642499,
+      "seconds": 183.4
+    },
+    {
+      "d1": 0.3173,
+      "d1_std": 0.0238,
+      "d2": 0.5633,
+      "d2_std": 0.0303,
+      "d3": 0.6734,
+      "d3_std": 0.0239,
+      "rmse": 33.1298,
+      "rmse_std": 0.832,
+      "mean_deg": 25.8184,
+      "mean_deg_std": 1.031,
+      "images": 115,
+      "coverage": 0.7751,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.2747,
+          "d1_std": 0.0328,
+          "d2": 0.5626,
+          "d2_std": 0.0454,
+          "d3": 0.6924,
+          "d3_std": 0.0354,
+          "rmse": 31.6203,
+          "rmse_std": 1.1854,
+          "mean_deg": 25.3438,
+          "mean_deg_std": 1.4546,
+          "images": 51,
+          "coverage": 0.9803
+        },
+        "outdoor": {
+          "d1": 0.3512,
+          "d1_std": 0.0167,
+          "d2": 0.5638,
+          "d2_std": 0.0182,
+          "d3": 0.6583,
+          "d3_std": 0.0147,
+          "rmse": 34.3327,
+          "rmse_std": 0.5505,
+          "mean_deg": 26.1967,
+          "mean_deg_std": 0.6936,
+          "images": 64,
+          "coverage": 0.6116
+        }
+      },
+      "learning_rate": 0.0003,
+      "val_metric": "mean_deg",
+      "val_score": 25.8615,
+      "learning_rate_search": {
+        "0.0001": 28.3016,
+        "0.0003": 25.8615,
+        "0.001": 32.5066,
+        "0.003": 33.8959,
+        "0.01": 45.3946,
+        "0.03": 45.3935
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.3174,
+          "d2": 0.5679,
+          "d3": 0.678,
+          "rmse": 32.9253,
+          "mean_deg": 25.6494,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.2751,
+              "d2": 0.5702,
+              "d3": 0.6997,
+              "rmse": 31.3443,
+              "mean_deg": 25.0903,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.3512,
+              "d2": 0.5662,
+              "d3": 0.6608,
+              "rmse": 34.1852,
+              "mean_deg": 26.0949,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.3464,
+          "d2": 0.5979,
+          "d3": 0.7001,
+          "rmse": 32.2286,
+          "mean_deg": 24.6487,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.3147,
+              "d2": 0.6141,
+              "d3": 0.7317,
+              "rmse": 30.3263,
+              "mean_deg": 23.7026,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.3716,
+              "d2": 0.5849,
+              "d3": 0.675,
+              "rmse": 33.7445,
+              "mean_deg": 25.4026,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.2881,
+          "d2": 0.5241,
+          "d3": 0.6421,
+          "rmse": 34.2356,
+          "mean_deg": 27.1572,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.2344,
+              "d2": 0.5036,
+              "d3": 0.6458,
+              "rmse": 33.1904,
+              "mean_deg": 27.2384,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.3308,
+              "d2": 0.5404,
+              "d3": 0.6392,
+              "rmse": 35.0684,
+              "mean_deg": 27.0925,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/Qwen3.8-Flash-Next-Vision",
+      "stage": "tower",
+      "layer_index": 10,
+      "relative_depth": 0.37037037037037035,
+      "token_width": 1152,
+      "grid": 28,
+      "trainable_parameters": 1642499,
+      "seconds": 181.8
+    },
+    {
+      "d1": 0.3281,
+      "d1_std": 0.0191,
+      "d2": 0.5724,
+      "d2_std": 0.0207,
+      "d3": 0.6799,
+      "d3_std": 0.0171,
+      "rmse": 33.0619,
+      "rmse_std": 0.6731,
+      "mean_deg": 25.5215,
+      "mean_deg_std": 0.7995,
+      "images": 115,
+      "coverage": 0.7751,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.2881,
+          "d1_std": 0.0254,
+          "d2": 0.5711,
+          "d2_std": 0.0272,
+          "d3": 0.6955,
+          "d3_std": 0.0224,
+          "rmse": 31.93,
+          "rmse_std": 0.8747,
+          "mean_deg": 25.2649,
+          "mean_deg_std": 1.0232,
+          "images": 51,
+          "coverage": 0.9803
+        },
+        "outdoor": {
+          "d1": 0.36,
+          "d1_std": 0.0141,
+          "d2": 0.5734,
+          "d2_std": 0.0156,
+          "d3": 0.6675,
+          "d3_std": 0.0129,
+          "rmse": 33.9638,
+          "rmse_std": 0.5137,
+          "mean_deg": 25.7261,
+          "mean_deg_std": 0.6217,
+          "images": 64,
+          "coverage": 0.6116
+        }
+      },
+      "learning_rate": 0.0003,
+      "val_metric": "mean_deg",
+      "val_score": 25.7016,
+      "learning_rate_search": {
+        "0.0001": 28.2239,
+        "0.0003": 25.7016,
+        "0.001": 32.0381,
+        "0.003": 45.3967,
+        "0.01": 45.3946,
+        "0.03": 45.3935
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.3275,
+          "d2": 0.5731,
+          "d3": 0.6817,
+          "rmse": 32.9224,
+          "mean_deg": 25.4351,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.2854,
+              "d2": 0.5704,
+              "d3": 0.6974,
+              "rmse": 31.7957,
+              "mean_deg": 25.1847,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.361,
+              "d2": 0.5753,
+              "d3": 0.6692,
+              "rmse": 33.8203,
+              "mean_deg": 25.6347,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.3518,
+          "d2": 0.5974,
+          "d3": 0.6999,
+          "rmse": 32.3162,
+          "mean_deg": 24.5884,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.3205,
+              "d2": 0.6048,
+              "d3": 0.7219,
+              "rmse": 30.9323,
+              "mean_deg": 24.0537,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.3767,
+              "d2": 0.5915,
+              "d3": 0.6824,
+              "rmse": 33.4189,
+              "mean_deg": 25.0145,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.3051,
+          "d2": 0.5467,
+          "d3": 0.6581,
+          "rmse": 33.9471,
+          "mean_deg": 26.5411,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.2585,
+              "d2": 0.5382,
+              "d3": 0.6672,
+              "rmse": 33.0621,
+              "mean_deg": 26.5562,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.3422,
+              "d2": 0.5534,
+              "d3": 0.6509,
+              "rmse": 34.6523,
+              "mean_deg": 26.529,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/Qwen3.8-Flash-Next-Vision",
+      "stage": "tower",
+      "layer_index": 14,
+      "relative_depth": 0.5185185185185185,
+      "token_width": 1152,
+      "grid": 28,
+      "trainable_parameters": 1642499,
+      "seconds": 181.6
+    },
+    {
+      "d1": 0.3131,
+      "d1_std": 0.0186,
+      "d2": 0.5539,
+      "d2_std": 0.0223,
+      "d3": 0.6632,
+      "d3_std": 0.0186,
+      "rmse": 33.8837,
+      "rmse_std": 0.6704,
+      "mean_deg": 26.3319,
+      "mean_deg_std": 0.848,
+      "images": 115,
+      "coverage": 0.7751,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.2761,
+          "d1_std": 0.0261,
+          "d2": 0.5527,
+          "d2_std": 0.0304,
+          "d3": 0.6766,
+          "d3_std": 0.025,
+          "rmse": 32.9927,
+          "rmse_std": 0.8663,
+          "mean_deg": 26.181,
+          "mean_deg_std": 1.0995,
+          "images": 51,
+          "coverage": 0.9803
+        },
+        "outdoor": {
+          "d1": 0.3425,
+          "d1_std": 0.0126,
+          "d2": 0.555,
+          "d2_std": 0.0158,
+          "d3": 0.6525,
+          "d3_std": 0.0136,
+          "rmse": 34.5937,
+          "rmse_std": 0.5167,
+          "mean_deg": 26.4521,
+          "mean_deg_std": 0.6481,
+          "images": 64,
+          "coverage": 0.6116
+        }
+      },
+      "learning_rate": 0.0003,
+      "val_metric": "mean_deg",
+      "val_score": 26.8455,
+      "learning_rate_search": {
+        "0.0001": 29.3462,
+        "0.0003": 26.8455,
+        "0.001": 32.1454,
+        "0.003": 42.2904,
+        "0.01": 45.3946,
+        "0.03": 45.3935
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.3157,
+          "d2": 0.5586,
+          "d3": 0.6676,
+          "rmse": 33.7111,
+          "mean_deg": 26.1606,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.2804,
+              "d2": 0.5585,
+              "d3": 0.6816,
+              "rmse": 32.8342,
+              "mean_deg": 25.9889,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.3438,
+              "d2": 0.5587,
+              "d3": 0.6564,
+              "rmse": 34.4098,
+              "mean_deg": 26.2975,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.3344,
+          "d2": 0.5786,
+          "d3": 0.6835,
+          "rmse": 33.1626,
+          "mean_deg": 25.3895,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.3057,
+              "d2": 0.5866,
+              "d3": 0.7043,
+              "rmse": 32.0199,
+              "mean_deg": 24.9407,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.3573,
+              "d2": 0.5722,
+              "d3": 0.6668,
+              "rmse": 34.0732,
+              "mean_deg": 25.7471,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.2891,
+          "d2": 0.5246,
+          "d3": 0.6385,
+          "rmse": 34.7774,
+          "mean_deg": 27.4455,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.2422,
+              "d2": 0.5129,
+              "d3": 0.6438,
+              "rmse": 34.124,
+              "mean_deg": 27.6134,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.3265,
+              "d2": 0.534,
+              "d3": 0.6343,
+              "rmse": 35.2981,
+              "mean_deg": 27.3118,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/Qwen3.8-Flash-Next-Vision",
+      "stage": "tower",
+      "layer_index": 17,
+      "relative_depth": 0.6296296296296297,
+      "token_width": 1152,
+      "grid": 28,
+      "trainable_parameters": 1642499,
+      "seconds": 181.0
+    },
+    {
+      "d1": 0.2887,
+      "d1_std": 0.017,
+      "d2": 0.5228,
+      "d2_std": 0.0254,
+      "d3": 0.6345,
+      "d3_std": 0.0225,
+      "rmse": 35.0287,
+      "rmse_std": 0.7075,
+      "mean_deg": 27.6198,
+      "mean_deg_std": 0.9197,
+      "images": 115,
+      "coverage": 0.7751,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.2406,
+          "d1_std": 0.0221,
+          "d2": 0.5138,
+          "d2_std": 0.0334,
+          "d3": 0.6407,
+          "d3_std": 0.03,
+          "rmse": 34.4777,
+          "rmse_std": 0.9336,
+          "mean_deg": 27.8787,
+          "mean_deg_std": 1.1933,
+          "images": 51,
+          "coverage": 0.9803
+        },
+        "outdoor": {
+          "d1": 0.3271,
+          "d1_std": 0.0128,
+          "d2": 0.53,
+          "d2_std": 0.019,
+          "d3": 0.6297,
+          "d3_std": 0.0165,
+          "rmse": 35.4678,
+          "rmse_std": 0.5274,
+          "mean_deg": 27.4134,
+          "mean_deg_std": 0.7021,
+          "images": 64,
+          "coverage": 0.6116
+        }
+      },
+      "learning_rate": 0.0003,
+      "val_metric": "mean_deg",
+      "val_score": 28.2691,
+      "learning_rate_search": {
+        "0.0001": 30.2697,
+        "0.0003": 28.2691,
+        "0.001": 33.0963,
+        "0.003": 45.3979,
+        "0.01": 45.3948,
+        "0.03": 45.3939
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.2897,
+          "d2": 0.5285,
+          "d3": 0.64,
+          "rmse": 34.8846,
+          "mean_deg": 27.4733,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.2426,
+              "d2": 0.522,
+              "d3": 0.6482,
+              "rmse": 34.2906,
+              "mean_deg": 27.6551,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.3272,
+              "d2": 0.5337,
+              "d3": 0.6335,
+              "rmse": 35.358,
+              "mean_deg": 27.3284,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.309,
+          "d2": 0.5507,
+          "d3": 0.6589,
+          "rmse": 34.2432,
+          "mean_deg": 26.5738,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.2666,
+              "d2": 0.5501,
+              "d3": 0.673,
+              "rmse": 33.4393,
+              "mean_deg": 26.5419,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.3428,
+              "d2": 0.5512,
+              "d3": 0.6478,
+              "rmse": 34.8838,
+              "mean_deg": 26.5992,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.2675,
+          "d2": 0.4893,
+          "d3": 0.6047,
+          "rmse": 35.9582,
+          "mean_deg": 28.8122,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.2125,
+              "d2": 0.4694,
+              "d3": 0.6008,
+              "rmse": 35.7031,
+              "mean_deg": 29.439,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.3114,
+              "d2": 0.5052,
+              "d3": 0.6078,
+              "rmse": 36.1615,
+              "mean_deg": 28.3127,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/Qwen3.8-Flash-Next-Vision",
+      "stage": "tower",
+      "layer_index": 20,
+      "relative_depth": 0.7407407407407407,
+      "token_width": 1152,
+      "grid": 28,
+      "trainable_parameters": 1642499,
+      "seconds": 175.9
+    },
+    {
+      "d1": 0.2726,
+      "d1_std": 0.0147,
+      "d2": 0.5011,
+      "d2_std": 0.0223,
+      "d3": 0.6162,
+      "d3_std": 0.0199,
+      "rmse": 35.7401,
+      "rmse_std": 0.5899,
+      "mean_deg": 28.4687,
+      "mean_deg_std": 0.8004,
+      "images": 115,
+      "coverage": 0.7751,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.2178,
+          "d1_std": 0.0173,
+          "d2": 0.4853,
+          "d2_std": 0.0274,
+          "d3": 0.617,
+          "d3_std": 0.0255,
+          "rmse": 35.4361,
+          "rmse_std": 0.7471,
+          "mean_deg": 29.0074,
+          "mean_deg_std": 0.9806,
+          "images": 51,
+          "coverage": 0.9803
+        },
+        "outdoor": {
+          "d1": 0.3163,
+          "d1_std": 0.0128,
+          "d2": 0.5138,
+          "d2_std": 0.0185,
+          "d3": 0.6155,
+          "d3_std": 0.0157,
+          "rmse": 35.9824,
+          "rmse_std": 0.4662,
+          "mean_deg": 28.0395,
+          "mean_deg_std": 0.6643,
+          "images": 64,
+          "coverage": 0.6116
+        }
+      },
+      "learning_rate": 0.0003,
+      "val_metric": "mean_deg",
+      "val_score": 29.3978,
+      "learning_rate_search": {
+        "0.0001": 30.7091,
+        "0.0003": 29.3978,
+        "0.001": 33.4308,
+        "0.003": 34.8091,
+        "0.01": 45.3943,
+        "0.03": 45.394
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.2724,
+          "d2": 0.5013,
+          "d3": 0.618,
+          "rmse": 35.6469,
+          "mean_deg": 28.4278,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.2209,
+              "d2": 0.4889,
+              "d3": 0.6229,
+              "rmse": 35.2677,
+              "mean_deg": 28.8273,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.3134,
+              "d2": 0.5113,
+              "d3": 0.614,
+              "rmse": 35.949,
+              "mean_deg": 28.1095,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.2906,
+          "d2": 0.5284,
+          "d3": 0.6396,
+          "rmse": 35.0688,
+          "mean_deg": 27.5095,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.2372,
+              "d2": 0.5168,
+              "d3": 0.6448,
+              "rmse": 34.617,
+              "mean_deg": 27.9066,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.3332,
+              "d2": 0.5376,
+              "d3": 0.6354,
+              "rmse": 35.4289,
+              "mean_deg": 27.1931,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.2547,
+          "d2": 0.4737,
+          "d3": 0.591,
+          "rmse": 36.5047,
+          "mean_deg": 29.4688,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.1952,
+              "d2": 0.4501,
+              "d3": 0.5833,
+              "rmse": 36.4237,
+              "mean_deg": 30.2882,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.3022,
+              "d2": 0.4924,
+              "d3": 0.5971,
+              "rmse": 36.5693,
+              "mean_deg": 28.8158,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/Qwen3.8-Flash-Next-Vision",
+      "stage": "tower",
+      "layer_index": 24,
+      "relative_depth": 0.8888888888888888,
+      "token_width": 1152,
+      "grid": 28,
+      "trainable_parameters": 1642499,
+      "seconds": 175.6
+    },
+    {
+      "d1": 0.0485,
+      "d1_std": 0.0004,
+      "d2": 0.1652,
+      "d2_std": 0.0001,
+      "d3": 0.26,
+      "d3_std": 0.0003,
+      "rmse": 52.5037,
+      "rmse_std": 0.0057,
+      "mean_deg": 48.1862,
+      "mean_deg_std": 0.0035,
+      "images": 115,
+      "coverage": 0.7751,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.069,
+          "d1_std": 0.0007,
+          "d2": 0.2026,
+          "d2_std": 0.0003,
+          "d3": 0.3062,
+          "d3_std": 0.0007,
+          "rmse": 50.1499,
+          "rmse_std": 0.0255,
+          "mean_deg": 45.1852,
+          "mean_deg_std": 0.026,
+          "images": 51,
+          "coverage": 0.9803
+        },
+        "outdoor": {
+          "d1": 0.0321,
+          "d1_std": 0.0002,
+          "d2": 0.1354,
+          "d2_std": 0.0001,
+          "d3": 0.2234,
+          "d3_std": 0.0,
+          "rmse": 54.3794,
+          "rmse_std": 0.0303,
+          "mean_deg": 50.5775,
+          "mean_deg_std": 0.027,
+          "images": 64,
+          "coverage": 0.6116
+        }
+      },
+      "learning_rate": 0.0001,
+      "val_metric": "mean_deg",
+      "val_score": 45.3875,
+      "learning_rate_search": {
+        "0.0001": 45.3875,
+        "0.0003": 45.3985,
+        "0.001": 45.3994,
+        "0.003": 45.3969,
+        "0.01": 45.3946,
+        "0.03": 45.3951
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.0488,
+          "d2": 0.1652,
+          "d3": 0.2602,
+          "rmse": 52.5062,
+          "mean_deg": 48.1881,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.0695,
+              "d2": 0.2026,
+              "d3": 0.3066,
+              "rmse": 50.1309,
+              "mean_deg": 45.1674,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.0323,
+              "d2": 0.1353,
+              "d3": 0.2233,
+              "rmse": 54.399,
+              "mean_deg": 50.5953,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.0487,
+          "d2": 0.1654,
+          "d3": 0.2603,
+          "rmse": 52.5091,
+          "mean_deg": 48.1891,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.0695,
+              "d2": 0.203,
+              "d3": 0.3067,
+              "rmse": 50.1328,
+              "mean_deg": 45.1663,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.0322,
+              "d2": 0.1355,
+              "d3": 0.2234,
+              "rmse": 54.4026,
+              "mean_deg": 50.5979,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.0479,
+          "d2": 0.1651,
+          "d3": 0.2596,
+          "rmse": 52.4959,
+          "mean_deg": 48.1813,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.0681,
+              "d2": 0.2023,
+              "d3": 0.3052,
+              "rmse": 50.186,
+              "mean_deg": 45.222,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.0318,
+              "d2": 0.1355,
+              "d3": 0.2234,
+              "rmse": 54.3367,
+              "mean_deg": 50.5394,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/Qwen3.8-Flash-Next-Vision",
+      "stage": "tower",
+      "layer_index": 27,
+      "relative_depth": 1.0,
+      "token_width": 1152,
+      "grid": 28,
+      "trainable_parameters": 1642499,
+      "seconds": 176.9
+    },
+    {
+      "d1": 0.046,
+      "d1_std": 0.0005,
+      "d2": 0.1651,
+      "d2_std": 0.0013,
+      "d3": 0.2581,
+      "d3_std": 0.0017,
+      "rmse": 52.46,
+      "rmse_std": 0.0123,
+      "mean_deg": 48.1574,
+      "mean_deg_std": 0.0127,
+      "images": 115,
+      "coverage": 0.7751,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.0648,
+          "d1_std": 0.0009,
+          "d2": 0.2023,
+          "d2_std": 0.0012,
+          "d3": 0.3,
+          "d3_std": 0.0031,
+          "rmse": 50.2816,
+          "rmse_std": 0.0683,
+          "mean_deg": 45.3448,
+          "mean_deg_std": 0.0864,
+          "images": 51,
+          "coverage": 0.9803
+        },
+        "outdoor": {
+          "d1": 0.0311,
+          "d1_std": 0.0002,
+          "d2": 0.1354,
+          "d2_std": 0.0015,
+          "d3": 0.2247,
+          "d3_std": 0.0005,
+          "rmse": 54.196,
+          "rmse_std": 0.0663,
+          "mean_deg": 50.3987,
+          "mean_deg_std": 0.0583,
+          "images": 64,
+          "coverage": 0.6116
+        }
+      },
+      "learning_rate": 0.0001,
+      "val_metric": "mean_deg",
+      "val_score": 45.3754,
+      "learning_rate_search": {
+        "0.0001": 45.3754,
+        "0.0003": 45.4182,
+        "0.001": 45.4193,
+        "0.003": 45.4185,
+        "0.01": 45.4178,
+        "0.03": 45.4175
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.0465,
+          "d2": 0.1645,
+          "d3": 0.2579,
+          "rmse": 52.4747,
+          "mean_deg": 48.173,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.0658,
+              "d2": 0.2018,
+              "d3": 0.2999,
+              "rmse": 50.2962,
+              "mean_deg": 45.3602,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.0312,
+              "d2": 0.1348,
+              "d3": 0.2245,
+              "rmse": 54.2107,
+              "mean_deg": 50.4145,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.0454,
+          "d2": 0.1638,
+          "d3": 0.2561,
+          "rmse": 52.4447,
+          "mean_deg": 48.1571,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.0637,
+              "d2": 0.2011,
+              "d3": 0.2962,
+              "rmse": 50.357,
+              "mean_deg": 45.442,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.0308,
+              "d2": 0.134,
+              "d3": 0.2241,
+              "rmse": 54.1084,
+              "mean_deg": 50.3208,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.0462,
+          "d2": 0.1669,
+          "d3": 0.2602,
+          "rmse": 52.4607,
+          "mean_deg": 48.142,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.0649,
+              "d2": 0.2039,
+              "d3": 0.3038,
+              "rmse": 50.1917,
+              "mean_deg": 45.2321,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.0314,
+              "d2": 0.1374,
+              "d3": 0.2254,
+              "rmse": 54.2688,
+              "mean_deg": 50.4609,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/Qwen3.8-Flash-Next-Vision",
+      "stage": "merged",
+      "layer_index": 27,
+      "relative_depth": 1.0,
+      "token_width": 4608,
+      "grid": 14,
+      "trainable_parameters": 3411971,
+      "seconds": 126.9
+    },
+    {
+      "d1": 0.2579,
+      "d1_std": 0.0114,
+      "d2": 0.4827,
+      "d2_std": 0.0176,
+      "d3": 0.6,
+      "d3_std": 0.0164,
+      "rmse": 36.6976,
+      "rmse_std": 0.5544,
+      "mean_deg": 29.396,
+      "mean_deg_std": 0.6864,
+      "images": 115,
+      "coverage": 0.7751,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.2037,
+          "d1_std": 0.0171,
+          "d2": 0.4646,
+          "d2_std": 0.0268,
+          "d3": 0.5982,
+          "d3_std": 0.0248,
+          "rmse": 36.1794,
+          "rmse_std": 0.7716,
+          "mean_deg": 29.8333,
+          "mean_deg_std": 0.9974,
+          "images": 51,
+          "coverage": 0.9803
+        },
+        "outdoor": {
+          "d1": 0.3011,
+          "d1_std": 0.007,
+          "d2": 0.4972,
+          "d2_std": 0.0104,
+          "d3": 0.6015,
+          "d3_std": 0.0098,
+          "rmse": 37.1105,
+          "rmse_std": 0.3815,
+          "mean_deg": 29.0475,
+          "mean_deg_std": 0.4393,
+          "images": 64,
+          "coverage": 0.6116
+        }
+      },
+      "learning_rate": 0.0003,
+      "val_metric": "mean_deg",
+      "val_score": 29.95,
+      "learning_rate_search": {
+        "0.0001": 31.4281,
+        "0.0003": 29.95,
+        "0.001": 29.975,
+        "0.003": 33.4867,
+        "0.01": 35.1181,
+        "0.03": 45.405
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.2693,
+          "d2": 0.4999,
+          "d3": 0.6152,
+          "rmse": 36.1495,
+          "mean_deg": 28.7156,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.2218,
+              "d2": 0.4895,
+              "d3": 0.6206,
+              "rmse": 35.4292,
+              "mean_deg": 28.8702,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.3072,
+              "d2": 0.5082,
+              "d3": 0.6109,
+              "rmse": 36.7235,
+              "mean_deg": 28.5923,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.2622,
+          "d2": 0.4897,
+          "d3": 0.6077,
+          "rmse": 36.486,
+          "mean_deg": 29.1366,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.2086,
+              "d2": 0.4768,
+              "d3": 0.6103,
+              "rmse": 35.8682,
+              "mean_deg": 29.4225,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.3048,
+              "d2": 0.5,
+              "d3": 0.6056,
+              "rmse": 36.9783,
+              "mean_deg": 28.9088,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        },
+        {
+          "d1": 0.2423,
+          "d2": 0.4585,
+          "d3": 0.5772,
+          "rmse": 37.4572,
+          "mean_deg": 30.3358,
+          "images": 115,
+          "coverage": 0.7751,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.1807,
+              "d2": 0.4274,
+              "d3": 0.5636,
+              "rmse": 37.2408,
+              "mean_deg": 31.2073,
+              "images": 51,
+              "coverage": 0.9803
+            },
+            "outdoor": {
+              "d1": 0.2913,
+              "d2": 0.4833,
+              "d3": 0.588,
+              "rmse": 37.6296,
+              "mean_deg": 29.6413,
+              "images": 64,
+              "coverage": 0.6116
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/Qwen3.8-Flash-Next-Vision",
+      "stage": "projected",
+      "layer_index": 27,
+      "relative_depth": 1.0,
+      "token_width": 2560,
+      "grid": 14,
+      "trainable_parameters": 2363395,
+      "seconds": 107.3
+    }
+  ]
+}

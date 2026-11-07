@@ -1788,3 +1788,24 @@ randomized-PCA matched magnitudes.
 Tower (all within 0.02 at matched batch size). Attention shapes stay
 exploratory. Kimi extracts must pin batch size 1; a `bs4` pooled cache
 included here for the record reads 0.21 low for procedural reasons.
+
+## Addendum, November 7 2026: Qwen3.8 Flash-Next
+
+The registered roster adds `qwen38_flash_next` without changing the historical
+v1, v2, or v3 cohorts. Its complete 448-pixel suite, all-layer source audit,
+immutable release, and 33 primary paired comparisons are recorded in the
+[benchmark summary](../evidence/qwen38-flash-next/benchmark-summary.md). Tower
+and merged comparisons against fresh 27B controls change weights only. The
+projected Stage also changes output width from 5120 to 2560.
+
+Matched-attention recognition improves at all three Stages. Tower and merged
+DIODE geometry weaken, while the Projector recovers performance. The complete
+per-Stage table reports each paired run with its own points and intervals. Primary
+Tower and merged perturbation clean accuracy is too weak for intrinsic
+robustness claims. The separate training-only standardized diagnostic recovers
+clean readouts and establishes reducer sensitivity, not a training cause.
+
+All twelve default figures regenerate from committed results. The existing
+standardized label-budget source retains every prior run and adds four
+Flash-Next fractions. Fresh sibling controls are archived separately. Published
+27B results and cohort completion manifests remain unchanged.

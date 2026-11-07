@@ -543,8 +543,61 @@ def qwen_weight_drift(out: Path) -> None:
     plt.close(figure)
 
 
+def qwen_sibling_intervals(out: Path) -> None:
+    model = "qwen38_flash_next"
+    panels = [
+        ("Recognition, attention matched", f"semantic-{model}-vs-qwen3_5-{{stage}}", "difference", 100,
+         "Flash-Next − 27B top-1 (pp)"),
+        ("DIODE depth, matched", f"depth-{model}-sibling-{{stage}}", "first_advantage", 100,
+         "Flash-Next − 27B d1 (pp)"),
+        ("DIODE normals, matched", f"normal-{model}-sibling-{{stage}}", "first_advantage", 1,
+         "27B − Flash-Next mean angle (°)"),
+        ("KITTI depth, matched", f"kitti-{model}-sibling-{{stage}}", "first_advantage", 100,
+         "Flash-Next − 27B d1 (pp)"),
+        ("NAVI", "correspondence-navi-flash-next-vs-27b-{stage}", "difference", 100,
+         "Flash-Next − 27B recall at 2 cm (pp)"),
+        ("ScanNet", "correspondence-scannet-flash-next-vs-27b-{stage}", "difference", 100,
+         "Flash-Next − 27B recall at 10 px (pp)"),
+        ("SPair", "correspondence-spair-flash-next-vs-27b-{stage}", "class_macro_difference", 100,
+         "Flash-Next − 27B macro PCK at 0.1 (pp)"),
+    ]
+    stages = ["tower", "merged", "projected"]
+    figure, axes = plt.subplots(4, 2, figsize=(11, 10.8), layout="constrained")
+    for axis, (title, pattern, key, scale, xlabel) in zip(axes.flat, panels):
+        for position, stage in enumerate(stages):
+            if title.startswith("KITTI") and stage == "merged":
+                continue
+            payload = json.loads((RESULTS / "bootstrap" / (pattern.format(stage=stage) + ".json")).read_text())
+            interval = payload[key]
+            assert interval["confidence"] == .95 and interval["resamples"] == 10000
+            low, high, point = [scale * interval[k] for k in ["lower", "upper", "point_estimate"]]
+            colour = COLOUR[model]
+            resolved = low > 0 or high < 0
+            axis.plot([low, high], [position, position], color=colour, linewidth=2)
+            axis.plot(point, position, "o", color=colour, markersize=6,
+                      markerfacecolor=colour if resolved else "white")
+        axis.axvline(0, color=".4", linestyle="--", linewidth=.8)
+        axis.set(yticks=range(3), yticklabels=[stage.capitalize() for stage in stages],
+                 ylim=(2.5, -.5), title=title, xlabel=xlabel)
+        axis.grid(axis="x", alpha=.2)
+    axes.flat[-1].axis("off")
+    axes.flat[-1].text(0, .9,
+        "Positive values favor Flash-Next.\n"
+        "Hollow markers include zero.\n\n"
+        "Each interval uses its own paired rerun.\n"
+        "KITTI covers Tower and projected.\n"
+        "SPair retains declared zero-keypoint exclusions.\n\n"
+        "Primary Tower/merged perturbation scores\n"
+        "do not support intrinsic robustness claims.",
+        va="top", fontsize=10, linespacing=1.5)
+    figure.suptitle("Qwen3.8 Flash-Next versus 27B: paired 95% intervals", fontsize=14)
+    figure.savefig(out, bbox_inches="tight")
+    plt.close(figure)
+
+
 FIGURES = {
     "qwen-weight-drift": qwen_weight_drift,
+    "qwen-sibling-intervals": qwen_sibling_intervals,
     "protocol": protocol,
     "projector-matrix": projector_matrix,
     "semantic-forest": semantic_forest,

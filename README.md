@@ -25,6 +25,7 @@ Four capability axes:
 | Muse Glimmer | multimodal | [immanuelpeter/Muse-Glimmer-Vision](https://huggingface.co/immanuelpeter/Muse-Glimmer-Vision) |
 | Kimi K2.6 | multimodal | [immanuelpeter/MoonViT-K2.6](https://huggingface.co/immanuelpeter/MoonViT-K2.6) |
 | Qwen3.8-27B | multimodal | [immanuelpeter/Qwen3.8-27B-Vision](https://huggingface.co/immanuelpeter/Qwen3.8-27B-Vision) |
+| Qwen3.8 Flash-Next | multimodal sibling | [immanuelpeter/Qwen3.8-Flash-Next-Vision](https://huggingface.co/immanuelpeter/Qwen3.8-Flash-Next-Vision) |
 | Kimi K3 | multimodal | [immanuelpeter/MoonViT-V2](https://huggingface.co/immanuelpeter/MoonViT-V2) |
 | Gemma 4 31B | multimodal | [immanuelpeter/Gemma4-31B-Vision](https://huggingface.co/immanuelpeter/Gemma4-31B-Vision) |
 | GLM-5.3 Flash | multimodal | [immanuelpeter/GLM-5.3-Flash-Vision](https://huggingface.co/immanuelpeter/GLM-5.3-Flash-Vision) |
@@ -45,7 +46,7 @@ its correction status. Recognition and geometry matrices are grouped by task;
 diagnostics and historical run notes are separate. All measurements remain in Git.
 
 The [machine-readable index](results/index.json) records the v1 six-Tower,
-v2 eleven-Tower and v3 five-Tower cohorts and selects corrected deepest-stage geometry sources.
+v2 eleven-Tower and v3 five-Tower cohorts, later checkpoint additions, and corrected deepest-stage geometry sources.
 Full layer sweeps and paired-bootstrap reruns remain separate records.
 
 ## Reproducing the figures
@@ -55,8 +56,8 @@ uv sync --group figures
 uv run --group figures python scripts/figures.py
 ```
 
-This renders all sixteen Towers. The label-budget figure and the Capability Profile's semantic
-axes use channel-standardized readouts, and MiMo 2.6 is left out of the occlusion figure. See the
+The default figures cover the registered roster. The label-budget figure and the Capability Profile's semantic
+axes use channel-standardized readouts. MiMo 2.6 and Flash-Next Tower are omitted from the occlusion figure after clean-readout failures. See the
 [source-selection notes](results/README.md#choose-the-right-source) for the
 scope of the geometry corrections and the historical layer sweeps.
 
@@ -70,7 +71,8 @@ scope of the geometry corrections and the historical layer sweeps.
 
 **4. Extract once.** Cache features per model, Stage, depth and resolution. Probes read the cache after that.
 
-**5. Run the matrices.** Same learning-rate grid, three seeds, validation picks the rate.
+**5. Run the matrices.** Search each prescribed learning rate with seed 0.
+Validation picks the rate, then retrain it with seeds 0, 1, and 2.
 
 ## Layout
 
@@ -87,7 +89,7 @@ CONTEXT.md    # project vocabulary
 
 ```bash
 uv run pytest -q                      # full suite, downloads Tower weights
-VTB_SKIP_WEIGHTS=1 uv run pytest -q   # 135 tests, no downloads
+VTB_SKIP_WEIGHTS=1 uv run pytest -q   # no weight downloads
 ```
 
 ## License

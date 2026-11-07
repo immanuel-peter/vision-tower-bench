@@ -1,0 +1,19 @@
+{
+  "recorded_at": "2026-11-07T16:25:44.511784+00:00",
+  "free_disk_bytes": 863546822656,
+  "meminfo": "MemTotal:       296947060 kB\nMemFree:        25814464 kB\nMemAvailable:   273014588 kB\nBuffers:          299076 kB\nCached:         242608272 kB\nSwapCached:           20 kB\nActive:         50655500 kB\nInactive:       207526272 kB\nActive(anon):   15233064 kB\nInactive(anon):    77192 kB\nActive(file):   35422436 kB\nInactive(file): 207449080 kB\nUnevictable:       31660 kB\nMlocked:           27660 kB\nSwapTotal:       4194300 kB\nSwapFree:        4193008 kB\nZswap:                 0 kB\nZswapped:              0 kB\nDirty:              3496 kB\nWriteback:             0 kB\nAnonPages:      15307264 kB\nMapped:          1812716 kB\nShmem:             26728 kB\nKReclaimable:    7422424 kB\nSlab:            8513544 kB\nSReclaimable:    7422424 kB\nSUnreclaim:      1091120 kB\nKernelStack:       28592 kB\nPageTables:       128640 kB\nSecPageTables:         0 kB\nNFS_Unstable:          0 kB\nBounce:                0 kB\nWritebackTmp:          0 kB\nCommitLimit:    152667828 kB\nCommitted_AS:   31213872 kB\nVmallocTotal:   13743895347199 kB\nVmallocUsed:      114384 kB\nVmallocChunk:          0 kB\nPercpu:            22400 kB\nHardwareCorrupted:     0 kB\nAnonHugePages:   1775616 kB\nShmemHugePages:        0 kB\nShmemPmdMapped:        0 kB\nFileHugePages:         0 kB\nFilePmdMapped:         0 kB\nUnaccepted:            0 kB\nHugePages_Total:       0\nHugePages_Free:        0\nHugePages_Rsvd:        0\nHugePages_Surp:        0\nHugepagesize:       2048 kB\nHugetlb:               0 kB\nDirectMap4k:     7415852 kB\nDirectMap2M:    104777728 kB\nDirectMap1G:    191889408 kB\n",
+  "cpu_tail_record": "bootstrap-sibling-recognition-tower",
+  "cpu_tail_seconds": 1029.0472887719989,
+  "gpu": {
+    "command": "CUDA_VISIBLE_DEVICES=1 nvidia-smi --id=1 --query-gpu=name,uuid,driver_version,memory.total,memory.used --format=csv,noheader",
+    "returncode": 0,
+    "stdout": "NVIDIA RTX PRO 6000 Blackwell Server Edition, GPU-9ee56309-e48e-253b-05e1-a7fc201aa4aa, 580.126.09, 97887 MiB, 0 MiB\n",
+    "stderr": "bash: cannot set terminal process group (284193): Inappropriate ioctl for device\nbash: no job control in this shell\n"
+  },
+  "processes": {
+    "command": "CUDA_VISIBLE_DEVICES=1 nvidia-smi --id=1 --query-compute-apps=pid,process_name,used_gpu_memory --format=csv,noheader",
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "bash: cannot set terminal process group (284193): Inappropriate ioctl for device\nbash: no job control in this shell\n"
+  }
+}

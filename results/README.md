@@ -169,12 +169,12 @@ clone contains the evidence needed to inspect the figures.
 
 Qwen3.8 Flash-Next source identity, independent forward parity, immutable release
 reload and all-layer sibling weight drift are recorded in
-[evidence/qwen38-flash-next/](evidence/qwen38-flash-next/). Its 448-pixel
-benchmark suite is in progress. Tower and merged comparisons change weights
+[evidence/qwen38-flash-next/](evidence/qwen38-flash-next/). Its [complete 448-pixel benchmark summary](evidence/qwen38-flash-next/benchmark-summary.md)
+reports all primary cells and 33 paired comparisons. Tower and merged comparisons change weights
 only; the projected Stage also changes output width, from 5120 to 2560.
 The separate [perturbation reducer sensitivity](diagnostics/qwen38-flash-next-conditioning/README.md)
 retains both checkpoints' complete primary and standardized outcomes, training
 losses, channel statistics, and matched diagnostic intervals. Standardization
 recovers weak Flash-Next clean readouts. Primary Tower and merged perturbation
 results do not support intrinsic robustness claims. The diagnostic does not
-establish a training cause or replace the remaining full suite.
+establish a training cause. The complete primary suite remains separate.
