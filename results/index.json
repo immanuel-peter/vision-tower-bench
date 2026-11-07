@@ -170,8 +170,14 @@
     },
     "kimi_k31_pro_checkpoint": {
       "path": "diagnostics/kimi-k31-pro-checkpoint/",
-      "protocol": "Pinned parent tensor identity; official Pro-supported vLLM vision source with documented single-rank PyTorch substitutions; CPU FP32/BF16 forward; full per-tensor sibling drift.",
-      "status": "In progress. Accepted mathematical conversion and immutable reload; production official TORCH_SDPA BF16 remains FAILED. Complete paired caches: CPU DIODE771x10 slices; GPU recognition13000x10 pool4, KITTI1000 full finalTower/projected, perturbation13x2000x3Stages. All actual contents/IDs/finite values/raster/provenance validated. GPU1 released. Full286metric cells and102paired comparisons remain required."
+      "protocol": "Pinned source identity and independent mathematical-reference conversion parity; full tensor drift; complete same-producer CPU4 mean recognition on13000images/all10slices/raw+matched and mean label budgets1/5/20/100%; unchanged seed0 LR selection and selected-LR3seeds.",
+      "status": "In progress:48/286required task cells validated,0/102paired comparisons. All primary feature caches complete; GPU1 released. Production official TORCH_SDPA BF16 parity remains FAILED; mathematical-reference conversion and immutable reload accepted. Attention/geometry/correspondence/perturbation/transfer/throughput and final figures remain required.",
+      "measurements": {
+        "pro_recognition": "recognition/kimi_k31_pro_probe_mean_{arm}.json",
+        "pro_mean_label_budget": "label-budget/kimi_k31_pro_probe_mean_matched_f*.json",
+        "fresh_k3_controls": "diagnostics/kimi-k31-pro-checkpoint/sibling-control/",
+        "actual_inventory": "diagnostics/kimi-k31-pro-checkpoint/completed-inventory.json"
+      }
     }
   },
   "cell_manifests": [

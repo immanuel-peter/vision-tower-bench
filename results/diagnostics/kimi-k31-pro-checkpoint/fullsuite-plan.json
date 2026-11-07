@@ -206,7 +206,11 @@
         "bash",
         "-ic",
         "scripts/semantic_matrix.sh /tmp/vtb-delivery/issues/24/features/gpu1-bf16-bs1/semantic /tmp/vtb-delivery/data/imagenet100/validation_labels.json /tmp/vtb-delivery/issues/24/measurements/recognition kimi_k31_pro_448_pool4:kimi_k31_pro"
-      ]
+      ],
+      "extra_environment": {
+        "READOUTS": "attention"
+      },
+      "mean_cells_complete_verified": true
     },
     {
       "phase": "primary",
@@ -224,7 +228,11 @@
         "bash",
         "-ic",
         "scripts/label_budget_matrix.sh /tmp/vtb-delivery/issues/24/features/gpu1-bf16-bs1/semantic /tmp/vtb-delivery/data/imagenet100/validation_labels.json /tmp/vtb-delivery/issues/24/measurements/label-budget kimi_k31_pro_448_pool4:kimi_k31_pro"
-      ]
+      ],
+      "extra_environment": {
+        "READOUTS": "attention"
+      },
+      "mean_cells_complete_verified": true
     },
     {
       "phase": "diagnostic",
@@ -639,7 +647,11 @@
         "bash",
         "-ic",
         "scripts/semantic_matrix.sh /tmp/vtb-delivery/issues/24/features/gpu1-bf16-bs1/semantic /tmp/vtb-delivery/data/imagenet100/validation_labels.json /tmp/vtb-delivery/issues/24/measurements/recognition moonvit_v2_448_pool4:moonvit_v2"
-      ]
+      ],
+      "extra_environment": {
+        "READOUTS": "attention"
+      },
+      "mean_cells_complete_verified": true
     },
     {
       "phase": "primary",
@@ -657,7 +669,11 @@
         "bash",
         "-ic",
         "scripts/label_budget_matrix.sh /tmp/vtb-delivery/issues/24/features/gpu1-bf16-bs1/semantic /tmp/vtb-delivery/data/imagenet100/validation_labels.json /tmp/vtb-delivery/issues/24/measurements/label-budget moonvit_v2_448_pool4:moonvit_v2"
-      ]
+      ],
+      "extra_environment": {
+        "READOUTS": "attention"
+      },
+      "mean_cells_complete_verified": true
     },
     {
       "phase": "diagnostic",

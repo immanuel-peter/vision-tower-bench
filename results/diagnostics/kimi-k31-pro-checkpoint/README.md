@@ -1,11 +1,13 @@
 # Kimi K3.1 Pro checkpoint validation
 
-This is an in-progress delivery for issue #24. The full benchmark suite is pending. Immutable release reload passed all
+This is an in-progress delivery for issue #24, with 48 of 286 required task cells
+validated and no completed paired comparisons out of 102. Immutable release reload passed all
 17 file hashes, 168 parent tensors and 30 bit-exact CPU BF16 math-reference cases. The immutable bundle
 is published at revision 6ab95e2daf86e8100be2e712a7a71c0fba26dac4. Independent
 math-reference conversion parity passes in CPU and CUDA BF16. Production
 TORCH_SDPA BF16 parity failed for both checkpoints and remains a limitation.
-No new capability measurements are reported here.
+Complete mean-recognition and mean label-budget measurements are available below.
+The remaining benchmark suite and final default figures are required before the PR.
 
 The pinned Pro weights differ from K3 in all 168 tensors. The complete
 per-tensor cosine and relative L2 measurements are in weight-drift.json.
@@ -120,9 +122,9 @@ The final audit reread every shard and verified all ordered image IDs and
 content hashes. [The pair audit](cpu-feature-extraction/pair-audit.json)
 confirms identical extraction settings, with no CPU/GPU mixing.
 
-The remaining suite must reuse these caches. It does not yet contain any
-new task-quality score. Raw and matched geometry probes, recognition,
-correspondence, perturbation, transfer and paired intervals remain pending.
+The remaining suite must reuse these caches. Raw and matched geometry probes,
+attention recognition, correspondence, perturbation, transfer and paired
+intervals remain pending.
 
 The source configuration and modeling files of the existing pinned K3 release
 are byte-identical to the independently validated export; see
@@ -132,7 +134,8 @@ rather than relying only on averages of individual tensor metrics.
 
 The CPU extraction uses a separate namespace with identical settings for both
 siblings. The full-suite plan now references these completed caches for geometry
-probes and paired fits. No new task-quality score has yet been produced.
+probes and paired fits. Mean-recognition results now have complete actual-content
+validation, as described below.
 
 ## Remaining GPU extraction phase
 
@@ -167,6 +170,39 @@ Each checkpoint now has the following verified caches:
 
 CPU and GPU features occupy separate namespaces. Both siblings use the same
 producer for every paired task; no cache mixes producer devices. Geometry
-probes reuse the completed CPU DIODE caches. The remaining task-quality
-probes, correspondence, paired intervals and final capability figures are
-still required.
+probes reuse the completed CPU DIODE caches. The remaining attention and geometry
+probes, correspondence, perturbation, paired intervals and final default figures
+are still required.
+
+## Complete CPU mean measurements
+
+Both checkpoints have all ten raw and matched mean-recognition cells on the
+full 13,000-image set. The 40 cells took 1,786.26 seconds with CPU4 fits and
+the same GPU1 feature producer. Eleven learning rates were searched with
+seed 0, followed by three selected-rate retrainings. Actual image and split
+hashes, seed metrics, parameter counts and finite scores passed validation.
+Pro measurements are in the standard recognition directory; fresh K3 controls
+are in sibling-control/recognition. Historical K3 files are preserved.
+
+The [mean comparison figure](mean-recognition-comparison.png) covers all eight
+Tower depths and final Stage differences. These are descriptive point estimates,
+without paired-image intervals or a causal training attribution.
+
+| Final Stage, matched mean | Fresh K3 accuracy | Pro accuracy | Pro − K3, percentage points |
+| --- | ---: | ---: | ---: |
+| Tower | 83.93% | 84.07% | +0.14 |
+| Merged | 84.72% | 83.85% | −0.87 |
+| Projected | 84.22% | 83.78% | −0.44 |
+
+Eight mean label-budget cells also passed the full-data protocol audit.
+Six were newly fitted at nominal 1%, 5% and 20% label budgets. The two 100%
+cells reuse the identical fitted final-Tower cells from mean recognition,
+with source hashes and compatibility evidence. Both cases use the same
+training, validation and test IDs, train-only PCA, independent per-cell seeds,
+LR grid, epochs, CPU4 device settings and three retraining seeds. No new
+training was claimed for those two reused cells.
+
+completed-inventory.json maps all 48 validated cells to the inventory written
+before experiments. The remaining 238 task cells and all 102 paired comparisons
+remain required. CPU perturbation execution preserves the primary reducer;
+metadata additions record actual source, split, seed and device provenance.

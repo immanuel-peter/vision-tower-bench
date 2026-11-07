@@ -17,6 +17,90 @@ def ids_digest(ids):
     return hashlib.sha256(json.dumps(ids).encode()).hexdigest()
 
 
+def validate_perturbation(payload, model_id, selected_ids, conditions, expected_splits,
+                          release_revision, transform_sha256, device="cpu", threads=4):
+    if len(selected_ids) != 2000 or len(set(selected_ids)) != 2000 or payload["images"] != 2000:
+        raise ValueError("perturbation requires all 2000 selected image IDs")
+    if len(conditions) != 13 or len(set(conditions)) != 13 or "identity" not in conditions:
+        raise ValueError("perturbation requires exactly thirteen source conditions")
+    if not finite_numbers(payload) or payload["transform_manifest_sha256"] != transform_sha256:
+        raise ValueError("nonfinite perturbation result or changed transform manifest")
+    protocol = payload["protocol"]
+    if (protocol["readout"] != "attention" or protocol["classes"] != 100 or protocol["capacity_matched_width"] != 512
+            or protocol["epochs"] != 20 or protocol["seeds"] != 3
+            or set(protocol["learning_rates"]) != SEMANTIC_RATES
+            or protocol["learning_rate_search_seed"] != 0 or protocol["retraining_seeds"] != [0, 1, 2]
+            or protocol["device"] != device or protocol["torch_threads"] != threads
+            or protocol["batch_size"] != 256 or protocol["standardize_channels"]):
+        raise ValueError("perturbation readout/search/seed/device protocol differs")
+    if set(payload["feature_provenance"]) != set(conditions):
+        raise ValueError("missing perturbation feature provenance")
+    for condition in conditions:
+        feature = payload["feature_provenance"][condition]["details"]
+        if (feature["model_id"] != model_id or feature["release_revision"] != release_revision
+                or feature["resolution"] != 448 or feature["pooled_to"] != 4
+                or feature["batch_size"] != 1 or feature["dtype"] != "bfloat16"
+                or feature["device"] != "cuda:0" or feature["physical_gpu"] != 1
+                or feature["threads"] != 8 or feature["workers"] != 2
+                or feature["condition"] != condition
+                or feature["ordered_ids_sha256"] != ids_digest(selected_ids)):
+            raise ValueError("perturbation feature checkpoint/producer/IDs differ")
+    cells = payload["cells"]
+    if len(cells) != 3 or {(cell["stage"], cell["layer_index"]) for cell in cells} != {(stage, 27) for stage in ("tower", "merged", "projected")}:
+        raise ValueError("perturbation requires all three final Stages")
+    expected_hashes = {name: ids_digest(values) for name, values in expected_splits.items()}
+    for cell in cells:
+        if (cell["model_id"] != model_id or cell["seed_ids"] != [0, 1, 2]
+                or cell["relative_depth"] != 1.0 or not cell["capacity_matched"] or cell["readout"] != "attention"
+                or cell["learning_rate_search_seed"] != 0
+                or cell["sample_ids_sha256"] != ids_digest(selected_ids)
+                or cell["split_ids_sha256"] != expected_hashes
+                or any(cell[f"{name}_images"] != len(expected_splits[name]) for name in ("train", "test"))
+                or cell["validation_images"] != len(expected_splits["val"])):
+            raise ValueError("perturbation actual sample/split/seed evidence differs")
+        search = cell["learning_rate_search"]
+        if len(search) != 11 or {float(rate) for rate in search} != SEMANTIC_RATES:
+            raise ValueError("perturbation learning-rate grid differs")
+        chosen = [value for rate, value in search.items() if float(rate) == cell["learning_rate"]]
+        if len(chosen) != 1 or chosen[0] != max(search.values()) or round(cell["validation_accuracy"], 4) != chosen[0]:
+            raise ValueError("perturbation selected learning rate differs from validation scores")
+        values = cell["conditions"]
+        if len(values) != 13 or {row["condition"] for row in values} != set(conditions):
+            raise ValueError("perturbation condition cells differ from source manifest")
+        if set(cell["measurements"]) != set(conditions) - {"identity"}:
+            raise ValueError("perturbation paired measurement conditions differ")
+        clean = None
+        for condition, rows in cell["measurements"].items():
+            if [row["image_id"] for row in rows] != expected_splits["test"]:
+                raise ValueError("perturbation actual paired test IDs/order differ")
+            for row in rows:
+                if any(len(row[key]) != 3 or any(value not in (0., 1.) for value in row[key]) for key in ("clean", "perturbed")):
+                    raise ValueError("perturbation correctness must contain three binary seed values")
+            current_clean = [row["clean"] for row in rows]
+            if clean is not None and current_clean != clean:
+                raise ValueError("clean correctness changed between perturbation conditions")
+            clean = current_clean
+            result = next(row for row in values if row["condition"] == condition)
+            seed_scores = [sum(row["perturbed"][seed] for row in rows) / len(rows) for seed in range(3)]
+            if len(result["accuracy_by_seed"]) != 3 or any(abs(x - y) > 1e-6 for x, y in zip(seed_scores, result["accuracy_by_seed"], strict=True)):
+                raise ValueError("perturbation seed accuracy differs from actual paired correctness")
+            if abs(result["accuracy"] - sum(seed_scores) / 3) > 1e-6:
+                raise ValueError("perturbation accuracy differs from actual paired correctness")
+            interval = result["clean_minus_condition"]
+            point = sum(sum(row["clean"]) - sum(row["perturbed"]) for row in rows) / (3 * len(rows))
+            if (abs(interval["point_estimate"] - point) > 1e-6 or interval["lower"] > interval["upper"]
+                    or interval["resamples"] != 10000 or interval["bootstrap_seed"] != 0 or interval["confidence"] != .95):
+                raise ValueError("perturbation interval differs from same-run paired measurements")
+        identity = next(row for row in values if row["condition"] == "identity")
+        clean_scores = [sum(row[seed] for row in clean) / len(clean) for seed in range(3)]
+        if len(identity["accuracy_by_seed"]) != 3 or any(abs(x - y) > 1e-6 for x, y in zip(clean_scores, identity["accuracy_by_seed"], strict=True)) or abs(identity["accuracy"] - sum(clean_scores) / 3) > 1e-6:
+            raise ValueError("identity accuracy differs from actual clean paired correctness")
+    return dict(passed=True, images=2000, stages=3, conditions=13, cells=39,
+                test_images=len(expected_splits["test"]), learning_rates=11, search_seed=0,
+                retraining_seeds=[0, 1, 2], fit_device=device, fit_threads=threads,
+                feature_device="cuda:0", feature_physical_gpu=1)
+
+
 def validate_probe(payload, model_id, selected_ids, kind, arm, readout="attention", label_fraction=1.0, expected_splits=None):
     semantic = kind in {"recognition", "label-budget", "standardized"}
     expected_count = 13000 if semantic else (1000 if kind == "kitti" else 771)

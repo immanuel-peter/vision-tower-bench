@@ -1,0 +1,24 @@
+{
+  "passed": true,
+  "images": 13000,
+  "cells": 10,
+  "learning_rates": 11,
+  "feature_device": "cuda:0",
+  "search_seed": 0,
+  "retraining_seeds": [
+    0,
+    1,
+    2
+  ],
+  "ordered_ids_sha256": "dafe080741b398e323b400d2377c85df6587d6f4689c5b8f53c72ee1ec6463be",
+  "model": "moonvit_v2",
+  "arm": "raw",
+  "readout": "mean",
+  "fit_device": "cpu",
+  "fit_threads": 4,
+  "resumed": false,
+  "started": "2026-11-07T16:15:37.383339+00:00",
+  "seconds": 622.4838103149996,
+  "command": ".venv/bin/python -m vtb.probe_run --run /tmp/vtb-delivery/issues/24/features/gpu1-bf16-bs1/semantic/moonvit_v2_448_pool4 --labels /tmp/vtb-delivery/data/imagenet100/validation_labels.json --out /tmp/vtb-delivery/issues/24/measurements/recognition/moonvit_v2_probe_mean_raw.json --readout mean --device cpu",
+  "payload_sha256": "98a3adce71bf23a006768e98c7c327741b8d8f4680b1f53ce7d8582e13323607"
+}
