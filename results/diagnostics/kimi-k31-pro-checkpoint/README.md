@@ -1,12 +1,12 @@
 # Kimi K3.1 Pro checkpoint validation
 
-This is an in-progress delivery for issue #24, with 126 of 286 required task cells
-validated and 52 completed paired comparisons out of 102. Immutable release reload passed all
+This is an in-progress delivery for issue #24, with 144 of 286 required task cells
+validated and 53 completed paired comparisons out of 102. Immutable release reload passed all
 17 file hashes, 168 parent tensors and 30 bit-exact CPU BF16 math-reference cases. The immutable bundle
 is published at revision 6ab95e2daf86e8100be2e712a7a71c0fba26dac4. Independent
 math-reference conversion parity passes in CPU and CUDA BF16. Production
 TORCH_SDPA BF16 parity failed for both checkpoints and remains a limitation.
-Complete mean-recognition, mean label-budget and primary perturbation measurements
+Complete label budgets, standardized diagnostics, mean recognition and primary perturbation measurements
 are available below.
 The remaining benchmark suite and final default figures are required before the PR.
 
@@ -204,8 +204,8 @@ LR grid, epochs, CPU4 device settings and three retraining seeds. No new
 training was claimed for those two reused cells.
 
 completed-inventory.json maps these 48 mean cells and the 78 perturbation cells
-below to the inventory written before experiments. The remaining 160 task cells
-and 50 paired comparisons remain required.
+below to the inventory written before experiments. The attention budgets and
+compatible reuse below bring remaining work to 142 task cells and 49 paired comparisons.
 
 ## Complete primary perturbation measurements
 
@@ -241,3 +241,36 @@ An opt-in prediction-retention flag now saves selected-fit class predictions
 for audited paired reuse. Tests cover both readout families and verify identical
 fit scores and RNG state with retention enabled or disabled. LR selection,
 retraining, epochs and the primary reducer do not change.
+
+## Complete attention budgets and standardized diagnostic
+
+All eight primary attention-budget cells and eight standardized diagnostic
+cells passed actual-content validation. The unchanged 11-LR seed-0 selection
+and three-seed retraining protocol ran on CPU4 for both siblings, using their
+complete GPU1 BF16 batch-one feature caches. The full phase took 4,599.05 seconds.
+
+| Nominal label budget | K3 primary | Pro primary | K3 standardized | Pro standardized |
+| --- | ---: | ---: | ---: | ---: |
+| 1% | 21.81% | 22.85% | 22.96% | 23.40% |
+| 5% | 56.96% | 57.16% | 57.54% | 56.92% |
+| 20% | 77.42% | 77.30% | 77.23% | 78.02% |
+| 100% | 83.93% | 84.12% | 84.70% | 85.11% |
+
+The standardized path follows the pinned archived patch and remains diagnostic.
+The primary reducer is unchanged. Pro's four standardized rows were appended
+to the default figure source; all 64 historical rows were preserved. The
+label-budget figure content test now passes for all 17 Towers. Regenerated
+default label-budget and occlusion panels are under ready-default-figures.
+Fresh K3 diagnostic controls remain separate from historical K3 results.
+
+The two primary 100% attention fits are also the exact final-Tower matched
+recognition cells: identical full data, split, PCA seed, LR grid, selected
+retraining seeds, epochs and CPU4 settings. They are retained under
+recognition-cells with explicit single-cell scope, not presented as a complete
+ten-cell matrix. The recorded per-image predictions and true labels also
+supply the prescribed final-Tower sibling bootstrap on all 1,950 test IDs.
+Its Pro-minus-K3 point is +0.19 percentage points, with a 95% paired-image
+interval of [−0.53, +0.91]. The point and interval come from those same fits.
+Full-budget reuse, source hashes and compatibility evidence are recorded in
+cpu-attention-budgets/full-budget-reuse.json. Later matrix assembly must retain
+each cell's actual fit device and avoid repeating compatible completed fits.

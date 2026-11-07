@@ -210,7 +210,8 @@
       "extra_environment": {
         "READOUTS": "attention"
       },
-      "mean_cells_complete_verified": true
+      "mean_cells_complete_verified": true,
+      "partial_attention_matched_reuse": "one finalTower L27 CPU4 cell at measurements/recognition-cells; skip compatible duplicate fit and preserve per-cell device provenance when assembling full10cell matrices"
     },
     {
       "phase": "primary",
@@ -232,7 +233,10 @@
       "extra_environment": {
         "READOUTS": "attention"
       },
-      "mean_cells_complete_verified": true
+      "mean_cells_complete_verified": true,
+      "status": "complete_content_verified_cpu",
+      "actual_device": "cpu",
+      "actual_threads": 4
     },
     {
       "phase": "diagnostic",
@@ -259,7 +263,10 @@
         "0.01",
         "--device",
         "cuda:0"
-      ]
+      ],
+      "status": "complete_content_verified_cpu",
+      "actual_device": "cpu",
+      "actual_threads": 4
     },
     {
       "phase": "diagnostic",
@@ -286,7 +293,10 @@
         "0.05",
         "--device",
         "cuda:0"
-      ]
+      ],
+      "status": "complete_content_verified_cpu",
+      "actual_device": "cpu",
+      "actual_threads": 4
     },
     {
       "phase": "diagnostic",
@@ -313,7 +323,10 @@
         "0.2",
         "--device",
         "cuda:0"
-      ]
+      ],
+      "status": "complete_content_verified_cpu",
+      "actual_device": "cpu",
+      "actual_threads": 4
     },
     {
       "phase": "diagnostic",
@@ -340,7 +353,10 @@
         "1.0",
         "--device",
         "cuda:0"
-      ]
+      ],
+      "status": "complete_content_verified_cpu",
+      "actual_device": "cpu",
+      "actual_threads": 4
     },
     {
       "phase": "correspondence",
@@ -656,7 +672,8 @@
       "extra_environment": {
         "READOUTS": "attention"
       },
-      "mean_cells_complete_verified": true
+      "mean_cells_complete_verified": true,
+      "partial_attention_matched_reuse": "one finalTower L27 CPU4 cell at measurements/recognition-cells; skip compatible duplicate fit and preserve per-cell device provenance when assembling full10cell matrices"
     },
     {
       "phase": "primary",
@@ -678,7 +695,10 @@
       "extra_environment": {
         "READOUTS": "attention"
       },
-      "mean_cells_complete_verified": true
+      "mean_cells_complete_verified": true,
+      "status": "complete_content_verified_cpu",
+      "actual_device": "cpu",
+      "actual_threads": 4
     },
     {
       "phase": "diagnostic",
@@ -705,7 +725,10 @@
         "0.01",
         "--device",
         "cuda:0"
-      ]
+      ],
+      "status": "complete_content_verified_cpu",
+      "actual_device": "cpu",
+      "actual_threads": 4
     },
     {
       "phase": "diagnostic",
@@ -732,7 +755,10 @@
         "0.05",
         "--device",
         "cuda:0"
-      ]
+      ],
+      "status": "complete_content_verified_cpu",
+      "actual_device": "cpu",
+      "actual_threads": 4
     },
     {
       "phase": "diagnostic",
@@ -759,7 +785,10 @@
         "0.2",
         "--device",
         "cuda:0"
-      ]
+      ],
+      "status": "complete_content_verified_cpu",
+      "actual_device": "cpu",
+      "actual_threads": 4
     },
     {
       "phase": "diagnostic",
@@ -786,7 +815,10 @@
         "1.0",
         "--device",
         "cuda:0"
-      ]
+      ],
+      "status": "complete_content_verified_cpu",
+      "actual_device": "cpu",
+      "actual_threads": 4
     },
     {
       "phase": "correspondence",
@@ -1174,7 +1206,9 @@
         "cuda:0",
         "--labels",
         "/tmp/vtb-delivery/data/imagenet100/validation_labels.json"
-      ]
+      ],
+      "status": "complete_content_verified_cpu",
+      "reuse_proof": "attention-full-budget-reuse.json"
     },
     {
       "phase": "paired-fits",

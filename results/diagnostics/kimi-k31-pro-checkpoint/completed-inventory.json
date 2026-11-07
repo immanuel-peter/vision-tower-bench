@@ -2,9 +2,9 @@
   "passed": true,
   "complete_delivery": false,
   "required_primary_cells": 286,
-  "completed_primary_cells": 126,
+  "completed_primary_cells": 144,
   "required_paired_cells": 102,
-  "completed_paired_cells": 52,
+  "completed_paired_cells": 53,
   "completed": [
     {
       "cell": {
@@ -1385,6 +1385,248 @@
       },
       "source": "/tmp/vtb-delivery/issues/24/measurements/perturbation/moonvit_v2_perturbation.json",
       "sha256": "08194e75e6e9d6803f473c3f1b4059dc6bbf756ac5862df338c9fc74e8607556"
+    },
+    {
+      "cell": {
+        "task": "label_budget",
+        "model": "kimi_k31_pro",
+        "stage": "tower",
+        "layer": 27,
+        "arm": "matched",
+        "readout": "attention",
+        "fraction": 0.01
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/label-budget/kimi_k31_pro_probe_attention_matched_f001.json",
+      "sha256": "5579a8ae17fff762980b0668f84b794c829d45593680f4caddcbe25fcd6c03ed"
+    },
+    {
+      "cell": {
+        "task": "label_budget",
+        "model": "kimi_k31_pro",
+        "stage": "tower",
+        "layer": 27,
+        "arm": "matched",
+        "readout": "attention",
+        "fraction": 0.05
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/label-budget/kimi_k31_pro_probe_attention_matched_f005.json",
+      "sha256": "db9c818bafa1faacb2b7070be8dccdc2b1595b9ca14a016e057d281b0c455875"
+    },
+    {
+      "cell": {
+        "task": "label_budget",
+        "model": "kimi_k31_pro",
+        "stage": "tower",
+        "layer": 27,
+        "arm": "matched",
+        "readout": "attention",
+        "fraction": 0.2
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/label-budget/kimi_k31_pro_probe_attention_matched_f020.json",
+      "sha256": "32eef56fa297d7c4c1f78e52083a33b018e9700f642cc85d5a5368ed4a32583b"
+    },
+    {
+      "cell": {
+        "task": "label_budget",
+        "model": "kimi_k31_pro",
+        "stage": "tower",
+        "layer": 27,
+        "arm": "matched",
+        "readout": "attention",
+        "fraction": 1.0
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/label-budget/kimi_k31_pro_probe_attention_matched_f100.json",
+      "sha256": "e62be5f6546b44374b5b815e38e9bc5beb05faf92bc0b425bfc04d1be7143f15"
+    },
+    {
+      "cell": {
+        "task": "recognition",
+        "model": "kimi_k31_pro",
+        "stage": "tower",
+        "layer": 27,
+        "arm": "matched",
+        "readout": "attention"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/recognition-cells/kimi_k31_pro_probe_attention_matched_tower_L27.json",
+      "sha256": "ee2bb29d2e0cc209fe3c14d78549300256ed86ce64f02c1a1a20b82316cce969",
+      "reuse": {
+        "source": "/tmp/vtb-delivery/issues/24/measurements/label-budget/kimi_k31_pro_probe_attention_matched_f100.json",
+        "source_sha256": "e62be5f6546b44374b5b815e38e9bc5beb05faf92bc0b425bfc04d1be7143f15",
+        "compatibility": "Same full13000imagecache, exact9100/1950/1950split, full label fraction, train-only PCA seed0,11LRseed0search,3selected-rate retrainings,20epochs,CPU4; per-cell PCA and training seed resets make selection scope irrelevant."
+      }
+    },
+    {
+      "cell": {
+        "task": "standardized_label_budget",
+        "model": "kimi_k31_pro",
+        "stage": "tower",
+        "layer": 27,
+        "arm": "matched",
+        "readout": "attention",
+        "fraction": 0.01
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/diagnostics/kimi_k31_pro_probe_attention_matched_f001.json",
+      "sha256": "9836d11e2b1d72bde51b4f11c60cd72073ec28431776a839bfeea9d2561c80cc"
+    },
+    {
+      "cell": {
+        "task": "standardized_label_budget",
+        "model": "kimi_k31_pro",
+        "stage": "tower",
+        "layer": 27,
+        "arm": "matched",
+        "readout": "attention",
+        "fraction": 0.05
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/diagnostics/kimi_k31_pro_probe_attention_matched_f005.json",
+      "sha256": "a8f451cabf33c4cef5c6c42466a9490c184a0856c3c5f3c7db9b78c8be24a89b"
+    },
+    {
+      "cell": {
+        "task": "standardized_label_budget",
+        "model": "kimi_k31_pro",
+        "stage": "tower",
+        "layer": 27,
+        "arm": "matched",
+        "readout": "attention",
+        "fraction": 0.2
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/diagnostics/kimi_k31_pro_probe_attention_matched_f020.json",
+      "sha256": "fd17a0f647c75cd87ddc1f79a815d9ffc82bcdd533b15fa41cd7a022c30e04c5"
+    },
+    {
+      "cell": {
+        "task": "standardized_label_budget",
+        "model": "kimi_k31_pro",
+        "stage": "tower",
+        "layer": 27,
+        "arm": "matched",
+        "readout": "attention",
+        "fraction": 1.0
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/diagnostics/kimi_k31_pro_probe_attention_matched_f100.json",
+      "sha256": "3d1aab5ca1b5d3caf30a8c06602edb962eda95d0a37e968290e69052e8876ed6"
+    },
+    {
+      "cell": {
+        "task": "label_budget",
+        "model": "moonvit_v2",
+        "stage": "tower",
+        "layer": 27,
+        "arm": "matched",
+        "readout": "attention",
+        "fraction": 0.01
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/label-budget/moonvit_v2_probe_attention_matched_f001.json",
+      "sha256": "aa3e94fab9e36f0d950bed1dc69160f9d0474acdd0431234b5e6b521849ffd90"
+    },
+    {
+      "cell": {
+        "task": "label_budget",
+        "model": "moonvit_v2",
+        "stage": "tower",
+        "layer": 27,
+        "arm": "matched",
+        "readout": "attention",
+        "fraction": 0.05
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/label-budget/moonvit_v2_probe_attention_matched_f005.json",
+      "sha256": "1748a0baf7aaf207fc3d3c44e11088721bb36f2094af2edb8d4845162020545f"
+    },
+    {
+      "cell": {
+        "task": "label_budget",
+        "model": "moonvit_v2",
+        "stage": "tower",
+        "layer": 27,
+        "arm": "matched",
+        "readout": "attention",
+        "fraction": 0.2
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/label-budget/moonvit_v2_probe_attention_matched_f020.json",
+      "sha256": "ae4b9328f9d3637c61927f4294881eff30aff7483d78e4a3844efb8e3d5dd2c2"
+    },
+    {
+      "cell": {
+        "task": "label_budget",
+        "model": "moonvit_v2",
+        "stage": "tower",
+        "layer": 27,
+        "arm": "matched",
+        "readout": "attention",
+        "fraction": 1.0
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/label-budget/moonvit_v2_probe_attention_matched_f100.json",
+      "sha256": "06a5cf1168119daf61bf93f6d8e079ffc6f30f18f0711ab8fb2abf9e1ee4bd00"
+    },
+    {
+      "cell": {
+        "task": "recognition",
+        "model": "moonvit_v2",
+        "stage": "tower",
+        "layer": 27,
+        "arm": "matched",
+        "readout": "attention"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/recognition-cells/moonvit_v2_probe_attention_matched_tower_L27.json",
+      "sha256": "ad0964765b5579e4430fa09caa9af19a6b656519bd4c9f3e98f3af0d0a254032",
+      "reuse": {
+        "source": "/tmp/vtb-delivery/issues/24/measurements/label-budget/moonvit_v2_probe_attention_matched_f100.json",
+        "source_sha256": "06a5cf1168119daf61bf93f6d8e079ffc6f30f18f0711ab8fb2abf9e1ee4bd00",
+        "compatibility": "Same full13000imagecache, exact9100/1950/1950split, full label fraction, train-only PCA seed0,11LRseed0search,3selected-rate retrainings,20epochs,CPU4; per-cell PCA and training seed resets make selection scope irrelevant."
+      }
+    },
+    {
+      "cell": {
+        "task": "standardized_label_budget",
+        "model": "moonvit_v2",
+        "stage": "tower",
+        "layer": 27,
+        "arm": "matched",
+        "readout": "attention",
+        "fraction": 0.01
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/diagnostics/moonvit_v2_probe_attention_matched_f001.json",
+      "sha256": "c892a110d5abc1193cd45c36a4a0730b379097e3fbd84cea6aa7a6b452691da8"
+    },
+    {
+      "cell": {
+        "task": "standardized_label_budget",
+        "model": "moonvit_v2",
+        "stage": "tower",
+        "layer": 27,
+        "arm": "matched",
+        "readout": "attention",
+        "fraction": 0.05
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/diagnostics/moonvit_v2_probe_attention_matched_f005.json",
+      "sha256": "d22810b6e242a38e98da5b2d5c298d1c15a1375634457e22bd31d6b841a57391"
+    },
+    {
+      "cell": {
+        "task": "standardized_label_budget",
+        "model": "moonvit_v2",
+        "stage": "tower",
+        "layer": 27,
+        "arm": "matched",
+        "readout": "attention",
+        "fraction": 0.2
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/diagnostics/moonvit_v2_probe_attention_matched_f020.json",
+      "sha256": "a08908ebf8523e4946b91546401a21d67aed19cbbb45d0ff3bab74ee695f6b4d"
+    },
+    {
+      "cell": {
+        "task": "standardized_label_budget",
+        "model": "moonvit_v2",
+        "stage": "tower",
+        "layer": 27,
+        "arm": "matched",
+        "readout": "attention",
+        "fraction": 1.0
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/diagnostics/moonvit_v2_probe_attention_matched_f100.json",
+      "sha256": "50392e98052ef6f5a7dd59ded2c30b4c9ef8bc8d328e4bd4e697ae6c5c616c75"
     }
   ],
   "pending": [
@@ -1719,14 +1961,6 @@
       "arm": "raw"
     },
     {
-      "task": "recognition",
-      "model": "kimi_k31_pro",
-      "stage": "tower",
-      "layer": 27,
-      "arm": "matched",
-      "readout": "attention"
-    },
-    {
       "task": "depth",
       "model": "kimi_k31_pro",
       "stage": "tower",
@@ -1827,78 +2061,6 @@
       "stage": "projected",
       "layer": 27,
       "arm": "matched"
-    },
-    {
-      "task": "label_budget",
-      "model": "kimi_k31_pro",
-      "stage": "tower",
-      "layer": 27,
-      "arm": "matched",
-      "readout": "attention",
-      "fraction": 0.01
-    },
-    {
-      "task": "standardized_label_budget",
-      "model": "kimi_k31_pro",
-      "stage": "tower",
-      "layer": 27,
-      "arm": "matched",
-      "readout": "attention",
-      "fraction": 0.01
-    },
-    {
-      "task": "label_budget",
-      "model": "kimi_k31_pro",
-      "stage": "tower",
-      "layer": 27,
-      "arm": "matched",
-      "readout": "attention",
-      "fraction": 0.05
-    },
-    {
-      "task": "standardized_label_budget",
-      "model": "kimi_k31_pro",
-      "stage": "tower",
-      "layer": 27,
-      "arm": "matched",
-      "readout": "attention",
-      "fraction": 0.05
-    },
-    {
-      "task": "label_budget",
-      "model": "kimi_k31_pro",
-      "stage": "tower",
-      "layer": 27,
-      "arm": "matched",
-      "readout": "attention",
-      "fraction": 0.2
-    },
-    {
-      "task": "standardized_label_budget",
-      "model": "kimi_k31_pro",
-      "stage": "tower",
-      "layer": 27,
-      "arm": "matched",
-      "readout": "attention",
-      "fraction": 0.2
-    },
-    {
-      "task": "label_budget",
-      "model": "kimi_k31_pro",
-      "stage": "tower",
-      "layer": 27,
-      "arm": "matched",
-      "readout": "attention",
-      "fraction": 1.0
-    },
-    {
-      "task": "standardized_label_budget",
-      "model": "kimi_k31_pro",
-      "stage": "tower",
-      "layer": 27,
-      "arm": "matched",
-      "readout": "attention",
-      "fraction": 1.0
     },
     {
       "task": "navi",
@@ -2303,14 +2465,6 @@
       "arm": "raw"
     },
     {
-      "task": "recognition",
-      "model": "moonvit_v2",
-      "stage": "tower",
-      "layer": 27,
-      "arm": "matched",
-      "readout": "attention"
-    },
-    {
       "task": "depth",
       "model": "moonvit_v2",
       "stage": "tower",
@@ -2411,78 +2565,6 @@
       "stage": "projected",
       "layer": 27,
       "arm": "matched"
-    },
-    {
-      "task": "label_budget",
-      "model": "moonvit_v2",
-      "stage": "tower",
-      "layer": 27,
-      "arm": "matched",
-      "readout": "attention",
-      "fraction": 0.01
-    },
-    {
-      "task": "standardized_label_budget",
-      "model": "moonvit_v2",
-      "stage": "tower",
-      "layer": 27,
-      "arm": "matched",
-      "readout": "attention",
-      "fraction": 0.01
-    },
-    {
-      "task": "label_budget",
-      "model": "moonvit_v2",
-      "stage": "tower",
-      "layer": 27,
-      "arm": "matched",
-      "readout": "attention",
-      "fraction": 0.05
-    },
-    {
-      "task": "standardized_label_budget",
-      "model": "moonvit_v2",
-      "stage": "tower",
-      "layer": 27,
-      "arm": "matched",
-      "readout": "attention",
-      "fraction": 0.05
-    },
-    {
-      "task": "label_budget",
-      "model": "moonvit_v2",
-      "stage": "tower",
-      "layer": 27,
-      "arm": "matched",
-      "readout": "attention",
-      "fraction": 0.2
-    },
-    {
-      "task": "standardized_label_budget",
-      "model": "moonvit_v2",
-      "stage": "tower",
-      "layer": 27,
-      "arm": "matched",
-      "readout": "attention",
-      "fraction": 0.2
-    },
-    {
-      "task": "label_budget",
-      "model": "moonvit_v2",
-      "stage": "tower",
-      "layer": 27,
-      "arm": "matched",
-      "readout": "attention",
-      "fraction": 1.0
-    },
-    {
-      "task": "standardized_label_budget",
-      "model": "moonvit_v2",
-      "stage": "tower",
-      "layer": 27,
-      "arm": "matched",
-      "readout": "attention",
-      "fraction": 1.0
     },
     {
       "task": "navi",
@@ -3130,6 +3212,21 @@
       },
       "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/perturbation-kimi_k31_pro-projected-vs-tower-all-conditions.json",
       "sha256": "47ae3c6dfa0a7fdcae466abfcb9c3f34c864c2089b141363cc5415c579faf6a2"
+    },
+    {
+      "cell": {
+        "comparison": "kimi_k31_pro-minus-moonvit_v2",
+        "task": "recognition",
+        "first_stage": "tower",
+        "second_stage": "tower",
+        "first_layer": 27,
+        "second_layer": 27,
+        "arm": "matched",
+        "readout": "attention"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/007-recognition-kimi_k31_pro-minus-moonvit_v2-tower-L27.json",
+      "sha256": "c091a5e32b6ed1a82d5b5d1b3d9b6544383583e46a18f5599e89083f1c28cd81",
+      "reused_same_fit_predictions": true
     }
   ]
 }
