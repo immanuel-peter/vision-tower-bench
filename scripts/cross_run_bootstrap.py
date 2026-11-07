@@ -81,11 +81,16 @@ def correspondence(first: dict, second: dict, names: tuple[str, str], args) -> d
     metric = args.metric or PRIMARY[first["dataset"]]
     second_stage = getattr(args, "second_stage", None) or args.stage
     keys = [f"{cell['stage']}:{cell['layer_index']}" for cell in (stage_cell(first, args.stage), stage_cell(second, second_stage))]
-    rows, excluded = [], []
+    rows, excluded, exclusion_reasons = [], [], []
     for a, b in pair_rows(first["measurements"], second["measurements"], "pair_id"):
         values = (a["cells"][keys[0]][metric], b["cells"][keys[1]][metric])
         if not all(math.isfinite(value) for value in values):
             excluded.append(a["pair_id"])
+            zero_keypoints = a["cells"][keys[0]].get("keypoints") == b["cells"][keys[1]].get("keypoints") == 0
+            if first["dataset"] == "spair" and not zero_keypoints:
+                raise ValueError(f"nonfinite SPair metric on a nonempty pair: {a['pair_id']}")
+            exclusion_reasons.append({"pair_id": a["pair_id"],
+                                      "reason": "zero visible keypoints" if zero_keypoints else "nonfinite paired metric"})
             continue
         row = {"pair_id": a["pair_id"], names[0]: values[0], names[1]: values[1]}
         if "class" in a:
@@ -103,6 +108,7 @@ def correspondence(first: dict, second: dict, names: tuple[str, str], args) -> d
     result = {
         "metric": metric, "difference": difference, "finite_pairs": len(rows),
         "excluded_nonfinite_pair_ids": excluded, "measurements": rows,
+        "exclusions": exclusion_reasons,
     }
     if rows and all("class" in row for row in rows):
         result["class_macro_difference"] = class_macro_bootstrap(rows, names, args)

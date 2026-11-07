@@ -521,7 +521,30 @@ def protocol(out: Path) -> None:
     plt.close(figure)
 
 
+def qwen_weight_drift(out: Path) -> None:
+    tensors = json.loads((RESULTS / "evidence/qwen38-flash-next/drift.json").read_text())["tensors"]
+    groups = [
+        [row for name, row in tensors.items() if name.startswith(f"blocks.{layer}.")]
+        for layer in range(27)
+    ]
+    layers = np.arange(1, 28)
+    figure, axes = plt.subplots(1, 2, figsize=(9, 3.3))
+    axes[0].plot(layers, [min(row["cosine"] for row in group) for group in groups], color=COLOUR["qwen38_flash_next"])
+    axes[0].set_ylabel("minimum tensor cosine")
+    axes[1].plot(layers, [np.mean([row["relative_l2"] for row in group]) for group in groups], color=COLOUR["qwen38_flash_next"])
+    axes[1].set_ylabel("mean tensor relative L2")
+    for axis in axes:
+        axis.set_xlabel("Tower block")
+        axis.set_xticks([1, 7, 14, 21, 27])
+        axis.grid(alpha=0.25)
+    figure.suptitle("Qwen3.8 Flash-Next weight drift against pinned 27B")
+    figure.tight_layout()
+    figure.savefig(out, bbox_inches="tight")
+    plt.close(figure)
+
+
 FIGURES = {
+    "qwen-weight-drift": qwen_weight_drift,
     "protocol": protocol,
     "projector-matrix": projector_matrix,
     "semantic-forest": semantic_forest,

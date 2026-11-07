@@ -38,7 +38,7 @@ def test_roster_covers_the_sixteen_tower_suite():
     assert set(FIGURE_SCRIPT.COLOUR) == set(FIGURE_SCRIPT.TOWERS)
     assert set(FIGURE_SCRIPT.DISPLAY) == set(FIGURE_SCRIPT.TOWERS)
     assert FIGURE_SCRIPT.DISPLAY["glm5"] == "GLM 5.3 Flash"
-    assert FIGURE_SCRIPT.DISPLAY["nemotron_omni"] == "Nemotron Omni"
+    assert FIGURE_SCRIPT.DISPLAY["nemotron_omni"] == "Nemotron 3 Omni"
     assert FIGURE_SCRIPT.DISPLAY["deepseek_v41"] == "DeepSeek V4.1"
     assert FIGURE_SCRIPT.DISPLAY["minimax_m3"] == "MiniMax M3"
     assert len(set(FIGURE_SCRIPT.COLOUR.values())) == len(FIGURE_SCRIPT.TOWERS)
@@ -68,7 +68,9 @@ def test_projector_matrix_covers_every_projector_and_panel():
 
     states = []
     for panel in ("depth-matched", "depth-raw", "normal-matched", "normal-raw"):
-        for _, _, low, high in panels[panel]:
+        for model, _, low, high in panels[panel]:
+            if model == "qwen38_flash_next":
+                continue
             states.append("projector" if low > 0 else "tower" if high < 0 else "unresolved")
     assert states.count("projector") == 30
     assert states.count("tower") == 13

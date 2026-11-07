@@ -2,6 +2,7 @@
 """Write a paired image-pair bootstrap interval for two correspondence Stages."""
 
 import argparse
+import hashlib
 import json
 import math
 from pathlib import Path
@@ -57,6 +58,19 @@ def main() -> None:
     second_key = cell_key(payload, args.second_stage)
     rows = payload["measurements"]
     result = interval(rows, first_key, second_key, metric, args)
+    paired_rows, excluded, exclusion_reasons = [], [], []
+    for row in rows:
+        first = row["cells"][first_key][metric]
+        second = row["cells"][second_key][metric]
+        if math.isfinite(first) and math.isfinite(second):
+            paired_rows.append({"pair_id": row["pair_id"], "first": first, "second": second})
+        else:
+            excluded.append(row["pair_id"])
+            zero_keypoints = all(row["cells"][key].get("keypoints") == 0 for key in (first_key, second_key))
+            if payload["dataset"] == "spair" and not zero_keypoints:
+                raise ValueError(f"nonfinite SPair metric on a nonempty pair: {row['pair_id']}")
+            exclusion_reasons.append({"pair_id": row["pair_id"],
+                                      "reason": "zero visible keypoints" if zero_keypoints else "nonfinite paired metric"})
 
     by_difficulty = {}
     difficulty_key = "viewpoint" if payload["dataset"] == "spair" else "angle"
@@ -80,12 +94,18 @@ def main() -> None:
             "resolution": payload["resolution"],
             "evaluation_side": payload["evaluation_side"],
             "num_correspondences": payload["num_correspondences"],
+            "source": str(args.run),
+            "source_sha256": hashlib.sha256(args.run.read_bytes()).hexdigest(),
         },
         "model": payload["model"],
         "model_id": payload["model_id"],
         "first": first_key,
         "second": second_key,
         "first_advantage": result,
+        "selected_pairs": len(rows),
+        "excluded_nonfinite_pair_ids": excluded,
+        "exclusions": exclusion_reasons,
+        "measurements": paired_rows,
         "by_difficulty": by_difficulty,
     }
     args.out.parent.mkdir(parents=True, exist_ok=True)

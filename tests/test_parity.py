@@ -39,7 +39,11 @@ def test_siglip2_tower_matches_published_checkpoint():
 @pytest.mark.parametrize("checkpoint", qwen3_5.CHECKPOINTS.values(), ids=qwen3_5.CHECKPOINTS)
 def test_qwen_tower_matches_parent_checkpoint(checkpoint):
     tower = qwen3_5.load_tower(torch.bfloat16, checkpoint)
-    assert_bit_exact(tower.state_dict(), qwen3_5.source_weights(checkpoint), 333)
+    source = qwen3_5.source_weights(checkpoint)
+    assert_bit_exact(tower.state_dict(), source, 333)
+    assert all(tensor.dtype == torch.bfloat16 for tensor in tower.state_dict().values())
+    assert all(torch.equal(tensor.view(torch.uint8), source[name].view(torch.uint8))
+               for name, tensor in tower.state_dict().items())
     assert tower.merger.linear_fc2.weight.shape == (checkpoint.out_hidden_size, 4608)
 
 

@@ -1,0 +1,42 @@
+{
+  "images": 13000,
+  "label_fraction": 1.0,
+  "train_images": 9100,
+  "full_train_images": 9100,
+  "cells": [
+    {
+      "learning_rate": 0.0001,
+      "learning_rate_search": {
+        "1e-05": 0.7513,
+        "3e-05": 0.8826,
+        "0.0001": 0.9062,
+        "0.0003": 0.8974,
+        "0.001": 0.8944,
+        "0.003": 0.8949,
+        "0.01": 0.8564,
+        "0.03": 0.7913,
+        "0.1": 0.3113,
+        "0.3": 0.46,
+        "1": 0.5954
+      },
+      "val_accuracy": 0.9062,
+      "test_accuracy": 0.8906,
+      "test_std": 0.0034,
+      "seeds": 3,
+      "model_id": "immanuelpeter/Qwen3.8-Flash-Next-Vision",
+      "stage": "tower",
+      "layer_index": 27,
+      "relative_depth": 1.0,
+      "token_width": 1152,
+      "trainable_parameters": 1627748,
+      "label_fraction": 1.0,
+      "train_images": 9100,
+      "full_train_images": 9100
+    }
+  ],
+  "diagnostic": {
+    "method": "training-split sample standard deviation before seeded PCA",
+    "patch_source": "r2:vtb/backups/v3/2026-10-19/proposed/reducer-channel-standardization.patch",
+    "patch_sha256": "f5a2bc1dcda0e6be9a2d6abea9c1bcc9cb5817282ff6406489b5022dc65e330a"
+  }
+}

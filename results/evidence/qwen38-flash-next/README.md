@@ -73,3 +73,37 @@ Reproduce source extraction and validation from the repository root:
 python -m scripts.export_qwen3_8_vision --checkpoint qwen38_flash_next
 python -m scripts.validate_qwen38_flash_next --out parity.json --drift-out drift.json
 ```
+
+The full prepared-input SHA256 inventory is retained as
+`prepared-data-sha256.txt.gz`. Paths describe the delivery environment.
+`prepared-data-audit.json` records the shared preparation command's successful
+completion and manifest hash. `checkpoint-audit.json` verifies the pinned
+source indexes, configs, identical image and video preprocessing files, and
+all shared architecture fields. The parent has LICENSE and no NOTICE.
+
+![All-layer weight drift](weight-drift.svg)
+
+The isolated standardized label-budget diagnostic follows the archived
+`reducer-channel-standardization.patch` exactly. Its sample standard deviation
+uses correction 1 and a minimum scale of 1e-6. It fits only on the labelled
+training subset with the existing seeded PCA rule. Primary probes keep the
+original reducer. The patch SHA256 is
+`f5a2bc1dcda0e6be9a2d6abea9c1bcc9cb5817282ff6406489b5022dc65e330a`.
+
+The final immutable reload validates the adapter against the downloaded release
+itself, including all intermediate Stages. It records both source and release
+SHA256 for every BF16 tensor. Strict native loading has 333 persistent state
+tensors. The two nonpersistent rotary buffers, `rotary_pos_emb.inv_freq` and
+`rotary_pos_emb.original_inv_freq`, each have 18 FP32 values and are rebuilt by
+the native class. The initial reload report is retained separately.
+
+The 100% matched-attention label-budget cell also covers the identical final
+Tower recognition cell. `recognition-budget-reuse-audit.json` compares all
+resolved probe options and records identical payload hashes. Fresh paired
+comparisons still train both readouts together and retain their own points.
+
+The correspondence source audit retains all 3,600 SPair selections. Exactly
+192 have zero jointly visible keypoints after the canonical crop, leaving
+3,408 evaluable pairs. Their IDs match the historical 27B record exactly.
+Every exclusion ID and reason is retained in `pair-selection.json`. Nonfinite
+metrics on any nonempty pair are a validation failure.

@@ -58,6 +58,9 @@ def test_qwen_release_weights_match_the_pinned_parent(checkpoint):
     assert len(source) == 333
     actual = load_file(checkpoint.bundle / "model.safetensors")
     assert_bit_exact(actual, source)
+    assert all(tensor.dtype == source[name].dtype == torch.bfloat16 for name, tensor in actual.items())
+    assert all(torch.equal(tensor.view(torch.uint8), source[name].view(torch.uint8))
+               for name, tensor in actual.items())
     assert actual["merger.linear_fc2.weight"].shape == (checkpoint.out_hidden_size, 4608)
 
 

@@ -3,6 +3,7 @@ import argparse
 import hashlib
 import inspect
 import json
+import os
 import time
 from pathlib import Path
 
@@ -43,18 +44,38 @@ def validate(bundle, device, resolutions=(96, 448), dtype=torch.float32):
     identity = {}
     for name, expected in weights.items():
         actual = state[name]
+        assert actual.dtype == expected.dtype == torch.bfloat16, name
         assert torch.equal(actual, expected), name
-        identity[name] = {"shape": list(actual.shape), "dtype": str(actual.dtype), "sha256": digest(actual)}
+        actual_sha256, source_sha256 = digest(actual), digest(expected)
+        assert actual_sha256 == source_sha256, name
+        identity[name] = {"shape": list(actual.shape), "dtype": str(actual.dtype),
+                          "sha256": actual_sha256, "source_sha256": source_sha256}
     assert state["merger.linear_fc2.weight"].shape == (2560, 4608)
     config = Qwen4ExpVisionConfig(**source_json(FLASH_NEXT, "config.json")["vision_config"])
     reference = Qwen4ExpVisionModel._from_config(config, dtype=dtype).eval()
     reference.load_state_dict(weights, strict=True)
     reference = reference.to(device)
     source_file = Path(inspect.getfile(Qwen4ExpVisionModel))
-    adapter = Qwen38FlashNextAdapter(resolution=resolutions[0], device=device, dtype=dtype)
+    override = "VTB_QWEN38_FLASH_NEXT_BUNDLE"
+    previous = os.environ.get(override)
+    os.environ[override] = str(bundle)
+    try:
+        adapter = Qwen38FlashNextAdapter(resolution=resolutions[0], device=device, dtype=dtype)
+    finally:
+        if previous is None:
+            os.environ.pop(override, None)
+        else:
+            os.environ[override] = previous
     released = AutoModel.from_pretrained(bundle, local_files_only=True, dtype=dtype).to(device).eval()
     report = {"source_repo": FLASH_NEXT.repo, "source_revision": FLASH_NEXT.revision,
+              "bundle": str(bundle.resolve()),
               "reference_class": "Qwen4ExpVisionModel", "reference_source_sha256": hashlib.sha256(source_file.read_bytes()).hexdigest(),
+              "native_state_tensor_count": len(reference.state_dict()),
+              "native_nonpersistent_buffers": {
+                  name: {"shape": list(value.shape), "dtype": str(value.dtype)}
+                  for name, value in reference.named_buffers()
+                  if name not in reference.state_dict()
+              },
               "reference_config": config.to_dict(), "torch": torch.__version__, "transformers": transformers.__version__,
               "dtype": str(dtype), "device": str(device), "identity": identity, "cases": []}
     rng = np.random.default_rng(22)

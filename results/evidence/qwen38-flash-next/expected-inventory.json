@@ -126,7 +126,12 @@
       "merged",
       "projected"
     ],
-    "pool": null
+    "pool": null,
+    "pairs": {
+      "navi": 555,
+      "scannet": 1500,
+      "spair": 3600
+    }
   },
   "label_budget": {
     "cells": 8,
@@ -204,5 +209,19 @@
     "independent_forward_before_runs": true,
     "baseline_provenance_audit": true
   },
-  "protocol_note": "Every LR searched with seed 0; selected LR retrained with seeds 0,1,2. Parent clarified inventory shorthand; no search-seeds3 experiments ran."
+  "protocol_note": "Every LR searched with seed 0; selected LR retrained with seeds 0,1,2. Parent clarified inventory shorthand; no search-seeds3 experiments ran.",
+  "figure_diagnostic": {
+    "cells": 4,
+    "readout": "attention",
+    "arm": "matched",
+    "fractions": [
+      0.01,
+      0.05,
+      0.2,
+      1.0
+    ],
+    "normalization": "training-only sample std correction1 clamp_min1e-6 before seeded PCA",
+    "patch_sha256": "f5a2bc1dcda0e6be9a2d6abea9c1bcc9cb5817282ff6406489b5022dc65e330a",
+    "primary_reducer_unchanged": true
+  }
 }
