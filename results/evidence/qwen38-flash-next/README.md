@@ -107,3 +107,33 @@ The correspondence source audit retains all 3,600 SPair selections. Exactly
 3,408 evaluable pairs. Their IDs match the historical 27B record exactly.
 Every exclusion ID and reason is retained in `pair-selection.json`. Nonfinite
 metrics on any nonempty pair are a validation failure.
+
+Recognition is complete in the four standard files under `results/recognition/`:
+40 cells cover eight Tower depths and both Connector Stages, both readouts, and
+both capacities. The GPU attention phase ran 19 new cells in 810.662 seconds;
+every process exited with code 0. The other attention cell reuses the audited
+100% label-budget result. Mean cells and label-budget runs use CPU hardware;
+GPU attention uses physical GPU 1 with eight threads. Per-job records retain
+the actual device and thread count. All eight primary label-budget cells and
+all four standardized diagnostic fractions are complete. The rest of the
+benchmark suite remains in progress.
+
+The independent raw-source audit additionally verifies each complete pinned
+vision-containing shard against its Hub SHA256, then reads each tensor with
+`safetensors.safe_open`. All 333 BF16 tensors in each checkpoint match the
+export bytes. This audit uses a separate reader from the export's range reader.
+Its report is `independent-raw-source-identity.json`.
+
+The primary perturbation runs and their four paired comparisons are complete
+for both checkpoints. FlashNext's clean accuracy is 30.67% at Tower, 7.22% at
+merged, and 87.11% at projected. The low clean Tower and merged scores do not
+support intrinsic robustness claims. Primary files remain unchanged.
+
+The separate [reducer sensitivity diagnostic](../../diagnostics/qwen38-flash-next-conditioning/README.md)
+records all 13 conditions and three Stages for FlashNext and fresh 27B on the
+same six-thread CPU protocol. Training-only channel standardization recovers
+FlashNext's weak clean readouts. Its matched comparisons, complete loss logs,
+channel statistics, source hashes, hardware, and timings are retained separately.
+These results establish readout sensitivity. Training causes and a shared cause
+with MiMo remain untested. This diagnostic does not replace the remaining
+geometry, correspondence, transfer, throughput, or paired experiments.

@@ -16,6 +16,13 @@ def test_perturbation_can_pair_projected_against_tower_in_one_run():
     assert result["conditions"]["occlusion_l1"]["difference"]["point_estimate"] == 1.0
 
 
+def test_primary_and_standardized_diagnostic_cannot_be_paired_as_one_protocol():
+    primary = {"images": 2000, "protocol": {"seeds": 3}, "cells": []}
+    diagnostic = primary | {"protocol": {"seeds": 3, "reducer": "training-only sample-standardized PCA"}}
+    with pytest.raises(ValueError, match="probing protocol differs"):
+        perturbation(primary, diagnostic, NAMES, args())
+
+
 def args(*extra):
     return parser().parse_args(["correspondence", "--first", "a", "--first-name", "first",
                                 "--second", "b", "--second-name", "second", "--out", "o", *extra])

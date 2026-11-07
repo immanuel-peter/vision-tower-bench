@@ -166,6 +166,11 @@
       "path": "evidence/qwen38-flash-next/",
       "protocol": "Pinned source tensor identity; independent Qwen4ExpVisionModel forward at 96/448 pixels in CPU FP32, CPU BF16 and CUDA BF16; full 333-tensor sibling drift; immutable HF reload.",
       "status": "Exact source and forward parity passed. Full 448-pixel benchmark suite in progress; no performance delta claimed."
+    },
+    "qwen38_flash_next_conditioning": {
+      "path": "diagnostics/qwen38-flash-next-conditioning/",
+      "protocol": "Isolated exact-R2 training-only channel sample standardization and seeded PCA; FlashNext and fresh 27B control, all 13 perturbation conditions and three Stages; sequential CPU with six threads, the prescribed eleven-rate search with seed 0 and selected-rate seeds 0, 1, and 2; four paired diagnostic comparisons with their own points.",
+      "status": "Complete diagnostic. Primary results retained. FlashNext Tower and merged clean readouts recover under standardization; training causes and shared cause with MiMo are untested. Primary Tower/merged intrinsic robustness claims withheld; remaining full suite still required."
     }
   },
   "cell_manifests": [

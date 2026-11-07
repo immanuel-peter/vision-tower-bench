@@ -223,5 +223,68 @@
     "normalization": "training-only sample std correction1 clamp_min1e-6 before seeded PCA",
     "patch_sha256": "f5a2bc1dcda0e6be9a2d6abea9c1bcc9cb5817282ff6406489b5022dc65e330a",
     "primary_reducer_unchanged": true
+  },
+  "perturbation_conditioning_diagnostic": {
+    "authorization": "isolated exact-R2 sensitivity after channel/PCA audit",
+    "models": [
+      "qwen38_flash_next",
+      "qwen3_5"
+    ],
+    "audit_selected_seed0_replays": 6,
+    "standardized_stage_cells": 6,
+    "standardized_condition_cells": 78,
+    "conditions": 13,
+    "stages": [
+      "tower",
+      "merged",
+      "projected"
+    ],
+    "cpu_threads": 6,
+    "sequential": true,
+    "device": "cpu",
+    "patch_sha256": "f5a2bc1dcda0e6be9a2d6abea9c1bcc9cb5817282ff6406489b5022dc65e330a",
+    "fit": "clean training images only; sample std correction1 clamp_min1e-6; seeded PCA",
+    "learning_rates": [
+      1e-05,
+      3e-05,
+      0.0001,
+      0.0003,
+      0.001,
+      0.003,
+      0.01,
+      0.03,
+      0.1,
+      0.3,
+      1
+    ],
+    "selection_seed": 0,
+    "selected_seeds": [
+      0,
+      1,
+      2
+    ],
+    "epochs": 20,
+    "records": [
+      "clean accuracy",
+      "per-batch/epoch training loss",
+      "channel RMS",
+      "PC1 and top8 variance shares"
+    ],
+    "paired_diagnostic_records": 4,
+    "primary_outputs_immutable": true,
+    "does_not_replace_remaining_suite": true,
+    "full_channel_statistics": {
+      "records": 6,
+      "training_images": 1400,
+      "fields": [
+        "FP32 mean",
+        "sample std correction1",
+        "clamped scale",
+        "FP64 RMS",
+        "exact training IDs",
+        "cache shard SHA256"
+      ],
+      "training_only": true
+    }
   }
 }

@@ -247,8 +247,8 @@ def relative_depth(out: Path, readout: str = "attention", arm: str = "matched") 
     plt.close(figure)
 
 
-# The MiMo Tower readout fails before any perturbation, so its occlusion curve measures nothing.
-OCCLUSION: tuple[str, ...] = tuple(model for model in TOWER_STAGE if model not in OUTLIER_CHANNEL)
+NO_ROBUSTNESS_CLAIM = OUTLIER_CHANNEL | {"qwen38_flash_next"}
+OCCLUSION: tuple[str, ...] = tuple(model for model in TOWER_STAGE if model not in NO_ROBUSTNESS_CLAIM)
 
 
 def occlusion(out: Path) -> None:
@@ -268,7 +268,7 @@ def occlusion(out: Path) -> None:
     axis.set_ylabel("top-1 accuracy")
     axis.set_title(
         "Recognition under occlusion\n"
-        "MiMo V2.6 is omitted: its clean Tower accuracy is at chance", fontsize=10,
+        "MiMo V2.6 and Flash-Next Tower readouts are omitted after clean-readout failures", fontsize=10,
     )
     axis.grid(alpha=0.25)
     axis.legend(fontsize=7, ncol=2)
@@ -316,7 +316,7 @@ def capability_profile(out: Path) -> None:
     axis.set_ylabel("rank (1 is best)")
     axis.set_title(
         "Capability Profile ranks\n"
-        "Semantic axes standardize channels; MiMo V2.6 has no occlusion rank", fontsize=10,
+        "Semantic axes standardize channels; failed clean readouts have no occlusion rank", fontsize=10,
     )
     axis.grid(alpha=0.25)
     axis.legend(fontsize=7, loc="upper left", bbox_to_anchor=(1.01, 1.0), frameon=False)
@@ -419,7 +419,7 @@ def semantic_forest(out: Path) -> None:
     axis.set_ylim(-0.6, len(rows) - 0.4)
     axis.set_xlabel("top-1 difference, first minus second")
     axis.set_title(
-        "Cross-model semantic comparisons\n"
+        "Paired semantic comparisons\n"
         "hollow markers cross zero, so the ranking does not resolve",
         fontsize=10,
     )
