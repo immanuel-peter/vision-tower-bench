@@ -233,3 +233,45 @@ def test_bundle_manifest_and_configs_record_the_pinned_parent():
     assert projector["text_config"]["rms_norm_eps"] == 1e-5
     assert projector["projector_hidden_act"] == "gelu"
     assert json.loads((bundle / "config.json").read_text())["hidden_act"] == "silu"
+
+
+def test_bf16_rotation_follows_mistral_float32_order():
+    torch.manual_seed(3)
+    heads, head_dim, side = 2, 16, 6
+    config = tiny_tower_config()
+    rotary = PixtralVisionModel(config).patch_positional_embedding
+    ys, xs = torch.meshgrid(torch.arange(side), torch.arange(side), indexing="ij")
+    positions = torch.stack((ys.flatten(), xs.flatten()), dim=-1)
+    native = (torch.randn(side * side, heads, head_dim) * 40).bfloat16()
+    expected = mistral_rotary(native, positions, head_dim, side).bfloat16()
+
+    halves = native.view(-1, heads, head_dim // 2, 2).transpose(2, 3).reshape(-1, heads, head_dim)
+    cos, sin = rotary(torch.zeros(1, side * side, 32), positions)
+    assert cos.dtype == torch.float32
+    rotated = ml4.rotate(halves.transpose(0, 1)[None], cos, sin)[0].transpose(0, 1)
+    actual = rotated.view(-1, heads, 2, head_dim // 2).transpose(2, 3).reshape(-1, heads, head_dim)
+    assert actual.dtype == torch.bfloat16
+    differs = actual != expected
+    # Float32 rounding order can flip a value across a BF16 rounding boundary, by one ulp at most.
+    assert differs.float().mean() < 1e-3
+    ulp = expected.float().abs().clamp_min(1e-30) * 2.0**-7
+    assert ((actual.float() - expected.float()).abs() <= ulp + 1e-30)[differs].all()
+
+    hf_cos, hf_sin = cos.bfloat16(), sin.bfloat16()
+    q = halves.transpose(0, 1)[None]
+    hf, _ = apply_rotary_pos_emb(q, q, hf_cos, hf_sin, unsqueeze_dim=0)
+    hf = hf[0].transpose(0, 1).view(-1, heads, 2, head_dim // 2).transpose(2, 3).reshape(-1, heads, head_dim)
+    assert (hf != expected).float().mean() > 10 * (actual != expected).float().mean()
+
+
+def test_block_forward_matches_the_hf_layer_in_float32():
+    tower, _ = tiny_parts()
+    hidden = torch.randn(2, 64, 32)
+    ys, xs = torch.meshgrid(torch.arange(8), torch.arange(8), indexing="ij")
+    positions = torch.stack((ys.flatten(), xs.flatten()), dim=-1)
+    cos, sin = tower.patch_positional_embedding(hidden, positions)
+    layer = tower.transformer.layers[0]
+    with torch.inference_mode():
+        expected = layer(hidden, attention_mask=None, position_embeddings=(cos, sin))
+        actual = ml4.block_forward(layer, hidden, cos, sin)
+    torch.testing.assert_close(actual, expected, rtol=1e-5, atol=1e-5)

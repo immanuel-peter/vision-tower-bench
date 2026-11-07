@@ -8,11 +8,13 @@ reference's vision path is the four lines of
 ``Transformer.embed_vision_language_features``: ``vision_encoder`` ->
 ``pre_mm_projector_norm`` -> ``patch_merger`` -> ``vision_language_adapter``.
 
-mistral-inference imports xformers for ``memory_efficient_attention``. This
-script registers a substitute module that computes the same softmax(q k^T /
-sqrt(d)) v with float32 accumulation, head by head, in the reference's own
-(batch, sequence, head, dim) layout. Its ``BlockDiagonalMask`` keeps the
-xformers semantics. ``tests/test_mistral_large4.py`` checks both against
+mistral-inference imports xformers for ``memory_efficient_attention``, which
+is not installed. This script registers a substitute module. By default it
+calls PyTorch's memory-efficient SDPA kernel, which PyTorch adapted from the
+xformers kernel, in the input dtype and the reference's own (batch, sequence,
+head, dim) layout. ``--reference-attention explicit`` instead computes
+softmax(q k^T / sqrt(d)) v in float32, head by head. ``BlockDiagonalMask``
+keeps the xformers semantics. ``tests/test_mistral_large4.py`` checks both against
 direct formulas. Only one image is packed per reference call, and the
 reference ``TransformerBlock`` does not forward the mask to attention anyway.
 """
@@ -48,14 +50,12 @@ SHARD = "consolidated-00053-of-00054.safetensors"
 # mistake shows up far above this bound.
 FP32_RELATIVE_TOLERANCE = 1e-4
 # A BF16 candidate may drift from the FP32 reference by at most 1.5 times the
-# reference's own BF16 drift plus 0.005. The first run also required cosine
-# 0.999. Tower L30 carries activations up to 2.7e5 in three channels, so the
-# reference's own BF16 forward reaches only cosine 0.984 there. The cosine
-# bound is now relative to that floor; the fixed bound is still reported.
+# reference's own BF16 drift plus 0.005, with cosine at least 0.999. The
+# direct comparison with the reference's own BF16 forward is reported against
+# the same cosine bound.
 BF16_FLOOR_FACTOR = 1.5
 BF16_FLOOR_SLACK = 0.005
 BF16_MIN_COSINE = 0.999
-BF16_COSINE_SLACK = 0.002
 # Negative controls must miss by at least this relative error.
 CONTROL_MIN_RELATIVE = 0.05
 
@@ -137,6 +137,26 @@ def memory_efficient_attention(query, key, value, attn_bias=None, p=0.0, scale=N
                 scores = scores + bias
             out[b, :, h] = (torch.softmax(scores, dim=-1) @ v).to(query.dtype)
     return out
+
+
+def efficient_attention(query, key, value, attn_bias=None, p=0.0, scale=None):
+    """PyTorch's memory-efficient SDPA kernel, which PyTorch adapted from xformers."""
+    from torch.nn.attention import SDPBackend, sdpa_kernel
+
+    if p:
+        raise NotImplementedError("dropout is not used by the reference")
+    mask = None
+    if attn_bias is not None:
+        length = query.shape[1]
+        mask = attn_bias.materialize((length, key.shape[1]), dtype=query.dtype, device=query.device)
+    with sdpa_kernel(SDPBackend.EFFICIENT_ATTENTION):
+        out = torch.nn.functional.scaled_dot_product_attention(
+            query.transpose(1, 2), key.transpose(1, 2), value.transpose(1, 2), attn_mask=mask, scale=scale
+        )
+    return out.transpose(1, 2)
+
+
+REFERENCE_ATTENTION = {"efficient": efficient_attention, "explicit": memory_efficient_attention}
 
 
 class _Placeholder:
@@ -425,13 +445,18 @@ def run_parity(native, args, report) -> None:
     source = ml4.source_json("config.json")
     params = ml4.source_json("params.json")
     vision, layers = import_reference(fetch_reference(args.reference_root))
+    layers.memory_efficient_attention = REFERENCE_ATTENTION[args.reference_attention]
     report["reference"] = {
+        "attention": args.reference_attention,
         "package": REFERENCE_PACKAGE,
         "version": REFERENCE_VERSION,
         "wheel_sha256": REFERENCE_SHA256,
         "vision_encoder_py_sha256": sha256_file(Path(vision.__file__)),
         "transformer_layers_py_sha256": sha256_file(Path(layers.__file__)),
-        "attention_substitute": "float32 softmax(q k^T / sqrt(d)) v per head in (batch, seq, head, dim) layout",
+        "attention_substitutes": {
+            "efficient": "torch SDPA EFFICIENT_ATTENTION (kernel adapted from xformers) in the input dtype",
+            "explicit": "float32 softmax(q k^T / sqrt(d)) v per head in (batch, seq, head, dim) layout",
+        },
         "params_vision_encoder": params["vision_encoder"],
     }
 
@@ -567,12 +592,8 @@ def case_passes(case: dict) -> bool:
     fp32_ok = case["adapter_fp32"]["relative"] <= FP32_RELATIVE_TOLERANCE
     floor = case["reference_bf16_floor"]["relative"]
     bf16 = case["adapter_bf16"]
-    floor_cosine = case["reference_bf16_floor"]["cosine"]
-    bf16_ok = (
-        bf16["relative"] <= BF16_FLOOR_FACTOR * floor + BF16_FLOOR_SLACK
-        and bf16["cosine"] >= floor_cosine - BF16_COSINE_SLACK
-    )
-    case["fixed_bf16_cosine_0.999"] = bf16["cosine"] >= BF16_MIN_COSINE
+    bf16_ok = bf16["relative"] <= BF16_FLOOR_FACTOR * floor + BF16_FLOOR_SLACK and bf16["cosine"] >= BF16_MIN_COSINE
+    case["direct_bf16_cosine_ok"] = case["adapter_bf16_vs_reference_bf16"]["cosine"] >= BF16_MIN_COSINE
     finite = all(item["finite"] for item in case.values() if isinstance(item, dict))
     packed_ok = "hf_packed_fp32" not in case or case["hf_packed_fp32"]["relative"] <= FP32_RELATIVE_TOLERANCE
     return bool(fp32_ok and bf16_ok and finite and packed_ok)
@@ -586,10 +607,11 @@ def validate(
     resolutions: list[int] | None = None,
     device: str = "cuda",
     identity_only: bool = False,
+    reference_attention: str = "efficient",
 ) -> dict:
     args = argparse.Namespace(
         out=out, reference_root=reference_root, bundle=bundle, images=images or [],
-        resolutions=resolutions or [448, 1540], device=device,
+        resolutions=resolutions or [448, 1540], device=device, reference_attention=reference_attention,
     )
     started = time.time()
     shard = Path(hf_hub_download(ml4.SOURCE_REPO, SHARD, revision=ml4.SOURCE_REVISION))
@@ -605,8 +627,8 @@ def validate(
             "fp32_relative": FP32_RELATIVE_TOLERANCE,
             "bf16_floor_factor": BF16_FLOOR_FACTOR,
             "bf16_floor_slack": BF16_FLOOR_SLACK,
-            "bf16_cosine_slack_below_reference_floor": BF16_COSINE_SLACK,
-            "bf16_fixed_cosine_reported_not_gating": BF16_MIN_COSINE,
+            "bf16_min_cosine": BF16_MIN_COSINE,
+            "direct_bf16_min_cosine_reported": BF16_MIN_COSINE,
             "control_min_relative": CONTROL_MIN_RELATIVE,
             "tf32": False,
         },
@@ -615,6 +637,7 @@ def validate(
     if not identity_only:
         run_parity(native, args, report)
         report["all_cases_pass"] = all(case["pass"] for case in report["cases"])
+        report["all_direct_bf16_cosine_ok"] = all(case["direct_bf16_cosine_ok"] for case in report["cases"])
         report["all_controls_detected"] = all(c["detected"] for c in report["controls"] if c["detected"] is not None)
     report["seconds"] = round(time.time() - started, 1)
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -631,9 +654,14 @@ def main() -> None:
     parser.add_argument("--resolutions", nargs="+", type=int, default=[448, 1540])
     parser.add_argument("--device", default="cuda")
     parser.add_argument("--identity-only", action="store_true")
+    parser.add_argument(
+        "--reference-attention", choices=sorted(REFERENCE_ATTENTION), default="efficient",
+        help="stand-in for the reference's xformers memory_efficient_attention",
+    )
     args = parser.parse_args()
     report = validate(
-        args.out, args.reference_root, args.bundle, args.images, args.resolutions, args.device, args.identity_only
+        args.out, args.reference_root, args.bundle, args.images, args.resolutions, args.device,
+        args.identity_only, args.reference_attention,
     )
     summary = {key: report.get(key) for key in ("all_cases_pass", "all_controls_detected", "seconds")}
     print(json.dumps(summary, indent=2))

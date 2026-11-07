@@ -17,8 +17,11 @@ import torch
 from huggingface_hub import hf_hub_download
 from safetensors.torch import load_file
 from torchvision import transforms
+from torch.nn import functional as F
+from torch.nn.attention import SDPBackend, sdpa_kernel
 from transformers import Mistral3Config, PixtralVisionConfig, PixtralVisionModel
 from transformers.models.mistral3.modeling_mistral3 import Mistral3MultiModalProjector
+from transformers.models.pixtral.modeling_pixtral import rotate_half
 
 from vtb.feature_batch import FeatureBatch
 from vtb.images import square_crop
@@ -234,6 +237,39 @@ def collate(samples: list[torch.Tensor]) -> dict[str, torch.Tensor]:
     return {"pixel_values": torch.stack(samples)}
 
 
+# Mistral's attention calls xformers memory_efficient_attention. PyTorch's
+# memory-efficient SDPA kernel is adapted from it; MATH is the CPU fallback.
+ATTENTION_BACKENDS = [SDPBackend.EFFICIENT_ATTENTION, SDPBackend.MATH]
+
+
+def rotate(x: torch.Tensor, cos: torch.Tensor, sin: torch.Tensor) -> torch.Tensor:
+    """Rotate in float32 with float32 tables, then cast back, as mistral_inference does.
+
+    HF Pixtral casts cos/sin to the activation dtype and rotates in BF16, which
+    changes about a quarter of the rotated BF16 values.
+    """
+    x32 = x.float()
+    return (x32 * cos + rotate_half(x32) * sin).to(x.dtype)
+
+
+def block_forward(layer, hidden: torch.Tensor, cos: torch.Tensor, sin: torch.Tensor) -> torch.Tensor:
+    """One PixtralAttentionLayer with the parent's numeric order for RoPE and attention."""
+    attention = layer.attention
+    batch, tokens, _ = hidden.shape
+    normed = layer.attention_norm(hidden)
+
+    def heads(projection):
+        return projection(normed).view(batch, tokens, attention.num_heads, attention.head_dim).transpose(1, 2)
+
+    query = rotate(heads(attention.q_proj), cos, sin)
+    key = rotate(heads(attention.k_proj), cos, sin)
+    value = heads(attention.v_proj)
+    with sdpa_kernel(ATTENTION_BACKENDS):
+        mixed = F.scaled_dot_product_attention(query, key, value, scale=attention.scaling)
+    hidden = hidden + attention.o_proj(mixed.transpose(1, 2).reshape(batch, tokens, -1))
+    return hidden + layer.feed_forward(layer.ffn_norm(hidden))
+
+
 def tower_forward(
     tower: PixtralVisionModel,
     pixel_values: torch.Tensor,
@@ -243,7 +279,8 @@ def tower_forward(
 
     The parent packs every image into one sequence with a block-diagonal mask,
     so images never attend to each other. With equal sizes that is the same as
-    an unmasked batch; tests check the two paths against each other.
+    an unmasked batch; tests check the two paths against each other. RoPE and
+    attention follow the parent's numeric order (see block_forward).
     """
     embeds = tower.patch_conv(pixel_values.to(tower.patch_conv.weight.dtype))
     rows, cols = embeds.shape[-2:]
@@ -252,10 +289,11 @@ def tower_forward(
         torch.arange(rows, device=hidden.device), torch.arange(cols, device=hidden.device), indexing="ij"
     )
     positions = torch.stack((ys.flatten(), xs.flatten()), dim=-1)
-    position_embeddings = tower.patch_positional_embedding(hidden, positions)
+    # Passing a float32 tensor keeps HF's cos/sin tables in float32.
+    cos, sin = tower.patch_positional_embedding(hidden.float(), positions)
     captured = {}
     for depth, layer in enumerate(tower.transformer.layers, start=1):
-        hidden = layer(hidden, attention_mask=None, position_embeddings=position_embeddings)
+        hidden = block_forward(layer, hidden, cos, sin)
         if depth in capture:
             captured[depth] = hidden
     return hidden, captured
