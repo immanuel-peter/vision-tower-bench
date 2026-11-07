@@ -4,6 +4,7 @@ import pytest
 import torch
 
 from scripts.extract_kimi_cpu import SLICES, WIDTHS, digest, restore_chunks, validate_batches
+from scripts.extract_kimi_gpu import restore as restore_gpu, selected_slices
 from vtb.feature_batch import FeatureBatch
 
 
@@ -19,23 +20,34 @@ def committed_chunk(root, provenance):
     return chunk
 
 
-def test_resume_restores_committed_chunks_and_rejects_corruption(tmp_path):
+RESUMERS = [restore_chunks, lambda root, ids, provenance: restore_gpu(root, ids, provenance, SLICES)]
+
+
+@pytest.mark.parametrize("resume", RESUMERS, ids=("cpu", "gpu"))
+def test_resume_restores_committed_chunks_and_rejects_corruption(tmp_path, resume):
     provenance = {"device": "cpu", "threads": 4}
     chunk = committed_chunk(tmp_path, provenance)
     (tmp_path / ".staging-00001").mkdir()
-    assert restore_chunks(tmp_path, ["one", "two"], provenance) == ["one"]
+    assert resume(tmp_path, ["one", "two"], provenance) == ["one"]
     assert (tmp_path / "tower_L03_00000.safetensors").stat().st_ino == (chunk / "tower_L03_00000.safetensors").stat().st_ino
     (chunk / "tower_L03_00000.safetensors").write_bytes(b"corrupt")
-    with pytest.raises(ValueError, match="hash mismatch"):
-        restore_chunks(tmp_path, ["one", "two"], provenance)
+    with pytest.raises(ValueError, match="hash mismatch|invalid committed feature file"):
+        resume(tmp_path, ["one", "two"], provenance)
 
 
-def test_resume_rejects_changed_device_or_order(tmp_path):
+@pytest.mark.parametrize("resume", RESUMERS, ids=("cpu", "gpu"))
+def test_resume_rejects_changed_device_or_order(tmp_path, resume):
     committed_chunk(tmp_path, {"device": "cpu"})
-    with pytest.raises(ValueError, match="provenance or ordered"):
-        restore_chunks(tmp_path, ["one"], {"device": "cuda:0"})
-    with pytest.raises(ValueError, match="provenance or ordered"):
-        restore_chunks(tmp_path, ["wrong"], {"device": "cpu"})
+    with pytest.raises(ValueError, match="resume"):
+        resume(tmp_path, ["one"], {"device": "cuda:0"})
+    with pytest.raises(ValueError, match="resume"):
+        resume(tmp_path, ["wrong"], {"device": "cpu"})
+
+
+def test_gpu_resume_rejects_another_stage_selection(tmp_path):
+    committed_chunk(tmp_path, {"device": "cuda:0"})
+    with pytest.raises(ValueError, match="Stage/depth"):
+        restore_gpu(tmp_path, ["one"], {"device": "cuda:0"}, selected_slices("perturbation"))
 
 
 def test_full_grid_validation_checks_finiteness_and_raster_order():
