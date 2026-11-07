@@ -246,22 +246,20 @@ def test_bf16_rotation_follows_mistral_float32_order():
     expected = mistral_rotary(native, positions, head_dim, side).bfloat16()
 
     halves = native.view(-1, heads, head_dim // 2, 2).transpose(2, 3).reshape(-1, heads, head_dim)
-    cos, sin = rotary(torch.zeros(1, side * side, 32), positions)
-    assert cos.dtype == torch.float32
-    rotated = ml4.rotate(halves.transpose(0, 1)[None], cos, sin)[0].transpose(0, 1)
+    table = ml4.rotary_table(side, side, head_dim, 10000.0)
+    assert table.dtype == torch.complex64
+    rotated = ml4.rotate(halves.transpose(0, 1)[None], table)[0].transpose(0, 1)
     actual = rotated.view(-1, heads, 2, head_dim // 2).transpose(2, 3).reshape(-1, heads, head_dim)
     assert actual.dtype == torch.bfloat16
-    differs = actual != expected
-    # Float32 rounding order can flip a value across a BF16 rounding boundary, by one ulp at most.
-    assert differs.float().mean() < 1e-3
-    ulp = expected.float().abs().clamp_min(1e-30) * 2.0**-7
-    assert ((actual.float() - expected.float()).abs() <= ulp + 1e-30)[differs].all()
+    # Same table, same complex multiplication, same cast: identical BF16 values.
+    assert torch.equal(actual, expected)
+    cos, sin = rotary(torch.zeros(1, side * side, 32), positions)
 
     hf_cos, hf_sin = cos.bfloat16(), sin.bfloat16()
     q = halves.transpose(0, 1)[None]
     hf, _ = apply_rotary_pos_emb(q, q, hf_cos, hf_sin, unsqueeze_dim=0)
     hf = hf[0].transpose(0, 1).view(-1, heads, 2, head_dim // 2).transpose(2, 3).reshape(-1, heads, head_dim)
-    assert (hf != expected).float().mean() > 10 * (actual != expected).float().mean()
+    assert (hf != expected).float().mean() > 0.05
 
 
 def test_block_forward_matches_the_hf_layer_in_float32():
@@ -273,5 +271,5 @@ def test_block_forward_matches_the_hf_layer_in_float32():
     layer = tower.transformer.layers[0]
     with torch.inference_mode():
         expected = layer(hidden, attention_mask=None, position_embeddings=(cos, sin))
-        actual = ml4.block_forward(layer, hidden, cos, sin)
+        actual = ml4.block_forward(layer, hidden, ml4.rotary_table(8, 8, 16, 10000.0))
     torch.testing.assert_close(actual, expected, rtol=1e-5, atol=1e-5)

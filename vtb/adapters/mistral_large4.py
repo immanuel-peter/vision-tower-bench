@@ -242,17 +242,33 @@ def collate(samples: list[torch.Tensor]) -> dict[str, torch.Tensor]:
 ATTENTION_BACKENDS = [SDPBackend.EFFICIENT_ATTENTION, SDPBackend.MATH]
 
 
-def rotate(x: torch.Tensor, cos: torch.Tensor, sin: torch.Tensor) -> torch.Tensor:
-    """Rotate in float32 with float32 tables, then cast back, as mistral_inference does.
+def rotary_table(rows: int, cols: int, head_dim: int, theta: float) -> torch.Tensor:
+    """Complex rotations per (row, col) position, built as mistral_inference.rope builds them.
 
-    HF Pixtral casts cos/sin to the activation dtype and rotates in BF16, which
-    changes about a quarter of the rotated BF16 values.
+    Float32 on the CPU, then torch.polar, exactly as precompute_freqs_cis_2d
+    does. Entry j rotates the pair (j, j + head_dim / 2) of the HF layout,
+    which is the parent's pair (2j, 2j + 1) after the export permutation.
     """
+    freqs = 1.0 / (theta ** (torch.arange(0, head_dim, 2).float() / head_dim))
+    freqs_h = torch.outer(torch.arange(rows), freqs[::2]).float()
+    freqs_w = torch.outer(torch.arange(cols), freqs[1::2]).float()
+    grid = torch.cat([freqs_h[:, None, :].repeat(1, cols, 1), freqs_w[None, :, :].repeat(rows, 1, 1)], dim=-1)
+    return torch.polar(torch.ones_like(grid), grid).reshape(rows * cols, head_dim // 2)
+
+
+def rotate(x: torch.Tensor, table: torch.Tensor) -> torch.Tensor:
+    """Complex multiplication in float32, then a cast back, as mistral_inference does.
+
+    HF Pixtral instead casts cos/sin to the activation dtype and rotates in
+    BF16, which changes about a quarter of the rotated BF16 values.
+    """
+    half = x.shape[-1] // 2
     x32 = x.float()
-    return (x32 * cos + rotate_half(x32) * sin).to(x.dtype)
+    turned = torch.complex(x32[..., :half], x32[..., half:]) * table
+    return torch.cat((turned.real, turned.imag), dim=-1).to(x.dtype)
 
 
-def block_forward(layer, hidden: torch.Tensor, cos: torch.Tensor, sin: torch.Tensor) -> torch.Tensor:
+def block_forward(layer, hidden: torch.Tensor, table: torch.Tensor) -> torch.Tensor:
     """One PixtralAttentionLayer with the parent's numeric order for RoPE and attention."""
     attention = layer.attention
     batch, tokens, _ = hidden.shape
@@ -261,8 +277,8 @@ def block_forward(layer, hidden: torch.Tensor, cos: torch.Tensor, sin: torch.Ten
     def heads(projection):
         return projection(normed).view(batch, tokens, attention.num_heads, attention.head_dim).transpose(1, 2)
 
-    query = rotate(heads(attention.q_proj), cos, sin)
-    key = rotate(heads(attention.k_proj), cos, sin)
+    query = rotate(heads(attention.q_proj), table)
+    key = rotate(heads(attention.k_proj), table)
     value = heads(attention.v_proj)
     with sdpa_kernel(ATTENTION_BACKENDS):
         mixed = F.scaled_dot_product_attention(query, key, value, scale=attention.scaling)
@@ -285,15 +301,11 @@ def tower_forward(
     embeds = tower.patch_conv(pixel_values.to(tower.patch_conv.weight.dtype))
     rows, cols = embeds.shape[-2:]
     hidden = tower.ln_pre(embeds.flatten(2).transpose(1, 2))
-    ys, xs = torch.meshgrid(
-        torch.arange(rows, device=hidden.device), torch.arange(cols, device=hidden.device), indexing="ij"
-    )
-    positions = torch.stack((ys.flatten(), xs.flatten()), dim=-1)
-    # Passing a float32 tensor keeps HF's cos/sin tables in float32.
-    cos, sin = tower.patch_positional_embedding(hidden.float(), positions)
+    config = tower.config
+    table = rotary_table(rows, cols, config.head_dim, config.rope_parameters["rope_theta"]).to(hidden.device)
     captured = {}
     for depth, layer in enumerate(tower.transformer.layers, start=1):
-        hidden = block_forward(layer, hidden, cos, sin)
+        hidden = block_forward(layer, hidden, table)
         if depth in capture:
             captured[depth] = hidden
     return hidden, captured
