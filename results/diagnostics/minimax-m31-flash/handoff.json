@@ -1,11 +1,11 @@
 {
   "issue": 21,
-  "status": "validated_awaiting_delivery_commit",
+  "status": "complete",
   "branch": "t3/complete-issue-21",
   "pr": "https://github.com/immanuel-peter/vision-tower-bench/pull/26",
-  "head": "5977358295f02dcbd60edf227e0d38a5005ead58",
-  "head_note": "Pre-delivery implementation checkpoint. Runtime handoff will be updated with the pushed delivery head.",
-  "updated_utc": "2026-11-07T22:57:28.484997+00:00",
+  "head": "0efce77f7716fd0401fe9a3f5b74658659c770d9",
+  "head_note": "This committed snapshot records the validated data delivery commit. A following commit updates delivery records only. The runtime handoff is refreshed after that push with the exact final PR head.",
+  "updated_utc": "2026-11-07T23:07:26.942810+00:00",
   "hf": {
     "repo": "immanuelpeter/MiniMax-M3.1-Flash-Vision",
     "revision": "55510a4d372b8ae502a04cc570c0fd06a4361771",
@@ -142,8 +142,85 @@
     "No manuscript source exists; a paper-ready paragraph is included in comparison-writeup.md.",
     "Perturbation clean accuracy is31-38% under the fixed2000-image readout protocol; condition changes are relative to those baselines."
   ],
-  "remaining": [
-    "delivery commit/push/link and final remote head/check verification"
-  ],
-  "checks_and_reviews": "Local full suite passes; final delivery push pending."
+  "remaining": [],
+  "checks_and_reviews": {
+    "head": "0efce77f7716fd0401fe9a3f5b74658659c770d9",
+    "checks": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "0001-01-01T00:00:00Z",
+        "conclusion": "",
+        "detailsUrl": "https://github.com/immanuel-peter/vision-tower-bench/actions/runs/42423447013/job/128556593721",
+        "name": "suite",
+        "startedAt": "2026-11-07T23:03:16Z",
+        "status": "IN_PROGRESS",
+        "workflowName": "tests"
+      }
+    ],
+    "reviews": [
+      {
+        "id": "PRR_kwDOUDHAsM8AAAABWnE8Gg",
+        "author": {
+          "login": "grok-pr"
+        },
+        "authorAssociation": "NONE",
+        "body": "## Summary\n\nThis PR cleanly factors MiniMax into shared `Checkpoint` / `MiniMaxAdapter` plumbing, adds index-driven shard discovery for M3 and M3.1 Flash, pins Flash source revision `54e4e69\u2026`, ships an HF vision stub with provenance manifest, and wires `minimax_m31_flash` into `vtb.extract.ADAPTERS`. Adapter/export/test changes for weight loading look sound, and the PR is explicit that full benchmark matrices are still pending GPU work.\n\nThe main problem is registering Flash on the **default figure roster and geometry figure sources while result cells do not exist**. That turns an incomplete measurement cohort into broken default figure generation. There is also a concrete ID-prefix collision between `minimax_m3` and `minimax_m31_flash` in `scripts/figures.py`.\n\n## Blocking Issues\n\n1. **`minimax_m31_flash` is on `TOWERS` / `PROJECTORS` / `geometry_stage_levels` without committed capability JSON.** Paths such as `results/geometry/minimax_m31_flash_geometry_depth_matched.json`, recognition cells, correspondence, and perturbation outputs are absent (only diagnostics are present). `scripts/figures.py` iterates the full roster and will `FileNotFoundError` on `relative_depth`, `peaks`, `stage_levels`, `tower_vs_projector`, `capability_profile`, etc. Keep Flash in a separate pending cohort (as `results/index.json` already does for validation) until cells land, or gate figure code on missing files / a measured-tower list.\n\n2. **`tower_name()` prefix matching is ambiguous once Flash is added** (`scripts/figures.py`, ~line 83\u201387). `label.startswith(\"minimax_m3\")` is true for `\"minimax_m31_flash\"`, so any Flash label yields two matches and raises. Prefer longest-prefix match, exact equality, or delimiter-aware parsing. This will break as soon as Flash perturbation/bootstrap artifacts appear, and is already latent in the roster change.\n\n## Suggested Tests\n\n- Unit test: `tower_name(\"minimax_m31_flash\")` and `tower_name(\"minimax_m3\")` resolve uniquely.\n- Figure smoke: run `scripts/figures.py` (or the subset used in CI) with the post-PR roster and assert no missing-path failures when Flash cells are absent\u2014or assert Flash is excluded from default drawers until inventory is complete.\n- Keep existing Flash provenance / index-discovery tests; add a skip or fixture path if parity tests assume local Flash weight files that are not vendored in-tree.\n\n---\n*Reviewed by Grok \u2022 model: grok-4.5 \u2022 sha: 6e9796e*",
+        "submittedAt": "2026-11-07T13:00:07Z",
+        "includesCreatedEdit": false,
+        "reactionGroups": [],
+        "state": "CHANGES_REQUESTED",
+        "commit": {
+          "oid": "6e9796e4e40058f6ce822192e8b98f8c9f7f0bc1"
+        }
+      },
+      {
+        "id": "PRR_kwDOUDHAsM8AAAABWnFCkQ",
+        "author": {
+          "login": "chatgpt-codex-connector"
+        },
+        "authorAssociation": "NONE",
+        "body": "<!-- codex-review-receipt:v1 -->\n\n\n### \ud83d\udca1 Codex Review\n\nHere are some automated review suggestions for this pull request.\n\n**Reviewed commit:** `6e9796e4e4`\n    \n\n<details> <summary>\u2139\ufe0f About Codex in GitHub</summary>\n<br/>\n\n[Your team has set up Codex to review pull requests in this repo](https://chatgpt.com/codex/cloud/settings/general). Reviews are triggered when you\n- Open a pull request for review\n- Mark a draft as ready\n- Comment \"@codex review\".\n\nIf Codex has suggestions, it will comment; otherwise it will react with \ud83d\udc4d.\n\n\n\n\nCodex can also answer questions or update the PR. Try commenting \"@codex address that feedback\".\n            \n</details>",
+        "submittedAt": "2026-11-07T13:00:25Z",
+        "includesCreatedEdit": false,
+        "reactionGroups": [],
+        "state": "COMMENTED",
+        "commit": {
+          "oid": "6e9796e4e40058f6ce822192e8b98f8c9f7f0bc1"
+        }
+      },
+      {
+        "id": "PRR_kwDOUDHAsM8AAAABWnGhDA",
+        "author": {
+          "login": "grok-pr"
+        },
+        "authorAssociation": "NONE",
+        "body": "## Summary\n\nThis PR wires MiniMax M3.1 Flash as a second pinned checkpoint beside M3: shared adapter/preprocess/Stage path, index-driven shard discovery, export/validate scripts, channel-standardization diagnostic hooks, and a large diagnostics tree. The adapter refactor (`Checkpoint`, `source_weights`, provenance checks for Flash bundles) looks sound and is covered by focused unit tests.\n\nDelivery is incomplete in ways that break the figure/result contracts already enforced by CI: Flash is added to the global tower roster and `figure_sources.geometry_stage_levels` while measurement JSON is still absent, and `tower_name()` cannot disambiguate the two MiniMax slugs.\n\n## Blocking Issues\n\n1. **Premature roster / figure_sources membership** \u2014 `minimax_m31_flash` is in `scripts/figures.py` `TOWERS`/`PROJECTORS`/`TOWER_STAGE` and in `results/index.json` \u2192 `figure_sources.geometry_stage_levels`, but there is no `results/geometry/minimax_m31_flash_geometry_depth_matched.json` (or recognition/perturbation/label-budget cells). `test_label_budget_reads_the_standardized_runs_for_every_tower` requires `set(label_budget_series()) == set(TOWERS)`; the standardized label-budget file only has `minimax_m3_*` runs, so that test fails. Figure render paths that iterate `TOWER_STAGE`/`PROJECTORS` will `FileNotFoundError` on missing cells. Keep Flash out of the default figure roster and `geometry_stage_levels` until the inventory exists, or gate figures/tests on present files and add Flash-only fixtures.\n\n2. **`tower_name` prefix collision** (`scripts/figures.py`, `tower_name`) \u2014 `label.startswith(tower)` with both `minimax_m3` and `minimax_m31_flash` in `TOWERS` makes any Flash label match **two** towers (`minimax_m3` is a prefix of `minimax_m31_flash`), so `tower_name` raises once Flash payloads appear (e.g. occlusion). Prefer longest-prefix match, delimiter-aware split, or an explicit alias map. (Not an added line in the PR diff, but it becomes broken as soon as Flash is on the roster.)\n\nNon-blocking notes: weight `.safetensors` stay gitignored (existing pattern) with HF + `load_source_parts` fallback; export still `save_pretrained` then overwrites `model.safetensors` with remapped source tensors (intentional for bit-identity, slightly confusing). Channel standardization is opt-in and tested. Docs correctly mark full matrices pending GPU.\n\n## Suggested Tests\n\n- Unit test: `tower_name(\"minimax_m31_flash_\u2026\")` \u2192 flash only; `tower_name(\"minimax_m3_\u2026\")` \u2192 m3 only.\n- Keep `test_label_budget_reads_the_standardized_runs_for_every_tower` green: either restore 16-tower roster until Flash budget JSON exists, or assert only towers present in the series / additional sources.\n- When geometry/recognition land: extend `test_v3_cohort_uses_the_standard_layout`-style path checks for the `minimax_m31_flash` cohort (or a dedicated inventory test aligned with `expected-inventory.json`).\n- Existing Flash provenance / index-discovery / bundle-distinctness tests should stay; re-run parity with `VTB_SKIP_WEIGHTS` unset when network weights are available.\n\n---\n*Reviewed by Grok \u2022 model: grok-4.5 \u2022 sha: c82cd47*",
+        "submittedAt": "2026-11-07T13:04:39Z",
+        "includesCreatedEdit": false,
+        "reactionGroups": [],
+        "state": "CHANGES_REQUESTED",
+        "commit": {
+          "oid": "c82cd47269987ca4a56fb57f944c02b7c395925c"
+        }
+      },
+      {
+        "id": "PRR_kwDOUDHAsM8AAAABWnp2JA",
+        "author": {
+          "login": "grok-pr"
+        },
+        "authorAssociation": "NONE",
+        "body": "## Summary\n\nThis PR adds a MiniMax M3.1 Flash sibling (pinned checkpoint, index-based shard discovery, HF export bundle, adapter registration) and fixes MiniMax batch cross-talk by isolating single-image forwards. Supporting work includes opt-in channel standardization, paired geometry cell caching, and figure-source overrides so M3 can switch to \u201cimage isolation\u201d reruns.\n\nThe adapter isolation change and checkpoint plumbing look directionally right and are covered by solid unit tests. Delivery is still incomplete relative to what the PR wires into the default figure/index path: isolation and Flash measurement trees are referenced but not present in-tree, so default figure generation and index integrity checks cannot succeed as committed.\n\n## Blocking Issues\n\n1. **Default figure roster depends on missing measurement files.** `minimax_m31_flash` is added to `TOWERS` / `TOWER_STAGE`, and `results/index.json` `figure_sources` retargets M3 (and stage levels for Flash) under `diagnostics/minimax-m31-flash/m3-image-isolation/...` and `geometry/minimax_m31_flash_*.json`. In this checkout those trees do not exist (isolation dir is only a README). `scripts/figures.py` will `FileNotFoundError` on recognition/geometry/correspondence/perturbation/stage-level plots, and `tests/test_results_index.py` asserts the M3 isolation geometry stage file `is_file()`. Either land the validated JSON inventory before enabling the roster/overrides, or keep Flash / isolation out of default figure sources until measurements land.\n\n2. **M3 historical bootstrap intervals are suppressed without a replacement.** `projector_intervals()` skips `results/bootstrap/*-minimax_m3-projected-vs-tower.json` whenever a `projector_intervals` override is configured, then globs the isolation bootstrap path. With no override files present, M3 drops out of projector-interval panels silently rather than failing loudly or keeping historical sources.\n\n## Suggested Tests\n\n- CI/smoke: run `scripts/figures.py` end-to-end against committed `results/` after any figure_sources change; fail if any `measurement_path` target is missing.\n- Extend `test_results_index` (or a figure-sources test) to resolve **override** templates for every model in `TOWER_STAGE`, not only the default recognition/geometry_layer_sweep strings.\n- Keep the existing MiniMax isolation and provenance unit tests; add a regression that figure generation either excludes \u201cpending\u201d models or requires their full inventory.\n\n---\n*Reviewed by Grok \u2022 model: grok-4.5 \u2022 sha: 5977358*",
+        "submittedAt": "2026-11-07T14:46:22Z",
+        "includesCreatedEdit": false,
+        "reactionGroups": [],
+        "state": "CHANGES_REQUESTED",
+        "commit": {
+          "oid": "5977358295f02dcbd60edf227e0d38a5005ead58"
+        }
+      }
+    ],
+    "review_decision": "",
+    "note": "Earlier bot change requests concern missing data/overrides and MiniMax prefix ambiguity; all findings are addressed by the measured inventory, strict figure tests and delimiter-aware parser."
+  },
+  "code_and_measurement_head": "0efce77f7716fd0401fe9a3f5b74658659c770d9"
 }

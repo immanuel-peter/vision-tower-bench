@@ -8,8 +8,8 @@ Evidence root is `/tmp/vtb-delivery/issues/21`. Committed evidence is under
 `results/diagnostics/minimax-m31-flash/`. The archived authoritative issue is
 `live-issue.json`; environment and full-delivery requirements are in the parent
 `COORDINATION.md`. This checklist supersedes the earlier extraction-only handoff.
-All measurements, audits, figures and tests are complete. Final commit/push and
-remote verification follow. GPU0 was released after all CUDA children exited;
+All measurements, audits, figures and tests are complete. The delivery was
+committed, pushed, linked and verified against the remote PR head. GPU0 was released after all CUDA children exited;
 `gpu-release.json` records exclusive lock reacquisition and no active processes.
 
 - [x] Checkpoint adapter pattern, Flash registry and batch/resolution registration.
@@ -75,12 +75,12 @@ remote verification follow. GPU0 was released after all CUDA children exited;
   per checkpoint supplement the existing standardized figure sources.
 - [x] Complete all eighteen correspondence cells and audit source visibility.
   `spair-visibility-audit.json`, `audit-corrected-spair.log`, measurements and
-  `paired-source-validation-correspondence.json`. Retain all3600 SPair IDs;
-  source decoding proves192 zero-visible pairs and3408 finite nonempty pairs.
+  `paired-source-validation-correspondence.json`. Retain all 3,600 SPair IDs;
+  source decoding proves 192 zero-visible pairs and 3,408 finite nonempty pairs.
   Every nonempty pair and aggregate is finite. Paired intersections and every
   excluded ID/reason are recorded. Fifteen correspondence paired payloads are
   independently checked, with class-macro SPair supplements.
-- [x] Complete both full forty-cell geometry matrices. All80cells are content-validated
+- [x] Complete both full forty-cell geometry matrices. All 80cells are content-validated
   in `audit-progress-flash-geometry40.log` and `audit-progress-m3-geometry40.log`.
 - [x] Complete both KITTI transfer matrices, both throughput records and all
   seventy-eight perturbation Stage-condition cells.
@@ -95,7 +95,7 @@ remote verification follow. GPU0 was released after all CUDA children exited;
 - [x] Apply identity materialization to actual completed perturbation outputs.
   `postprocess.py --section remaining` must retain original raw payloads and write
   `identity-evidence-materialization.json` with both original and augmented hashes.
-- [x] Complete all49 explicitly named paired payloads: ten within Flash, ten
+- [x] Complete all 49 explicitly named paired payloads: ten within Flash, ten
   within fresh M3, twenty-nine sibling comparisons. Priority Flash matched depth
   and normals and all fifteen correspondence payloads are already complete.
   All points and intervals must come from the same paired run. Remaining output
@@ -117,23 +117,28 @@ remote verification follow. GPU0 was released after all CUDA children exited;
   Preserve main label `Nemotron 3 Omni`; the stale assertion is fixed.
 - [x] Affected corrected method and real-weight checks pass.
   `tests-corrected-methods.log`:45passed,1weight-disabled skip.
-  `tests-corrected-weights.log`:12passed,8deselected.
+  `tests-corrected-weights.log`:12 passed,8deselected.
   `tests-figure-source-selection.log`:5passed.
 - [x] Run the final full `VTB_SKIP_WEIGHTS=1 pytest -q`, including every figure
   test, after publishing actual measured inputs. No figure exclusions or skips.
 - [x] Refresh command/timing/source manifests, checklist and `handoff.json` with
   measured counts, immutable HF revision, parity limits, test evidence and final head.
 - [x] Create and immediately link a separate non-draft PR targeting main with
-  `Fixes #21`: PR26. Current body accurately marks delivery in progress.
-- [ ] Commit/push complete delivery, immediately link PR26 again, update final
+  `Fixes #21`: PR26. The final body links the complete measured comparison, release and validation.
+- [x] Commit/push complete delivery, immediately link PR26 again, update final
   body, and verify remote head, checks and review state. Do not merge or close.
 
 
 ## Final evidence summary
 
-`delivery-validation.json` verifies103canonical measurement payloads,49unique
-paired files,20independent paired-source checks,312perturbation shards,14new
-cell manifests and30figure exports. Full regression:148passed/51weight-disabled
-skips, including every figure test. Actual MiniMax weight/isolation checks:12passed.
+`delivery-validation.json` verifies103 canonical measurement payloads,49 unique
+paired files,20 independent paired-source checks,312 perturbation shards,14 new
+cell manifests and30 figure exports. Full regression:148 passed / 51 weight-disabled
+skips, including every figure test. Actual MiniMax weight/isolation checks:12 passed.
 Both full inventory reports have zero missing files. `gpu-release.json` proves
 the reservation was released before final CPU work.
+
+Validated code and measurement delivery commit: `0efce77f7716fd0401fe9a3f5b74658659c770d9`.
+Remote PR is OPEN, non-draft and targets main. Prior bot change requests remain
+on older commits; `review-resolution.json` maps all findings to delivered evidence.
+The runtime handoff records the final metadata-only head and live check state.
