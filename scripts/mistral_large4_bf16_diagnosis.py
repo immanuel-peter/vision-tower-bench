@@ -176,8 +176,8 @@ def block_ops(reference, tower, pixels: torch.Tensor, layers_module) -> list[dic
     rows.append({"op": "rope q, FP32 math on FP32 tables", **stats(back(rq_32t), rq_src)})
     rows.append({"op": "rope k, FP32 math on FP32 tables", **stats(back(rk_32t), rk_src)})
     table = ml4.rotary_table(side, side, dim, 10000.0).to(src.device)
-    rows.append({"op": "rope q, adapter (source table, complex multiply)", **stats(back(ml4.rotate(q_in, table)), rq_src)})
-    rows.append({"op": "rope k, adapter (source table, complex multiply)", **stats(back(ml4.rotate(k_in, table)), rk_src)})
+    rows.append({"op": "rope q, adapter (source table, complex multiply)", **stats(ml4.rotate(q_in, table)[0].transpose(0, 1), rq_src)})
+    rows.append({"op": "rope k, adapter (source table, complex multiply)", **stats(ml4.rotate(k_in, table)[0].transpose(0, 1), rk_src)})
 
     # Attention on identical rotated inputs, in each layout.
     q4, k4, v4 = rq_src[None], rk_src[None], v_src[None]

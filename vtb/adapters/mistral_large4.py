@@ -259,13 +259,17 @@ def rotary_table(rows: int, cols: int, head_dim: int, theta: float) -> torch.Ten
 def rotate(x: torch.Tensor, table: torch.Tensor) -> torch.Tensor:
     """Complex multiplication in float32, then a cast back, as mistral_inference does.
 
-    HF Pixtral instead casts cos/sin to the activation dtype and rotates in
-    BF16, which changes about a quarter of the rotated BF16 values.
+    Takes q or k in HF's half-split layout and returns it in the parent's
+    interleaved layout, (re, im) pairs side by side. Attention scores are the
+    same either way, but the kernel then sums each q.k product in the
+    parent's channel order. HF Pixtral instead casts cos/sin to the activation
+    dtype and rotates in BF16, which changes about a quarter of the rotated
+    BF16 values.
     """
     half = x.shape[-1] // 2
     x32 = x.float()
     turned = torch.complex(x32[..., :half], x32[..., half:]) * table
-    return torch.cat((turned.real, turned.imag), dim=-1).to(x.dtype)
+    return torch.view_as_real(turned).flatten(-2).to(x.dtype)
 
 
 def block_forward(layer, hidden: torch.Tensor, table: torch.Tensor) -> torch.Tensor:

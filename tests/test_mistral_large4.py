@@ -248,8 +248,7 @@ def test_bf16_rotation_follows_mistral_float32_order():
     halves = native.view(-1, heads, head_dim // 2, 2).transpose(2, 3).reshape(-1, heads, head_dim)
     table = ml4.rotary_table(side, side, head_dim, 10000.0)
     assert table.dtype == torch.complex64
-    rotated = ml4.rotate(halves.transpose(0, 1)[None], table)[0].transpose(0, 1)
-    actual = rotated.view(-1, heads, 2, head_dim // 2).transpose(2, 3).reshape(-1, heads, head_dim)
+    actual = ml4.rotate(halves.transpose(0, 1)[None], table)[0].transpose(0, 1)
     assert actual.dtype == torch.bfloat16
     # Same table, same complex multiplication, same cast: identical BF16 values.
     assert torch.equal(actual, expected)
