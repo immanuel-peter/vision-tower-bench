@@ -1,12 +1,13 @@
 # Kimi K3.1 Pro checkpoint validation
 
-This is an in-progress delivery for issue #24, with 48 of 286 required task cells
-validated and no completed paired comparisons out of 102. Immutable release reload passed all
+This is an in-progress delivery for issue #24, with 126 of 286 required task cells
+validated and 52 completed paired comparisons out of 102. Immutable release reload passed all
 17 file hashes, 168 parent tensors and 30 bit-exact CPU BF16 math-reference cases. The immutable bundle
 is published at revision 6ab95e2daf86e8100be2e712a7a71c0fba26dac4. Independent
 math-reference conversion parity passes in CPU and CUDA BF16. Production
 TORCH_SDPA BF16 parity failed for both checkpoints and remains a limitation.
-Complete mean-recognition and mean label-budget measurements are available below.
+Complete mean-recognition, mean label-budget and primary perturbation measurements
+are available below.
 The remaining benchmark suite and final default figures are required before the PR.
 
 The pinned Pro weights differ from K3 in all 168 tensors. The complete
@@ -123,7 +124,7 @@ content hashes. [The pair audit](cpu-feature-extraction/pair-audit.json)
 confirms identical extraction settings, with no CPU/GPU mixing.
 
 The remaining suite must reuse these caches. Raw and matched geometry probes,
-attention recognition, correspondence, perturbation, transfer and paired
+attention recognition, correspondence, transfer and remaining paired
 intervals remain pending.
 
 The source configuration and modeling files of the existing pinned K3 release
@@ -171,7 +172,7 @@ Each checkpoint now has the following verified caches:
 CPU and GPU features occupy separate namespaces. Both siblings use the same
 producer for every paired task; no cache mixes producer devices. Geometry
 probes reuse the completed CPU DIODE caches. The remaining attention and geometry
-probes, correspondence, perturbation, paired intervals and final default figures
+probes, correspondence, remaining paired intervals and final default figures
 are still required.
 
 ## Complete CPU mean measurements
@@ -202,7 +203,41 @@ training, validation and test IDs, train-only PCA, independent per-cell seeds,
 LR grid, epochs, CPU4 device settings and three retraining seeds. No new
 training was claimed for those two reused cells.
 
-completed-inventory.json maps all 48 validated cells to the inventory written
-before experiments. The remaining 238 task cells and all 102 paired comparisons
-remain required. CPU perturbation execution preserves the primary reducer;
-metadata additions record actual source, split, seed and device provenance.
+completed-inventory.json maps these 48 mean cells and the 78 perturbation cells
+below to the inventory written before experiments. The remaining 160 task cells
+and 50 paired comparisons remain required.
+
+## Complete primary perturbation measurements
+
+Both checkpoints completed all 13 conditions at all three final Stages.
+The original clean-trained attention readout and train-only PCA were retained,
+with eleven learning rates searched at seed 0 and three selected-rate
+retrainings. Features contain all 2,000 selected IDs per condition. The
+prescribed split is 1,400 training, 300 validation and 300 held-out test images.
+Both checkpoints use the same GPU1 feature producer and CPU4 fits.
+The full phase took 910.85 seconds. All actual prediction rows, source hashes,
+split identities, seed metrics and finite aggregates passed validation.
+
+The 52 prescribed sibling and Pro Projector-minus-Tower comparisons use
+the same saved three-seed predictions on the same 300 held-out IDs.
+Every interval uses 10,000 paired-image resamples with seed 0. Points were
+recomputed from actual rows, rather than taken from separately rounded scores.
+The [complete paired comparison figure](perturbation-paired-comparison.png)
+shows all 52 intervals. These are per-cell 95% intervals without a
+multiple-testing correction.
+
+| Clean, matched attention | Fresh K3 accuracy | Pro accuracy | Pro − K3, pp, 95% paired interval |
+| --- | ---: | ---: | ---: |
+| Tower | 70.67% | 74.67% | +4.00 [1.22, 6.89] |
+| Merged | 72.00% | 74.78% | +2.78 [0.11, 5.56] |
+| Projected | 73.78% | 72.33% | −1.44 [−4.00, 1.22] |
+
+These are fixed-readout results on the smaller perturbation split. They do
+not isolate intrinsic model robustness or the training cause of checkpoint
+changes. Pro raw measurements are in results/perturbation; fresh K3 controls
+remain under sibling-control/perturbation, preserving historical K3 results.
+
+An opt-in prediction-retention flag now saves selected-fit class predictions
+for audited paired reuse. Tests cover both readout families and verify identical
+fit scores and RNG state with retention enabled or disabled. LR selection,
+retraining, epochs and the primary reducer do not change.

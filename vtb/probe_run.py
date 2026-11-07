@@ -99,28 +99,42 @@ def accuracy(model, features, labels, index, device, batch_size=512) -> float:
     return correct / len(index)
 
 
+@torch.inference_mode()
+def predictions(model, features, index, device, batch_size=512):
+    model.eval()
+    return torch.cat([
+        model(features[index[start:start + batch_size]].to(device)).argmax(dim=-1).cpu()
+        for start in range(0, len(index), batch_size)
+    ])
+
+
 def run_cell(features, labels, split, num_classes, args) -> dict:
     best_lr, best_val = None, -1.0
     # Record each validation score to distinguish edge selections from plateaus.
     searched: dict[str, float] = {}
+    unrounded = {}
     for lr in args.learning_rates:
         _, val, _ = train_once(
             features, labels, split, num_classes, args.readout, lr, 0,
             args.device, args.epochs, args.batch_size,
         )
         searched[f"{lr:g}"] = round(val, 4)
+        unrounded[f"{lr:g}"] = val
         if val > best_val:
             best_lr, best_val = lr, val
 
-    tests = []
+    tests, saved_predictions = [], []
     for seed in range(args.seeds):
-        _, _, test = train_once(
+        model, _, test = train_once(
             features, labels, split, num_classes, args.readout, best_lr, seed,
             args.device, args.epochs, args.batch_size,
         )
         tests.append(test)
+        if getattr(args, "save_predictions", False):
+            saved_predictions.append(predictions(model, features, split.test, args.device).tolist())
+        del model
     scores = torch.tensor(tests)
-    return {
+    result = {
         "learning_rate": best_lr,
         "learning_rate_search": searched,
         "val_accuracy": round(best_val, 4),
@@ -131,6 +145,13 @@ def run_cell(features, labels, split, num_classes, args) -> dict:
         "learning_rate_search_seed": 0,
         "test_accuracy_by_seed": tests,
     }
+    if getattr(args, "save_predictions", False):
+        result.update(test_predictions_by_seed=saved_predictions,
+                      test_labels=labels[split.test].tolist(),
+                      learning_rate_search_unrounded=unrounded,
+                      validation_accuracy_unrounded=best_val,
+                      fit_device=args.device, fit_threads=torch.get_num_threads())
+    return result
 
 
 def selected_slices(
@@ -186,6 +207,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--epochs", type=int, default=20)
     parser.add_argument("--batch-size", type=int, default=256)
     parser.add_argument("--seeds", type=int, default=3)
+    parser.add_argument("--save-predictions", action="store_true", help="retain selected-fit per-image class predictions for audited paired reuse")
     parser.add_argument("--device", default="mps")
     parser.add_argument(
         "--label-fraction",
@@ -241,6 +263,8 @@ def main() -> None:
             features = reducer(features)
 
         result = run_cell(features, labels, split, num_classes, args)
+        if args.save_predictions:
+            result["test_image_ids"] = [image_ids[index] for index in split.test.tolist()]
         result |= {
             "model_id": meta["model_id"],
             "stage": stage,

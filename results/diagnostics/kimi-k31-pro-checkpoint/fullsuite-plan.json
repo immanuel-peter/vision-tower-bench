@@ -459,7 +459,12 @@
         "/tmp/vtb-delivery/issues/24/measurements/perturbation/kimi_k31_pro_perturbation.json",
         "--device",
         "cuda:0"
-      ]
+      ],
+      "status": "complete_content_verified_cpu",
+      "actual_device": "cpu",
+      "actual_threads": 4,
+      "result": "/tmp/vtb-delivery/issues/24/measurements/perturbation/kimi_k31_pro_perturbation.json",
+      "result_sha256": "5dc2c5ca925232a74705556440d694010a8e17b50c5aeb04dcb974a3cbd79659"
     },
     {
       "phase": "extraction",
@@ -900,7 +905,12 @@
         "/tmp/vtb-delivery/issues/24/measurements/perturbation/moonvit_v2_perturbation.json",
         "--device",
         "cuda:0"
-      ]
+      ],
+      "status": "complete_content_verified_cpu",
+      "actual_device": "cpu",
+      "actual_threads": 4,
+      "result": "/tmp/vtb-delivery/issues/24/measurements/perturbation/moonvit_v2_perturbation.json",
+      "result_sha256": "08194e75e6e9d6803f473c3f1b4059dc6bbf756ac5862df338c9fc74e8607556"
     },
     {
       "phase": "paired-fits",
@@ -2602,7 +2612,9 @@
         "tower",
         "--out",
         "/tmp/vtb-delivery/issues/24/measurements/bootstrap/perturbation-kimi_k31_pro-vs-moonvit_v2-tower.json"
-      ]
+      ],
+      "status": "complete_content_verified_cpu",
+      "result_sha256": "e55c51c44d8ce6327c6f8be15bbe8dbe49f4a6865fe84442e624c9ef84acd8fe"
     },
     {
       "kind": "perturbation",
@@ -2633,7 +2645,9 @@
         "merged",
         "--out",
         "/tmp/vtb-delivery/issues/24/measurements/bootstrap/perturbation-kimi_k31_pro-vs-moonvit_v2-merged.json"
-      ]
+      ],
+      "status": "complete_content_verified_cpu",
+      "result_sha256": "21142f4afbceb0f652dde51bd4ac8cf885d027adaf2cd2616413d86ee9c4eff4"
     },
     {
       "kind": "perturbation",
@@ -2664,7 +2678,9 @@
         "projected",
         "--out",
         "/tmp/vtb-delivery/issues/24/measurements/bootstrap/perturbation-kimi_k31_pro-vs-moonvit_v2-projected.json"
-      ]
+      ],
+      "status": "complete_content_verified_cpu",
+      "result_sha256": "866eaaab0ebae6ae89ad54f19ddf8a3942780f29475f27460224cf10bc0d4d3d"
     },
     {
       "kind": "perturbation",
@@ -2695,7 +2711,9 @@
         "tower",
         "--out",
         "/tmp/vtb-delivery/issues/24/measurements/bootstrap/perturbation-kimi_k31_pro-projected-vs-tower-all-conditions.json"
-      ]
+      ],
+      "status": "complete_content_verified_cpu",
+      "result_sha256": "47ae3c6dfa0a7fdcae466abfcb9c3f34c864c2089b141363cc5415c579faf6a2"
     }
   ],
   "paired_comparison_cells": 102,

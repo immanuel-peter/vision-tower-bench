@@ -175,6 +175,22 @@ def validate_probe(payload, model_id, selected_ids, kind, arm, readout="attentio
             parameters = fitted_width * 100 + 100 if readout == "mean" else fitted_width * 1024 + 1103460
             if cell["trainable_parameters"] != parameters:
                 raise ValueError("readout capacity differs from requested arm")
+            if "test_predictions_by_seed" in cell:
+                predictions, labels = cell["test_predictions_by_seed"], cell["test_labels"]
+                if (cell["test_image_ids"] != expected_splits["test"] or len(labels) != len(expected_splits["test"])
+                        or len(predictions) != 3 or any(len(row) != len(labels) for row in predictions)
+                        or any(type(value) is not int or not 0 <= value < 100 for row in [labels, *predictions] for value in row)):
+                    raise ValueError("saved prediction IDs/labels/seeds differ from actual test split")
+                actual = [sum(x == y for x, y in zip(row, labels, strict=True)) / len(labels) for row in predictions]
+                if any(abs(x - y) > 1e-7 for x, y in zip(actual, scores, strict=True)):
+                    raise ValueError("saved predictions disagree with actual seed accuracy")
+                unrounded = cell["learning_rate_search_unrounded"]
+                if (len(unrounded) != 11 or {float(rate) for rate in unrounded} != rates
+                        or any(round(value, 4) != cell["learning_rate_search"][rate] for rate, value in unrounded.items())
+                        or cell["validation_accuracy_unrounded"] != max(unrounded.values())
+                        or next(value for rate, value in unrounded.items() if float(rate) == cell["learning_rate"]) != max(unrounded.values())
+                        or cell["fit_device"] != protocol["device"]):
+                    raise ValueError("saved prediction fit/search provenance differs")
         else:
             if payload["epochs"] != 10 or payload["capacity_matched"] != (arm == "matched"):
                 raise ValueError("geometry training protocol differs")

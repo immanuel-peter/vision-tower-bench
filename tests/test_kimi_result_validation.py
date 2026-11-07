@@ -87,3 +87,13 @@ def test_primary_validator_checks_search_seeds_split_and_capacity_evidence():
     cell["split_ids_sha256"]["test"] = "wrong"
     with pytest.raises(ValueError, match="split identities"):
         validate_probe(payload, "model", ids, "label-budget", "matched", "mean", expected_splits=splits)
+    cell["split_ids_sha256"]["test"] = ids_digest(splits["test"])
+    payload["protocol"]["device"] = "cpu"
+    cell.update(test_image_ids=splits["test"], test_labels=[0] * 1950,
+                test_predictions_by_seed=[[0] * 975 + [1] * 975 for _ in range(3)],
+                learning_rate_search_unrounded={str(rate): .5 for rate in SEMANTIC_RATES},
+                validation_accuracy_unrounded=.5, fit_device="cpu", fit_threads=4)
+    assert validate_probe(payload, "model", ids, "label-budget", "matched", "mean", expected_splits=splits)["passed"]
+    cell["test_predictions_by_seed"][0][0] = 1
+    with pytest.raises(ValueError, match="predictions disagree"):
+        validate_probe(payload, "model", ids, "label-budget", "matched", "mean", expected_splits=splits)
