@@ -2,9 +2,9 @@
   "passed": true,
   "complete_delivery": false,
   "required_primary_cells": 286,
-  "completed_primary_cells": 150,
+  "completed_primary_cells": 151,
   "required_paired_cells": 102,
-  "completed_paired_cells": 57,
+  "completed_paired_cells": 58,
   "completed": [
     {
       "cell": {
@@ -1687,6 +1687,18 @@
       },
       "source": "/tmp/vtb-delivery/issues/24/measurements/correspondence/moonvit_v2_correspondence_navi.json",
       "sha256": "bc5c452756c31cb2df0dbb6c1ed6210d752b577855000324fe2ee6f9eaab1a09"
+    },
+    {
+      "cell": {
+        "task": "recognition",
+        "model": "kimi_k31_pro",
+        "stage": "projected",
+        "layer": 27,
+        "arm": "matched",
+        "readout": "attention"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/recognition-cells/kimi_k31_pro_probe_attention_matched_projected_L27.json",
+      "sha256": "6788ab336edad063c9888490a7cee00c912fdcea1e3b0e3b7627dab3ce042d70"
     }
   ],
   "pending": [
@@ -2099,14 +2111,6 @@
       "stage": "projected",
       "layer": 27,
       "arm": "raw"
-    },
-    {
-      "task": "recognition",
-      "model": "kimi_k31_pro",
-      "stage": "projected",
-      "layer": 27,
-      "arm": "matched",
-      "readout": "attention"
     },
     {
       "task": "depth",
@@ -5563,6 +5567,21 @@
       "actual_point_from_same_rows": 0.05599014930729125,
       "fit_device": "cpu",
       "threads": 4
+    },
+    {
+      "cell": {
+        "comparison": "kimi_k31_pro-projected-minus-tower",
+        "task": "recognition",
+        "first_stage": "projected",
+        "second_stage": "tower",
+        "first_layer": 27,
+        "second_layer": 27,
+        "arm": "matched",
+        "readout": "attention"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/semantic-kimi_k31_pro-projected-vs-tower-attention-matched.json",
+      "sha256": "49ff6149455af2de2e2a6b79cdfba617ae1306d33a36d6302eccb2dd7b27d4c1",
+      "reused_same_fit_predictions": true
     }
   ]
 }

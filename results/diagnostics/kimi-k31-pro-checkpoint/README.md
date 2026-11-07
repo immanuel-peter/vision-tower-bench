@@ -1,7 +1,7 @@
 # Kimi K3.1 Pro checkpoint validation
 
-This is an in-progress delivery for issue #24, with 150 of 286 required task cells
-validated and 57 completed paired comparisons out of 102. Immutable release reload passed all
+This is an in-progress delivery for issue #24, with 151 of 286 required task cells
+validated and 58 completed paired comparisons out of 102. Immutable release reload passed all
 17 file hashes, 168 parent tensors and 30 bit-exact CPU BF16 math-reference cases. The immutable bundle
 is published at revision 6ab95e2daf86e8100be2e712a7a71c0fba26dac4. Independent
 math-reference conversion parity passes in CPU and CUDA BF16. Production
@@ -205,8 +205,8 @@ training was claimed for those two reused cells.
 
 completed-inventory.json maps these 48 mean cells and the 78 perturbation cells
 below to the inventory written before experiments. The attention budgets and
-compatible reuse below, followed by NAVI, bring remaining work to 136 task cells
-and 45 paired comparisons.
+compatible reuse below, followed by NAVI, bring remaining work to 135 task cells
+and 44 paired comparisons.
 
 ## Complete primary perturbation measurements
 
@@ -305,3 +305,12 @@ Remaining matched-attention recognition work runs as complete full-data cells,
 with explicit partial-matrix scope, saved test predictions and the unchanged
 LR/seed protocol. Full ten-cell matrices are assembled only after every required
 cell validates. Compatible completed cells and paired predictions are reused.
+
+The coordinator subsequently raised the CPU budget from four to eight threads
+at a natural process boundary. Completed fits retain their original settings;
+an unfinished sibling counterpart uses the same thread count as its existing
+control. Untouched checkpoint pairs use eight threads sequentially. Every
+retained cell records its actual fit threads, and paired reuse requires matching
+counts. A combined matrix therefore records per-cell provenance rather than
+claiming one thread count for all historical and new fits. LR search, seeds,
+epochs, data and the primary reducer remain unchanged.
