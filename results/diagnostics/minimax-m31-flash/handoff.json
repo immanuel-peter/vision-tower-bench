@@ -2,8 +2,8 @@
   "status": "in_progress",
   "issue": 21,
   "branch": "t3/complete-issue-21",
-  "head": "8246f97ba347027472f4f1e7960180e43e354fd7",
-  "pr": null,
+  "head": "6e9796e4e40058f6ce822192e8b98f8c9f7f0bc1",
+  "pr": "https://github.com/immanuel-peter/vision-tower-bench/pull/26",
   "hf": {
     "repo": "immanuelpeter/MiniMax-M3.1-Flash-Vision",
     "revision": "75a5fc5bba7cfb01cfcf15072a9d823714e54121",
@@ -12,13 +12,16 @@
   },
   "tests": {
     "scoped_regression": {
-      "passed": 130,
+      "passed": 133,
       "skipped": 48
     },
     "minimax": {
       "passed": 10
     },
-    "figures": "pending actual measurements"
+    "figures": "pending actual measurements",
+    "standardization_and_probe": {
+      "passed": 35
+    }
   },
   "parity": {
     "tolerance": 0,
@@ -55,5 +58,13 @@
     "No separate modeling file in pinned parent repository; HF reference implementation recorded by hash",
     "No paper source present in repository",
     "Original LICENSE whitespace preserved"
-  ]
+  ],
+  "head_note": "Last pushed head before the diagnostic-method commit; runtime handoff is refreshed after push.",
+  "standardization": {
+    "patch_sha256": "f5a2bc1dcda0e6be9a2d6abea9c1bcc9cb5817282ff6406489b5022dc65e330a",
+    "opt_in": "--standardize-channels --match-capacity",
+    "primary_defaults_unchanged": true,
+    "four_full_split_runs": "pending GPU regrant"
+  },
+  "checks_and_reviews": "suite in progress at initial PR check; reviews absent"
 }

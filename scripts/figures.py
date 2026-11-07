@@ -197,6 +197,12 @@ def occlusion_conditions(cell: dict) -> list[dict]:
 
 def label_budget_series() -> dict[str, dict[float, float]]:
     runs = json.loads((RESULTS / SOURCES["label_budget"]).read_text())["runs"]
+    for source in SOURCES.get("label_budget_additional", []):
+        additional = json.loads((RESULTS / source).read_text())["runs"]
+        overlap = runs.keys() & additional.keys()
+        if overlap:
+            raise ValueError(f"duplicate standardized label-budget runs: {sorted(overlap)}")
+        runs.update(additional)
     series = defaultdict(dict)
     for name, payload in runs.items():
         model, cell = name.split("_probe_")

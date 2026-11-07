@@ -42,6 +42,10 @@ for stage in ("tower","merged","projected"):
  args=[PY,"scripts/semantic_bootstrap.py","--first-run",FEATURES/"recognition"/f"{flash}_448_pool4","--first-name",flash,"--first-layer",32,"--first-stage",stage,"--second-run",FEATURES/"recognition"/"minimax_m3_448_pool4","--second-name","minimax_m3","--second-layer",32,"--second-stage",stage,"--labels",DATA/"imagenet100/validation_labels.json","--out",RESULTS/"bootstrap"/f"semantic-m31-vs-m3-{stage}.json"]
  add("sibling",f"sibling-recognition-{stage}",args,("imagenet100",))
 add("bootstrap","bootstrap-recognition-projector",[PY,"scripts/semantic_bootstrap.py","--first-run",FEATURES/"recognition"/f"{flash}_448_pool4","--first-name",flash,"--first-layer",32,"--first-stage","projected","--second-run",FEATURES/"recognition"/f"{flash}_448_pool4","--second-name",flash,"--second-layer",32,"--second-stage","tower","--labels",DATA/"imagenet100/validation_labels.json","--out",RESULTS/"bootstrap"/f"semantic-{flash}.json"],("imagenet100",))
+for fraction in (0.01,0.05,0.2,1.0):
+ tag="f"+str(fraction).replace(".","")
+ add("standardized",f"standardized-{flash}-{tag}",[PY,"-m","vtb.probe_run","--run",FEATURES/"recognition"/f"{flash}_448_pool4","--labels",DATA/"imagenet100/validation_labels.json","--readout","attention","--match-capacity","--standardize-channels","--stages","tower","--depth-points",32,"--label-fraction",fraction,"--device","cuda:0","--out",RESULTS/"standardized"/f"{flash}_probe_attention_matched_{tag}.json"],("imagenet100",))
+(RESULTS/"standardized").mkdir(parents=True,exist_ok=True)
 p=argparse.ArgumentParser()
 p.add_argument("--category",required=True)
 p.add_argument("--only")

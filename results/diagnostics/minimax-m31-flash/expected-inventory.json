@@ -219,5 +219,31 @@
     "points": "same paired runs only"
   },
   "reuse_policy": "No baseline reuse until sample IDs, splits, seeds and checkpoint identity are audited.",
-  "protocol_note": "Current corrected runner defaults; seed-0 LR search then selected LR retraining with three seeds."
+  "protocol_note": "Current corrected runner defaults; seed-0 LR search then selected LR retraining with three seeds.",
+  "standardized_label_budget": {
+    "diagnostic_only": true,
+    "primary_reducer_unchanged": true,
+    "readout": "attention",
+    "arm": "matched",
+    "fractions": [
+      0.01,
+      0.05,
+      0.2,
+      1.0
+    ],
+    "images": 13000,
+    "stage": "tower",
+    "layer": 32,
+    "lr_search_seeds": [
+      0
+    ],
+    "selected_lr_retrain_seeds": [
+      0,
+      1,
+      2
+    ],
+    "epochs": 20,
+    "patch_sha256": "f5a2bc1dcda0e6be9a2d6abea9c1bcc9cb5817282ff6406489b5022dc65e330a",
+    "patch_source": "r2:vtb/backups/v3/2026-10-19/proposed/reducer-channel-standardization.patch"
+  }
 }

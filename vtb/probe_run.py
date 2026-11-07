@@ -144,11 +144,14 @@ def selected_slices(
     ]
 
 
-def fit_reducer(features: torch.Tensor, split: Split, width: int) -> probe.Reducer:
+def fit_reducer(features: torch.Tensor, split: Split, width: int, *, standardize_channels: bool = False):
     # torch.svd_lowrank is randomized. Seed it per cell without changing the RNG state
     # used by the readout, so a --depth-points invocation matches a matrix invocation.
     with torch.random.fork_rng(devices=[]):
         torch.random.default_generator.manual_seed(0)
+        if standardize_channels:
+            from vtb.channel_standardization import StandardizedReducer
+            return StandardizedReducer.fit(features[split.train], width)
         return probe.Reducer.fit(features[split.train], width)
 
 
@@ -159,6 +162,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--out", type=Path, default=None)
     parser.add_argument("--readout", default="attention", choices=("attention", "mean"))
     parser.add_argument("--width", type=int, default=512)
+    parser.add_argument(
+        "--standardize-channels", action="store_true",
+        help="opt-in figure diagnostic: sample-standardize channels before matched PCA",
+    )
     parser.add_argument(
         "--match-capacity",
         action="store_true",
@@ -201,6 +208,8 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main() -> None:
     args = build_parser().parse_args()
+    if args.standardize_channels and not args.match_capacity:
+        raise ValueError("--standardize-channels requires --match-capacity")
 
     label_map = json.loads(args.labels.read_text())["labels"]
     num_classes = len(set(label_map.values()))
@@ -216,7 +225,7 @@ def main() -> None:
 
         features = tokens.float()
         if args.match_capacity:
-            reducer = fit_reducer(features, split, args.width)
+            reducer = fit_reducer(features, split, args.width, standardize_channels=args.standardize_channels)
             features = reducer(features)
 
         result = run_cell(features, labels, split, num_classes, args)
@@ -234,6 +243,8 @@ def main() -> None:
             "full_train_images": len(full_split.train),
         }
         cells.append(result)
+        if args.standardize_channels:
+            result["reducer_diagnostic"] = "channel_standardization_sample_std_correction1"
         print(
             f"{stage:>9} L{layer:02d}  depth {result['relative_depth']:.3f}  "
             f"top1 {result['test_accuracy']:.4f} +- {result['test_std']:.4f}  "

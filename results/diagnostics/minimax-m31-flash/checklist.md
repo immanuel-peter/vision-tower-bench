@@ -66,3 +66,13 @@ All 10 hashed tensors differ. The Tower drifts more with depth, which fits conti
 - Writeup/index/roster/figure registration exists with explicit pending status; final per-Stage deltas and figure generation await actual measurements.
 - No paper source exists in this worktree; results writeup is the available paper-ready record.
 - Commit, push and separate non-draft PR remain pending. Never claim issue delivery complete before measurements and PR are ready.
+
+## Recovered figure diagnostic
+
+- [x] Inspect recovered patch and verify SHA256 f5a2bc1dcda0e6be9a2d6abea9c1bcc9cb5817282ff6406489b5022dc65e330a.
+- [x] Isolated opt-in sample-standardized PCA preserves primary Reducer and defaults. Evidence: vtb/channel_standardization.py, tests/test_channel_standardization.py, tests-standardization.txt, standardization-method.md.
+- [x] Scoped CPU regression: 133 passed, 48 skipped. Evidence: tests-regression-with-diagnostic.txt.
+- [ ] Four full-13000 attention matched label-budget fractions. Commands: run-suite.py --category standardized. Remains pending explicit GPU regrant.
+- [ ] Register resulting separate standardized payload in figure_sources.label_budget_additional, without replacing prior runs.
+
+PR created and linked: https://github.com/immanuel-peter/vision-tower-bench/pull/26. Non-draft, target main, explicitly marked delivery in progress in body. Implementation commit and initial evidence are pushed. Do not merge before full measurements, paired comparisons and figures are validated.
