@@ -12,57 +12,55 @@ base_model:
 
 # MiniMax-M3.1-Flash Vision
 
-Standalone Tower and Projector from [MiniMax M3.1 Flash](https://huggingface.co/MiniMaxAI/MiniMax-M3.1-Flash).
-No language-model weights are included.
+This repository packages the Tower and Projector from
+[MiniMax M3.1 Flash](https://huggingface.co/MiniMaxAI/MiniMax-M3.1-Flash).
 
 ## Contents
 
-| File | Contents |
-|---|---|
-| `model.safetensors` | 515 Tower tensors |
-| `projector.safetensors` | Eight Projector tensors |
-| `projector.py`, `projector_config.json` | Standalone Projector and loader |
-| `config.json`, `preprocessor_config.json` | Vision and image-processing configuration |
-| `examples/inference.py` | Three-Stage image example |
-| `README.md`, `export_manifest.json`, `.gitattributes` | Documentation, source pin, file hashes and storage rules |
-| `LICENSE`, `LICENSE-CODE`, `NOTICE` | Weight license, helper-code license and attribution |
+| File | Tensors | What it holds |
+|---|---|---|
+| `model.safetensors` | 515 | MiniMax-M3.1-Flash vision Tower |
+| `projector.safetensors` | 8 | `multi_modal_projector` and remapped `patch_merge_mlp` |
+| `projector_config.json`, `projector.py` | | Projector shapes and loader |
+| `config.json`, `preprocessor_config.json` | | Vision-only model and image-processing configuration |
+| `export_manifest.json` | | Source pin, tensor counts and file hashes |
+| `LICENSE`, `LICENSE-CODE`, `NOTICE` | | Weight license, code license and attribution |
 
 ## Architecture
 
-| Component | Details and batch-one output at 448 pixels |
+| Component | Details |
 |---|---|
-| Tower | 32 layers, width 1280, 16 heads, MLP 5120, patch 14, 3D RoPE; `(1, 1024, 1280)` |
-| Merged | Lossless 2x2 spatial concatenation; `(1, 256, 5120)` |
-| Projector | Four linear layers with GELU and learned 2x2 compression; `(1, 256, 6144)` |
+| Tower | 32 layers, 1280 hidden, 16 heads, 5120 intermediate, patch size 14, 3D RoPE, image size 672 |
+| Token compression | 2x2 spatial merge, temporal patch size 2 |
+| Projector | `Linear(1280, 6144)`, GELU, `Linear(6144, 6144)`, flatten four 6144-wide patches, `Linear(24576, 6144)`, GELU, `Linear(6144, 6144)` |
 
-Still images repeat as two frames for the temporal patch embedding.
-The nominal image size is 672; the example uses a 448-pixel bicubic center crop.
+The class is `MiniMaxM3VLVisionModel`. Still images are repeated as two frames for the
+temporal patch embedding. At 448 pixels the example reports Tower `(1, 1024, 1280)`,
+merged `(1, 256, 5120)` and projected `(1, 256, 6144)`.
 
 ## Usage
 
-Requires Transformers 5.17.0, PyTorch, torchvision and Pillow.
-See [examples/inference.py](examples/inference.py) for local bundle loading and BF16 features.
-
-```bash
-python examples/inference.py /path/to/image.jpg
-```
-
-Forward images independently: native HF attention couples images in one call.
+See [`examples/inference.py`](examples/inference.py) for image feature extraction.
+Forward one image per call: the native HF attention couples images in a single call.
 
 ## Validation
 
-Source tensors are preserved exactly, including their original dtypes.
-Native-HF reference checks and inference limits are recorded in the [bench evidence](https://github.com/immanuel-peter/vision-tower-bench/tree/t3/complete-issue-21/results/diagnostics/minimax-m31-flash).
+The release tests compare all 515 Tower tensors and eight Projector tensors with the
+pinned parent checkpoint using `torch.equal`. Fixed-image Tower, merged and projected
+outputs also match the native parent implementation at 56 and 448 pixels.
+Full checks: [bench evidence](https://github.com/immanuel-peter/vision-tower-bench/tree/main/results/diagnostics/minimax-m31-flash).
 
 ## Reproduction
 
-The pinned, index-driven [exporter](https://github.com/immanuel-peter/vision-tower-bench/blob/main/scripts/export_minimax_m3_vision.py) accepts `--checkpoint minimax_m31_flash`.
-`export_manifest.json` records source shards and every distributed file hash except itself.
+The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/scripts/export_minimax_m3_vision.py)
+reads the Tower and Projector tensors from the pinned parent and writes the original
+tensors, preserving their dtypes. The script pins the parent revision.
 
 ## Credits
 
-MiniMax released the parent weights; Transformers provides the native Tower implementation.
+MiniMax released the MiniMax-M3.1-Flash weights and the native Transformers implementation.
 
 ## License
 
-Weights retain the [MiniMax Community License](LICENSE). Original helper code is [MIT](LICENSE-CODE); see [NOTICE](NOTICE).
+[MiniMax Community License](LICENSE), the same license as the source model. Helper code
+is MIT; see [LICENSE-CODE](LICENSE-CODE) and [NOTICE](NOTICE).
