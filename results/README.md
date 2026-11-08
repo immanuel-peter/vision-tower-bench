@@ -218,3 +218,10 @@ Matrix scripts accept an output directory. Use `results/recognition/` for
 runs in a separate directory when a protocol changes, and update the index with
 the correction's scope. JSON, JSONL, and TSV measurements remain in Git so a
 clone contains the evidence needed to inspect the figures.
+
+
+## Structural cleanup validation
+
+[PR 28 cleanup evidence](diagnostics/structural-cleanup/pr-28/README.md) records
+method identity, preserved measurements and the fresh immutable-release inference test.
+The combined integration checks retain all twenty registered models.

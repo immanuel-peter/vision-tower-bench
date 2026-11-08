@@ -12,8 +12,7 @@ base_model:
 
 # PixtralViT-Large-4
 
-This repository packages the Tower and Projector from
-[Mistral Large 4](https://huggingface.co/mistralai/Mistral-Large-4-1T-A52B).
+This repository packages the Tower and Projector from [Mistral Large 4](https://huggingface.co/mistralai/Mistral-Large-4-1T-A52B).
 
 ## Contents
 
@@ -64,9 +63,8 @@ pins the parent revision.
 
 ## Credits
 
-Mistral AI released the Mistral Large 4 weights and the mistral-inference reference code.
+Mistral AI released the weights and mistral-inference reference code.
 
 ## License
 
-The weights keep the [Mistral Ecosystem Open-Weight License](LICENSE) from the
-source model. The Python files are MIT; see [LICENSE-CODE](LICENSE-CODE).
+The weights keep the [Mistral Ecosystem Open-Weight License](LICENSE). The Python files are MIT; see [LICENSE-CODE](LICENSE-CODE).

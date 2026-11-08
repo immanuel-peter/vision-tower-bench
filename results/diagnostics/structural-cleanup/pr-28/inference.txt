@@ -1,0 +1,4 @@
+device cuda dtype torch.bfloat16 image_sizes [[448, 448]]
+tower (1024, 2048)
+merged (256, 2048)
+projected (256, 6144)
