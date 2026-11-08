@@ -9,6 +9,7 @@ import torch
 
 from vtb import cache, probe_run
 from vtb.semantic_bootstrap import paired_image_bootstrap
+from vtb.methods import require_same
 
 
 def parser() -> argparse.ArgumentParser:
@@ -98,6 +99,7 @@ def train_cell(run, stage, layer, labels_by_id, args):
         predictions.append(predicted)
         accuracies.append((predicted == test_labels).float().mean().item())
     return {
+        "method": probe_run.reducer_method(matched=args.arm == "matched"),
         "image_ids": [image_ids[index] for index in split.test.tolist()],
         "labels": test_labels,
         "predictions": torch.stack(predictions),
@@ -115,6 +117,7 @@ def main() -> None:
     labels_by_id = json.loads(args.labels.read_text())["labels"]
     first = train_cell(args.first_run, args.first_stage, args.first_layer, labels_by_id, args)
     second = train_cell(args.second_run, args.second_stage, args.second_layer, labels_by_id, args)
+    require_same(first, second)
     if first["image_ids"] != second["image_ids"]:
         raise ValueError("the two cells do not have the same paired test images")
     if not torch.equal(first["labels"], second["labels"]):
@@ -141,6 +144,7 @@ def main() -> None:
         )
     payload = {
         "protocol": {
+            "method": probe_run.reducer_method(matched=args.arm == "matched"),
             "readout": args.readout,
             "arm": args.arm,
             "epochs": args.epochs,

@@ -59,30 +59,12 @@ def export(out: Path, checkpoint: Checkpoint = QWEN27B) -> None:
 
 
 def write_export_manifest(out: Path, checkpoint: Checkpoint) -> None:
+    from vtb.bundle_manifest import write_manifest
     index = source_json(checkpoint, "model.safetensors.index.json")["weight_map"]
-    shards = sorted({shard for name, shard in index.items() if name.startswith(VISION_PREFIX)})
-    with safe_open(out / "model.safetensors", framework="pt") as weights:
-        names = list(weights.keys())
-        if len(names) != TOWER_TENSORS or any(weights.get_slice(name).get_dtype() != "BF16" for name in names):
-            raise ValueError("expected 333 BF16 vision tensors")
-    projector_tensors = sum(name.startswith("merger.") for name in names)
-    files = {}
-    for path in sorted(out.rglob("*")):
-        if not path.is_file() or path.name == "export_manifest.json" or "__pycache__" in path.parts:
-            continue
-        digest = hashlib.sha256()
-        with path.open("rb") as handle:
-            for chunk in iter(lambda: handle.read(8 * 1024 * 1024), b""):
-                digest.update(chunk)
-        files[str(path.relative_to(out))] = digest.hexdigest()
-    manifest = {
-        "source_repo": checkpoint.repo, "source_revision": checkpoint.revision,
-        "source_shards": shards, "tower_tensors": len(names) - projector_tensors,
-        "projector_tensors": projector_tensors, "dtype": "bfloat16", "files_sha256": files,
-        "hash_excludes": ["export_manifest.json"], "tensor_count": len(names),
-        "out_hidden_size": checkpoint.out_hidden_size, "license": checkpoint.license,
-    }
-    (out / "export_manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
+    shards = {v for k,v in index.items() if k.startswith(VISION_PREFIX)}
+    write_manifest(out, checkpoint.repo, checkpoint.revision, shards, merger_in_model=True,
+                   extra={"out_hidden_size": checkpoint.out_hidden_size, "license": checkpoint.license})
+
 
 
 def main() -> None:

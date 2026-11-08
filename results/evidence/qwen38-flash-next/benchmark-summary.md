@@ -75,3 +75,21 @@ The original geometry validator incorrectly expected 539 training and 117 test i
 Throughput is 129.19 images per second over 5.945 measured seconds. It includes preprocessing, transfer, Tower forward, and final Tower Stage materialization, with two warmup batches. Historical throughput runs can use different loader counts and hardware, so this is a hardware-specific measurement rather than a controlled sibling speed comparison. KITTI is one selected-depth transfer column, not a general driving evaluation. Confidence intervals condition on the prepared samples and seeded readout protocol. They do not quantify model-training uncertainty.
 
 Historical cohorts and published sibling payloads remain intact. Fresh 27B correspondence and perturbation controls live under `controls/`. The full cache audit covers 684 BF16 tensor shards and 51,586,671,784 bytes. Cache files remain in the delivery environment. Committed manifests and hashes retain their provenance. All GPUs were released before final CPU postprocessing.
+
+
+## Qwen checkpoint comparison
+
+`qwen3_5` identifies Qwen3.8-27B. `qwen38_flash_next` identifies Qwen3.8
+Flash-Next. Their Tower and merged widths are 1152 and 4608. Their Projector
+outputs have widths 5120 and 2560, respectively. Tower and merged comparisons
+change checkpoint weights. Projected comparisons also change output width.
+Weight drift alone does not establish a training history or a reinitialization.
+
+[Source and immutable release evidence](results/evidence/qwen38-flash-next/README.md)
+records independent native forward parity and every tensor comparison. The
+[isolated reducer diagnostic](results/diagnostics/qwen38-flash-next-conditioning/README.md)
+recovers weak Flash-Next clean perturbation readouts with training-only channel
+standardization before PCA. It establishes readout sensitivity. It does not
+establish a checkpoint training cause or the same cause as MiMo's readout
+failure. Primary Tower and merged perturbation measurements remain separate
+and do not support intrinsic robustness claims given their low clean accuracy.

@@ -126,10 +126,10 @@ def main():
         current = {"stage": None}
         counts = {}
 
-        def fit(features, split, width):
+        def fit(features, split, width, *, standardize_channels=False):
             stage, layer = selected[len(stats)]
             current["stage"] = stage
-            reducer = standardized_fit(features, split, width)
+            reducer = standardized_fit(features, split, width, standardize_channels=True)
             row = statistics(features, split, reducer)
             row.update(stage=stage, layer=layer)
             stats.append(row)
@@ -148,11 +148,12 @@ def main():
         forwarded = ["conditioning", "--clean-run", str(args.clean_run), "--features-root", str(args.features_root),
                      "--model-dir", args.model_dir, "--labels", str(args.labels),
                      "--transform-manifest", str(args.transform_manifest), "--out", str(args.out),
-                     "--device", "cpu", "--epochs", "20", "--seeds", "3", "--width", "512", "--batch-size", "256"]
+                     "--standardize-channels", "--device", "cpu", "--epochs", "20", "--seeds", "3", "--width", "512", "--batch-size", "256"]
         with patch.object(sys, "argv", forwarded), patch.object(probe_run, "fit_reducer", fit), patch.object(probe_run, "train_once", train):
             perturbation_run.main()
         output = json.loads(args.out.read_text())
         assert len(stats) == 3 and len(training_logs) == 42 and set(counts.values()) == {14}
+        output["protocol"]["method"] = probe_run.reducer_method(standardize_channels=True)
         output["protocol"]["reducer"] = "training-only sample-standardized PCA"
         output["protocol"]["reducer_patch_sha256"] = PATCH_SHA256
         output["conditioning_statistics"] = stats

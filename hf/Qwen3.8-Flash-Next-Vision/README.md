@@ -17,16 +17,16 @@ This repository packages the Tower and learned merger from
 
 ## Contents
 
-| File | Tensors | What it holds |
-|---|---|---|
-| `model.safetensors` | 333 | Tower and learned merger, extracted from source shard 1 |
-| `config.json` | | Vision-only `Qwen3_5VisionConfig` |
-| `preprocessor_config.json` | | Qwen image preprocessing configuration |
-| `export_manifest.json` | | Source pin, tensor counts and file hashes |
-| `LICENSE` | | Qwen Community License 1.0 |
+| File | Contents |
+|---|---|
+| `model.safetensors` | BF16 Tower and in-model merger |
+| `config.json`, `preprocessor_config.json` | Vision and image-processing configuration |
+| `examples/inference.py` | Single-image inference |
+| `LICENSE` | Licenses and attribution |
+| `README.md`, `export_manifest.json` | Card, pinned source and file hashes |
+| `.gitattributes` | Hub-managed storage rules |
 
-Qwen implements the learned merger inside `Qwen3_5VisionModel`, so this repository does
-not need a separate Projector file.
+Hub-only `.gitattributes` controls storage; the manifest identifies it separately from content hashes.
 
 ## Architecture
 

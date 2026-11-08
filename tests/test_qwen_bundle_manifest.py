@@ -36,5 +36,5 @@ def test_manifest_covers_nested_assets_and_only_source_vision_shards(monkeypatch
 def test_manifest_rejects_non_bf16_weights(monkeypatch, tmp_path):
     save_file({f"tensor{i}": torch.ones(1) for i in range(333)}, tmp_path / "model.safetensors")
     monkeypatch.setattr(exporter, "source_json", lambda checkpoint, name: {"weight_map": {}})
-    with pytest.raises(ValueError, match="333 BF16"):
+    with pytest.raises(ValueError, match="BF16"):
         exporter.write_export_manifest(tmp_path, FLASH_NEXT)

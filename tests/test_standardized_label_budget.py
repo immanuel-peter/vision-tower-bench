@@ -21,11 +21,11 @@ def test_fit_uses_only_training_images_and_preserves_rng():
     features = torch.randn(20, 4, 6)
     split = split_indices(20)
     before = torch.random.get_rng_state()
-    original = fit_reducer(features, split, 3)
+    original = fit_reducer(features, split, 3, standardize_channels=True)
     assert torch.equal(before, torch.random.get_rng_state())
     features[split.test] += 1e6
     features[split.val] -= 1e6
-    changed = fit_reducer(features, split, 3)
+    changed = fit_reducer(features, split, 3, standardize_channels=True)
     torch.testing.assert_close(original.basis, changed.basis, rtol=0, atol=0)
     torch.testing.assert_close(original.scale, changed.scale, rtol=0, atol=0)
 
