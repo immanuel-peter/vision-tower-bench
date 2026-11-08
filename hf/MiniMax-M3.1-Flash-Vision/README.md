@@ -12,7 +12,8 @@ base_model:
 
 # MiniMax-M3.1-Flash Vision
 
-This repository packages the Tower and Projector from [MiniMax M3.1 Flash](https://huggingface.co/MiniMaxAI/MiniMax-M3.1-Flash).
+This repository packages the Tower and Projector from
+[MiniMax M3.1 Flash](https://huggingface.co/MiniMaxAI/MiniMax-M3.1-Flash).
 
 ## Contents
 
@@ -24,8 +25,6 @@ This repository packages the Tower and Projector from [MiniMax M3.1 Flash](https
 | `config.json`, `preprocessor_config.json` | | Vision-only model and image-processing configuration |
 | `export_manifest.json` | | Source pin, tensor counts and file hashes |
 | `LICENSE`, `LICENSE-CODE`, `NOTICE` | | Weight license, code license and attribution |
-| `examples/inference.py` | | Single-image extraction example |
-| `README.md`, `.gitattributes` | | Model card and Hub storage metadata |
 
 ## Architecture
 
@@ -35,13 +34,13 @@ This repository packages the Tower and Projector from [MiniMax M3.1 Flash](https
 | Token compression | 2x2 spatial merge, temporal patch size 2 |
 | Projector | `Linear(1280, 6144)`, GELU, `Linear(6144, 6144)`, flatten four 6144-wide patches, `Linear(24576, 6144)`, GELU, `Linear(6144, 6144)` |
 
-The class is `MiniMaxM3VLVisionModel`. Still images are repeated as two frames for the temporal patch embedding. At 448 pixels the example reports Tower `(1, 1024, 1280)`,
+The class is `MiniMaxM3VLVisionModel`. Still images are repeated as two frames for the
+temporal patch embedding. At 448 pixels the example reports Tower `(1, 1024, 1280)`,
 merged `(1, 256, 5120)` and projected `(1, 256, 6144)`.
 
 ## Usage
 
-With PyTorch, Pillow, torchvision and Transformers 5.17+, run `python examples/inference.py test-image.jpg`
-from the downloaded snapshot; see [the example](examples/inference.py). It uses CUDA BF16 when available.
+See [`examples/inference.py`](examples/inference.py) for image feature extraction.
 Forward one image per call: the native HF attention couples images in a single call.
 
 ## Validation
@@ -49,8 +48,6 @@ Forward one image per call: the native HF attention couples images in a single c
 The release tests compare all 515 Tower tensors and eight Projector tensors with the
 pinned parent checkpoint using `torch.equal`. Fixed-image Tower, merged and projected
 outputs also match the native parent implementation at 56 and 448 pixels.
-
-[Validation evidence](https://github.com/immanuel-peter/vision-tower-bench/tree/t3/complete-issue-21/results/diagnostics/minimax-m31-flash).
 
 ## Reproduction
 
@@ -64,4 +61,5 @@ MiniMax released the MiniMax-M3.1-Flash weights and the native Transformers impl
 
 ## License
 
-[MiniMax Community License](LICENSE), the same license as the source model. Helper code is MIT; see [LICENSE-CODE](LICENSE-CODE) and [NOTICE](NOTICE).
+[MiniMax Community License](LICENSE), the same license as the source model. Helper code
+is MIT; see [LICENSE-CODE](LICENSE-CODE) and [NOTICE](NOTICE).
