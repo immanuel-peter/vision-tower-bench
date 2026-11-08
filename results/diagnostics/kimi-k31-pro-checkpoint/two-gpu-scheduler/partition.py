@@ -102,6 +102,8 @@ def worker(gpu):
   after.update(passed=True,exclusive_lock_reacquired=True,released_at=stamp())
   fcntl.flock(device_lock,fcntl.LOCK_UN)
  after["exclusive_lock_released"]=True;atomic(STATE/f"gpu{gpu}-release.json",after)
+ if gpu==1:
+  grant=read(STATE/"gpu1-benchmark-grant.json");grant.update(active=False,released_at=after["released_at"],release_evidence="scheduler/gpu1-release.json");atomic(STATE/"gpu1-benchmark-grant.json",grant)
  if gpu==0:
   grant=read(ROOT/"gpu-grant.json");grant.update(active=False,released_at=after["released_at"],release_evidence=f"scheduler/gpu{gpu}-release.json");atomic(ROOT/"gpu-grant.json",grant)
  journal(dict(event="end",phase=phase,gpu=gpu,threads=8,exit_code=0,ended=stamp(),release=after))
@@ -124,7 +126,10 @@ def coordinate():
  wait_legacy_boundary()
  boundary=read(STATE/"admission-boundary.json");assert boundary["exit_code"]==75 and boundary["torch_not_imported"]
  hook=Path("sitecustomize.py");assert sha(hook)==read(STATE/"admission-policy.json")["hook_sha256"]
- shutil.copy2(hook,STATE/"installed-sitecustomize.py");hook.unlink()
+ shutil.copy2(hook,STATE/"installed-sitecustomize.py")
+ deferred_log=Path(boundary["target"]).with_suffix(".log")
+ if deferred_log.exists():shutil.copy2(deferred_log,STATE/"legacy-deferred-process.txt")
+ hook.unlink()
  for path in Path("__pycache__").glob("sitecustomize.*.pyc"):path.unlink()
  plan=read(STATE/"plan.json");old=read(ROOT/"remaining-gpu-progress.json")
  completed={row["job"]["out"]:row for row in old["results"]}
