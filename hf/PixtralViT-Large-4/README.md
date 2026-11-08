@@ -41,9 +41,6 @@ of width 2048 and 256 projected tokens of width 6144.
 ## Usage
 
 See [`examples/inference.py`](examples/inference.py) for image feature extraction.
-`AutoModel.from_pretrained(..., trust_remote_code=True)` loads
-`modeling_pixtral_large4.py`, which follows the parent's BF16 numeric order; stock
-`PixtralVisionModel` loads the same weights but rounds differently there.
 
 ## Validation
 
