@@ -39,7 +39,7 @@ default figures. Every v3 Tower has label-budget records, with Bolt at merged
 L32. Super and the MiMo pair have KITTI cells and projected-versus-Tower
 intervals. The default label-budget figure reads the channel-standardized runs in
 the [outlier-channel diagnostic](diagnostics/mimo26-tower-outlier-channel/README.md)
-for all sixteen Towers. Super has every
+for all seventeen Towers. Super has every
 Stage. Super's Tower cells precede its final LayerNorm, which runs before the
 merge. Bolt has no such LayerNorm and only `merged` and `projected` cells; its
 single final Tower cell is the
@@ -130,6 +130,58 @@ matched depth d1 falls from 0.64 (Pro) and 0.65 (Flash) at L24 to 0.47 and
 0.46. The MiMo projected-versus-Tower
 intervals compare against that cell, so their Projector advantages partly
 measure the Tower readout.
+
+Mistral Large 4 (`mistral_large4`, cohort v4, issue #23) is the first
+Pixtral-family Tower: 30 blocks of width 2048, axial 2D RoPE, no class token
+and no final norm. It loads from `immanuelpeter/PixtralViT-Large-4` at
+revision `3cd67e852deac482eda4a09f71934f02582f21d8`, extracted from
+`mistralai/Mistral-Large-4-1T-A52B` at
+`f12dabdc0c1e99e7f7924461a6f308859b05af4d`. Tower depths are 4, 8, 11, 15,
+19, 22, 26 and 30. `merged` is the 2048-wide output of the 2x2 patch merger,
+after the Projector's RMSNorm; `projected` is the 6144-wide adapter output.
+At 448 px the Tower grid is 32 by 32 and the merged grid 16 by 16.
+Preprocessing is the common bicubic short-side resize and center crop with
+the parent's OpenAI CLIP mean and standard deviation; resolutions must be
+multiples of 28. The weights use the Mistral Ecosystem Open-Weight License,
+a modified MIT license with a Model-as-a-Service commercial condition, and
+carry Mistral's attribution notice.
+
+Features come from the release's own forward (`vtb/models/pixtral_large4.py`,
+shipped as `modeling_pixtral_large4.py`), which follows mistral-inference's
+BF16 numeric order. Against the pinned mistral-inference reference with the
+xformers-derived memory-efficient kernel it is bit-identical in FP32 and BF16
+at 448 and 1540 px. Stock `PixtralVisionModel` loads the same weights but
+rounds differently in BF16. The parent's own BF16 forward drifts from its
+FP32 forward at deep Stages, so the predeclared BF16-vs-FP32 cosine gate of
+0.999 fails in 29 of 80 comparisons for the parent and the release alike. See
+the [parity diagnostic](diagnostics/mistral-large4-parity/README.md). The
+mean-readout recognition matrices, the mean label-budget cells and the mean
+recognition interval were trained on CPU with the same protocol; every other
+cell ran on an RTX PRO 6000 Blackwell. The throughput record used 2 loader
+workers, against 8 in the v1 records.
+
+Tower L30 carries three channels with RMS 2.6e4 to 3.9e4 against a median of
+12, and its first unscaled principal component holds 99.96% of the training
+variance. As with MiMo 2.6, its perturbation cells (clean accuracy 0.040)
+and low-label attention cells (0.017 to 0.028 below 100% of labels) are a
+readout failure, and the DIODE cells at L30 fall well below L26: matched
+depth d1 0.186 against 0.656, matched normal error 41.5 against 26.5
+degrees. Standardizing channels restores clean perturbation accuracy to
+0.832. See the
+[outlier-channel diagnostic](diagnostics/mistral-large4-outlier-channels/README.md).
+Read the Tower at L26, or the Projector Stages, for this model.
+
+Attention-matched recognition reaches 0.884 at `merged`, 0.876 at
+`projected` and 0.855 at Tower L26. Matched DIODE depth d1 is 0.624 at
+`merged`, and KITTI d1 is 0.947 at `projected`. All eleven projected-versus-Tower
+intervals (`bootstrap/*-mistral_large4-projected-*.json`) favor the
+Projector; the DIODE and perturbation ones measure the failed L30 readout as
+much as the Projector. Training-free correspondence is weak despite the
+parent's visual-grounding claim. The best Stage ranks 15th of 17 Towers on
+NAVI (recall at 2 cm 0.326, `projected`), 17th on ScanNet (recall at 10 px
+0.021) and 16th on SPair (PCK at 0.1 0.156). The semantic intervals use
+`-projected-minus-tower` names because they take semantic_bootstrap's
+first/second/difference schema, like the perturbation interval.
 
 For matched DIODE comparisons at the deepest layer, use
 `geometry/deterministic/` for the original six Towers. The other five use

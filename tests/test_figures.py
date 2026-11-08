@@ -15,7 +15,7 @@ FIGURE_SCRIPT = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(FIGURE_SCRIPT)
 
 
-def test_roster_covers_the_sixteen_tower_suite():
+def test_roster_covers_the_seventeen_tower_suite():
     assert FIGURE_SCRIPT.TOWERS == (
         "dinov2",
         "siglip2",
@@ -33,11 +33,13 @@ def test_roster_covers_the_sixteen_tower_suite():
         "dinov3",
         "mimo26_pro",
         "mimo26_flash",
+        "mistral_large4",
     )
     assert set(FIGURE_SCRIPT.COLOUR) == set(FIGURE_SCRIPT.TOWERS)
     assert set(FIGURE_SCRIPT.DISPLAY) == set(FIGURE_SCRIPT.TOWERS)
     assert FIGURE_SCRIPT.DISPLAY["glm5"] == "GLM 5.3 Flash"
-    assert FIGURE_SCRIPT.DISPLAY["nemotron_omni"] == "Nemotron Omni"
+    assert FIGURE_SCRIPT.DISPLAY["nemotron_omni"] == "Nemotron 3 Omni"
+    assert FIGURE_SCRIPT.DISPLAY["mistral_large4"] == "Mistral Large 4"
     assert FIGURE_SCRIPT.DISPLAY["deepseek_v41"] == "DeepSeek V4.1"
     assert FIGURE_SCRIPT.DISPLAY["minimax_m3"] == "MiniMax M3"
     assert len(set(FIGURE_SCRIPT.COLOUR.values())) == len(FIGURE_SCRIPT.TOWERS)
@@ -69,7 +71,7 @@ def test_projector_matrix_covers_every_projector_and_panel():
     for panel in ("depth-matched", "depth-raw", "normal-matched", "normal-raw"):
         for _, _, low, high in panels[panel]:
             states.append("projector" if low > 0 else "tower" if high < 0 else "unresolved")
-    assert states.count("projector") == 30
+    assert states.count("projector") == 34
     assert states.count("tower") == 13
     assert states.count("unresolved") == 5
 
@@ -109,7 +111,7 @@ def test_geometry_figures_separate_corrected_stages_from_historical_sweeps(monke
         assert list(line.get_xdata()) == [stages.index(stage) for stage in stages if stage in deepest]
         assert list(line.get_ydata()) == pytest.approx([deepest[stage] for stage in stages if stage in deepest])
 
-    sweep_lines = {line.get_label(): line for line in figures[1].axes[1].lines}
+    sweep_lines = {line.get_label(): line for line in figures[1].axes[0].lines}
     for model in FIGURE_SCRIPT.TOWER_STAGE:
         path = ROOT / "results/geometry" / f"{model}_geometry_depth_matched.json"
         cells = sorted(
@@ -117,7 +119,7 @@ def test_geometry_figures_separate_corrected_stages_from_historical_sweeps(monke
             key=lambda cell: cell["relative_depth"],
         )
         assert len(cells) == 8
-        assert list(sweep_lines[model].get_ydata()) == pytest.approx([cell["d1"] for cell in cells])
+        assert list(sweep_lines[FIGURE_SCRIPT.DISPLAY[model]].get_ydata()) == pytest.approx([cell["d1"] for cell in cells])
 
 
 def test_semantic_forest_includes_the_v3_comparisons(tmp_path):

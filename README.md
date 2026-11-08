@@ -1,6 +1,6 @@
 # Vision Tower Bench
 
-Adding vision to a text-only LLM means picking a Tower, a layer, and usually a Projector, which full-model VLM benchmarks never isolate. This bench probes sixteen frozen Towers.
+Adding vision to a text-only LLM means picking a Tower, a layer, and usually a Projector, which full-model VLM benchmarks never isolate. This bench probes seventeen frozen Towers.
 
 **[Report](https://ipeter.dev/blog/vision-tower-bench)** · **[Towers](https://huggingface.co/collections/immanuelpeter/vision-heads)** · **Paper (coming soon)**
 
@@ -35,6 +35,7 @@ Four capability axes:
 | MiMo V2.6 Pro | multimodal | [immanuelpeter/MiMoViT-2.6-Pro](https://huggingface.co/immanuelpeter/MiMoViT-2.6-Pro) |
 | MiMo V2.6 Flash | multimodal | [immanuelpeter/MiMoViT-2.6-Flash](https://huggingface.co/immanuelpeter/MiMoViT-2.6-Flash) |
 | DeepSeek V4.1 Flash | multimodal | [immanuelpeter/DeepSeek-ViT](https://huggingface.co/immanuelpeter/DeepSeek-ViT) |
+| Mistral Large 4 | multimodal, Pixtral family | [immanuelpeter/PixtralViT-Large-4](https://huggingface.co/immanuelpeter/PixtralViT-Large-4) |
 
 The multimodal Towers are standalone extracts of their parents. The model cards record counts and tolerances.
 
@@ -55,8 +56,8 @@ uv sync --group figures
 uv run --group figures python scripts/figures.py
 ```
 
-This renders all sixteen Towers. The label-budget figure and the Capability Profile's semantic
-axes use channel-standardized readouts, and MiMo 2.6 is left out of the occlusion figure. See the
+This renders all seventeen Towers. The label-budget figure and the Capability Profile's semantic
+axes use channel-standardized readouts, and MiMo 2.6 and Mistral Large 4 are left out of the occlusion figure. See the
 [source-selection notes](results/README.md#choose-the-right-source) for the
 scope of the geometry corrections and the historical layer sweeps.
 
@@ -87,9 +88,9 @@ CONTEXT.md    # project vocabulary
 
 ```bash
 uv run pytest -q                      # full suite, downloads Tower weights
-VTB_SKIP_WEIGHTS=1 uv run pytest -q   # 135 tests, no downloads
+VTB_SKIP_WEIGHTS=1 uv run pytest -q   # 156 tests, no downloads
 ```
 
 ## License
 
-MIT covers code and results here, not weights. Published Towers keep parent terms. Apache-2.0 for Qwen3.8, Muse Glimmer, and Gemma 4. MIT for GLM-5.3 Flash and DeepSeek-ViT. Kimi License for both Kimi Towers. NVIDIA Open Model Agreement for C-RADIOv4-H-3-Omni. OpenMDW-1.1 for C-RADIOv4-H-3.5 Super and Bolt. MIT for MiMoViT-2.6 Pro and Flash. MiniMax Community License for MiniMax M3. Each release ships its license.
+MIT covers code and results here, not weights. Published Towers keep parent terms. Apache-2.0 for Qwen3.8, Muse Glimmer, and Gemma 4. MIT for GLM-5.3 Flash and DeepSeek-ViT. Kimi License for both Kimi Towers. NVIDIA Open Model Agreement for C-RADIOv4-H-3-Omni. OpenMDW-1.1 for C-RADIOv4-H-3.5 Super and Bolt. MIT for MiMoViT-2.6 Pro and Flash. MiniMax Community License for MiniMax M3. Mistral Ecosystem Open-Weight License, a modified MIT license with a Model-as-a-Service commercial condition, for PixtralViT-Large-4, which carries Mistral's attribution notice. Each release ships its license.
