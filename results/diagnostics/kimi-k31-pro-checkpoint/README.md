@@ -1,6 +1,6 @@
 # Kimi K3.1 Pro checkpoint validation
 
-This is an in-progress delivery for issue #24, with 198 of 286 required task cells
+This is an in-progress delivery for issue #24, with 208 of 286 required task cells
 validated and 67 completed paired comparisons out of 102. Immutable release reload passed all
 17 file hashes, 168 parent tensors and 30 bit-exact CPU BF16 math-reference cases. The immutable bundle
 is published at revision 6ab95e2daf86e8100be2e712a7a71c0fba26dac4. Independent
@@ -415,3 +415,32 @@ The first complete Pro raw-depth matrix also passed all ten full-grid cells,
 with 771 DIODE images and the authoritative 541/115/115 split. GPU0 continues
 the remaining matrices and paired refits sequentially. No matched geometry
 or cross-checkpoint interval is claimed from this first matrix alone.
+
+
+## Complete raw-depth pair
+
+Both checkpoints completed all ten raw-capacity DIODE depth cells, using
+771 images and the authoritative 541/115/115 split. The full native grids
+come from the same CPU4 BF16 batch-one extraction settings. Both sets of
+heads ran on GPU0 with eight threads, six seed-0 learning rates, ten epochs
+and three selected-rate retrainings. All actual source hashes, IDs, Stage
+shapes, capacities, seed metrics and finite aggregates passed validation.
+The independent content audit now covers 208 cells across 74 payload groups.
+
+[The raw-depth comparison](raw-depth-comparison.png) shows all eight Tower
+depths and final Stages. Raw head sizes are 1,706,752 parameters for Tower,
+3,279,616 for merged and 4,852,480 for projected. These are descriptive
+matrix points. Paired refits and matched-capacity geometry remain pending;
+no confidence interval is inferred from separately fitted matrix means.
+
+| Final Stage, raw depth | Fresh K3 δ1 | Pro δ1 |
+| --- | ---: | ---: |
+| Tower | 45.70% | 45.37% |
+| Merged | 46.66% | 52.12% |
+| Projected | 48.45% | 47.79% |
+
+The current suite continues through matched depth, normals, transfer,
+remaining correspondence, throughput and paired refits. The full experiment
+inventory is not complete. PR publication additionally waits for execution
+of the actual newly published inference.py. The current release lacks that
+file; the bench-side candidate passed but is not a published-example pass.
