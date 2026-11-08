@@ -1,17 +1,17 @@
 {
   "passed": true,
-  "completed_primary_cells": 208,
+  "completed_primary_cells": 218,
   "required_primary_cells": 286,
   "complete_primary_inventory": false,
   "actual_cell_to_source_mapping_verified": true,
-  "source_payload_groups": 74,
+  "source_payload_groups": 75,
   "counts_by_task": {
     "recognition": 80,
     "label_budget": 16,
     "perturbation": 78,
     "standardized_label_budget": 8,
     "navi": 6,
-    "depth": 20
+    "depth": 30
   },
   "actual_content_validations": [
     {
@@ -1399,6 +1399,25 @@
       "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/moonvit_v2_geometry_depth_raw.json",
       "task": "depth",
       "sha256": "34dcc870c611e8f06eeaf29dfbe7591553432f56611077c188ec33ee45a01a15",
+      "validation": {
+        "passed": true,
+        "images": 771,
+        "cells": 10,
+        "learning_rates": 6,
+        "feature_device": "cpu",
+        "search_seed": 0,
+        "retraining_seeds": [
+          0,
+          1,
+          2
+        ],
+        "ordered_ids_sha256": "6ea19ef6dd1d1b2f2af287a41598087f70e485457f608c61af95c29fef32cea4"
+      }
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/kimi_k31_pro_geometry_depth_matched.json",
+      "task": "depth",
+      "sha256": "eda24aa024c64d6e1ead7fd37530be063354cd44b42f30ff1fcd8f1c0f9b56f2",
       "validation": {
         "passed": true,
         "images": 771,
@@ -3747,7 +3766,117 @@
       },
       "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/moonvit_v2_geometry_depth_raw.json",
       "sha256": "34dcc870c611e8f06eeaf29dfbe7591553432f56611077c188ec33ee45a01a15"
+    },
+    {
+      "cell": {
+        "task": "depth",
+        "model": "kimi_k31_pro",
+        "stage": "merged",
+        "layer": 27,
+        "arm": "matched"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/kimi_k31_pro_geometry_depth_matched.json",
+      "sha256": "eda24aa024c64d6e1ead7fd37530be063354cd44b42f30ff1fcd8f1c0f9b56f2"
+    },
+    {
+      "cell": {
+        "task": "depth",
+        "model": "kimi_k31_pro",
+        "stage": "projected",
+        "layer": 27,
+        "arm": "matched"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/kimi_k31_pro_geometry_depth_matched.json",
+      "sha256": "eda24aa024c64d6e1ead7fd37530be063354cd44b42f30ff1fcd8f1c0f9b56f2"
+    },
+    {
+      "cell": {
+        "task": "depth",
+        "model": "kimi_k31_pro",
+        "stage": "tower",
+        "layer": 3,
+        "arm": "matched"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/kimi_k31_pro_geometry_depth_matched.json",
+      "sha256": "eda24aa024c64d6e1ead7fd37530be063354cd44b42f30ff1fcd8f1c0f9b56f2"
+    },
+    {
+      "cell": {
+        "task": "depth",
+        "model": "kimi_k31_pro",
+        "stage": "tower",
+        "layer": 7,
+        "arm": "matched"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/kimi_k31_pro_geometry_depth_matched.json",
+      "sha256": "eda24aa024c64d6e1ead7fd37530be063354cd44b42f30ff1fcd8f1c0f9b56f2"
+    },
+    {
+      "cell": {
+        "task": "depth",
+        "model": "kimi_k31_pro",
+        "stage": "tower",
+        "layer": 10,
+        "arm": "matched"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/kimi_k31_pro_geometry_depth_matched.json",
+      "sha256": "eda24aa024c64d6e1ead7fd37530be063354cd44b42f30ff1fcd8f1c0f9b56f2"
+    },
+    {
+      "cell": {
+        "task": "depth",
+        "model": "kimi_k31_pro",
+        "stage": "tower",
+        "layer": 14,
+        "arm": "matched"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/kimi_k31_pro_geometry_depth_matched.json",
+      "sha256": "eda24aa024c64d6e1ead7fd37530be063354cd44b42f30ff1fcd8f1c0f9b56f2"
+    },
+    {
+      "cell": {
+        "task": "depth",
+        "model": "kimi_k31_pro",
+        "stage": "tower",
+        "layer": 17,
+        "arm": "matched"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/kimi_k31_pro_geometry_depth_matched.json",
+      "sha256": "eda24aa024c64d6e1ead7fd37530be063354cd44b42f30ff1fcd8f1c0f9b56f2"
+    },
+    {
+      "cell": {
+        "task": "depth",
+        "model": "kimi_k31_pro",
+        "stage": "tower",
+        "layer": 20,
+        "arm": "matched"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/kimi_k31_pro_geometry_depth_matched.json",
+      "sha256": "eda24aa024c64d6e1ead7fd37530be063354cd44b42f30ff1fcd8f1c0f9b56f2"
+    },
+    {
+      "cell": {
+        "task": "depth",
+        "model": "kimi_k31_pro",
+        "stage": "tower",
+        "layer": 24,
+        "arm": "matched"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/kimi_k31_pro_geometry_depth_matched.json",
+      "sha256": "eda24aa024c64d6e1ead7fd37530be063354cd44b42f30ff1fcd8f1c0f9b56f2"
+    },
+    {
+      "cell": {
+        "task": "depth",
+        "model": "kimi_k31_pro",
+        "stage": "tower",
+        "layer": 27,
+        "arm": "matched"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/kimi_k31_pro_geometry_depth_matched.json",
+      "sha256": "eda24aa024c64d6e1ead7fd37530be063354cd44b42f30ff1fcd8f1c0f9b56f2"
     }
   ],
-  "verified_at": "2026-11-08T01:25:11.751143+00:00"
+  "verified_at": "2026-11-08T02:19:34.552572+00:00"
 }

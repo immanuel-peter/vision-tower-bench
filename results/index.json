@@ -171,7 +171,7 @@
     "kimi_k31_pro_checkpoint": {
       "path": "diagnostics/kimi-k31-pro-checkpoint/",
       "protocol": "Pinned source identity and independent mathematical-reference conversion parity; full tensor drift; full-data mean raw/matched and attention matched recognition at all ten slices; unchanged seed-0 LR search and three selected-rate retrainings. CPU4/8 actual threads recorded per cell and matched within sibling pairs. Complete label budgets, opt-in standardized diagnostics, 13-condition perturbation and NAVI controls.",
-      "status": "In progress:208/286primarycells and67/102comparisons actual-content validated. All80recognition and both10cellrawdepth matrices complete. GPU0matcheddepth/remainingfullsuiteactive;CPUtail is release-gated. Publishedinference.py gateblocked:currentimmutableHFsnapshot lacks examples/inference.py;bench-sidecandidatepassesCUDA BF16butownerpublication/freshpublishedretestrequired before PR. ProductionofficialTORCH_SDPA BF16remains FAILED,math-referenceconversionacceptance unchanged.",
+      "status": "In progress:218/286primarycells and67/102comparisons content-validated. Complete80recognition,20rawdepth and10Pro matcheddepth cells. Geometryfigure source registered from actual validated data. GPU0currentK3matcheddepthfitcontinues;CPU-testedone-shotboundaryanduniqueledgerprepare2GPUcontinuation. Publishedinference.py gatePASSED5311e04;productionofficialTORCH_SDPA BF16 remainsFAILED,math-referenceacceptance unchanged.",
       "measurements": {
         "pro_recognition": "recognition/kimi_k31_pro_probe_mean_{arm}.json",
         "pro_mean_label_budget": "label-budget/kimi_k31_pro_probe_mean_matched_f*.json",
@@ -186,7 +186,8 @@
         "matched_attention_audit": "diagnostics/kimi-k31-pro-checkpoint/cpu-matched-attention/matched-semantic-complete-audit.json",
         "pro_raw_attention": "recognition/kimi_k31_pro_probe_attention_raw.json",
         "raw_attention_audit": "diagnostics/kimi-k31-pro-checkpoint/raw-attention-recognition/raw-recognition-complete-audit.json",
-        "pro_geometry": "geometry/kimi_k31_pro_geometry_{task}_{arm}.json"
+        "pro_geometry": "geometry/kimi_k31_pro_geometry_{task}_{arm}.json",
+        "published_inference_gate": "diagnostics/kimi-k31-pro-checkpoint/inference-smoke/published-example-pass/published-example-gate.json"
       }
     }
   },
@@ -225,7 +226,8 @@
       "nemotron35_super": "geometry/nemotron35_super_geometry_depth_matched.json",
       "nemotron35_bolt": "geometry/nemotron35_bolt_geometry_depth_matched.json",
       "mimo26_pro": "geometry/mimo26_pro_geometry_depth_matched.json",
-      "mimo26_flash": "geometry/mimo26_flash_geometry_depth_matched.json"
+      "mimo26_flash": "geometry/mimo26_flash_geometry_depth_matched.json",
+      "kimi_k31_pro": "geometry/kimi_k31_pro_geometry_depth_matched.json"
     },
     "label_budget": "diagnostics/mimo26-tower-outlier-channel/label_budget_standardized.json",
     "semantic_checkpoint_comparisons": [

@@ -1,6 +1,6 @@
 # Kimi K3.1 Pro checkpoint validation
 
-This is an in-progress delivery for issue #24, with 208 of 286 required task cells
+This is an in-progress delivery for issue #24, with 218 of 286 required task cells
 validated and 67 completed paired comparisons out of 102. Immutable release reload passed all
 17 file hashes, 168 parent tensors and 30 bit-exact CPU BF16 math-reference cases. The immutable bundle
 is published at revision 6ab95e2daf86e8100be2e712a7a71c0fba26dac4. Independent
@@ -446,3 +446,5 @@ of the actual newly published inference.py. The current release lacks that
 file; the bench-side candidate passed but is not a published-example pass.
 
 Published inference.py is now verified at immutable 5311e0408a6107f78f8c70bb70f7aa205b94e724. The authorized parent one-file publication and clean CUDA BF16 batch1 pass are recorded in [the resolved functional gate](inference-smoke/resolution.json). All old file hashes and benchmark weights remain unchanged. Earlier missing-example reports are historical failures and no longer block PR publication. The remaining original benchmark suite is still active.
+
+The ten-cell Pro matched-depth matrix is now complete and independently content-validated. Its actual full-layer-sweep source is registered for geometry Stage and Relative Depth figures. The geometry figure test retains all Stage and eight-depth value checks, uses the existing single-axis depth plot and public display labels, and now also checks depth coordinates. Six focused figure tests pass. Seven Projector interval panels remain pending real experiments; their coverage assertions are unchanged.

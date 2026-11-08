@@ -110,7 +110,8 @@ def test_geometry_figures_separate_corrected_stages_from_historical_sweeps(monke
         assert list(line.get_xdata()) == [stages.index(stage) for stage in stages if stage in deepest]
         assert list(line.get_ydata()) == pytest.approx([deepest[stage] for stage in stages if stage in deepest])
 
-    sweep_lines = {line.get_label(): line for line in figures[1].axes[1].lines}
+    assert len(figures[1].axes) == 1
+    sweep_lines = {line.get_label(): line for line in figures[1].axes[0].lines}
     for model in FIGURE_SCRIPT.TOWER_STAGE:
         path = ROOT / "results/geometry" / f"{model}_geometry_depth_matched.json"
         cells = sorted(
@@ -118,7 +119,9 @@ def test_geometry_figures_separate_corrected_stages_from_historical_sweeps(monke
             key=lambda cell: cell["relative_depth"],
         )
         assert len(cells) == 8
-        assert list(sweep_lines[model].get_ydata()) == pytest.approx([cell["d1"] for cell in cells])
+        line = sweep_lines[FIGURE_SCRIPT.DISPLAY[model]]
+        assert list(line.get_xdata()) == pytest.approx([cell["relative_depth"] for cell in cells])
+        assert list(line.get_ydata()) == pytest.approx([cell["d1"] for cell in cells])
 
 
 def test_semantic_forest_includes_the_v3_comparisons(tmp_path):
