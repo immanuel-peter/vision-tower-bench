@@ -2,7 +2,7 @@
   "passed": true,
   "complete_delivery": false,
   "required_primary_cells": 286,
-  "completed_primary_cells": 218,
+  "completed_primary_cells": 229,
   "required_paired_cells": 102,
   "completed_paired_cells": 67,
   "completed": [
@@ -2473,6 +2473,124 @@
       },
       "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/kimi_k31_pro_geometry_depth_matched.json",
       "sha256": "eda24aa024c64d6e1ead7fd37530be063354cd44b42f30ff1fcd8f1c0f9b56f2"
+    },
+    {
+      "cell": {
+        "task": "depth",
+        "model": "moonvit_v2",
+        "stage": "merged",
+        "layer": 27,
+        "arm": "matched"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/moonvit_v2_geometry_depth_matched.json",
+      "sha256": "f6f8dccad8c346313fe1bc60a2090a0324b97a80d1da9820347c9fec90d64e93"
+    },
+    {
+      "cell": {
+        "task": "depth",
+        "model": "moonvit_v2",
+        "stage": "projected",
+        "layer": 27,
+        "arm": "matched"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/moonvit_v2_geometry_depth_matched.json",
+      "sha256": "f6f8dccad8c346313fe1bc60a2090a0324b97a80d1da9820347c9fec90d64e93"
+    },
+    {
+      "cell": {
+        "task": "depth",
+        "model": "moonvit_v2",
+        "stage": "tower",
+        "layer": 3,
+        "arm": "matched"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/moonvit_v2_geometry_depth_matched.json",
+      "sha256": "f6f8dccad8c346313fe1bc60a2090a0324b97a80d1da9820347c9fec90d64e93"
+    },
+    {
+      "cell": {
+        "task": "depth",
+        "model": "moonvit_v2",
+        "stage": "tower",
+        "layer": 7,
+        "arm": "matched"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/moonvit_v2_geometry_depth_matched.json",
+      "sha256": "f6f8dccad8c346313fe1bc60a2090a0324b97a80d1da9820347c9fec90d64e93"
+    },
+    {
+      "cell": {
+        "task": "depth",
+        "model": "moonvit_v2",
+        "stage": "tower",
+        "layer": 10,
+        "arm": "matched"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/moonvit_v2_geometry_depth_matched.json",
+      "sha256": "f6f8dccad8c346313fe1bc60a2090a0324b97a80d1da9820347c9fec90d64e93"
+    },
+    {
+      "cell": {
+        "task": "depth",
+        "model": "moonvit_v2",
+        "stage": "tower",
+        "layer": 14,
+        "arm": "matched"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/moonvit_v2_geometry_depth_matched.json",
+      "sha256": "f6f8dccad8c346313fe1bc60a2090a0324b97a80d1da9820347c9fec90d64e93"
+    },
+    {
+      "cell": {
+        "task": "depth",
+        "model": "moonvit_v2",
+        "stage": "tower",
+        "layer": 17,
+        "arm": "matched"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/moonvit_v2_geometry_depth_matched.json",
+      "sha256": "f6f8dccad8c346313fe1bc60a2090a0324b97a80d1da9820347c9fec90d64e93"
+    },
+    {
+      "cell": {
+        "task": "depth",
+        "model": "moonvit_v2",
+        "stage": "tower",
+        "layer": 20,
+        "arm": "matched"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/moonvit_v2_geometry_depth_matched.json",
+      "sha256": "f6f8dccad8c346313fe1bc60a2090a0324b97a80d1da9820347c9fec90d64e93"
+    },
+    {
+      "cell": {
+        "task": "depth",
+        "model": "moonvit_v2",
+        "stage": "tower",
+        "layer": 24,
+        "arm": "matched"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/moonvit_v2_geometry_depth_matched.json",
+      "sha256": "f6f8dccad8c346313fe1bc60a2090a0324b97a80d1da9820347c9fec90d64e93"
+    },
+    {
+      "cell": {
+        "task": "depth",
+        "model": "moonvit_v2",
+        "stage": "tower",
+        "layer": 27,
+        "arm": "matched"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/moonvit_v2_geometry_depth_matched.json",
+      "sha256": "f6f8dccad8c346313fe1bc60a2090a0324b97a80d1da9820347c9fec90d64e93"
+    },
+    {
+      "cell": {
+        "task": "throughput",
+        "model": "kimi_k31_pro"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/throughput/kimi_k31_pro_throughput.json",
+      "sha256": "1c200f557248260b302eec91d692b7bc6db5ae071b0b346688bb58f216bffa95"
     }
   ],
   "pending": [
@@ -2667,22 +2785,11 @@
       "arm": "matched"
     },
     {
-      "task": "throughput",
-      "model": "kimi_k31_pro"
-    },
-    {
       "task": "normal",
       "model": "moonvit_v2",
       "stage": "tower",
       "layer": 3,
       "arm": "raw"
-    },
-    {
-      "task": "depth",
-      "model": "moonvit_v2",
-      "stage": "tower",
-      "layer": 3,
-      "arm": "matched"
     },
     {
       "task": "normal",
@@ -2697,13 +2804,6 @@
       "stage": "tower",
       "layer": 7,
       "arm": "raw"
-    },
-    {
-      "task": "depth",
-      "model": "moonvit_v2",
-      "stage": "tower",
-      "layer": 7,
-      "arm": "matched"
     },
     {
       "task": "normal",
@@ -2718,13 +2818,6 @@
       "stage": "tower",
       "layer": 10,
       "arm": "raw"
-    },
-    {
-      "task": "depth",
-      "model": "moonvit_v2",
-      "stage": "tower",
-      "layer": 10,
-      "arm": "matched"
     },
     {
       "task": "normal",
@@ -2739,13 +2832,6 @@
       "stage": "tower",
       "layer": 14,
       "arm": "raw"
-    },
-    {
-      "task": "depth",
-      "model": "moonvit_v2",
-      "stage": "tower",
-      "layer": 14,
-      "arm": "matched"
     },
     {
       "task": "normal",
@@ -2760,13 +2846,6 @@
       "stage": "tower",
       "layer": 17,
       "arm": "raw"
-    },
-    {
-      "task": "depth",
-      "model": "moonvit_v2",
-      "stage": "tower",
-      "layer": 17,
-      "arm": "matched"
     },
     {
       "task": "normal",
@@ -2781,13 +2860,6 @@
       "stage": "tower",
       "layer": 20,
       "arm": "raw"
-    },
-    {
-      "task": "depth",
-      "model": "moonvit_v2",
-      "stage": "tower",
-      "layer": 20,
-      "arm": "matched"
     },
     {
       "task": "normal",
@@ -2802,13 +2874,6 @@
       "stage": "tower",
       "layer": 24,
       "arm": "raw"
-    },
-    {
-      "task": "depth",
-      "model": "moonvit_v2",
-      "stage": "tower",
-      "layer": 24,
-      "arm": "matched"
     },
     {
       "task": "normal",
@@ -2823,13 +2888,6 @@
       "stage": "tower",
       "layer": 27,
       "arm": "raw"
-    },
-    {
-      "task": "depth",
-      "model": "moonvit_v2",
-      "stage": "tower",
-      "layer": 27,
-      "arm": "matched"
     },
     {
       "task": "normal",
@@ -2844,13 +2902,6 @@
       "stage": "merged",
       "layer": 27,
       "arm": "raw"
-    },
-    {
-      "task": "depth",
-      "model": "moonvit_v2",
-      "stage": "merged",
-      "layer": 27,
-      "arm": "matched"
     },
     {
       "task": "normal",
@@ -2865,13 +2916,6 @@
       "stage": "projected",
       "layer": 27,
       "arm": "raw"
-    },
-    {
-      "task": "depth",
-      "model": "moonvit_v2",
-      "stage": "projected",
-      "layer": 27,
-      "arm": "matched"
     },
     {
       "task": "normal",

@@ -1,5 +1,5 @@
 {
-  "status": "prepared; no new CUDA launched; activate only after legacy fit finishes and admission boundary closes",
+  "status": "active_after_verified_process_boundary",
   "jobs": [
     {
       "kind": "geometry",
@@ -1583,5 +1583,33 @@
   "prepared_at": "2026-11-08T01:54:56.322316+00:00",
   "numeric_implementation_unchanged_from_initial_gpu_phase": true,
   "git_head_before_partition": "6772e661c6731a11f6bbd97bfb454945fe4e27da",
-  "expected_inventory_sha256": "8b5174db8020c06a81374b961cede3e07ccd1e331981768f22bc8a2ce4616f7a"
+  "expected_inventory_sha256": "8b5174db8020c06a81374b961cede3e07ccd1e331981768f22bc8a2ce4616f7a",
+  "activated_at": "2026-11-08T02:37:13.358509+00:00",
+  "boundary": {
+    "exit_code": 75,
+    "kind": "planned unstarted-process admission handoff, not a failed fit",
+    "target": "/tmp/vtb-delivery/issues/24/measurements/geometry/kimi_k31_pro_geometry_normal_raw.json",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "vtb.geometry_run",
+      "--run",
+      "/tmp/vtb-delivery/issues/24/features/cpu4-bf16-bs1/geometry/kimi_k31_pro_448_full",
+      "--targets",
+      "/tmp/vtb-delivery/data/diode/val_targets.npz",
+      "--task",
+      "normal",
+      "--out",
+      "/tmp/vtb-delivery/issues/24/measurements/geometry/kimi_k31_pro_geometry_normal_raw.json",
+      "--device",
+      "cuda:0"
+    ],
+    "torch_not_imported": true,
+    "cuda_model_never_started": true,
+    "pid": 660942,
+    "hook_sha256": "913f500a4fa23b312d753d207fdf0681bd0b6073e436f623ab896ad48463a791",
+    "recorded_at": "2026-11-08T02:37:13.002977+00:00"
+  },
+  "legacy_completed_jobs": 4,
+  "source_snapshot_sha256": "5c8855fdaec5e3d30b2b15b4f8fd00f4bd671dfad684ef4de7749510e13e66d8"
 }

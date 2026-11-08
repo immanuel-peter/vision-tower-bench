@@ -1,6 +1,6 @@
 # Kimi K3.1 Pro checkpoint validation
 
-This is an in-progress delivery for issue #24, with 218 of 286 required task cells
+This is an in-progress delivery for issue #24, with 229 of 286 required task cells
 validated and 67 completed paired comparisons out of 102. Immutable release reload passed all
 17 file hashes, 168 parent tensors and 30 bit-exact CPU BF16 math-reference cases. The immutable bundle
 is published at revision 6ab95e2daf86e8100be2e712a7a71c0fba26dac4. Independent
@@ -8,7 +8,9 @@ math-reference conversion parity passes in CPU and CUDA BF16. Production
 TORCH_SDPA BF16 parity failed for both checkpoints and remains a limitation.
 Complete label budgets, standardized diagnostics, mean recognition and primary perturbation measurements
 are available below.
-The remaining benchmark suite and final default figures are required before the PR.
+The remaining benchmark suite and final default figures are required before
+delivery is complete. [PR #29](https://github.com/immanuel-peter/vision-tower-bench/pull/29)
+is open for review with these experiments explicitly pending.
 
 The pinned Pro weights differ from K3 in all 168 tensors. The complete
 per-tensor cosine and relative L2 measurements are in weight-drift.json.
@@ -102,7 +104,7 @@ The extracted bundle is published at
 [immutable revision 6ab95e2](https://huggingface.co/immanuelpeter/MoonViT-K3.1-Pro/tree/6ab95e2daf86e8100be2e712a7a71c0fba26dac4).
 The adapter pins both Tower and Projector to this revision. K3 retains its
 existing loading behavior. The full capability suite and final figures remain
-required before the delivery PR. Fresh K3 controls will be retained separately;
+required before final delivery. Fresh K3 controls are retained separately;
 existing K3 measurement files will not be replaced.
 
 release-reload.json records the immutable reload. fullsuite-plan.json records the remaining suite and reuses the two verified CPU geometry caches. K3 existing release identity is separately audited in k3-existing-release-audit.json.
@@ -448,3 +450,21 @@ file; the bench-side candidate passed but is not a published-example pass.
 Published inference.py is now verified at immutable 5311e0408a6107f78f8c70bb70f7aa205b94e724. The authorized parent one-file publication and clean CUDA BF16 batch1 pass are recorded in [the resolved functional gate](inference-smoke/resolution.json). All old file hashes and benchmark weights remain unchanged. Earlier missing-example reports are historical failures and no longer block PR publication. The remaining original benchmark suite is still active.
 
 The ten-cell Pro matched-depth matrix is now complete and independently content-validated. Its actual full-layer-sweep source is registered for geometry Stage and Relative Depth figures. The geometry figure test retains all Stage and eight-depth value checks, uses the existing single-axis depth plot and public display labels, and now also checks depth coordinates. Six focused figure tests pass. Seven Projector interval panels remain pending real experiments; their coverage assertions are unchanged.
+
+
+## Example Projector correction
+
+The fresh published example at5311e040 passed the requested functional CUDA
+BF16 smoke with all expected shapes and finite outputs. That proof is preserved.
+A later code audit found tanh-approximate GELU in the example, while the benchmark
+adapter and pinned official Projector use exact GELU. The bench-side example now
+uses exact GELU. On one real-image merged cache it matches the adapter bit-exact
+in CPU BF16; the old activation differs by maximum absolute0.0009765625 and
+relative L2 0.0002586. Twelve focused regressions pass. This is a separate
+example correction; no benchmark feature or fit changes.
+
+[Correction evidence and owner patch](inference-smoke/projector-activation-correction/)
+record the one-line change needed at HF examples/inference.py. The corrected
+example has not been uploaded by this worker. Fresh published CUDA numerical
+verification remains pending owner coordination and a free GPU reservation.
+Cards, layout, manifests, licenses and weights remain owned by other actors.

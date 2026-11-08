@@ -22,7 +22,7 @@ class Projector(nn.Module):
         super().__init__()
         self.proj = nn.Sequential(
             nn.Linear(config["input_size"], config["hidden_size"], bias=False),
-            nn.GELU(approximate="tanh"),
+            nn.GELU(),
             nn.Linear(config["hidden_size"], config["output_size"], bias=False),
         )
         self.post_norm = nn.RMSNorm(config["output_size"], eps=config["norm_eps"])
