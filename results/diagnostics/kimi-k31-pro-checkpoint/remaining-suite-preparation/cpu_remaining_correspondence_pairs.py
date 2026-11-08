@@ -85,3 +85,7 @@ for dataset in ("scannet","spair"):
 assert len(results)==8
 (root/"cpu-remaining-correspondence-pairs-progress.json").write_text(json.dumps(dict(complete=True,results=results),indent=2)+"\n")
 (root/"fullsuite-plan.json").write_text(json.dumps(plan,indent=2)+"\n")
+
+command=[".venv/bin/python",str(root/"audit_completed_primary_content.py")]
+process=subprocess.run(["bash","-ic",shlex.join(command)])
+if process.returncode:raise SystemExit(process.returncode)
