@@ -48,7 +48,6 @@ Forward one image per call: the native HF attention couples images in a single c
 The release tests compare all 515 Tower tensors and eight Projector tensors with the
 pinned parent checkpoint using `torch.equal`. Fixed-image Tower, merged and projected
 outputs also match the native parent implementation at 56 and 448 pixels.
-Full checks: [bench evidence](https://github.com/immanuel-peter/vision-tower-bench/tree/main/results/diagnostics/minimax-m31-flash).
 
 ## Reproduction
 
