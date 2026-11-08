@@ -61,7 +61,7 @@ and raster restoration. It is not a second modeling implementation or a full
 language-model forward. Source and library hashes are retained. No image-size
 field use occurs in the native modeling file. Runtime grids determine RoPE
 positions; nominal sizes 2016 and 672 yield equal frequencies and exact forwards
-on both diagnostic grids. This supports the training-only comparison at 448.
+on both diagnostic grids. This supports the sibling checkpoint comparison at 448.
 
 The immutable release is
 [immanuelpeter/MiniMax-M3.1-Flash-Vision](https://huggingface.co/immanuelpeter/MiniMax-M3.1-Flash-Vision/commit/55510a4d372b8ae502a04cc570c0fd06a4361771).

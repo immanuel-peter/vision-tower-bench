@@ -1790,7 +1790,7 @@ exploratory. Kimi extracts must pin batch size 1; a `bs4` pooled cache
 included here for the record reads 0.21 low for procedural reasons.
 
 
-## Addendum, November 7 2026: MiniMax training-only comparison
+## Addendum, November 7 2026: MiniMax sibling checkpoint comparison
 
 MiniMax M3.1 Flash adds the seventeenth Tower. Its complete 448-pixel suite is
 paired with fresh pinned M3 controls using the same primary readouts and

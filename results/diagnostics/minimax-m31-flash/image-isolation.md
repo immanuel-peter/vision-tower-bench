@@ -33,4 +33,4 @@ Fresh M3 primary and paired controls use the same corrected image isolation as
 Flash. Historical published M3 files are preserved; their extraction provenance
 does not establish this new validation scope. Additive figure-source overrides
 select the fresh control files, including its standardized label-budget data.
-Only those compatible measurements support the training-only sibling comparison.
+Only those compatible measurements support the sibling checkpoint comparison. The training histories are not controlled, so the measurements do not attribute differences to particular training interventions.

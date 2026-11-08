@@ -3,7 +3,7 @@
 These measurements use the pinned M3 weights and the same corrected image-independent
 inference as M3.1 Flash. Historical M3 files remain in their original directories.
 The explicit figure-source overrides in results/index.json select this additive
-scope for the regenerated figures and training-only comparison.
+scope for the regenerated figures and sibling checkpoint comparison.
 
 All primary recognition and geometry cells, both label-budget readouts, all
 correspondence datasets, 13 perturbation conditions, KITTI transfer, throughput,

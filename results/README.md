@@ -171,7 +171,7 @@ clone contains the evidence needed to inspect the figures.
 
 ## MiniMax M3.1 Flash and compatible M3 controls
 
-MiniMax M3.1 Flash adds a training-only sibling comparison at 448 pixels and
+MiniMax M3.1 Flash adds a sibling checkpoint comparison at 448 pixels and
 brings the default roster to seventeen Towers. Both checkpoints have the full
 primary suite, four standardized attention label-budget diagnostics, and fresh
 paired comparisons. The [comparison table](diagnostics/minimax-m31-flash/comparison-writeup.md)
