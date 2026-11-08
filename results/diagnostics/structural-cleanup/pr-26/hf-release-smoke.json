@@ -1,0 +1,37 @@
+{
+  "repo": "immanuelpeter/MiniMax-M3.1-Flash-Vision",
+  "revision": "4c052aa89235806ee7cb41b14e35ae07f23b9828",
+  "snapshot": "/tmp/vtb-cleanup/smoke-final/fresh-26/models--immanuelpeter--MiniMax-M3.1-Flash-Vision/snapshots/4c052aa89235806ee7cb41b14e35ae07f23b9828",
+  "command": "python examples/inference.py /tmp/vtb-delivery/data/imagenet100/validation/validation_000000.jpg",
+  "device": "physical GPU0 / logical cuda:0",
+  "dtype": "bfloat16",
+  "batch_size": 1,
+  "image": "/tmp/vtb-delivery/data/imagenet100/validation/validation_000000.jpg",
+  "image_size": [
+    500,
+    334
+  ],
+  "image_sha256": "dc4d456ce66cf18cc246831b3fe8b54133b507de981490a29f1623d86ddbeae3",
+  "exit_status": 0,
+  "seconds": 5.054326325989678,
+  "manifest_hashes_pass": true,
+  "shapes": {
+    "tower": [
+      1,
+      1024,
+      1280
+    ],
+    "merged": [
+      1,
+      256,
+      5120
+    ],
+    "projected": [
+      1,
+      256,
+      6144
+    ]
+  },
+  "shapes_match_card": true,
+  "weight_uploads": false
+}

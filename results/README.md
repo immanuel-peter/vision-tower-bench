@@ -201,3 +201,10 @@ implementation or a full language-model forward. The immutable Flash release is
 Perturbation clean accuracies are 31% to 38% under the fixed 2,000-image readout
 protocol. Interpret the condition curves relative to those clean baselines.
 The standardized label-budget measurements remain separate diagnostics.
+
+
+## Structural cleanup validation
+
+[PR 26 cleanup evidence](diagnostics/structural-cleanup/pr-26/README.md) records
+method identity, preserved measurements and the fresh immutable-release inference test.
+The combined integration checks retain all twenty registered models.

@@ -26,6 +26,8 @@ def parser() -> argparse.ArgumentParser:
     ap.add_argument("--second", type=Path, required=True)
     ap.add_argument("--second-name", required=True)
     ap.add_argument("--stage", default="tower", choices=("tower", "merged", "projected"))
+    ap.add_argument("--first-stage", choices=("tower", "merged", "projected"))
+    ap.add_argument("--second-stage", choices=("tower", "merged", "projected"))
     ap.add_argument("--metric", default=None, help="Correspondence metric; defaults to the dataset's primary metric")
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--resamples", type=int, default=10_000)
@@ -48,6 +50,10 @@ def stage_cell(payload: dict, stage: str) -> dict:
     if len(cells) != 1:
         raise ValueError(f"expected one {stage} cell, found {len(cells)}")
     return cells[0]
+
+
+def stages(args) -> tuple[str, str]:
+    return getattr(args, "first_stage", None) or args.stage, getattr(args, "second_stage", None) or args.stage
 
 
 def class_macro_bootstrap(rows: list[dict], names: tuple[str, str], args) -> dict:
@@ -79,12 +85,18 @@ def correspondence(first: dict, second: dict, names: tuple[str, str], args) -> d
         if first[key] != second[key]:
             raise ValueError(f"correspondence protocol differs: {key}")
     metric = args.metric or PRIMARY[first["dataset"]]
-    keys = [f"{cell['stage']}:{cell['layer_index']}" for cell in (stage_cell(first, args.stage), stage_cell(second, args.stage))]
-    rows, excluded = [], []
+    first_stage, second_stage = stages(args)
+    keys = [f"{cell['stage']}:{cell['layer_index']}" for cell in (stage_cell(first, first_stage), stage_cell(second, second_stage))]
+    rows, excluded, exclusion_reasons = [], [], []
     for a, b in pair_rows(first["measurements"], second["measurements"], "pair_id"):
         values = (a["cells"][keys[0]][metric], b["cells"][keys[1]][metric])
         if not all(math.isfinite(value) for value in values):
             excluded.append(a["pair_id"])
+            zero_keypoints = a["cells"][keys[0]].get("keypoints") == b["cells"][keys[1]].get("keypoints") == 0
+            if first["dataset"] == "spair" and not zero_keypoints:
+                raise ValueError(f"nonfinite SPair metric on a nonempty pair: {a['pair_id']}")
+            exclusion_reasons.append({"pair_id": a["pair_id"],
+                                      "reason": "zero visible keypoints" if zero_keypoints else "nonfinite paired metric"})
             continue
         row = {"pair_id": a["pair_id"], names[0]: values[0], names[1]: values[1]}
         if "class" in a:
@@ -102,6 +114,7 @@ def correspondence(first: dict, second: dict, names: tuple[str, str], args) -> d
     result = {
         "metric": metric, "difference": difference, "finite_pairs": len(rows),
         "excluded_nonfinite_pair_ids": excluded, "measurements": rows,
+        "exclusions": exclusion_reasons,
     }
     if rows and all("class" in row for row in rows):
         result["class_macro_difference"] = class_macro_bootstrap(rows, names, args)
@@ -110,11 +123,12 @@ def correspondence(first: dict, second: dict, names: tuple[str, str], args) -> d
 
 def perturbation(first: dict, second: dict, names: tuple[str, str], args) -> dict:
     require_same(first, second)
-    first_protocol = {k: v for k, v in first["protocol"].items() if k not in {"method", "reducer", "reducer_patch_sha256"}}
-    second_protocol = {k: v for k, v in second["protocol"].items() if k not in {"method", "reducer", "reducer_patch_sha256"}}
+    first_protocol = {k: v for k, v in first["protocol"].items() if k not in {"method", "reducer", "reducer_patch_sha256", "standardize_channels"}}
+    second_protocol = {k: v for k, v in second["protocol"].items() if k not in {"method", "reducer", "reducer_patch_sha256", "standardize_channels"}}
     if first["images"] != second["images"] or first_protocol != second_protocol:
         raise ValueError("perturbation probing protocol differs")
-    a, b = stage_cell(first, args.stage), stage_cell(second, args.stage)
+    first_stage, second_stage = stages(args)
+    a, b = stage_cell(first, first_stage), stage_cell(second, second_stage)
     if a["measurements"].keys() != b["measurements"].keys():
         raise ValueError("perturbation conditions differ")
     conditions, clean = {}, None
@@ -158,7 +172,9 @@ def main() -> None:
     result = (correspondence if args.kind == "correspondence" else perturbation)(first, second, names, args)
     result["protocol"] = {
         "first_source": str(args.first), "second_source": str(args.second),
+        "first_stage": stages(args)[0], "second_stage": stages(args)[1],
         "difference": f"{names[0]}_minus_{names[1]}",
+        "stages": dict(zip(("first", "second"), stages(args))),
         "bootstrap_seed": args.bootstrap_seed, "resamples": args.resamples, "confidence": args.confidence,
     }
     args.out.parent.mkdir(parents=True, exist_ok=True)
