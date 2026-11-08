@@ -1,7 +1,7 @@
 # Results
 
 Start with the [published report](https://ipeter.dev/blog/vision-tower-bench).
-This directory contains the v2 and v3 measurements,
+This directory contains the v2, v3 and v4 measurements,
 the original six-Tower v1 records, supporting evidence, corrections, and failed controls.
 [index.json](index.json) records each cohort, experiment protocols, and the
 source files used for deepest-stage geometry figures. Paths in that index are
@@ -18,7 +18,6 @@ historical filename slugs `qwen3_5` and `moonvit_v2` mean Qwen3.8 and Kimi K3.
 | [bootstrap/](bootstrap/) | Paired intervals and their per-image or per-pair evidence. Use these files for interval claims, including their own rerun point estimates. Geometry refits are not bit-reproducible, because the GPU backward of bilinear interpolation is nondeterministic. A paired refit can therefore differ slightly from the matrix cell it repeats. |
 | [correspondence/](correspondence/) | NAVI, ScanNet, and SPair stage scores and per-pair measurements. |
 | [label-budget/](label-budget/) | Recognition at 1%, 5%, 20%, and 100% of training labels; throughput records for the original six Towers. |
-| [throughput/](throughput/) | Batch-one Tower throughput for K3.1 Pro; its fresh K3 control is under the checkpoint diagnostic's sibling controls. Existing cohort measurements remain in label-budget/. |
 | [perturbation/](perturbation/) | Frozen-readout perturbation measurements. All Towers have occlusion; newer payloads also include scale and motion blur. The shared transform manifest describes all 13 conditions; its occlusion rows are the original occlusion run's. |
 | [kitti/](kitti/) | Matched depth transfer measurements on KITTI. Paired intervals are in `bootstrap/`. |
 | [diagnostics/](diagnostics/) | Pooling checks, independent repeats, extended learning-rate searches, the Bolt Tower check, the DINOv3 equal-pixel and conditioning checks, the MiMo attention sink check, and the MiMo Tower outlier-channel check. Includes failed and inconclusive controls. |
@@ -29,8 +28,8 @@ historical filename slugs `qwen3_5` and `moonvit_v2` mean Qwen3.8 and Kimi K3.
 
 The v1 cohort is DINOv2, SigLIP2, Muse Glimmer, Kimi K2.6, Qwen3.8, and
 Kimi K3. The published v2 report adds GLM 5.3 Flash, Nemotron Omni, DeepSeek V4.1,
-Gemma 4, and MiniMax M3. The default figure command draws the v2 cohort and
-the v3 cohort below. The six-Tower grouping identifies the scope of older runs and
+Gemma 4, and MiniMax M3. The default figure command draws the v2, v3 and v4 cohorts.
+The six-Tower grouping identifies the scope of older runs and
 corrections, not the limits of the current publication.
 
 The v3 cohort adds Nemotron Super (`nemotron35_super`), Nemotron Bolt
@@ -40,11 +39,17 @@ default figures. Every v3 Tower has label-budget records, with Bolt at merged
 L32. Super and the MiMo pair have KITTI cells and projected-versus-Tower
 intervals. The default label-budget figure reads the channel-standardized runs in
 the [outlier-channel diagnostic](diagnostics/mimo26-tower-outlier-channel/README.md)
-for all sixteen Towers. Super has every
+for all twenty Towers. Super has every
 Stage. Super's Tower cells precede its final LayerNorm, which runs before the
 merge. Bolt has no such LayerNorm and only `merged` and `projected` cells; its
 single final Tower cell is the
 [Bolt Tower check](diagnostics/nemotron35-bolt-tower/README.md).
+
+The v4 cohort adds MiniMax M3.1 Flash (`minimax_m31_flash`), Qwen3.8
+Flash-Next (`qwen38_flash_next`), Mistral Large 4 (`mistral_large4`) and Kimi
+K3.1 Pro (`kimi_k31_pro`). Each follows the v2 task protocols at 448 pixels;
+model-specific validation, diagnostics and paired comparisons are recorded
+under `diagnostics/` and `evidence/` and are selected through `index.json`.
 
 DINOv3 is Meta's ViT-L/16, a second self-supervised control beside DINOv2
 (issue #4). The adapter loads `facebook/dinov3-vitl16-pretrain-lvd1689m` at
@@ -167,21 +172,3 @@ Matrix scripts accept an output directory. Use `results/recognition/` for
 runs in a separate directory when a protocol changes, and update the index with
 the correction's scope. JSON, JSONL, and TSV measurements remain in Git so a
 clone contains the evidence needed to inspect the figures.
-
-The complete Kimi K3.1 Pro comparison is under
-[diagnostics/kimi-k31-pro-checkpoint/](diagnostics/kimi-k31-pro-checkpoint/).
-It contains exact source identity, CPU/CUDA mathematical-reference conversion
-parity, immutable release reload, full weight drift, all 286 primary cells and
-102 paired comparisons for Pro and fresh K3 controls. Actual contents and all
-intervals were independently verified. The comparison includes full recognition
-and geometry sweeps, label budgets, all 13 perturbations, NAVI, ScanNet, SPair,
-KITTI and throughput. The corrected published inference example also passes
-fresh-download CUDA BF16 testing at all three Stages. Production official BF16
-SDPA agreement remains failed and is documented separately.
-
-
-## Structural cleanup validation
-
-[PR 29 cleanup evidence](diagnostics/structural-cleanup/pr-29/README.md) records
-method identity, preserved measurements and the fresh immutable-release inference test.
-The combined integration checks retain all twenty registered models.
