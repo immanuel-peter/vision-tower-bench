@@ -1,6 +1,6 @@
 # Kimi K3.1 Pro checkpoint validation
 
-This is an in-progress delivery for issue #24, with 172 of 286 required task cells
+This is an in-progress delivery for issue #24, with 198 of 286 required task cells
 validated and 67 completed paired comparisons out of 102. Immutable release reload passed all
 17 file hashes, 168 parent tensors and 30 bit-exact CPU BF16 math-reference cases. The immutable bundle
 is published at revision 6ab95e2daf86e8100be2e712a7a71c0fba26dac4. Independent
@@ -374,3 +374,44 @@ The safe CPU-to-GPU boundary, four retained raw fits and 14 passing transition
 checks are archived under cpu-to-gpu-transition. GPU0 is explicitly reserved
 for the original remaining suite and held exclusively for the full CUDA process.
 No follow-up model-card smoke is included in this reservation.
+
+
+## Complete raw-attention recognition
+
+Both siblings now have all ten raw-attention recognition cells on the full
+13,000 images, completing the entire 80-cell recognition suite. Four CPU8
+fits at Tower L3 and L7 were retained at the normal process boundary.
+The other sixteen fits ran on GPU0 with eight threads. The sum of new-cell
+run and validation times was 1,311.20 seconds. All sibling pairs use the same
+fit device and thread count. All features retain the same verified GPU1
+BF16 batch-one producer and 4x4 pooling.
+
+Each cell retains its original protocol and saved three-seed test predictions.
+The combined matrices explicitly identify the fit device per cell. The
+11-rate seed-0 search, three selected-rate retrainings and 20 epochs are
+unchanged. The independent
+[complete raw-matrix audit](raw-attention-recognition/raw-recognition-complete-audit.json)
+checks actual source hashes, labels, predictions, all ten slices and matched
+sibling fit devices. Four retained CPU fits were not retrained.
+
+| Final Stage, raw attention | Fresh K3 accuracy | Pro accuracy | Native head parameters |
+| --- | ---: | ---: | ---: |
+| Tower | 83.56% | 84.14% | 2,152,036 |
+| Merged | 84.38% | 84.82% | 5,297,764 |
+| Projected | 84.62% | 85.08% | 8,443,492 |
+
+These raw-capacity point estimates use different head sizes between Stages.
+The matched-attention section provides the required paired comparisons.
+The raw phase completed at 188 of 286 task cells, with 67 of 102 comparisons;
+the same locked GPU0 process continues the remaining dense suite.
+
+Further model-card and Hugging Face repository work belongs to other actors.
+The previously queued HF follow-up is cancelled, as recorded in
+[ownership-boundary.json](ownership-boundary.json). This worker preserves the
+published immutable conversion and parity evidence and continues only the
+original benchmark, tests, results, figures, writeups and PR delivery.
+
+The first complete Pro raw-depth matrix also passed all ten full-grid cells,
+with 771 DIODE images and the authoritative 541/115/115 split. GPU0 continues
+the remaining matrices and paired refits sequentially. No matched geometry
+or cross-checkpoint interval is claimed from this first matrix alone.
