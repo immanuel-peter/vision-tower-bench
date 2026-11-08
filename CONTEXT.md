@@ -40,7 +40,3 @@ transfer to road scenes. It is not part of the core AV-free benchmark.
 A controlled experiment on real images. Each image family changes one visual factor at a
 time across recorded levels.
 Avoid: stress test or augmentation benchmark.
-
-## Qwen checkpoint keys
-
-`qwen3_5` maps to Qwen3.8-27B; `qwen38_flash_next` maps to Qwen3.8-Flash-Next.

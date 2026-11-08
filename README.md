@@ -1,6 +1,6 @@
 # Vision Tower Bench
 
-Adding vision to a text-only LLM means picking a Tower, a layer, and usually a Projector, which full-model VLM benchmarks never isolate. This bench probes sixteen frozen Towers.
+Adding vision to a text-only LLM means picking a Tower, a layer, and usually a Projector, which full-model VLM benchmarks never isolate. This bench probes twenty frozen Towers.
 
 **[Report](https://ipeter.dev/blog/vision-tower-bench)** · **[Towers](https://huggingface.co/collections/immanuelpeter/vision-heads)** · **Paper (coming soon)**
 
@@ -25,10 +25,12 @@ Four capability axes:
 | Muse Glimmer | multimodal | [immanuelpeter/Muse-Glimmer-Vision](https://huggingface.co/immanuelpeter/Muse-Glimmer-Vision) |
 | Kimi K2.6 | multimodal | [immanuelpeter/MoonViT-K2.6](https://huggingface.co/immanuelpeter/MoonViT-K2.6) |
 | Qwen3.8-27B | multimodal | [immanuelpeter/Qwen3.8-27B-Vision](https://huggingface.co/immanuelpeter/Qwen3.8-27B-Vision) |
-| Qwen3.8 Flash-Next | multimodal sibling | [immanuelpeter/Qwen3.8-Flash-Next-Vision](https://huggingface.co/immanuelpeter/Qwen3.8-Flash-Next-Vision) |
+| Qwen3.8 Flash-Next | multimodal | [immanuelpeter/Qwen3.8-Flash-Next-Vision](https://huggingface.co/immanuelpeter/Qwen3.8-Flash-Next-Vision) |
 | Kimi K3 | multimodal | [immanuelpeter/MoonViT-V2](https://huggingface.co/immanuelpeter/MoonViT-V2) |
+| Kimi K3.1 Pro | multimodal | [immanuelpeter/MoonViT-K3.1-Pro](https://huggingface.co/immanuelpeter/MoonViT-K3.1-Pro) |
 | Gemma 4 31B | multimodal | [immanuelpeter/Gemma4-31B-Vision](https://huggingface.co/immanuelpeter/Gemma4-31B-Vision) |
 | GLM-5.3 Flash | multimodal | [immanuelpeter/GLM-5.3-Flash-Vision](https://huggingface.co/immanuelpeter/GLM-5.3-Flash-Vision) |
+| MiniMax M3.1 Flash | multimodal | [immanuelpeter/MiniMax-M3.1-Flash-Vision](https://huggingface.co/immanuelpeter/MiniMax-M3.1-Flash-Vision) |
 | MiniMax M3 | multimodal | [immanuelpeter/MiniMax-M3-Vision](https://huggingface.co/immanuelpeter/MiniMax-M3-Vision) |
 | Nemotron 3 Nano Omni | multimodal | [immanuelpeter/C-RADIOv4-H-3-Omni](https://huggingface.co/immanuelpeter/C-RADIOv4-H-3-Omni) |
 | Nemotron 3.5 Super VL | multimodal | [immanuelpeter/C-RADIOv4-H-3.5-Super](https://huggingface.co/immanuelpeter/C-RADIOv4-H-3.5-Super) |
@@ -36,6 +38,7 @@ Four capability axes:
 | MiMo V2.6 Pro | multimodal | [immanuelpeter/MiMoViT-2.6-Pro](https://huggingface.co/immanuelpeter/MiMoViT-2.6-Pro) |
 | MiMo V2.6 Flash | multimodal | [immanuelpeter/MiMoViT-2.6-Flash](https://huggingface.co/immanuelpeter/MiMoViT-2.6-Flash) |
 | DeepSeek V4.1 Flash | multimodal | [immanuelpeter/DeepSeek-ViT](https://huggingface.co/immanuelpeter/DeepSeek-ViT) |
+| Mistral Large 4 | multimodal | [immanuelpeter/PixtralViT-Large-4](https://huggingface.co/immanuelpeter/PixtralViT-Large-4) |
 
 The multimodal Towers are standalone extracts of their parents. The model cards record counts and tolerances.
 
@@ -46,7 +49,8 @@ its correction status. Recognition and geometry matrices are grouped by task;
 diagnostics and historical run notes are separate. All measurements remain in Git.
 
 The [machine-readable index](results/index.json) records the v1 six-Tower,
-v2 eleven-Tower and v3 five-Tower cohorts, later checkpoint additions, and corrected deepest-stage geometry sources.
+v2 eleven-Tower, v3 five-Tower and v4 four-Tower cohorts. It selects
+corrected geometry and M3 controls that forward each image separately.
 Full layer sweeps and paired-bootstrap reruns remain separate records.
 
 ## Reproducing the figures
@@ -56,8 +60,9 @@ uv sync --group figures
 uv run --group figures python scripts/figures.py
 ```
 
-The default figures cover the registered roster. The label-budget figure and the Capability Profile's semantic
-axes use channel-standardized readouts. MiMo 2.6 and Flash-Next Tower are omitted from the occlusion figure after clean-readout failures. See the
+This renders all twenty Towers. The label-budget figure and the Capability Profile's semantic
+axes use channel-standardized readouts, and MiMo 2.6, Qwen3.8 Flash-Next and
+Mistral Large 4 are left out of the occlusion figure. See the
 [source-selection notes](results/README.md#choose-the-right-source) for the
 scope of the geometry corrections and the historical layer sweeps.
 
@@ -71,8 +76,7 @@ scope of the geometry corrections and the historical layer sweeps.
 
 **4. Extract once.** Cache features per model, Stage, depth and resolution. Probes read the cache after that.
 
-**5. Run the matrices.** Search each prescribed learning rate with seed 0.
-Validation picks the rate, then retrain it with seeds 0, 1, and 2.
+**5. Run the matrices.** Same learning-rate grid, three seeds, validation picks the rate.
 
 ## Layout
 
@@ -89,9 +93,9 @@ CONTEXT.md    # project vocabulary
 
 ```bash
 uv run pytest -q                      # full suite, downloads Tower weights
-VTB_SKIP_WEIGHTS=1 uv run pytest -q   # no weight downloads
+VTB_SKIP_WEIGHTS=1 uv run pytest -q   # skip weight-dependent tests
 ```
 
 ## License
 
-MIT covers code and results here, not weights. Published Towers keep parent terms. qwen-community-1.0 for Qwen3.8-Flash-Next. Apache-2.0 for Qwen3.8-27B, Muse Glimmer, and Gemma 4. MIT for GLM-5.3 Flash and DeepSeek-ViT. Kimi License for both Kimi Towers. NVIDIA Open Model Agreement for C-RADIOv4-H-3-Omni. OpenMDW-1.1 for C-RADIOv4-H-3.5 Super and Bolt. MIT for MiMoViT-2.6 Pro and Flash. MiniMax Community License for MiniMax M3. Each release ships its license.
+MIT covers code and results here, not weights. Published Towers keep parent terms. Apache-2.0 for Qwen3.8-27B, Muse Glimmer, and Gemma 4. Qwen Community License 1.0 for Qwen3.8 Flash-Next. MIT for GLM-5.3 Flash and DeepSeek-ViT. Kimi License for Kimi K2.6 and K3, and the custom Kimi K3.1-Pro License for K3.1 Pro. NVIDIA Open Model Agreement for C-RADIOv4-H-3-Omni. OpenMDW-1.1 for C-RADIOv4-H-3.5 Super and Bolt. MIT for MiMoViT-2.6 Pro and Flash. MiniMax Community License for MiniMax M3 and M3.1 Flash. Mistral Ecosystem Open-Weight License for Mistral Large 4. Each release ships its license.
