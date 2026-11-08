@@ -5,6 +5,7 @@ R089	examples/kimi_k31_pro_inference.py	hf/MoonViT-K3.1-Pro/examples/inference.p
 M	hf/MoonViT-K3.1-Pro/export_manifest.json
 A	hf/MoonViT-K3.1-Pro/projector.py
 M	results/README.md
+A	results/diagnostics/kimi-k31-pro-checkpoint/execution-sidecars/README.md
 R100	results/bootstrap/011-depth-kimi_k31_pro-minus-moonvit_v2-tower-L3.txt	results/diagnostics/kimi-k31-pro-checkpoint/execution-sidecars/bootstrap/011-depth-kimi_k31_pro-minus-moonvit_v2-tower-L3.txt
 R100	results/bootstrap/011-depth-kimi_k31_pro-minus-moonvit_v2-tower-L3.validation.json	results/diagnostics/kimi-k31-pro-checkpoint/execution-sidecars/bootstrap/011-depth-kimi_k31_pro-minus-moonvit_v2-tower-L3.validation.json
 R100	results/bootstrap/012-depth-kimi_k31_pro-minus-moonvit_v2-tower-L7.txt	results/diagnostics/kimi-k31-pro-checkpoint/execution-sidecars/bootstrap/012-depth-kimi_k31_pro-minus-moonvit_v2-tower-L7.txt
@@ -95,7 +96,18 @@ A	results/diagnostics/kimi-k31-pro-checkpoint/package-evidence/relocations.json
 R100	hf/MoonViT-K3.1-Pro/source_tensor_identity.json	results/diagnostics/kimi-k31-pro-checkpoint/package-evidence/source_tensor_identity.json
 A	results/diagnostics/method-identity-audit.json
 A	results/diagnostics/method-identity.md
+A	results/diagnostics/structural-cleanup/integration-audit.json
+A	results/diagnostics/structural-cleanup/integration-tests.txt
+A	results/diagnostics/structural-cleanup/pr-29/README.md
+A	results/diagnostics/structural-cleanup/pr-29/changed-files.txt
+A	results/diagnostics/structural-cleanup/pr-29/gpu-release.txt
+A	results/diagnostics/structural-cleanup/pr-29/hf-files.json
+A	results/diagnostics/structural-cleanup/pr-29/hf-release-smoke.json
+A	results/diagnostics/structural-cleanup/pr-29/inference.txt
+A	results/diagnostics/structural-cleanup/pr-29/preservation.json
+A	results/diagnostics/structural-cleanup/pr-29/tests.txt
 A	results/diagnostics/structural-cleanup/reducer-equivalence.json
+A	results/diagnostics/structural-cleanup/shared-interfaces.json
 A	results/method-provenance.json
 M	scripts/cross_run_bootstrap.py
 M	scripts/export_moonvit_v2.py
