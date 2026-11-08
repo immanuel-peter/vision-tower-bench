@@ -2,7 +2,10 @@
   "source_repo": "mistralai/Mistral-Large-4-1T-A52B",
   "source_revision": "f12dabdc0c1e99e7f7924461a6f308859b05af4d",
   "source_index": "consolidated.safetensors.index.json",
-  "source_shards": {
+  "source_shards": [
+    "consolidated-00053-of-00054.safetensors"
+  ],
+  "source_shard_sha256": {
     "consolidated-00053-of-00054.safetensors": "d3289cad598653fec78adfd49f939504f92c4c0e9d8b9e66c8750b2e917dde90"
   },
   "tensors": 276,
@@ -630,5 +633,23 @@
     "vision_encoder.transformer.layers.9.ffn_norm.weight": "84579ffde75ac64c6058fc6c5d866d404060438236ef22e76bf07468a4a4a151",
     "vision_language_adapter.w_in.weight": "d78446fcb7a1f0647fdcbe65778de60ad8f83213d48f734514acc7ccc78ebe35",
     "vision_language_adapter.w_out.weight": "40b73135a633a8c78ae3e759841b0492f95fcd7b82016babfe116136e15fa183"
-  }
+  },
+  "files_sha256": {
+    ".gitattributes": "11ad7efa24975ee4b0c3c3a38ed18737f0658a5f75a0a96787b576a78a023361",
+    "LICENSE": "d242ebedb53ffd7e26c220e3305665ca47e4e5267fa62ff4cdeb3953b8353c78",
+    "LICENSE-CODE": "149f05ce186198084c9abd6af8e76e108ba7e507446a19ee5a2ffd694f69f525",
+    "NOTICE": "dfb07d5634002be773a0f54926f8f63b8b1d4474eee3d6b05b44296ac37cccc9",
+    "README.md": "4cebf62e2f8d47ac70eb770c52792fc06b351355724a85a86783547e1b0b6c6b",
+    "config.json": "32c5c83270862618f24f67786fdbc5f23e3abb34cc01343e740d3c678b3bf425",
+    "examples/inference.py": "a889dc79db34fef33c057325f3b78f02149aef763a1e906153bba620e3ba517d",
+    "model.safetensors": "9566fa8271162b3b663b499bc395a4a69ff65aaec0d35b29a641762b82f0c357",
+    "modeling_pixtral_large4.py": "18c7d813ff4b2e766a9ee53a537930350516df341956c41ced29879bde6aad57",
+    "preprocessor_config.json": "8be27ce2263390fa9033e75807a98bd175d95b27de5ac746071671ffc38ab6d3",
+    "projector.py": "214569f35113b405b49e4f9b2bc2b492b953383c4a6fae655570f545c526c2fd",
+    "projector.safetensors": "45a4e78038b4c4158bb29de58425f48ee5e68422ef07471d32e47158d8da2efb",
+    "projector_config.json": "f79fb81b6a46d1ca515ca740e2bd80264af9188fe2c55a9ce692891f24f3bf6c"
+  },
+  "hash_excludes": [
+    "export_manifest.json"
+  ]
 }

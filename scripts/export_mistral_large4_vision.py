@@ -22,8 +22,10 @@ from vtb.adapters import mistral_large4 as ml4
 
 MODELING_SOURCE = ml4.ROOT / "vtb/models/pixtral_large4.py"
 MODELING_FILE = "modeling_pixtral_large4.py"
+MANIFEST = "export_manifest.json"
 BUNDLE_FILES = (
     "README.md",
+    ".gitattributes",
     "NOTICE",
     "projector.py",
     "examples/inference.py",
@@ -55,7 +57,8 @@ def manifest(native: dict[str, torch.Tensor], shards: list[str]) -> dict:
         "source_repo": ml4.SOURCE_REPO,
         "source_revision": ml4.SOURCE_REVISION,
         "source_index": ml4.SOURCE_INDEX,
-        "source_shards": {shard: lfs[shard] for shard in shards},
+        "source_shards": list(shards),
+        "source_shard_sha256": {shard: lfs[shard] for shard in shards},
         "tensors": len(native),
         "tower_tensors": sum(name.startswith(ml4.TOWER_PREFIX) for name in native),
         "projector_tensors": sum(not name.startswith(ml4.TOWER_PREFIX) for name in native),
@@ -69,6 +72,31 @@ def manifest(native: dict[str, torch.Tensor], shards: list[str]) -> dict:
         "renamed": renamed,
         "tensor_sha256": {name: tensor_sha256(native[name]) for name in sorted(native)},
     }
+
+
+def file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with open(path, "rb") as handle:
+        while block := handle.read(1 << 24):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def distributed_files(out: Path) -> list[Path]:
+    """Every file the release distributes, except the manifest itself."""
+    return sorted(
+        path for path in out.rglob("*")
+        if path.is_file() and path.name != MANIFEST and "__pycache__" not in path.parts and path.suffix != ".pyc"
+    )
+
+
+def finish_manifest(out: Path, base: dict) -> dict:
+    """Add the SHA256 of every distributed file; the manifest cannot hash itself."""
+    payload = dict(base)
+    payload["files_sha256"] = {str(path.relative_to(out)): file_sha256(path) for path in distributed_files(out)}
+    payload["hash_excludes"] = [MANIFEST]
+    (out / MANIFEST).write_text(json.dumps(payload, indent=2) + "\n")
+    return payload
 
 
 def write_bundle(native: dict[str, torch.Tensor], source: dict, processor: dict, license_path: Path, out: Path,
@@ -96,7 +124,7 @@ def write_bundle(native: dict[str, torch.Tensor], source: dict, processor: dict,
     image_processor["processor_class"] = "AutoImageProcessor"
     (out / "preprocessor_config.json").write_text(json.dumps(image_processor, indent=2) + "\n")
     shutil.copyfile(license_path, out / "LICENSE")
-    (out / "export_manifest.json").write_text(json.dumps(manifest(native, shards), indent=2) + "\n")
+    finish_manifest(out, manifest(native, shards))
 
 
 def export(out: Path) -> Path:
