@@ -56,7 +56,7 @@ uv sync --group figures
 uv run --group figures python scripts/figures.py
 ```
 
-This renders all sixteen Towers. The label-budget figure and the Capability Profile's semantic
+This renders all seventeen Towers. The label-budget figure and the Capability Profile's semantic
 axes use channel-standardized readouts, and MiMo 2.6 is left out of the occlusion figure. See the
 [source-selection notes](results/README.md#choose-the-right-source) for the
 scope of the geometry corrections and the historical layer sweeps.

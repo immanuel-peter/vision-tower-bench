@@ -83,7 +83,10 @@ def main():
     fig.suptitle("K3.1 Pro versus fresh K3, matched readouts and paired 95% intervals", fontsize=12)
     stem = args.evidence / "matched-sibling-relative-depth-intervals"
     for extension in ("svg", "png", "pdf"):
-        fig.savefig(stem.with_suffix("." + extension), dpi=180)
+        path = stem.with_suffix("." + extension)
+        fig.savefig(path, dpi=180)
+        if extension == "svg":
+            path.write_text("\n".join(line.rstrip() for line in path.read_text().splitlines()) + "\n")
     plt.close(fig)
     manifest = dict(
         point_source="Actual paired payload points and intervals; no matrix point substitution",

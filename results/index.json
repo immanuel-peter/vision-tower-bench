@@ -171,9 +171,9 @@
     "kimi_k31_pro_checkpoint": {
       "path": "diagnostics/kimi-k31-pro-checkpoint/",
       "protocol": "Pinned source identity and independent mathematical-reference conversion parity; full tensor drift; full-data mean raw/matched and attention matched recognition at all ten slices; unchanged seed-0 LR search and three selected-rate retrainings. CPU4/8 actual threads recorded per cell and matched within sibling pairs. Complete label budgets, opt-in standardized diagnostics, 13-condition perturbation and NAVI controls.",
-      "status": "In progress:218/286primarycells and67/102comparisons content-validated. Complete80recognition,20rawdepth and10Pro matcheddepth cells. Geometryfigure source registered from actual validated data. GPU0currentK3matcheddepthfitcontinues;CPU-testedone-shotboundaryanduniqueledgerprepare2GPUcontinuation. Publishedinference.py gatePASSED5311e04;productionofficialTORCH_SDPA BF16 remainsFAILED,math-referenceacceptance unchanged.",
+      "status": "In progress: 236/286 primary cells and 68/102 registered comparisons validated. Four additional ScanNet intervals computed and replayed, staged for final inventory registration. All recognition/depth/ScanNet/throughput cells complete. GPU0 paired depth and GPU1 normal sweeps active under unique ledger. Production official TORCH_SDPA BF16 remains failed; accepted math-reference conversion parity unchanged. Exact-GELU example fix is bench-side; corrected owner publication and CUDA numerical proof pending.",
       "measurements": {
-        "pro_recognition": "recognition/kimi_k31_pro_probe_mean_{arm}.json",
+        "pro_recognition": "recognition/kimi_k31_pro_probe_{readout}_{arm}.json",
         "pro_mean_label_budget": "label-budget/kimi_k31_pro_probe_mean_matched_f*.json",
         "fresh_k3_controls": "diagnostics/kimi-k31-pro-checkpoint/sibling-control/",
         "actual_inventory": "diagnostics/kimi-k31-pro-checkpoint/completed-inventory.json",
@@ -187,8 +187,17 @@
         "pro_raw_attention": "recognition/kimi_k31_pro_probe_attention_raw.json",
         "raw_attention_audit": "diagnostics/kimi-k31-pro-checkpoint/raw-attention-recognition/raw-recognition-complete-audit.json",
         "pro_geometry": "geometry/kimi_k31_pro_geometry_{task}_{arm}.json",
-        "published_inference_gate": "diagnostics/kimi-k31-pro-checkpoint/inference-smoke/published-example-pass/published-example-gate.json"
+        "published_inference_gate": "diagnostics/kimi-k31-pro-checkpoint/inference-smoke/published-example-pass/published-example-gate.json",
+        "pro_correspondence": "correspondence/kimi_k31_pro_correspondence_{dataset}.json",
+        "pro_throughput": "throughput/kimi_k31_pro_throughput.json",
+        "staged_scannet_intervals": "diagnostics/kimi-k31-pro-checkpoint/staged-correspondence-statistics/staged-scannet-intervals.json",
+        "example_numerical_correction": "diagnostics/kimi-k31-pro-checkpoint/inference-smoke/projector-activation-correction/"
       }
+    },
+    "throughput": {
+      "path": "throughput/",
+      "protocol": "Tower-only 448px throughput, 768 validation images, two warmup batches; Kimi BF16 batch1 and two loaders; actual device/runtime/source identities retained.",
+      "status": "Pro and fresh K3 control complete; existing cohort throughput files under label-budget remain preserved."
     }
   },
   "cell_manifests": [

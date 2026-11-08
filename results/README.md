@@ -18,6 +18,7 @@ historical filename slugs `qwen3_5` and `moonvit_v2` mean Qwen3.8 and Kimi K3.
 | [bootstrap/](bootstrap/) | Paired intervals and their per-image or per-pair evidence. Use these files for interval claims, including their own rerun point estimates. Geometry refits are not bit-reproducible, because the GPU backward of bilinear interpolation is nondeterministic. A paired refit can therefore differ slightly from the matrix cell it repeats. |
 | [correspondence/](correspondence/) | NAVI, ScanNet, and SPair stage scores and per-pair measurements. |
 | [label-budget/](label-budget/) | Recognition at 1%, 5%, 20%, and 100% of training labels; throughput records for the original six Towers. |
+| [throughput/](throughput/) | Batch-one Tower throughput for K3.1 Pro; its fresh K3 control is under the checkpoint diagnostic's sibling controls. Existing cohort measurements remain in label-budget/. |
 | [perturbation/](perturbation/) | Frozen-readout perturbation measurements. All Towers have occlusion; newer payloads also include scale and motion blur. The shared transform manifest describes all 13 conditions; its occlusion rows are the original occlusion run's. |
 | [kitti/](kitti/) | Matched depth transfer measurements on KITTI. Paired intervals are in `bootstrap/`. |
 | [diagnostics/](diagnostics/) | Pooling checks, independent repeats, extended learning-rate searches, the Bolt Tower check, the DINOv3 equal-pixel and conditioning checks, the MiMo attention sink check, and the MiMo Tower outlier-channel check. Includes failed and inconclusive controls. |
@@ -167,9 +168,12 @@ runs in a separate directory when a protocol changes, and update the index with
 the correction's scope. JSON, JSONL, and TSV measurements remain in Git so a
 clone contains the evidence needed to inspect the figures.
 
-Kimi K3.1 Pro checkpoint validation is in progress under
+Kimi K3.1 Pro delivery is in progress under
 [diagnostics/kimi-k31-pro-checkpoint/](diagnostics/kimi-k31-pro-checkpoint/).
 It contains exact source identity, CPU/CUDA mathematical-reference conversion
 parity, immutable release reload and weight drift evidence. Production BF16
-SDPA agreement failed and remains a documented limitation. Full capability
-measurements are pending.
+SDPA agreement failed and remains a documented limitation. Recognition, label
+budgets, perturbations, depth, NAVI, ScanNet and throughput are complete for
+Pro and fresh K3 controls. Normals, SPair, transfer and remaining paired
+comparisons are active or queued. The diagnostic's actual inventory records
+verified progress; no incomplete suite is marked complete.

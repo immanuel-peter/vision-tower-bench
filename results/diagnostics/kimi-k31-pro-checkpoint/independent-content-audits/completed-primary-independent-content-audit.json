@@ -1,10 +1,10 @@
 {
   "passed": true,
-  "completed_primary_cells": 229,
+  "completed_primary_cells": 236,
   "required_primary_cells": 286,
   "complete_primary_inventory": false,
   "actual_cell_to_source_mapping_verified": true,
-  "source_payload_groups": 77,
+  "source_payload_groups": 80,
   "counts_by_task": {
     "recognition": 80,
     "label_budget": 16,
@@ -12,7 +12,8 @@
     "standardized_label_budget": 8,
     "navi": 6,
     "depth": 40,
-    "throughput": 1
+    "throughput": 2,
+    "scannet": 6
   },
   "actual_content_validations": [
     {
@@ -1462,6 +1463,39 @@
         "images": 768,
         "batch_size": 1,
         "actual_source_selection_sha256": "ecf5fef53370184c9140414d7c1dcacb1bb9c28c5316f98cc86d1e5bc9c83511"
+      }
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/correspondence/kimi_k31_pro_correspondence_scannet.json",
+      "task": "scannet",
+      "sha256": "aac61674ac54e07e09423b24adec426bf2e279a4bd40592aa7152bbae2f88e52",
+      "validation": {
+        "selected_pairs": 1500,
+        "exclusions": [],
+        "nonempty_pairs": 1500,
+        "passed": true
+      }
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/throughput/moonvit_v2_throughput.json",
+      "task": "throughput",
+      "sha256": "5e514d2a619188a9ac1ccdaa09305f10fb25898bf5fed6ca2e5a4cfac53da7ed",
+      "validation": {
+        "passed": true,
+        "images": 768,
+        "batch_size": 1,
+        "actual_source_selection_sha256": "ecf5fef53370184c9140414d7c1dcacb1bb9c28c5316f98cc86d1e5bc9c83511"
+      }
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/correspondence/moonvit_v2_correspondence_scannet.json",
+      "task": "scannet",
+      "sha256": "efb761aaf22af9431a6f5bb82385737d539bf55ff12848db691bc1e0ae11becd",
+      "validation": {
+        "selected_pairs": 1500,
+        "exclusions": [],
+        "nonempty_pairs": 1500,
+        "passed": true
       }
     }
   ],
@@ -4025,7 +4059,75 @@
       },
       "source": "/tmp/vtb-delivery/issues/24/measurements/throughput/kimi_k31_pro_throughput.json",
       "sha256": "1c200f557248260b302eec91d692b7bc6db5ae071b0b346688bb58f216bffa95"
+    },
+    {
+      "cell": {
+        "task": "scannet",
+        "model": "kimi_k31_pro",
+        "stage": "tower",
+        "layer": 27
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/correspondence/kimi_k31_pro_correspondence_scannet.json",
+      "sha256": "aac61674ac54e07e09423b24adec426bf2e279a4bd40592aa7152bbae2f88e52"
+    },
+    {
+      "cell": {
+        "task": "scannet",
+        "model": "kimi_k31_pro",
+        "stage": "merged",
+        "layer": 27
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/correspondence/kimi_k31_pro_correspondence_scannet.json",
+      "sha256": "aac61674ac54e07e09423b24adec426bf2e279a4bd40592aa7152bbae2f88e52"
+    },
+    {
+      "cell": {
+        "task": "scannet",
+        "model": "kimi_k31_pro",
+        "stage": "projected",
+        "layer": 27
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/correspondence/kimi_k31_pro_correspondence_scannet.json",
+      "sha256": "aac61674ac54e07e09423b24adec426bf2e279a4bd40592aa7152bbae2f88e52"
+    },
+    {
+      "cell": {
+        "task": "throughput",
+        "model": "moonvit_v2"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/throughput/moonvit_v2_throughput.json",
+      "sha256": "5e514d2a619188a9ac1ccdaa09305f10fb25898bf5fed6ca2e5a4cfac53da7ed"
+    },
+    {
+      "cell": {
+        "task": "scannet",
+        "model": "moonvit_v2",
+        "stage": "tower",
+        "layer": 27
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/correspondence/moonvit_v2_correspondence_scannet.json",
+      "sha256": "efb761aaf22af9431a6f5bb82385737d539bf55ff12848db691bc1e0ae11becd"
+    },
+    {
+      "cell": {
+        "task": "scannet",
+        "model": "moonvit_v2",
+        "stage": "merged",
+        "layer": 27
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/correspondence/moonvit_v2_correspondence_scannet.json",
+      "sha256": "efb761aaf22af9431a6f5bb82385737d539bf55ff12848db691bc1e0ae11becd"
+    },
+    {
+      "cell": {
+        "task": "scannet",
+        "model": "moonvit_v2",
+        "stage": "projected",
+        "layer": 27
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/correspondence/moonvit_v2_correspondence_scannet.json",
+      "sha256": "efb761aaf22af9431a6f5bb82385737d539bf55ff12848db691bc1e0ae11becd"
     }
   ],
-  "verified_at": "2026-11-08T02:37:48.054421+00:00"
+  "verified_at": "2026-11-08T02:48:51.271756+00:00"
 }

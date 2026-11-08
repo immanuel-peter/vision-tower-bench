@@ -1,0 +1,49 @@
+{
+  "selected_pairs": 1500,
+  "exclusions": [],
+  "nonempty_pairs": 1500,
+  "passed": true,
+  "runtime": {
+    "target": "scripts.correspondence_run",
+    "adapters": [
+      {
+        "checkpoint": {
+          "repo": "moonshotai/Kimi-K3",
+          "revision": "f831ab66814297da540d832a5235f8e904f29d06",
+          "model_id": "immanuelpeter/MoonViT-V2",
+          "bundle": "MoonViT-V2",
+          "bundle_revision": "bcaedfccd1f07d23ab20de8a0a168668c27cacb3"
+        },
+        "identity_tensors": 168,
+        "exact_immutable_identity": true,
+        "device": "cuda:0",
+        "dtype": "torch.bfloat16",
+        "cuda_visible_devices": "0",
+        "threads": 8,
+        "validated_image_forwards": 3000,
+        "native_integrity": {
+          "all_ten_slices": true,
+          "finite_bf16": true,
+          "exact_shapes": true,
+          "raster_merge_equal": true
+        },
+        "wrapper_sha256": "0859c037d277933f02dc4261c0d8719daaf7b68e777489fb26631fd4229f3b6b"
+      }
+    ],
+    "backend_limitation": "Production official TORCH_SDPA BF16 parity remains failed; independent mathematical-reference conversion accepted."
+  },
+  "command": ".venv/bin/python /tmp/vtb-delivery/issues/24/pinned_kimi_correspondence.py --model moonvit_v2 --dataset scannet --root /tmp/vtb-delivery/data/correspondence/scannet/scannet_test_1500 --out /tmp/vtb-delivery/issues/24/measurements/correspondence/moonvit_v2_correspondence_scannet.json --resolution 448 --device cuda:0 --evaluation-side 64 --num-correspondences 1000",
+  "elapsed_seconds": 174.7412973879982,
+  "resumed": false,
+  "actual_device": "cuda:0",
+  "physical_gpu": 0,
+  "gpu_identity": "GPU-8a509feb-b09c-a6ee-fd1a-b69e8ce10484, NVIDIA RTX PRO 6000 Blackwell Server Edition",
+  "threads": 8,
+  "validated_at": "2026-11-08T02:44:53.908799+00:00",
+  "payload_sha256": "efb761aaf22af9431a6f5bb82385737d539bf55ff12848db691bc1e0ae11becd",
+  "driver_sha256": "603b76324e824fbaff99fcbd9d51358ebb03b4b5f8ae5912f9a3a073bef02559",
+  "api_sha256": "5144475013c2fe6ac3fbdc33cacfd362b9024d3885f46a270d465feb8b9e00c4",
+  "assignment_plan_sha256": "5319306dcad3eeb70238610291b504ff32626cf84f01e26accf44977810c37ea",
+  "job_id": "013",
+  "source_snapshot_sha256": "5c8855fdaec5e3d30b2b15b4f8fd00f4bd671dfad684ef4de7749510e13e66d8"
+}
