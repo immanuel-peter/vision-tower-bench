@@ -178,3 +178,10 @@ losses, channel statistics, and matched diagnostic intervals. Standardization
 recovers weak Flash-Next clean readouts. Primary Tower and merged perturbation
 results do not support intrinsic robustness claims. The diagnostic does not
 establish a training cause. The complete primary suite remains separate.
+
+
+## Structural cleanup validation
+
+[PR 27 cleanup evidence](diagnostics/structural-cleanup/pr-27/README.md) records
+method identity, preserved measurements and the fresh immutable-release inference test.
+The combined integration checks retain all twenty registered models.
