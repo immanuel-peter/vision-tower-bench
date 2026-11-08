@@ -89,3 +89,7 @@ assert len(results)==8
 command=[".venv/bin/python",str(root/"audit_completed_primary_content.py")]
 process=subprocess.run(["bash","-ic",shlex.join(command)])
 if process.returncode:raise SystemExit(process.returncode)
+
+command=[".venv/bin/python",str(root/"audit_all_paired_intervals.py")]
+process=subprocess.run(["bash","-ic",shlex.join(command)])
+if process.returncode:raise SystemExit(process.returncode)
