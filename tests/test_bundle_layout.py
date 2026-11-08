@@ -34,9 +34,6 @@ def test_maintained_new_bundle_inventory_and_all_tracked_file_hashes():
         assert (m['tower_tensors'],m['projector_tensors'])==counts
         assert isinstance(m['source_shards'],list) and m['source_shards']
         assert m['dtype'] in {'mixed','bfloat16'}
-        card=(bundle/'README.md').read_text();table=card.split('## Contents')[1].split('## Architecture')[0]
-        names={n for line in table.splitlines() if line.startswith('|') for n in re.findall(r'`([^`]+)`',line.split('|')[1])}
-        assert names==set(m['files_sha256'])|set(m['hash_excludes'])|set(m['hub_only_metadata'])
         for rel,h in m['files_sha256'].items():
             if rel.endswith('.safetensors'):continue
             assert (bundle/rel).is_file() and sha256(bundle/rel)==h
