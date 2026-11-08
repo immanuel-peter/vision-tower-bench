@@ -2,7 +2,12 @@ import pytest
 import torch
 from safetensors.torch import save_file
 
-from examples.kimi_k31_pro_inference import Projector
+import importlib.util
+from pathlib import Path
+spec = importlib.util.spec_from_file_location("kimi_projector", Path(__file__).parents[1] / "hf/MoonViT-K3.1-Pro/projector.py")
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+Projector = module.Projector
 from vtb.adapters.moonvit_v2 import load_projector
 
 

@@ -1,7 +1,6 @@
 """Run one image through a published MoonViT K3.1 Pro snapshot and its Projector.
 
-Proposed HF destination: examples/inference.py. Until the HF owner publishes
-this file, pass --model-dir pointing to an unmodified downloaded snapshot.
+Run from this downloaded bundle, or pass --model-dir for another pinned snapshot.
 """
 
 import argparse
@@ -13,22 +12,12 @@ from pathlib import Path
 import torch
 from PIL import Image, ImageOps
 from safetensors.torch import load_file
-from torch import nn
 from transformers import AutoImageProcessor, AutoModel
 
 
-class Projector(nn.Module):
-    def __init__(self, config):
-        super().__init__()
-        self.proj = nn.Sequential(
-            nn.Linear(config["input_size"], config["hidden_size"], bias=False),
-            nn.GELU(),
-            nn.Linear(config["hidden_size"], config["output_size"], bias=False),
-        )
-        self.post_norm = nn.RMSNorm(config["output_size"], eps=config["norm_eps"])
-
-    def forward(self, tokens):
-        return self.post_norm(self.proj(tokens))
+import sys
+sys.path.insert(0, str(Path(__file__).absolute().parents[1]))
+from projector import Projector
 
 
 def square_image(image, resolution):

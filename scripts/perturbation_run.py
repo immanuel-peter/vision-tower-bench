@@ -59,8 +59,30 @@ def parser() -> argparse.ArgumentParser:
     ap.add_argument("--device", default="cuda")
     ap.add_argument("--learning-rates", type=float, nargs="+", default=list(probe_run.LEARNING_RATES))
     ap.add_argument("--resamples", type=int, default=10_000)
+    ap.add_argument("--standardize-channels", action="store_true", help="Diagnostic only: channel-standardized PCA")
     return ap
 
+
+
+def output_protocol(args, num_classes=None):
+    return {
+        "training": "clean features only",
+        "inference": "same frozen reducer and readout for every condition",
+        "capacity_matched_width": args.width,
+        "readout": args.readout,
+        "classes": num_classes,
+        "epochs": args.epochs,
+        "seeds": args.seeds,
+        "learning_rates": args.learning_rates,
+        "learning_rate_search_seed": 0,
+        "retraining_seeds": list(range(args.seeds)),
+        "device": args.device,
+        "torch_threads": torch.get_num_threads(),
+        "batch_size": args.batch_size,
+        "standardize_channels": args.standardize_channels,
+        "pairing": "seed-mean correctness, paired over test images",
+        "method": probe_run.reducer_method(standardize_channels=args.standardize_channels),
+    }
 
 def main() -> None:
     args = parser().parse_args()
@@ -81,7 +103,7 @@ def main() -> None:
             raise ValueError("clean cache does not cover the complete selected image manifest")
         labels = torch.tensor([label_map[image_id] for image_id in image_ids])
         split = probe_run.split_indices(len(image_ids))
-        reducer = probe_run.fit_reducer(tokens.float(), split, args.width)
+        reducer = probe_run.fit_reducer(tokens.float(), split, args.width, standardize_channels=args.standardize_channels)
         clean = reducer(tokens.float())
 
         search = {}
@@ -184,23 +206,7 @@ def main() -> None:
             for condition in transform_manifest["conditions"]
         },
         "transform_manifest_sha256": hashlib.sha256(args.transform_manifest.read_bytes()).hexdigest(),
-        "protocol": {
-            "training": "clean features only",
-            "inference": "same frozen reducer and readout for every condition",
-            "capacity_matched_width": args.width,
-            "readout": args.readout,
-            "classes": num_classes,
-            "epochs": args.epochs,
-            "seeds": args.seeds,
-            "learning_rates": args.learning_rates,
-            "learning_rate_search_seed": 0,
-            "retraining_seeds": list(range(args.seeds)),
-            "device": args.device,
-            "torch_threads": torch.get_num_threads(),
-            "batch_size": args.batch_size,
-            "standardize_channels": False,
-            "pairing": "seed-mean correctness, paired over test images",
-        },
+        "protocol": output_protocol(args, num_classes),
         "cells": cells,
     }
     args.out.parent.mkdir(parents=True, exist_ok=True)

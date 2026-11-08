@@ -88,12 +88,12 @@ def test_diagnostic_implements_archived_formula_and_primary_is_unchanged():
     primary = fit_reducer(tokens, split, 3)
     assert type(primary) is probe.Reducer
     torch.testing.assert_close(primary(tokens), (tokens - primary.mean) @ primary.basis, rtol=0, atol=0)
-    diagnostic = fit_reducer(tokens, split, 3, standardize=True)
+    diagnostic = fit_reducer(tokens, split, 3, standardize_channels=True)
     flat = tokens[split.train].flatten(0, 1).float()
     torch.testing.assert_close(diagnostic.mean, flat.mean(0, keepdim=True))
     torch.testing.assert_close(diagnostic.scale, flat.std(0, keepdim=True, correction=1).clamp_min(1e-6))
     massive = tokens * torch.tensor([1., 1., 1e4, 1., 1., 1.])
-    scaled = fit_reducer(massive, split, 3, standardize=True)(massive).flatten(0, 1)
+    scaled = fit_reducer(massive, split, 3, standardize_channels=True)(massive).flatten(0, 1)
     base = diagnostic(tokens).flatten(0, 1)
     torch.testing.assert_close(scaled @ scaled.T, base @ base.T, rtol=1e-3, atol=1e-3)
 

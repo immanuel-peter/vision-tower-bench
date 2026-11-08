@@ -45,7 +45,7 @@ def test_correspondence_rejects_different_scoring():
 
 def test_perturbation_interval_uses_seed_mean_correctness_on_paired_test_images():
     def payload(correct, order):
-        return {"images": 2000, "protocol": {"seeds": 3}, "cells": [{
+        return {"images": 2000, "protocol": {"seeds": 3, "method": __import__("vtb.methods", fromlist=["descriptor"]).descriptor()}, "cells": [{
             "stage": "tower", "layer_index": 24, "measurements": {"occlusion_l1": [
                 {"image_id": key, "clean": [1.0] * 3, "perturbed": [correct] * 3} for key in order
             ]}}]}
@@ -76,7 +76,7 @@ def test_spair_macro_interval_weights_each_class_equally():
 
 def test_perturbation_also_pairs_clean_correctness_once():
     def payload(clean):
-        return {"images": 2000, "protocol": {"seeds": 3}, "cells": [{
+        return {"images": 2000, "protocol": {"seeds": 3, "method": __import__("vtb.methods", fromlist=["descriptor"]).descriptor()}, "cells": [{
             "stage": "tower", "layer_index": 24, "measurements": {condition: [
                 {"image_id": key, "clean": [clean] * 3, "perturbed": [0.0] * 3} for key in ("a", "b")
             ] for condition in ("occlusion_l1", "scale_l1")}}]}
@@ -86,7 +86,7 @@ def test_perturbation_also_pairs_clean_correctness_once():
 
 
 def test_perturbation_compares_projected_and_tower_in_the_same_measured_run():
-    payload = {"images": 2000, "protocol": {"seeds": 3}, "cells": [
+    payload = {"images": 2000, "protocol": {"seeds": 3, "method": __import__("vtb.methods", fromlist=["descriptor"]).descriptor()}, "cells": [
         {"stage": stage, "layer_index": 27, "measurements": {"scale_l1": [
             {"image_id": identity, "clean": [score] * 3, "perturbed": [score] * 3}
             for identity in ("a", "b")

@@ -17,14 +17,18 @@ MoonViT Tower and Projector.
 
 ## Contents
 
-| File | Tensors | What it holds |
-|---|---|---|
-| `model.safetensors` | 165 | MoonViT Tower, in the original BF16 dtype |
-| `projector.safetensors` | 3 | Kimi K3.1 Pro `mm_projector` |
-| `projector_config.json` | | Projector shapes, read from the weights |
-| `config.json`, `configuration_moonvit_v2.py`, `modeling_moonvit_v2.py`, `image_processing_moonvit_v2.py`, `preprocessor_config.json` | | Vendored from `AI4Industry/MoonViT-V2` |
-| `export_manifest.json` | | Source pin, tensor counts and file hashes |
-| `LICENSE`, `CODE_LICENSE`, `NOTICE` | | Weight license, code license and attribution |
+| File | Contents |
+|---|---|
+| `model.safetensors` | BF16 Tower |
+| `projector.safetensors`, `projector.py`, `projector_config.json` | Projector weights, configuration and loader |
+| `config.json`, `preprocessor_config.json` | Vision and image-processing configuration |
+| `configuration_moonvit_v2.py`, `modeling_moonvit_v2.py`, `image_processing_moonvit_v2.py` | Vision modeling and processing code |
+| `examples/inference.py` | Single-image inference |
+| `LICENSE`, `LICENSE-CODE`, `NOTICE` | Licenses and attribution |
+| `README.md`, `export_manifest.json` | Card, pinned source and file hashes |
+| `.gitattributes` | Hub-managed storage rules |
+
+Hub-only `.gitattributes` controls storage; the manifest identifies it separately from content hashes.
 
 ## Architecture
 
@@ -40,16 +44,15 @@ Tower `(1, 1024, 1024)`, merged `(1, 256, 4096)` and projected `(1, 256, 7168)`.
 ## Usage
 
 See [`examples/inference.py`](examples/inference.py) for a complete image-to-projected-features
-example. Use batch size 1 for reproducible attention.
+example: `python examples/inference.py test-image.jpg`. Use batch size 1.
 
 ## Validation
 
 The release tests compare all 165 Tower tensors and three Projector tensors with
 the pinned parent checkpoint using `torch.equal`. Fixed-image Tower, merged and
 projected outputs also match the parent implementation bit-for-bit in FP32 and
-in BF16 with mathematical attention. Under production vLLM BF16 attention they
-differ, by up to about 8.1% relative L2, so this bundle is not bit-identical to
-that execution.
+in BF16 with mathematical attention. Production vLLM BF16 differs by about 8.1%
+relative L2; see [detailed evidence](https://github.com/immanuel-peter/vision-tower-bench/tree/t3/k31-pro-diagnostics/results/diagnostics/kimi-k31-pro-checkpoint/package-evidence).
 
 ## Reproduction
 
@@ -66,4 +69,4 @@ code comes unchanged from `AI4Industry/MoonViT-V2`.
 ## License
 
 [Kimi K3.1-Pro License](LICENSE), the same license as the source model. The vendored
-code retains its original copyright notices; see `CODE_LICENSE` and `NOTICE`.
+code retains its original copyright notices; see `LICENSE-CODE` and `NOTICE`.

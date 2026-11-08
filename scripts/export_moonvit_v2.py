@@ -114,22 +114,19 @@ def main() -> None:
     for name in VENDORED:
         shutil.copyfile(hf_hub_download(TOWER_REPO, name, revision=CODE_REVISION), args.out / name)
     shutil.copyfile(hf_hub_download(checkpoint.repo, "LICENSE", revision=checkpoint.revision), args.out / "LICENSE")
-    shutil.copyfile(hf_hub_download(TOWER_REPO, "LICENSE", revision=CODE_REVISION), args.out / "CODE_LICENSE")
+    shutil.copyfile(hf_hub_download(TOWER_REPO, "LICENSE", revision=CODE_REVISION), args.out / "LICENSE-CODE")
     for filename, prefix in (("model.safetensors", TOWER_PREFIX), ("projector.safetensors", PROJECTOR_PREFIX)):
         exported = load_file(args.out / filename)
         parent = read(prefix)
         if exported.keys() != parent.keys() or any(not torch.equal(exported[k], parent[k]) for k in parent):
             raise ValueError(f"export differs from pinned parent: {filename}")
-    sha = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
-    manifest = {
-        "source_repo": checkpoint.repo, "source_revision": checkpoint.revision,
-        "shards": shards, "tower_tensors": len(tower), "projector_tensors": len(projector),
-        "dtype": "bfloat16", "exact_parent_identity": True,
-        "code_repo": TOWER_REPO, "code_revision": CODE_REVISION,
-        "files": {p.name: sha(p) for p in args.out.iterdir() if p.is_file() and p.name != "export_manifest.json"},
-        "forward_parity": "pending independent parent validation; tensor identity is not forward parity",
-    }
-    (args.out / "export_manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
+    from vtb.bundle_manifest import copy_assets, write_manifest
+    assets = Path(__file__).resolve().parents[1] / "hf" / checkpoint.bundle
+    copy_assets(assets, args.out)
+    write_manifest(args.out, checkpoint.repo, checkpoint.revision,
+                   [name for group in shards.values() for name in group],
+                   extra={"exact_parent_identity": True, "code_repo": TOWER_REPO, "code_revision": CODE_REVISION,
+                          "forward_parity": "Independent math-reference BF16 exact; production official SDPA BF16 disagreement retained."})
 
     for path in sorted(args.out.iterdir()):
         print(f"{path.stat().st_size / 1e6:9.2f} MB  {path.name}")
