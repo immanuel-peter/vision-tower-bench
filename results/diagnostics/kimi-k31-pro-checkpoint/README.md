@@ -444,3 +444,5 @@ remaining correspondence, throughput and paired refits. The full experiment
 inventory is not complete. PR publication additionally waits for execution
 of the actual newly published inference.py. The current release lacks that
 file; the bench-side candidate passed but is not a published-example pass.
+
+Published inference.py is now verified at immutable 5311e0408a6107f78f8c70bb70f7aa205b94e724. The authorized parent one-file publication and clean CUDA BF16 batch1 pass are recorded in [the resolved functional gate](inference-smoke/resolution.json). All old file hashes and benchmark weights remain unchanged. Earlier missing-example reports are historical failures and no longer block PR publication. The remaining original benchmark suite is still active.
