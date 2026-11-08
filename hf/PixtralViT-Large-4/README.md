@@ -17,16 +17,18 @@ This repository packages the Tower and Projector from
 
 ## Contents
 
-| File | Tensors | What it holds |
-|---|---|---|
-| `model.safetensors` | 272 | Pixtral vision encoder, from the parent's `vision_encoder.*` |
-| `projector.safetensors` | 4 | `pre_mm_projector_norm`, `patch_merger` and `vision_language_adapter` |
-| `modeling_pixtral_large4.py` | | `PixtralVisionModel` subclass following the parent's numeric order |
-| `projector.py`, `projector_config.json` | | Projector shapes and loader |
-| `config.json`, `preprocessor_config.json` | | Vision configuration and `PixtralImageProcessor` settings |
-| `examples/inference.py` | | Single-image extraction example |
-| `export_manifest.json` | | Source pin, shard SHA256 and tensor name map |
-| `LICENSE`, `LICENSE-CODE`, `NOTICE` | | Weight license, code license and attribution |
+| File | Contents |
+|---|---|
+| `model.safetensors` | BF16 Tower |
+| `projector.safetensors`, `projector.py`, `projector_config.json` | Projector weights, configuration and loader |
+| `config.json`, `preprocessor_config.json` | Vision and image-processing configuration |
+| `modeling_pixtral_large4.py` | Vision modeling and processing code |
+| `examples/inference.py` | Single-image inference |
+| `LICENSE`, `LICENSE-CODE`, `NOTICE` | Licenses and attribution |
+| `README.md`, `export_manifest.json` | Card, pinned source and file hashes |
+| `.gitattributes` | Hub-managed storage rules |
+
+Hub-only `.gitattributes` controls storage; the manifest identifies it separately from content hashes.
 
 ## Architecture
 
@@ -42,12 +44,15 @@ of width 2048 and 256 projected tokens of width 6144.
 ## Usage
 
 See [`examples/inference.py`](examples/inference.py) for image feature extraction.
+Use `trust_remote_code=True` for the source-compatible BF16 forward.
 
 ## Validation
 
 The release tests compare all 276 tensors with the pinned parent checkpoint using
 `torch.equal`. Fixed-image Tower, merged and projected outputs also match the parent
-implementation bit-for-bit in FP32 and BF16 at 448 and 1540 pixels.
+implementation bit-for-bit with the same attention kernel at 448 and 1540 pixels.
+The parent itself fails 29/80 BF16-versus-FP32 gates; different kernels also change BF16 outputs.
+See [numerical evidence](https://github.com/immanuel-peter/vision-tower-bench/tree/t3/resolve-pixtral-vit-reference-parity/results/diagnostics/mistral-large4-parity).
 
 ## Reproduction
 

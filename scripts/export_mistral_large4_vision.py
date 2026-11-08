@@ -91,12 +91,9 @@ def distributed_files(out: Path) -> list[Path]:
 
 
 def finish_manifest(out: Path, base: dict) -> dict:
-    """Add the SHA256 of every distributed file; the manifest cannot hash itself."""
-    payload = dict(base)
-    payload["files_sha256"] = {str(path.relative_to(out)): file_sha256(path) for path in distributed_files(out)}
-    payload["hash_excludes"] = [MANIFEST, ".gitattributes"]
-    (out / MANIFEST).write_text(json.dumps(payload, indent=2) + "\n")
-    return payload
+    from vtb.bundle_manifest import write_manifest
+    return write_manifest(out, base["source_repo"], base["source_revision"], base["source_shards"], extra=base)
+
 
 
 def write_bundle(native: dict[str, torch.Tensor], source: dict, processor: dict, license_path: Path, out: Path,
@@ -124,6 +121,8 @@ def write_bundle(native: dict[str, torch.Tensor], source: dict, processor: dict,
     image_processor["processor_class"] = "AutoImageProcessor"
     (out / "preprocessor_config.json").write_text(json.dumps(image_processor, indent=2) + "\n")
     shutil.copyfile(license_path, out / "LICENSE")
+    from vtb.bundle_manifest import copy_assets
+    copy_assets(ml4.RELEASE_DIR, out)
     finish_manifest(out, manifest(native, shards))
 
 

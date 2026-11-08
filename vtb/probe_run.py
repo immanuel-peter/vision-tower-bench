@@ -1,3 +1,4 @@
+from vtb.methods import descriptor as reducer_method
 import argparse
 import json
 from dataclasses import dataclass
@@ -145,13 +146,11 @@ def selected_slices(
 
 
 def fit_reducer(
-    features: torch.Tensor, split: Split, width: int, standardize: bool = False
+    features: torch.Tensor, split: Split, width: int, *, standardize_channels: bool = False
 ) -> probe.Reducer | probe.StandardizedReducer:
-    # torch.svd_lowrank is randomized. Seed it per cell without changing the RNG state
-    # used by the readout, so a --depth-points invocation matches a matrix invocation.
-    reducer = probe.StandardizedReducer if standardize else probe.Reducer
     with torch.random.fork_rng(devices=[]):
         torch.random.default_generator.manual_seed(0)
+        reducer = probe.StandardizedReducer if standardize_channels else probe.Reducer
         return reducer.fit(features[split.train], width)
 
 
@@ -227,11 +226,12 @@ def main() -> None:
 
         features = tokens.float()
         if args.match_capacity:
-            reducer = fit_reducer(features, split, args.width, args.standardize_channels)
+            reducer = fit_reducer(features, split, args.width, standardize_channels=args.standardize_channels)
             features = reducer(features)
 
         result = run_cell(features, labels, split, num_classes, args)
         result |= {
+            "method": reducer_method(standardize_channels=args.standardize_channels, matched=args.match_capacity),
             "model_id": meta["model_id"],
             "stage": stage,
             "layer_index": layer,
@@ -254,6 +254,7 @@ def main() -> None:
 
     out = args.out or args.run / f"probe_{args.readout}_{'matched' if args.match_capacity else 'raw'}.json"
     out.write_text(json.dumps({
+        "method": reducer_method(standardize_channels=args.standardize_channels, matched=args.match_capacity),
         "images": image_count,
         "label_fraction": args.label_fraction,
         "train_images": cells[0]["train_images"] if cells else 0,

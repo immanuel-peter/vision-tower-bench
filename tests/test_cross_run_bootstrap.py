@@ -45,7 +45,7 @@ def test_correspondence_rejects_different_scoring():
 
 def test_perturbation_interval_uses_seed_mean_correctness_on_paired_test_images():
     def payload(correct, order):
-        return {"images": 2000, "protocol": {"seeds": 3}, "cells": [{
+        return {"images": 2000, "protocol": {"seeds": 3, "method": __import__("vtb.methods", fromlist=["descriptor"]).descriptor()}, "cells": [{
             "stage": "tower", "layer_index": 24, "measurements": {"occlusion_l1": [
                 {"image_id": key, "clean": [1.0] * 3, "perturbed": [correct] * 3} for key in order
             ]}}]}
@@ -76,7 +76,7 @@ def test_spair_macro_interval_weights_each_class_equally():
 
 def test_perturbation_also_pairs_clean_correctness_once():
     def payload(clean):
-        return {"images": 2000, "protocol": {"seeds": 3}, "cells": [{
+        return {"images": 2000, "protocol": {"seeds": 3, "method": __import__("vtb.methods", fromlist=["descriptor"]).descriptor()}, "cells": [{
             "stage": "tower", "layer_index": 24, "measurements": {condition: [
                 {"image_id": key, "clean": [clean] * 3, "perturbed": [0.0] * 3} for key in ("a", "b")
             ] for condition in ("occlusion_l1", "scale_l1")}}]}
@@ -89,7 +89,7 @@ def test_perturbation_can_pair_two_stages_of_one_run():
     def cell(stage, correct):
         return {"stage": stage, "layer_index": 30, "measurements": {"occlusion_l1": [
             {"image_id": key, "clean": [correct] * 3, "perturbed": [correct] * 3} for key in ("a", "b")]}}
-    payload = {"images": 2000, "protocol": {"seeds": 3},
+    payload = {"images": 2000, "protocol": {"seeds": 3, "method": __import__("vtb.methods", fromlist=["descriptor"]).descriptor()},
                "cells": [cell("tower", 0.0), cell("projected", 1.0)]}
     result = perturbation(payload, payload, NAMES, args("--first-stage", "projected", "--second-stage", "tower"))
     assert result["conditions"]["occlusion_l1"]["difference"]["point_estimate"] == 1

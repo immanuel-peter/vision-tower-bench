@@ -67,6 +67,20 @@ def parser() -> argparse.ArgumentParser:
     return ap
 
 
+
+def output_protocol(args, num_classes=None):
+    return {
+        "training": "clean features only",
+        "inference": "same frozen reducer and readout for every condition",
+        "capacity_matched_width": args.width,
+        "readout": args.readout,
+        "epochs": args.epochs,
+        "seeds": args.seeds,
+        "learning_rates": args.learning_rates,
+        "pairing": "seed-mean correctness, paired over test images",
+        "method": probe_run.reducer_method(standardize_channels=args.standardize_channels),
+    }
+
 def main() -> None:
     args = parser().parse_args()
     transform_manifest = json.loads(args.transform_manifest.read_text())
@@ -84,7 +98,7 @@ def main() -> None:
         tokens, image_ids, meta = cache.load(args.clean_run, stage, layer)
         labels = torch.tensor([label_map[image_id] for image_id in image_ids])
         split = probe_run.split_indices(len(image_ids))
-        reducer = probe_run.fit_reducer(tokens.float(), split, args.width, args.standardize_channels)
+        reducer = probe_run.fit_reducer(tokens.float(), split, args.width, standardize_channels=args.standardize_channels)
         clean = reducer(tokens.float())
 
         search = {}
@@ -174,16 +188,7 @@ def main() -> None:
     output = {
         "model": args.model_dir,
         "images": transform_manifest["images"],
-        "protocol": {
-            "training": "clean features only",
-            "inference": "same frozen reducer and readout for every condition",
-            "capacity_matched_width": args.width,
-            "readout": args.readout,
-            "epochs": args.epochs,
-            "seeds": args.seeds,
-            "learning_rates": args.learning_rates,
-            "pairing": "seed-mean correctness, paired over test images",
-        },
+        "protocol": output_protocol(args, num_classes),
         "cells": cells,
     }
     args.out.parent.mkdir(parents=True, exist_ok=True)

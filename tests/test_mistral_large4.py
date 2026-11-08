@@ -359,7 +359,8 @@ def test_bundle_card_contents_and_manifest_hashes_match_the_files():
 
     bundle = ml4.RELEASE_DIR
     manifest = json.loads((bundle / "export_manifest.json").read_text())
-    assert manifest["hash_excludes"] == ["export_manifest.json", ".gitattributes"]
+    assert manifest["hash_excludes"] == ["export_manifest.json"]
+    assert manifest["hub_only_metadata"] == [".gitattributes"]
     assert manifest["source_shards"] == ["consolidated-00053-of-00054.safetensors"]
     assert (manifest["tower_tensors"], manifest["projector_tensors"], manifest["dtype"]) == (272, 4, "bfloat16")
     present = {str(p.relative_to(bundle)) for p in bundle.rglob("*")
@@ -376,5 +377,5 @@ def test_bundle_card_contents_and_manifest_hashes_match_the_files():
     rows = [line.split("|")[1] for line in contents.splitlines() if line.startswith("| `")]
     listed = {name for cell in rows for name in re.findall(r"`([^`]+)`", cell)}
     # The card is README.md itself.
-    assert listed | {"README.md"} == hashed | {"export_manifest.json"}
+    assert listed | {"README.md"} == hashed | {"export_manifest.json", ".gitattributes"}
     assert len(card.splitlines()) <= 70 and card.count("\n## ") == 7

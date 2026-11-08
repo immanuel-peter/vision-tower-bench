@@ -522,9 +522,9 @@ def test_primary_reducer_and_flags_stay_unstandardized():
     split = probe_run.split_indices(40)
     primary = probe_run.fit_reducer(features, split, 4)
     assert type(primary) is probe.Reducer
-    reference = probe_run.fit_reducer(features, split, 4, standardize=False)
+    reference = probe_run.fit_reducer(features, split, 4, standardize_channels=False)
     assert torch.equal(primary.basis, reference.basis)
-    standardized = probe_run.fit_reducer(features, split, 4, standardize=True)
+    standardized = probe_run.fit_reducer(features, split, 4, standardize_channels=True)
     assert type(standardized) is probe.StandardizedReducer
 
 
