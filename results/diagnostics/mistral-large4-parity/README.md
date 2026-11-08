@@ -160,6 +160,13 @@ kernel (`diagnosis-3bb47be.json`, variant `hf`/`default`).
   sensitivity.
 - `hf_reload_identity_{204c1fe,3cd67e8}.json`: identity checks of fresh
   downloads of both release revisions.
+- `release-smoke/hf_cuda_gate_0605fc9.{json,log}`: the card commands run
+  verbatim on a fresh clean download of revision
+  `0605fc91b1851a0474cd55d543c6d671fffaa0eb` (house-template card and
+  normalized manifest, same weights), CUDA BF16, batch 1. Hub head and loaded
+  commit equal that revision before and after; the example prints Tower
+  (1024, 2048), merged (256, 2048) and projected (256, 6144) for a 448 x 448
+  crop of a 500 x 334 image, matching the card.
 
 Reproduce with `scripts/validate_mistral_large4.py` (`--reference-attention
 efficient|explicit`), `scripts/mistral_large4_bf16_diagnosis.py` and
