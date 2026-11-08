@@ -1,7 +1,7 @@
 import torch
 
 from vtb import probe, probe_run
-from vtb.channel_standardization import StandardizedReducer
+from vtb.probe import StandardizedReducer
 
 
 def test_recovered_formula_including_sample_std_and_constant_channels():

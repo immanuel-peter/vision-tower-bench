@@ -1,3 +1,4 @@
+from vtb.methods import require_same
 #!/usr/bin/env python3
 """Pair two runs' correspondence or perturbation results and bootstrap the difference.
 
@@ -108,7 +109,10 @@ def correspondence(first: dict, second: dict, names: tuple[str, str], args) -> d
 
 
 def perturbation(first: dict, second: dict, names: tuple[str, str], args) -> dict:
-    if first["images"] != second["images"] or first["protocol"] != second["protocol"]:
+    require_same(first, second)
+    first_protocol = {k: v for k, v in first["protocol"].items() if k not in {"method", "reducer", "reducer_patch_sha256"}}
+    second_protocol = {k: v for k, v in second["protocol"].items() if k not in {"method", "reducer", "reducer_patch_sha256"}}
+    if first["images"] != second["images"] or first_protocol != second_protocol:
         raise ValueError("perturbation probing protocol differs")
     a, b = stage_cell(first, args.stage), stage_cell(second, args.stage)
     if a["measurements"].keys() != b["measurements"].keys():

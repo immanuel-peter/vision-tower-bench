@@ -56,14 +56,18 @@ def test_manifest_covers_nested_and_hidden_files_without_self_hash(monkeypatch, 
         "patch_merge_mlp.weight": "z.safetensors",
         "language_model.weight": "unrelated.safetensors",
     }})
+    from safetensors.torch import save_file
+    save_file({"tower.weight": torch.ones(1, dtype=torch.bfloat16)}, out / "model.safetensors")
+    save_file({"proj.weight": torch.ones(1, dtype=torch.bfloat16)}, out / "projector.safetensors")
+    fixtures.update({name: (out / name).read_bytes() for name in ("model.safetensors", "projector.safetensors")})
     result = exporter.write_manifest(out, FLASH)
     assert result["source_shards"] == ["a.safetensors", "z.safetensors"]
-    assert (result["tower_tensors"], result["projector_tensors"]) == (515, 8)
+    assert (result["tower_tensors"], result["projector_tensors"]) == (1, 1)
     assert result["dtype"] == "bfloat16"
     assert result["hash_excludes"] == ["export_manifest.json"]
     assert result["files_sha256"] == {name: hashlib.sha256(value).hexdigest()
-                                      for name, value in fixtures.items()}
-    assert result["files"] == result["files_sha256"]
+                                      for name, value in fixtures.items() if name != ".gitattributes"}
+    assert result["hub_only_metadata"] == [".gitattributes"]
     first = (out / "export_manifest.json").read_bytes()
     exporter.write_manifest(out, FLASH)
     assert (out / "export_manifest.json").read_bytes() == first

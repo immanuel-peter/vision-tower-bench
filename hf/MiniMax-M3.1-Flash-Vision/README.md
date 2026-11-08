@@ -17,14 +17,17 @@ This repository packages the Tower and Projector from
 
 ## Contents
 
-| File | Tensors | What it holds |
-|---|---|---|
-| `model.safetensors` | 515 | MiniMax-M3.1-Flash vision Tower |
-| `projector.safetensors` | 8 | `multi_modal_projector` and remapped `patch_merge_mlp` |
-| `projector_config.json`, `projector.py` | | Projector shapes and loader |
-| `config.json`, `preprocessor_config.json` | | Vision-only model and image-processing configuration |
-| `export_manifest.json` | | Source pin, tensor counts and file hashes |
-| `LICENSE`, `LICENSE-CODE`, `NOTICE` | | Weight license, code license and attribution |
+| File | Contents |
+|---|---|
+| `model.safetensors` | Original-dtype Tower |
+| `projector.safetensors`, `projector.py`, `projector_config.json` | Projector weights, configuration and loader |
+| `config.json`, `preprocessor_config.json` | Vision and image-processing configuration |
+| `examples/inference.py` | Single-image inference |
+| `LICENSE`, `LICENSE-CODE`, `NOTICE` | Licenses and attribution |
+| `README.md`, `export_manifest.json` | Card, pinned source and file hashes |
+| `.gitattributes` | Hub-managed storage rules |
+
+Hub-only `.gitattributes` controls storage; the manifest identifies it separately from content hashes.
 
 ## Architecture
 
@@ -41,6 +44,7 @@ merged `(1, 256, 5120)` and projected `(1, 256, 6144)`.
 ## Usage
 
 See [`examples/inference.py`](examples/inference.py) for image feature extraction.
+Forward images independently to avoid attention coupling in packed batches.
 Forward one image per call: the native HF attention couples images in a single call.
 
 ## Validation

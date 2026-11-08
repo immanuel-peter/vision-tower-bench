@@ -11,6 +11,7 @@ from safetensors.torch import save_file
 
 from vtb.adapters.minimax_m3 import (
     CHECKPOINTS,
+    TOWER_PREFIX, PROJECTOR_PREFIX, MERGE_MLP_PREFIX,
     M3,
     load_source_parts,
     source_weights,
@@ -22,26 +23,11 @@ PROJECTOR_TENSORS = 8
 
 
 def write_manifest(out: Path, checkpoint=M3) -> dict:
+    from vtb.bundle_manifest import write_manifest as common_manifest
     index = source_json(checkpoint, "model.safetensors.index.json")["weight_map"]
-    prefixes = ("vision_tower.vision_model.", "multi_modal_projector.", "patch_merge_mlp.")
-    shards = sorted({shard for name, shard in index.items() if name.startswith(prefixes)})
-    files = {
-        str(path.relative_to(out)): hashlib.sha256(path.read_bytes()).hexdigest()
-        for path in sorted(out.rglob("*"))
-        if path.is_file() and path.name != "export_manifest.json"
-        and "__pycache__" not in path.relative_to(out).parts
-        and ".cache" not in path.relative_to(out).parts
-        and path.suffix != ".pyc"
-    }
-    manifest = {
-        "source_repo": checkpoint.repo, "source_revision": checkpoint.revision,
-        "source_shards": shards, "tower_tensors": TOWER_TENSORS,
-        "projector_tensors": PROJECTOR_TENSORS, "dtype": "bfloat16",
-        "source_dtypes_preserved": True, "hash_excludes": ["export_manifest.json"],
-        "files_sha256": files, "files": files,
-    }
-    (out / "export_manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
-    return manifest
+    shards = {v for k,v in index.items() if k.startswith((TOWER_PREFIX, PROJECTOR_PREFIX, MERGE_MLP_PREFIX))}
+    return common_manifest(out, checkpoint.repo, checkpoint.revision, shards, allow_mixed_source=True)
+
 
 
 def export(out: Path, checkpoint=M3) -> None:
@@ -78,6 +64,8 @@ def export(out: Path, checkpoint=M3) -> None:
         hf_hub_download(checkpoint.repo, "LICENSE", revision=checkpoint.revision),
         out / "LICENSE",
     )
+    from vtb.bundle_manifest import copy_assets
+    copy_assets(checkpoint.release_dir, out)
     write_manifest(out, checkpoint)
     for path in sorted(out.iterdir()):
         print(f"{path.stat().st_size / 1e6:9.2f} MB  {path.name}")
