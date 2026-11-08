@@ -2369,6 +2369,154 @@
           "full_train_images": 9100
         }
       ]
+    },
+    "mistral_large4_probe_attention_matched_f001": {
+      "images": 13000,
+      "label_fraction": 0.01,
+      "train_images": 100,
+      "full_train_images": 9100,
+      "cells": [
+        {
+          "learning_rate": 0.001,
+          "learning_rate_search": {
+            "1e-05": 0.0108,
+            "3e-05": 0.0297,
+            "0.0001": 0.0769,
+            "0.0003": 0.2364,
+            "0.001": 0.3226,
+            "0.003": 0.2764,
+            "0.01": 0.161,
+            "0.03": 0.0656,
+            "0.1": 0.0215,
+            "0.3": 0.0215,
+            "1": 0.0092
+          },
+          "val_accuracy": 0.3226,
+          "test_accuracy": 0.3422,
+          "test_std": 0.002,
+          "seeds": 3,
+          "model_id": "immanuelpeter/PixtralViT-Large-4",
+          "stage": "tower",
+          "layer_index": 30,
+          "relative_depth": 1.0,
+          "token_width": 2048,
+          "trainable_parameters": 1627748,
+          "label_fraction": 0.01,
+          "train_images": 100,
+          "full_train_images": 9100
+        }
+      ]
+    },
+    "mistral_large4_probe_attention_matched_f005": {
+      "images": 13000,
+      "label_fraction": 0.05,
+      "train_images": 455,
+      "full_train_images": 9100,
+      "cells": [
+        {
+          "learning_rate": 0.001,
+          "learning_rate_search": {
+            "1e-05": 0.0185,
+            "3e-05": 0.0621,
+            "0.0001": 0.2974,
+            "0.0003": 0.6128,
+            "0.001": 0.7056,
+            "0.003": 0.6995,
+            "0.01": 0.6046,
+            "0.03": 0.3159,
+            "0.1": 0.0379,
+            "0.3": 0.0395,
+            "1": 0.0092
+          },
+          "val_accuracy": 0.7056,
+          "test_accuracy": 0.7126,
+          "test_std": 0.0023,
+          "seeds": 3,
+          "model_id": "immanuelpeter/PixtralViT-Large-4",
+          "stage": "tower",
+          "layer_index": 30,
+          "relative_depth": 1.0,
+          "token_width": 2048,
+          "trainable_parameters": 1627748,
+          "label_fraction": 0.05,
+          "train_images": 455,
+          "full_train_images": 9100
+        }
+      ]
+    },
+    "mistral_large4_probe_attention_matched_f020": {
+      "images": 13000,
+      "label_fraction": 0.2,
+      "train_images": 1820,
+      "full_train_images": 9100,
+      "cells": [
+        {
+          "learning_rate": 0.0003,
+          "learning_rate_search": {
+            "1e-05": 0.0887,
+            "3e-05": 0.4123,
+            "0.0001": 0.8087,
+            "0.0003": 0.8477,
+            "0.001": 0.8415,
+            "0.003": 0.8262,
+            "0.01": 0.7723,
+            "0.03": 0.5923,
+            "0.1": 0.1979,
+            "0.3": 0.0092,
+            "1": 0.0092
+          },
+          "val_accuracy": 0.8477,
+          "test_accuracy": 0.8383,
+          "test_std": 0.0035,
+          "seeds": 3,
+          "model_id": "immanuelpeter/PixtralViT-Large-4",
+          "stage": "tower",
+          "layer_index": 30,
+          "relative_depth": 1.0,
+          "token_width": 2048,
+          "trainable_parameters": 1627748,
+          "label_fraction": 0.2,
+          "train_images": 1820,
+          "full_train_images": 9100
+        }
+      ]
+    },
+    "mistral_large4_probe_attention_matched_f10": {
+      "images": 13000,
+      "label_fraction": 1.0,
+      "train_images": 9100,
+      "full_train_images": 9100,
+      "cells": [
+        {
+          "learning_rate": 0.001,
+          "learning_rate_search": {
+            "1e-05": 0.6903,
+            "3e-05": 0.8785,
+            "0.0001": 0.8897,
+            "0.0003": 0.8897,
+            "0.001": 0.8923,
+            "0.003": 0.8779,
+            "0.01": 0.839,
+            "0.03": 0.7938,
+            "0.1": 0.0092,
+            "0.3": 0.0092,
+            "1": 0.0092
+          },
+          "val_accuracy": 0.8923,
+          "test_accuracy": 0.8711,
+          "test_std": 0.0021,
+          "seeds": 3,
+          "model_id": "immanuelpeter/PixtralViT-Large-4",
+          "stage": "tower",
+          "layer_index": 30,
+          "relative_depth": 1.0,
+          "token_width": 2048,
+          "trainable_parameters": 1627748,
+          "label_fraction": 1.0,
+          "train_images": 9100,
+          "full_train_images": 9100
+        }
+      ]
     }
   }
 }
