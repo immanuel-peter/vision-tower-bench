@@ -6,7 +6,7 @@ comparison measures frozen checkpoints at matched depth and Stage. It does
 not identify which training phase caused a change or establish an RL-only effect.
 
 [PR #29](https://github.com/immanuel-peter/vision-tower-bench/pull/29) is active.
-The verified inventory has **236/286 primary cells and 68/102 paired comparisons**.
+The verified inventory has **246/286 primary cells and 73/102 paired comparisons**.
 Recognition, label budgets, standardized diagnostics, all 13 perturbation
 conditions, NAVI, all 40 depth cells and Pro throughput are complete. Normals,
 SPair, KITTI and dense paired refits are active
@@ -197,7 +197,7 @@ superseded progress counts and historical blockers.
 Both ScanNet runs retain all 1,500 selected IDs with finite Stage metrics.
 Both used physical GPU0, BF16 batch 1 and 8 CPU threads. Four intervals replay
 exactly from these rows and are staged for the post-GPU inventory registration.
-They are additional completed statistics, not included in the current 68
+They are additional completed statistics, not included in the current 73
 registered comparison count.
 
 | Stage | K3 recall at 10px | Pro recall at 10px | Pro minus K3, pp, paired 95% interval |
@@ -216,3 +216,19 @@ for fresh K3. Both measure 768 images at 448, BF16 batch 1, two warmup batches,
 two loaders, physical GPU0 and 8 CPU threads. Runtime and exact immutable tensor
 identity are retained with each source. These point measurements do not carry
 an interval or establish a meaningful speed ranking.
+
+
+## First complete normal matrix and preservation audit
+
+The Pro raw-normal matrix is complete at all ten full-grid slices. All three
+seed metrics, IDs, split hashes, six-rate search, Stage shapes and finite
+aggregates passed the independent primary-content audit. Final Tower error
+is 33.1201 degrees, merged 31.1327 and projected 30.1977. Fresh K3 raw normals
+and both matched-normal matrices remain in progress; no sibling interval
+is inferred from these Pro points alone.
+
+[The preservation audit](historical-k3-results-preserved.json) verifies all 36
+baseline result paths named for K3 are byte-identical to the requested main
+base. All 64 original shared standardized label-budget rows and their protocol
+fields are also exact; only four Pro rows were added. Fresh K3 controls stay
+separate from historical measurements.

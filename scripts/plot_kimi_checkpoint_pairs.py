@@ -27,14 +27,20 @@ def main():
     inventory = load(args.evidence / "completed-inventory.json")
     assert inventory["completed_primary_cells"] == 286
     assert inventory["completed_paired_cells"] == 102
+    audit_path = args.evidence / "independent-content-audits/all-paired-intervals-independent-replay.json"
+    audit = load(audit_path)
+    assert audit["passed"] and audit["comparison_cells"] == 102
+    assert audit["all_intervals_replayed_exactly"]
+    replayed = {row["sha256"] for row in audit["results"] if row["exact_numerical_replay"]}
     source_paths = {}
     inputs = {}
 
     def source(entry):
         name, expected = Path(entry["source"]).name, entry["sha256"]
+        assert expected in replayed
         if expected not in source_paths:
-            candidates = [Path(entry["source"])]
-            candidates.extend(Path("results").rglob(name))
+            candidates = list(Path("results").rglob(name))
+            candidates.append(Path(entry["source"]))
             matches = [path for path in candidates if path.is_file() and digest(path) == expected]
             if not matches:
                 raise ValueError(f"No content-verified source for {name}")
@@ -95,6 +101,7 @@ def main():
         hardware_scope="Both arms of each comparison share physical device and settings; device provenance is retained per source run",
         limitation="Production official vLLM TORCH_SDPA BF16 parity failed; accepted conversion parity uses an independent mathematical reference",
         inputs_sha256=inputs, inventory_sha256=digest(args.evidence / "completed-inventory.json"),
+        numerical_replay_audit_sha256=digest(audit_path),
         rows=rows,
     )
     stem.with_suffix(".figure.json").write_text(json.dumps(manifest, indent=2) + "\n")

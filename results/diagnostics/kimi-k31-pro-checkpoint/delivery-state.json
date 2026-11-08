@@ -1,12 +1,12 @@
 {
   "pr_url": "https://github.com/immanuel-peter/vision-tower-bench/pull/29",
   "progress": {
-    "primary": 236,
+    "primary": 246,
     "required_primary": 286,
-    "paired": 68,
+    "paired": 73,
     "required_paired": 102,
     "complete_delivery": false,
-    "recorded_at": "2026-11-08T02:54:11.581520+00:00",
+    "recorded_at": "2026-11-08T03:39:58.324447+00:00",
     "staged_unregistered_scannet_comparisons": 4
   },
   "resource": {
@@ -34,6 +34,13 @@
     "root_hook_removed": true,
     "gpu0": "throughput and ScanNet then geometry paired fits",
     "gpu1": "normal matrices then SPair/KITTI and assigned within-checkpoint paired fits"
+  },
+  "current_gpu_jobs": {
+    "gpu0": "paired depth L24",
+    "gpu1": "fresh K3 raw-normal matrix",
+    "active_cuda_jobs": 2,
+    "threads_each": 8,
+    "extra_cpu_training": false
   },
   "example_correction": {
     "passed": true,
@@ -64,6 +71,13 @@
     "owner_patch": "inference-smoke/example-gelu-owner.patch",
     "unit_tests": "12 passed",
     "published_corrected_cuda_gate": "pending; no extra CUDA launched or HF upload",
-    "benchmark_cells_affected": 0
+    "benchmark_cells_affected": 0,
+    "prepared_comparison_driver": {
+      "path": "inference-smoke/compare_published_example_adapter.py",
+      "sha256": "9129b81dde210f7f7241d75d78c3d5c8cd8c3d724fcc7d8752fcbb70b4c4b1be",
+      "status": "compiled only; no CUDA",
+      "requires": "new explicit corrected-published-example-smoke grant, fresh owner immutable revision and inherited exclusive GPU lock",
+      "scope": "all three Stages bit-exact to fresh-snapshot bench adapter, plus separate exact published command functional run"
+    }
   }
 }

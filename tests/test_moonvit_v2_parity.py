@@ -1,4 +1,4 @@
-"""Verify that standalone MoonViT-V2 weights match the Tower embedded in Kimi K3."""
+"""Verify both exported checkpoints against their own pinned parent tensors."""
 
 import os
 from pathlib import Path
@@ -23,7 +23,7 @@ def parent_tensors(checkpoint, prefix):
 
 
 @pytest.mark.parametrize("checkpoint", CHECKPOINTS.values())
-def test_standalone_tower_matches_the_tower_inside_kimi_k3(checkpoint):
+def test_exported_tower_matches_its_pinned_parent(checkpoint):
     inside = parent_tensors(checkpoint, TOWER_PREFIX)
 
     model_id = checkpoint.model_id
