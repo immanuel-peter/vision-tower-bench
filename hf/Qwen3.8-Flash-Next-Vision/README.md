@@ -48,8 +48,7 @@ See [`examples/inference.py`](examples/inference.py) for image feature extractio
 
 The release tests compare all 333 tensors with the pinned parent checkpoint using
 `torch.equal`. Fixed-image Tower and merged outputs also match the parent implementation
-bit-for-bit on CPU and in BF16 on an NVIDIA RTX PRO 6000 Blackwell. The full record is
-in the [bench evidence](https://github.com/immanuel-peter/vision-tower-bench/tree/main/results/evidence/qwen38-flash-next).
+bit-for-bit on CPU and in BF16 on an NVIDIA RTX PRO 6000 Blackwell.
 
 ## Reproduction
 
