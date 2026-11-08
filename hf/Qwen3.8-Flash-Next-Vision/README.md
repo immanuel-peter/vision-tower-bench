@@ -12,8 +12,7 @@ base_model:
 
 # Qwen3.8-Flash-Next Vision
 
-This repository packages the Tower and learned merger from
-[Qwen3.8-Flash-Next](https://huggingface.co/Qwen/Qwen3.8-Flash-Next).
+This repository packages the Tower and learned merger from [Qwen3.8-Flash-Next](https://huggingface.co/Qwen/Qwen3.8-Flash-Next).
 
 ## Contents
 
@@ -24,6 +23,8 @@ This repository packages the Tower and learned merger from
 | `preprocessor_config.json` | | Qwen image preprocessing configuration |
 | `export_manifest.json` | | Source pin, tensor counts and file hashes |
 | `LICENSE` | | Qwen Community License 1.0 |
+| `examples/inference.py` | | Single-image extraction example |
+| `README.md`, `.gitattributes` | | Model card and Hub storage metadata |
 
 Qwen implements the learned merger inside `Qwen3_5VisionModel`, so this repository does
 not need a separate Projector file.
@@ -42,13 +43,16 @@ features at the language-model width. At 448 pixels the example reports Tower
 
 ## Usage
 
-See [`examples/inference.py`](examples/inference.py) for image feature extraction.
+With PyTorch, Pillow, torchvision and Transformers 5.17+, run `python examples/inference.py test-image.jpg`
+from the downloaded snapshot; see [the example](examples/inference.py). It uses CUDA BF16 when available.
 
 ## Validation
 
 The release tests compare all 333 tensors with the pinned parent checkpoint using
 `torch.equal`. Fixed-image Tower and merged outputs also match the parent implementation
 bit-for-bit on CPU and in BF16 on an NVIDIA RTX PRO 6000 Blackwell.
+
+[Validation evidence](https://github.com/immanuel-peter/vision-tower-bench/tree/t3/qwen-flash-vision-compatibility/results/evidence/qwen38-flash-next).
 
 ## Reproduction
 
