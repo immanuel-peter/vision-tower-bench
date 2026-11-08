@@ -359,7 +359,7 @@ def test_bundle_card_contents_and_manifest_hashes_match_the_files():
 
     bundle = ml4.RELEASE_DIR
     manifest = json.loads((bundle / "export_manifest.json").read_text())
-    assert manifest["hash_excludes"] == ["export_manifest.json"]
+    assert manifest["hash_excludes"] == ["export_manifest.json", ".gitattributes"]
     assert manifest["source_shards"] == ["consolidated-00053-of-00054.safetensors"]
     assert (manifest["tower_tensors"], manifest["projector_tensors"], manifest["dtype"]) == (272, 4, "bfloat16")
     present = {str(p.relative_to(bundle)) for p in bundle.rglob("*")

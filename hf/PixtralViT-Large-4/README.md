@@ -24,6 +24,7 @@ This repository packages the Tower and Projector from
 | `modeling_pixtral_large4.py` | | `PixtralVisionModel` subclass following the parent's numeric order |
 | `projector.py`, `projector_config.json` | | Projector shapes and loader |
 | `config.json`, `preprocessor_config.json` | | Vision configuration and `PixtralImageProcessor` settings |
+| `examples/inference.py` | | Single-image extraction example |
 | `export_manifest.json` | | Source pin, shard SHA256 and tensor name map |
 | `LICENSE`, `LICENSE-CODE`, `NOTICE` | | Weight license, code license and attribution |
 

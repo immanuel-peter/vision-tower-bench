@@ -25,7 +25,6 @@ MODELING_FILE = "modeling_pixtral_large4.py"
 MANIFEST = "export_manifest.json"
 BUNDLE_FILES = (
     "README.md",
-    ".gitattributes",
     "NOTICE",
     "projector.py",
     "examples/inference.py",
@@ -86,7 +85,8 @@ def distributed_files(out: Path) -> list[Path]:
     """Every file the release distributes, except the manifest itself."""
     return sorted(
         path for path in out.rglob("*")
-        if path.is_file() and path.name != MANIFEST and "__pycache__" not in path.parts and path.suffix != ".pyc"
+        if path.is_file() and path.name not in (MANIFEST, ".gitattributes")
+        and "__pycache__" not in path.parts and path.suffix != ".pyc"
     )
 
 
@@ -94,7 +94,7 @@ def finish_manifest(out: Path, base: dict) -> dict:
     """Add the SHA256 of every distributed file; the manifest cannot hash itself."""
     payload = dict(base)
     payload["files_sha256"] = {str(path.relative_to(out)): file_sha256(path) for path in distributed_files(out)}
-    payload["hash_excludes"] = [MANIFEST]
+    payload["hash_excludes"] = [MANIFEST, ".gitattributes"]
     (out / MANIFEST).write_text(json.dumps(payload, indent=2) + "\n")
     return payload
 
