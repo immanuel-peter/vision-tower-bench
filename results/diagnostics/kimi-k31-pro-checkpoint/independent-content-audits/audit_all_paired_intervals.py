@@ -6,7 +6,8 @@ from types import SimpleNamespace
 import torch
 from scripts.cross_run_bootstrap import correspondence,perturbation
 from scripts.correspondence_bootstrap import interval,PRIMARY
-from scripts.validate_kimi_results import finite_numbers,validate_correspondence,validate_pairing
+from scripts.validate_kimi_results import finite_numbers,validate_correspondence,validate_pairing,GEOMETRY_RATES
+from vtb.probe_run import LEARNING_RATES
 from vtb.geometry_bootstrap import paired_metric_bootstrap
 from vtb.semantic_bootstrap import paired_image_bootstrap
 
@@ -29,7 +30,15 @@ for source,records in groups.items():
  args=SimpleNamespace(resamples=10000,confidence=.95,bootstrap_seed=0,metric=None)
  if task=="recognition":
   assert len(records)==1
+  key=records[0]["cell"]
+  for side in ("first","second"):
+   assert payload[side]["stage"]==key[side+"_stage"]
+   assert payload[side]["layer_index"]==key[side+"_layer"]
   protocol=payload["protocol"]
+  assert protocol["readout"]==key["readout"]=="attention" and protocol["arm"]==key["arm"]=="matched"
+  assert protocol["epochs"]==20 and protocol["seeds"]==3 and protocol["test_images"]==1950
+  for side in ("first","second"):
+   assert {float(rate) for rate in payload[side]["learning_rate_search"]}==set(LEARNING_RATES)
   threads=protocol.get("bootstrap_threads",protocol["threads"]);torch.set_num_threads(threads)
   rows=payload["predictions"]
   assert [row["image_id"] for row in rows]==read(root/"splits-imagenet100.json")["test"]
@@ -53,6 +62,7 @@ for source,records in groups.items():
   assert len(records)==13
   torch.set_num_threads(4)
   protocol=payload["protocol"];args.stage=protocol["first_stage"];args.second_stage=protocol["second_stage"]
+  assert all(record["cell"]["first_stage"]==args.stage and record["cell"]["second_stage"]==args.second_stage for record in records)
   names=tuple(protocol["difference"].split("_minus_",1))
   replay=perturbation(read(protocol["first_source"]),read(protocol["second_source"]),names,args)
   assert all(payload[key]==value for key,value in replay.items())
@@ -61,6 +71,9 @@ for source,records in groups.items():
   assert len(records)==1
   torch.set_num_threads(8)
   key=records[0]["cell"];protocol=payload["protocol"]
+  assert protocol["task"]==("depth" if task=="kitti" else task)
+  assert protocol["arm"]==key.get("arm","matched")
+  assert set(protocol["learning_rates"])==GEOMETRY_RATES
   splits=read(root/("splits-kitti.json" if task=="kitti" else "splits-diode.json"))
   assert [row["image_id"] for row in payload["measurements"]]==splits["test"]
   assert protocol["higher_is_better"]==(task!="normal") and protocol["seeds"]==3 and protocol["epochs"]==10
@@ -68,6 +81,11 @@ for source,records in groups.items():
   for side in ("first","second"):
    summary=payload[side]
    assert summary["stage"]==key[side+"_stage"]
+   assert summary["layer_index"]==key.get(side+"_layer",27)
+   search=summary["learning_rate_search"]
+   assert len(search)==6 and {float(rate) for rate in search}==GEOMETRY_RATES
+   selected=next(value for rate,value in search.items() if float(rate)==summary["learning_rate"])
+   assert selected==summary["validation_score"]==(min(search.values()) if task=="normal" else max(search.values()))
    name=summary["name"]
    tensor=torch.tensor([row[name] for row in payload["measurements"]]).T.contiguous()
    assert tensor.shape==(3,len(splits["test"])) and torch.isfinite(tensor).all()
@@ -87,6 +105,7 @@ for source,records in groups.items():
   if "first_source" in payload["protocol"]:
    protocol=payload["protocol"];first,second=read(protocol["first_source"]),read(protocol["second_source"])
    args.stage=protocol["first_stage"];args.second_stage=protocol["second_stage"]
+   assert args.stage==key["first_stage"] and args.second_stage==key["second_stage"]
    names=tuple(protocol["difference"].split("_minus_",1))
    for original in (first,second):validate_correspondence(original,selected,visibility)
    pairing=validate_pairing(first,second,args.stage+":27",args.second_stage+":27")
@@ -94,6 +113,7 @@ for source,records in groups.items():
    replay=correspondence(first,second,names,args)
    assert all(payload[key]==value for key,value in replay.items())
   else:
+   assert payload["first"]==key["first_stage"]+":27" and payload["second"]==key["second_stage"]+":27"
    first=read(root/"measurements/correspondence"/f"kimi_k31_pro_correspondence_{task}.json")
    validate_correspondence(first,selected,visibility)
    pairing=validate_pairing(first,first,payload["first"],payload["second"])

@@ -1,10 +1,10 @@
 {
   "passed": true,
-  "completed_primary_cells": 246,
+  "completed_primary_cells": 266,
   "required_primary_cells": 286,
   "complete_primary_inventory": false,
   "actual_cell_to_source_mapping_verified": true,
-  "source_payload_groups": 81,
+  "source_payload_groups": 83,
   "counts_by_task": {
     "recognition": 80,
     "label_budget": 16,
@@ -14,7 +14,7 @@
     "depth": 40,
     "throughput": 2,
     "scannet": 6,
-    "normal": 10
+    "normal": 30
   },
   "actual_content_validations": [
     {
@@ -1503,6 +1503,44 @@
       "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/kimi_k31_pro_geometry_normal_raw.json",
       "task": "normal",
       "sha256": "64067e479f93ae1a2c0c2378d4119dea7594dd4431e62c10e95d4461692f2c8e",
+      "validation": {
+        "passed": true,
+        "images": 771,
+        "cells": 10,
+        "learning_rates": 6,
+        "feature_device": "cpu",
+        "search_seed": 0,
+        "retraining_seeds": [
+          0,
+          1,
+          2
+        ],
+        "ordered_ids_sha256": "6ea19ef6dd1d1b2f2af287a41598087f70e485457f608c61af95c29fef32cea4"
+      }
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/moonvit_v2_geometry_normal_raw.json",
+      "task": "normal",
+      "sha256": "b0e80ce3fc03b6c612841d6d5b091c590ffb77750b733b8d362465c20112d6ab",
+      "validation": {
+        "passed": true,
+        "images": 771,
+        "cells": 10,
+        "learning_rates": 6,
+        "feature_device": "cpu",
+        "search_seed": 0,
+        "retraining_seeds": [
+          0,
+          1,
+          2
+        ],
+        "ordered_ids_sha256": "6ea19ef6dd1d1b2f2af287a41598087f70e485457f608c61af95c29fef32cea4"
+      }
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/kimi_k31_pro_geometry_normal_matched.json",
+      "task": "normal",
+      "sha256": "d977741174107245a98fed5ddfb82afbc6bfa47cbb96d48065f4d6cf5339b61e",
       "validation": {
         "passed": true,
         "images": 771,
@@ -4257,7 +4295,227 @@
       },
       "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/kimi_k31_pro_geometry_normal_raw.json",
       "sha256": "64067e479f93ae1a2c0c2378d4119dea7594dd4431e62c10e95d4461692f2c8e"
+    },
+    {
+      "cell": {
+        "task": "normal",
+        "model": "moonvit_v2",
+        "stage": "merged",
+        "layer": 27,
+        "arm": "raw"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/moonvit_v2_geometry_normal_raw.json",
+      "sha256": "b0e80ce3fc03b6c612841d6d5b091c590ffb77750b733b8d362465c20112d6ab"
+    },
+    {
+      "cell": {
+        "task": "normal",
+        "model": "moonvit_v2",
+        "stage": "projected",
+        "layer": 27,
+        "arm": "raw"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/moonvit_v2_geometry_normal_raw.json",
+      "sha256": "b0e80ce3fc03b6c612841d6d5b091c590ffb77750b733b8d362465c20112d6ab"
+    },
+    {
+      "cell": {
+        "task": "normal",
+        "model": "moonvit_v2",
+        "stage": "tower",
+        "layer": 3,
+        "arm": "raw"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/moonvit_v2_geometry_normal_raw.json",
+      "sha256": "b0e80ce3fc03b6c612841d6d5b091c590ffb77750b733b8d362465c20112d6ab"
+    },
+    {
+      "cell": {
+        "task": "normal",
+        "model": "moonvit_v2",
+        "stage": "tower",
+        "layer": 7,
+        "arm": "raw"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/moonvit_v2_geometry_normal_raw.json",
+      "sha256": "b0e80ce3fc03b6c612841d6d5b091c590ffb77750b733b8d362465c20112d6ab"
+    },
+    {
+      "cell": {
+        "task": "normal",
+        "model": "moonvit_v2",
+        "stage": "tower",
+        "layer": 10,
+        "arm": "raw"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/moonvit_v2_geometry_normal_raw.json",
+      "sha256": "b0e80ce3fc03b6c612841d6d5b091c590ffb77750b733b8d362465c20112d6ab"
+    },
+    {
+      "cell": {
+        "task": "normal",
+        "model": "moonvit_v2",
+        "stage": "tower",
+        "layer": 14,
+        "arm": "raw"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/moonvit_v2_geometry_normal_raw.json",
+      "sha256": "b0e80ce3fc03b6c612841d6d5b091c590ffb77750b733b8d362465c20112d6ab"
+    },
+    {
+      "cell": {
+        "task": "normal",
+        "model": "moonvit_v2",
+        "stage": "tower",
+        "layer": 17,
+        "arm": "raw"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/moonvit_v2_geometry_normal_raw.json",
+      "sha256": "b0e80ce3fc03b6c612841d6d5b091c590ffb77750b733b8d362465c20112d6ab"
+    },
+    {
+      "cell": {
+        "task": "normal",
+        "model": "moonvit_v2",
+        "stage": "tower",
+        "layer": 20,
+        "arm": "raw"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/moonvit_v2_geometry_normal_raw.json",
+      "sha256": "b0e80ce3fc03b6c612841d6d5b091c590ffb77750b733b8d362465c20112d6ab"
+    },
+    {
+      "cell": {
+        "task": "normal",
+        "model": "moonvit_v2",
+        "stage": "tower",
+        "layer": 24,
+        "arm": "raw"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/moonvit_v2_geometry_normal_raw.json",
+      "sha256": "b0e80ce3fc03b6c612841d6d5b091c590ffb77750b733b8d362465c20112d6ab"
+    },
+    {
+      "cell": {
+        "task": "normal",
+        "model": "moonvit_v2",
+        "stage": "tower",
+        "layer": 27,
+        "arm": "raw"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/moonvit_v2_geometry_normal_raw.json",
+      "sha256": "b0e80ce3fc03b6c612841d6d5b091c590ffb77750b733b8d362465c20112d6ab"
+    },
+    {
+      "cell": {
+        "task": "normal",
+        "model": "kimi_k31_pro",
+        "stage": "merged",
+        "layer": 27,
+        "arm": "matched"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/kimi_k31_pro_geometry_normal_matched.json",
+      "sha256": "d977741174107245a98fed5ddfb82afbc6bfa47cbb96d48065f4d6cf5339b61e"
+    },
+    {
+      "cell": {
+        "task": "normal",
+        "model": "kimi_k31_pro",
+        "stage": "projected",
+        "layer": 27,
+        "arm": "matched"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/kimi_k31_pro_geometry_normal_matched.json",
+      "sha256": "d977741174107245a98fed5ddfb82afbc6bfa47cbb96d48065f4d6cf5339b61e"
+    },
+    {
+      "cell": {
+        "task": "normal",
+        "model": "kimi_k31_pro",
+        "stage": "tower",
+        "layer": 3,
+        "arm": "matched"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/kimi_k31_pro_geometry_normal_matched.json",
+      "sha256": "d977741174107245a98fed5ddfb82afbc6bfa47cbb96d48065f4d6cf5339b61e"
+    },
+    {
+      "cell": {
+        "task": "normal",
+        "model": "kimi_k31_pro",
+        "stage": "tower",
+        "layer": 7,
+        "arm": "matched"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/kimi_k31_pro_geometry_normal_matched.json",
+      "sha256": "d977741174107245a98fed5ddfb82afbc6bfa47cbb96d48065f4d6cf5339b61e"
+    },
+    {
+      "cell": {
+        "task": "normal",
+        "model": "kimi_k31_pro",
+        "stage": "tower",
+        "layer": 10,
+        "arm": "matched"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/kimi_k31_pro_geometry_normal_matched.json",
+      "sha256": "d977741174107245a98fed5ddfb82afbc6bfa47cbb96d48065f4d6cf5339b61e"
+    },
+    {
+      "cell": {
+        "task": "normal",
+        "model": "kimi_k31_pro",
+        "stage": "tower",
+        "layer": 14,
+        "arm": "matched"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/kimi_k31_pro_geometry_normal_matched.json",
+      "sha256": "d977741174107245a98fed5ddfb82afbc6bfa47cbb96d48065f4d6cf5339b61e"
+    },
+    {
+      "cell": {
+        "task": "normal",
+        "model": "kimi_k31_pro",
+        "stage": "tower",
+        "layer": 17,
+        "arm": "matched"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/kimi_k31_pro_geometry_normal_matched.json",
+      "sha256": "d977741174107245a98fed5ddfb82afbc6bfa47cbb96d48065f4d6cf5339b61e"
+    },
+    {
+      "cell": {
+        "task": "normal",
+        "model": "kimi_k31_pro",
+        "stage": "tower",
+        "layer": 20,
+        "arm": "matched"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/kimi_k31_pro_geometry_normal_matched.json",
+      "sha256": "d977741174107245a98fed5ddfb82afbc6bfa47cbb96d48065f4d6cf5339b61e"
+    },
+    {
+      "cell": {
+        "task": "normal",
+        "model": "kimi_k31_pro",
+        "stage": "tower",
+        "layer": 24,
+        "arm": "matched"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/kimi_k31_pro_geometry_normal_matched.json",
+      "sha256": "d977741174107245a98fed5ddfb82afbc6bfa47cbb96d48065f4d6cf5339b61e"
+    },
+    {
+      "cell": {
+        "task": "normal",
+        "model": "kimi_k31_pro",
+        "stage": "tower",
+        "layer": 27,
+        "arm": "matched"
+      },
+      "source": "/tmp/vtb-delivery/issues/24/measurements/geometry/kimi_k31_pro_geometry_normal_matched.json",
+      "sha256": "d977741174107245a98fed5ddfb82afbc6bfa47cbb96d48065f4d6cf5339b61e"
     }
   ],
-  "verified_at": "2026-11-08T03:15:26.867051+00:00"
+  "verified_at": "2026-11-08T04:25:37.426161+00:00"
 }

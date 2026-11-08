@@ -6,7 +6,7 @@ comparison measures frozen checkpoints at matched depth and Stage. It does
 not identify which training phase caused a change or establish an RL-only effect.
 
 [PR #29](https://github.com/immanuel-peter/vision-tower-bench/pull/29) is active.
-The verified inventory has **246/286 primary cells and 73/102 paired comparisons**.
+The verified inventory has **266/286 primary cells and 80/102 paired comparisons**.
 Recognition, label budgets, standardized diagnostics, all 13 perturbation
 conditions, NAVI, all 40 depth cells and Pro throughput are complete. Normals,
 SPair, KITTI and dense paired refits are active
@@ -197,7 +197,7 @@ superseded progress counts and historical blockers.
 Both ScanNet runs retain all 1,500 selected IDs with finite Stage metrics.
 Both used physical GPU0, BF16 batch 1 and 8 CPU threads. Four intervals replay
 exactly from these rows and are staged for the post-GPU inventory registration.
-They are additional completed statistics, not included in the current 73
+They are additional completed statistics, not included in the current 80
 registered comparison count.
 
 | Stage | K3 recall at 10px | Pro recall at 10px | Pro minus K3, pp, paired 95% interval |
@@ -223,12 +223,40 @@ an interval or establish a meaningful speed ranking.
 The Pro raw-normal matrix is complete at all ten full-grid slices. All three
 seed metrics, IDs, split hashes, six-rate search, Stage shapes and finite
 aggregates passed the independent primary-content audit. Final Tower error
-is 33.1201 degrees, merged 31.1327 and projected 30.1977. Fresh K3 raw normals
-and both matched-normal matrices remain in progress; no sibling interval
-is inferred from these Pro points alone.
+is 33.1201 degrees, merged 31.1327 and projected 30.1977. Fresh K3 raw normals and Pro matched normals are now complete. The K3
+matched-normal control and remaining paired fits continue. No sibling
+interval is inferred from matrix points alone.
 
 [The preservation audit](historical-k3-results-preserved.json) verifies all 36
 baseline result paths named for K3 are byte-identical to the requested main
 base. All 64 original shared standardized label-budget rows and their protocol
 fields are also exact; only four Pro rows were added. Fresh K3 controls stay
 separate from historical measurements.
+
+
+## Complete raw-normal controls and Pro matched normals
+
+Both siblings have complete ten-cell raw-normal matrices at native grids.
+The Pro matched-normal ten-cell matrix also passed. The independent primary
+content audit now covers 266 cells across 83 payload groups. Both sibling raw
+matrices used physical GPU1 and 8 CPU threads, reusing the same CPU4/BF16/batch1
+DIODE feature producer. Final-Stage raw normal errors are descriptive points:
+
+| Stage | Fresh K3 error, degrees | Pro error, degrees |
+| --- | ---: | ---: |
+| Tower | 33.3137 | 33.1201 |
+| Merged | 31.4691 | 31.1327 |
+| Projected | 30.4294 | 30.1977 |
+
+[The full raw-normal comparison](raw-normal-comparison.png) preserves all
+eight Tower depths and final Stages, with actual head parameter counts.
+It attaches no interval from another fit. All 11 matched-depth comparisons
+have also completed and replayed from their own 115 test-image rows. Normal,
+transfer and remaining correspondence comparisons continue.
+
+The exact fixed-image preprocessing check is bit-exact between the published
+5311 processor and bench adapter in both FP32 and BF16. This CPU-only check
+is [recorded separately](inference-smoke/projector-activation-correction/example-preprocess-equivalence.json)
+from the pending corrected-published CUDA proof. A read-only Hub observation
+at 04:08:53 found revision 81454a8cbd34425485f16204c4f96019c747fceb still carrying
+the old tanh-GELU example hash 77516f1. No worker HF upload occurred.

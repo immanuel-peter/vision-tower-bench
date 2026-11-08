@@ -1,12 +1,12 @@
 {
   "pr_url": "https://github.com/immanuel-peter/vision-tower-bench/pull/29",
   "progress": {
-    "primary": 246,
+    "primary": 266,
     "required_primary": 286,
-    "paired": 73,
+    "paired": 80,
     "required_paired": 102,
     "complete_delivery": false,
-    "recorded_at": "2026-11-08T03:39:58.324447+00:00",
+    "recorded_at": "2026-11-08T04:26:35.473342+00:00",
     "staged_unregistered_scannet_comparisons": 4
   },
   "resource": {
@@ -36,8 +36,8 @@
     "gpu1": "normal matrices then SPair/KITTI and assigned within-checkpoint paired fits"
   },
   "current_gpu_jobs": {
-    "gpu0": "paired depth L24",
-    "gpu1": "fresh K3 raw-normal matrix",
+    "gpu0": "paired normal fits",
+    "gpu1": "fresh K3 matched-normal all10 matrix",
     "active_cuda_jobs": 2,
     "threads_each": 8,
     "extra_cpu_training": false
@@ -78,6 +78,24 @@
       "status": "compiled only; no CUDA",
       "requires": "new explicit corrected-published-example-smoke grant, fresh owner immutable revision and inherited exclusive GPU lock",
       "scope": "all three Stages bit-exact to fresh-snapshot bench adapter, plus separate exact published command functional run"
+    },
+    "cpu_preprocess_equivalence": {
+      "passed": true,
+      "fp32_bit_exact": true,
+      "bf16_bit_exact": true,
+      "source": "inference-smoke/example-preprocess-equivalence.json",
+      "no_cuda": true
+    },
+    "latest_read_only_hub_observation": {
+      "scope": "read-only Hub metadata and example bytes, not a fresh-weight or CUDA inference proof",
+      "repository": "immanuelpeter/MoonViT-K3.1-Pro",
+      "observed_immutable_revision": "81454a8cbd34425485f16204c4f96019c747fceb",
+      "example_sha256": "77516f1aac538c1af428a64ca1f330386d7c26ee7ecfcbec438c47f6f655e2e2",
+      "bench_candidate_sha256": "72e7412b06eae87e385de467c692c36aef385c3005b33a5bf3e5d8ab6184d693",
+      "exact_gelu_candidate_published": false,
+      "no_upload": true,
+      "no_cuda": true,
+      "observed_at": "2026-11-08T04:08:53.239865+00:00"
     }
   }
 }
