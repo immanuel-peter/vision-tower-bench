@@ -136,6 +136,13 @@ and `projected`, 80 comparisons per run.
   BF16 gate fails in exactly these 29 comparisons, for the parent and the
   release alike. The gate is not met, and it is not loosened.
 
+A fresh download of release revision `3cd67e8`, loaded through its own
+`modeling_pixtral_large4.py` with `trust_remote_code`, reproduces these
+numbers exactly and equals the adapter in all 16 checks
+([efficient](hf_reload_parity_3cd67e8_efficient.json),
+[explicit](hf_reload_parity_3cd67e8_explicit.json)). Its validator exits
+non-zero only because of the 29 cross-precision gate failures above.
+
 The stock HF path, `PixtralVisionModel` without the supplied forward,
 reaches cosine 0.9937 against the parent's BF16 forward with the same
 kernel (`diagnosis-3bb47be.json`, variant `hf`/`default`).
