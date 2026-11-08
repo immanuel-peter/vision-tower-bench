@@ -227,7 +227,12 @@
       "mimo26_pro": "geometry/mimo26_pro_geometry_depth_matched.json",
       "mimo26_flash": "geometry/mimo26_flash_geometry_depth_matched.json"
     },
-    "label_budget": "diagnostics/mimo26-tower-outlier-channel/label_budget_standardized.json"
+    "label_budget": "diagnostics/mimo26-tower-outlier-channel/label_budget_standardized.json",
+    "semantic_checkpoint_comparisons": [
+      "bootstrap/007-recognition-kimi_k31_pro-minus-moonvit_v2-tower-L27.json",
+      "bootstrap/008-recognition-kimi_k31_pro-minus-moonvit_v2-merged-L27.json",
+      "bootstrap/009-recognition-kimi_k31_pro-minus-moonvit_v2-projected-L27.json"
+    ]
   },
   "history": "history/roster-run.md"
 }

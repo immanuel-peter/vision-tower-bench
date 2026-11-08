@@ -396,10 +396,16 @@ def tower_vs_projector(out: Path) -> None:
 
 def semantic_forest(out: Path) -> None:
     rows = []
-    for path in sorted(RESULTS.glob("bootstrap/semantic-*-vs-*.json")):
+    paths = set(RESULTS.glob("bootstrap/semantic-*-vs-*.json"))
+    paths.update(RESULTS / path for path in SOURCES.get("semantic_checkpoint_comparisons", []))
+    for path in sorted(paths):
         payload = json.loads(path.read_text())
         protocol, difference = payload["protocol"], payload["difference"]
-        stage = f", {protocol['stage']}" if "stage" in protocol else ""
+        stage_name = protocol.get("stage")
+        if stage_name is None and "stage" in payload["first"] and "stage" in payload["second"]:
+            first, second = payload["first"]["stage"], payload["second"]["stage"]
+            stage_name = first if first == second else f"{first} vs {second}"
+        stage = f", {stage_name}" if stage_name else ""
         label = (
             f"{payload['first']['name']} - {payload['second']['name']}\n"
             f"{protocol['readout']}, {protocol['arm']}{stage}"
@@ -419,7 +425,7 @@ def semantic_forest(out: Path) -> None:
     axis.set_ylim(-0.6, len(rows) - 0.4)
     axis.set_xlabel("top-1 difference, first minus second")
     axis.set_title(
-        "Cross-model semantic comparisons\n"
+        "Paired semantic comparisons\n"
         "hollow markers cross zero, so the ranking does not resolve",
         fontsize=10,
     )

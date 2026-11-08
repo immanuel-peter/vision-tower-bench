@@ -132,6 +132,19 @@ def test_semantic_forest_includes_the_v3_comparisons(tmp_path):
         assert f"attention, matched, {stage}" in labels
 
 
+def test_semantic_forest_includes_all_kimi_sibling_stages(tmp_path):
+    paths = FIGURE_SCRIPT.SOURCES["semantic_checkpoint_comparisons"]
+    payloads = [json.loads((ROOT / "results" / path).read_text()) for path in paths]
+    assert len(payloads) == 3
+    assert {payload["first"]["stage"] for payload in payloads} == {"tower", "merged", "projected"}
+    assert all(payload["first"]["name"] == "kimi_k31_pro" and payload["second"]["name"] == "moonvit_v2"
+               and payload["first"]["stage"] == payload["second"]["stage"]
+               and payload["protocol"]["test_images"] == 1950 for payload in payloads)
+    path = tmp_path / "kimi-semantic.svg"
+    FIGURE_SCRIPT.semantic_forest(path)
+    assert path.read_text().count("kimi_k31_pro - moonvit_v2") == 3
+
+
 def test_label_budget_reads_the_standardized_runs_for_every_tower():
     series = FIGURE_SCRIPT.label_budget_series()
 
