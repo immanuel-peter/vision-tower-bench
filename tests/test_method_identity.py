@@ -62,3 +62,22 @@ def test_common_reducer_fits_only_train_and_preserves_rng():
     assert torch.equal(fit.basis,other.basis) and torch.equal(fit.mean,other.mean) and torch.equal(fit.scale,other.scale)
     assert type(probe_run.fit_reducer(tokens,split,4)) is probe.Reducer
     with pytest.raises(TypeError):probe_run.fit_reducer(tokens,split,4,True)
+
+
+def test_real_recognition_producer_records_its_actual_method(tmp_path, monkeypatch):
+    ids=[str(i) for i in range(20)]
+    labels=tmp_path/'labels.json';labels.write_text(json.dumps({'labels':{i:int(i)%2 for i in ids}}))
+    features=torch.arange(20*2*4).reshape(20,2,4).float()
+    monkeypatch.setattr(probe_run,'selected_slices',lambda *_:[('tower',1)])
+    monkeypatch.setattr(probe_run.cache,'load',lambda *_:(features,ids,{'model_id':'fixture','relative_depth':1.0}))
+    monkeypatch.setattr(probe_run,'run_cell',lambda *args:{'test_accuracy':.5,'test_std':0.,'learning_rate':.01})
+    outputs=[]
+    for standardized in (False,True):
+        out=tmp_path/f'recognition-{standardized}.json'
+        argv=['producer','--run',str(tmp_path),'--labels',str(labels),'--out',str(out),
+              '--device','cpu','--match-capacity','--width','2']
+        monkeypatch.setattr(sys,'argv',argv+(['--standardize-channels'] if standardized else []))
+        probe_run.main();payload=json.loads(out.read_text());outputs.append(payload)
+        assert methods.identify(payload)==methods.identify(payload['cells'][0])
+    with pytest.raises(ValueError,match='methods differ'):
+        methods.require_same(*outputs)

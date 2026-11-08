@@ -178,3 +178,10 @@ and geometry sweeps, label budgets, all 13 perturbations, NAVI, ScanNet, SPair,
 KITTI and throughput. The corrected published inference example also passes
 fresh-download CUDA BF16 testing at all three Stages. Production official BF16
 SDPA agreement remains failed and is documented separately.
+
+
+## Structural cleanup validation
+
+[PR 29 cleanup evidence](diagnostics/structural-cleanup/pr-29/README.md) records
+method identity, preserved measurements and the fresh immutable-release inference test.
+The combined integration checks retain all twenty registered models.

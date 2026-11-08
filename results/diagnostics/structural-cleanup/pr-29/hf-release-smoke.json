@@ -1,0 +1,37 @@
+{
+  "repo": "immanuelpeter/MoonViT-K3.1-Pro",
+  "revision": "e8d6143105fabd63034e817b4921fb674e4e4cbc",
+  "snapshot": "/tmp/vtb-cleanup/smoke-kimi-final/fresh-29/models--immanuelpeter--MoonViT-K3.1-Pro/snapshots/e8d6143105fabd63034e817b4921fb674e4e4cbc",
+  "command": "python examples/inference.py /tmp/vtb-delivery/data/imagenet100/validation/validation_000000.jpg",
+  "device": "physical GPU0 / logical cuda:0",
+  "dtype": "bfloat16",
+  "batch_size": 1,
+  "image": "/tmp/vtb-delivery/data/imagenet100/validation/validation_000000.jpg",
+  "image_size": [
+    500,
+    334
+  ],
+  "image_sha256": "dc4d456ce66cf18cc246831b3fe8b54133b507de981490a29f1623d86ddbeae3",
+  "exit_status": 0,
+  "seconds": 7.475908816995798,
+  "manifest_hashes_pass": true,
+  "shapes": {
+    "tower": [
+      1,
+      1024,
+      1024
+    ],
+    "merged": [
+      1,
+      256,
+      4096
+    ],
+    "projected": [
+      1,
+      256,
+      7168
+    ]
+  },
+  "shapes_match_card": true,
+  "weight_uploads": false
+}
