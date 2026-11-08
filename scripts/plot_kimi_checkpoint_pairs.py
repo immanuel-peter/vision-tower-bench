@@ -79,7 +79,7 @@ def main():
                              source=str(source_paths[entry["sha256"]])))
         ax.axhline(0, color="0.45", linewidth=.8)
         ax.axvline(1.07, color="0.75", linewidth=.7, linestyle=":")
-        ax.set_xticks([3 / 27, .5, 1, 1.14, 1.28], [".11", ".50", "1.0", "Merged", "Projected"])
+        ax.set_xticks([3 / 27, .5, 1, 1.14, 1.28], [".11", ".50", "1.0", "Merged", "Proj."])
         ax.tick_params(axis="x", labelsize=8)
         ax.set_xlabel("Tower Relative Depth / final Stages")
         ax.set_ylabel(label)

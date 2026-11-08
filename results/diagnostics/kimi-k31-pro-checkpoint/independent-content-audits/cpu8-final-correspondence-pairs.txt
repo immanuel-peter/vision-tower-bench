@@ -1,0 +1,70 @@
+bash: cannot set terminal process group (1): Inappropriate ioctl for device
+bash: no job control in this shell
+{"dataset": "scannet", "comparison": {"comparison": "kimi_k31_pro-minus-moonvit_v2", "task": "scannet", "first_stage": "tower", "second_stage": "tower"}, "finite_pairs": 1500, "source_zero_keypoint_pairs": 0, "passed": true}
+{"dataset": "scannet", "comparison": {"comparison": "kimi_k31_pro-minus-moonvit_v2", "task": "scannet", "first_stage": "merged", "second_stage": "merged"}, "finite_pairs": 1500, "source_zero_keypoint_pairs": 0, "passed": true}
+{"dataset": "scannet", "comparison": {"comparison": "kimi_k31_pro-minus-moonvit_v2", "task": "scannet", "first_stage": "projected", "second_stage": "projected"}, "finite_pairs": 1500, "source_zero_keypoint_pairs": 0, "passed": true}
+{"dataset": "scannet", "comparison": {"comparison": "kimi_k31_pro-projected-minus-tower", "task": "scannet", "first_stage": "projected", "second_stage": "tower"}, "finite_pairs": 1500, "source_zero_keypoint_pairs": 0, "passed": true}
+{"dataset": "spair", "comparison": {"comparison": "kimi_k31_pro-minus-moonvit_v2", "task": "spair", "first_stage": "tower", "second_stage": "tower"}, "finite_pairs": 3408, "source_zero_keypoint_pairs": 192, "passed": true}
+{"dataset": "spair", "comparison": {"comparison": "kimi_k31_pro-minus-moonvit_v2", "task": "spair", "first_stage": "merged", "second_stage": "merged"}, "finite_pairs": 3408, "source_zero_keypoint_pairs": 192, "passed": true}
+{"dataset": "spair", "comparison": {"comparison": "kimi_k31_pro-minus-moonvit_v2", "task": "spair", "first_stage": "projected", "second_stage": "projected"}, "finite_pairs": 3408, "source_zero_keypoint_pairs": 192, "passed": true}
+{"dataset": "spair", "comparison": {"comparison": "kimi_k31_pro-projected-minus-tower", "task": "spair", "first_stage": "projected", "second_stage": "tower"}, "finite_pairs": 3408, "source_zero_keypoint_pairs": 192, "passed": true}
+bash: cannot set terminal process group (1): Inappropriate ioctl for device
+bash: no job control in this shell
+{"passed": true, "completed_primary_cells": 286, "required_primary_cells": 286, "complete_primary_inventory": true, "actual_cell_to_source_mapping_verified": true, "source_payload_groups": 88, "counts_by_task": {"recognition": 80, "label_budget": 16, "perturbation": 78, "standardized_label_budget": 8, "navi": 6, "depth": 40, "throughput": 2, "scannet": 6, "normal": 40, "spair": 6, "kitti": 4}, "verified_at": "2026-11-08T05:57:09.506004+00:00"}
+bash: cannot set terminal process group (1): Inappropriate ioctl for device
+bash: no job control in this shell
+{"task": "perturbation", "source": "perturbation-kimi_k31_pro-vs-moonvit_v2-tower.json", "cells": 13, "exact_replay": true}
+{"task": "perturbation", "source": "perturbation-kimi_k31_pro-vs-moonvit_v2-merged.json", "cells": 13, "exact_replay": true}
+{"task": "perturbation", "source": "perturbation-kimi_k31_pro-vs-moonvit_v2-projected.json", "cells": 13, "exact_replay": true}
+{"task": "perturbation", "source": "perturbation-kimi_k31_pro-projected-vs-tower-all-conditions.json", "cells": 13, "exact_replay": true}
+{"task": "recognition", "source": "007-recognition-kimi_k31_pro-minus-moonvit_v2-tower-L27.json", "cells": 1, "exact_replay": true}
+{"task": "navi", "source": "correspondence-kimi_k31_pro-vs-moonvit_v2-navi-tower.json", "cells": 1, "exact_replay": true}
+{"task": "navi", "source": "correspondence-kimi_k31_pro-vs-moonvit_v2-navi-merged.json", "cells": 1, "exact_replay": true}
+{"task": "navi", "source": "correspondence-kimi_k31_pro-vs-moonvit_v2-navi-projected.json", "cells": 1, "exact_replay": true}
+{"task": "navi", "source": "correspondence-navi-kimi_k31_pro-projected-vs-tower.json", "cells": 1, "exact_replay": true}
+{"task": "recognition", "source": "semantic-kimi_k31_pro-projected-vs-tower-attention-matched.json", "cells": 1, "exact_replay": true}
+{"task": "recognition", "source": "009-recognition-kimi_k31_pro-minus-moonvit_v2-projected-L27.json", "cells": 1, "exact_replay": true}
+{"task": "recognition", "source": "008-recognition-kimi_k31_pro-minus-moonvit_v2-merged-L27.json", "cells": 1, "exact_replay": true}
+{"task": "recognition", "source": "006-recognition-kimi_k31_pro-minus-moonvit_v2-tower-L24.json", "cells": 1, "exact_replay": true}
+{"task": "recognition", "source": "005-recognition-kimi_k31_pro-minus-moonvit_v2-tower-L20.json", "cells": 1, "exact_replay": true}
+{"task": "recognition", "source": "004-recognition-kimi_k31_pro-minus-moonvit_v2-tower-L17.json", "cells": 1, "exact_replay": true}
+{"task": "recognition", "source": "003-recognition-kimi_k31_pro-minus-moonvit_v2-tower-L14.json", "cells": 1, "exact_replay": true}
+{"task": "recognition", "source": "002-recognition-kimi_k31_pro-minus-moonvit_v2-tower-L10.json", "cells": 1, "exact_replay": true}
+{"task": "recognition", "source": "001-recognition-kimi_k31_pro-minus-moonvit_v2-tower-L7.json", "cells": 1, "exact_replay": true}
+{"task": "recognition", "source": "000-recognition-kimi_k31_pro-minus-moonvit_v2-tower-L3.json", "cells": 1, "exact_replay": true}
+{"task": "depth", "source": "011-depth-kimi_k31_pro-minus-moonvit_v2-tower-L3.json", "cells": 1, "exact_replay": true}
+{"task": "depth", "source": "012-depth-kimi_k31_pro-minus-moonvit_v2-tower-L7.json", "cells": 1, "exact_replay": true}
+{"task": "depth", "source": "013-depth-kimi_k31_pro-minus-moonvit_v2-tower-L10.json", "cells": 1, "exact_replay": true}
+{"task": "depth", "source": "014-depth-kimi_k31_pro-minus-moonvit_v2-tower-L14.json", "cells": 1, "exact_replay": true}
+{"task": "depth", "source": "015-depth-kimi_k31_pro-minus-moonvit_v2-tower-L17.json", "cells": 1, "exact_replay": true}
+{"task": "depth", "source": "016-depth-kimi_k31_pro-minus-moonvit_v2-tower-L20.json", "cells": 1, "exact_replay": true}
+{"task": "depth", "source": "017-depth-kimi_k31_pro-minus-moonvit_v2-tower-L24.json", "cells": 1, "exact_replay": true}
+{"task": "depth", "source": "018-depth-kimi_k31_pro-minus-moonvit_v2-tower-L27.json", "cells": 1, "exact_replay": true}
+{"task": "depth", "source": "019-depth-kimi_k31_pro-minus-moonvit_v2-merged-L27.json", "cells": 1, "exact_replay": true}
+{"task": "depth", "source": "020-depth-kimi_k31_pro-minus-moonvit_v2-projected-L27.json", "cells": 1, "exact_replay": true}
+{"task": "depth", "source": "geometry-depth-matched-kimi_k31_pro-projected-vs-tower.json", "cells": 1, "exact_replay": true}
+{"task": "normal", "source": "022-normal-kimi_k31_pro-minus-moonvit_v2-tower-L3.json", "cells": 1, "exact_replay": true}
+{"task": "normal", "source": "023-normal-kimi_k31_pro-minus-moonvit_v2-tower-L7.json", "cells": 1, "exact_replay": true}
+{"task": "normal", "source": "024-normal-kimi_k31_pro-minus-moonvit_v2-tower-L10.json", "cells": 1, "exact_replay": true}
+{"task": "normal", "source": "025-normal-kimi_k31_pro-minus-moonvit_v2-tower-L14.json", "cells": 1, "exact_replay": true}
+{"task": "normal", "source": "026-normal-kimi_k31_pro-minus-moonvit_v2-tower-L17.json", "cells": 1, "exact_replay": true}
+{"task": "normal", "source": "027-normal-kimi_k31_pro-minus-moonvit_v2-tower-L20.json", "cells": 1, "exact_replay": true}
+{"task": "normal", "source": "028-normal-kimi_k31_pro-minus-moonvit_v2-tower-L24.json", "cells": 1, "exact_replay": true}
+{"task": "normal", "source": "029-normal-kimi_k31_pro-minus-moonvit_v2-tower-L27.json", "cells": 1, "exact_replay": true}
+{"task": "normal", "source": "030-normal-kimi_k31_pro-minus-moonvit_v2-merged-L27.json", "cells": 1, "exact_replay": true}
+{"task": "normal", "source": "031-normal-kimi_k31_pro-minus-moonvit_v2-projected-L27.json", "cells": 1, "exact_replay": true}
+{"task": "depth", "source": "geometry-depth-raw-kimi_k31_pro-projected-vs-tower.json", "cells": 1, "exact_replay": true}
+{"task": "normal", "source": "geometry-normal-matched-kimi_k31_pro-projected-vs-tower.json", "cells": 1, "exact_replay": true}
+{"task": "kitti", "source": "097-kitti-kimi_k31_pro-minus-moonvit_v2-tower-L27.json", "cells": 1, "exact_replay": true}
+{"task": "kitti", "source": "098-kitti-kimi_k31_pro-minus-moonvit_v2-projected-L27.json", "cells": 1, "exact_replay": true}
+{"task": "kitti", "source": "geometry-depth-kitti-matched-kimi_k31_pro-projected-vs-tower.json", "cells": 1, "exact_replay": true}
+{"task": "normal", "source": "geometry-normal-raw-kimi_k31_pro-projected-vs-tower.json", "cells": 1, "exact_replay": true}
+{"task": "scannet", "source": "correspondence-kimi_k31_pro-vs-moonvit_v2-scannet-tower.json", "cells": 1, "exact_replay": true}
+{"task": "scannet", "source": "correspondence-kimi_k31_pro-vs-moonvit_v2-scannet-merged.json", "cells": 1, "exact_replay": true}
+{"task": "scannet", "source": "correspondence-kimi_k31_pro-vs-moonvit_v2-scannet-projected.json", "cells": 1, "exact_replay": true}
+{"task": "scannet", "source": "correspondence-scannet-kimi_k31_pro-projected-vs-tower.json", "cells": 1, "exact_replay": true}
+{"task": "spair", "source": "correspondence-kimi_k31_pro-vs-moonvit_v2-spair-tower.json", "cells": 1, "exact_replay": true}
+{"task": "spair", "source": "correspondence-kimi_k31_pro-vs-moonvit_v2-spair-merged.json", "cells": 1, "exact_replay": true}
+{"task": "spair", "source": "correspondence-kimi_k31_pro-vs-moonvit_v2-spair-projected.json", "cells": 1, "exact_replay": true}
+{"task": "spair", "source": "correspondence-spair-kimi_k31_pro-projected-vs-tower.json", "cells": 1, "exact_replay": true}
+All102requiredcomparisoncells replayed exactly from actual rows

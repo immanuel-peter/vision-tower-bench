@@ -40,8 +40,10 @@ def test_correction_scope_preserves_full_sweeps_and_cohort_membership():
 
     sources = INDEX["figure_sources"]
     v3_projectors = {"nemotron35_super", "nemotron35_bolt", "mimo26_pro", "mimo26_flash"}
-    assert set(sources["geometry_stage_levels"]) == v1 | additions | v3_projectors
-    for model in v1 | additions:
+    checkpoint = {"kimi_k31_pro"}
+    assert set(INDEX["cohorts"]["kimi_k31_pro_checkpoint"]["models"]) == checkpoint
+    assert set(sources["geometry_stage_levels"]) == v1 | additions | v3_projectors | checkpoint
+    for model in v1 | additions | checkpoint:
         sweep = RESULTS / sources["geometry_layer_sweep"].format(model=model)
         cells = json.loads(sweep.read_text())["cells"]
         assert len({cell["relative_depth"] for cell in cells if cell["stage"] == "tower"}) == 8

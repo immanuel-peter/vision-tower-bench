@@ -53,7 +53,10 @@ def main() -> None:
     parser.add_argument("--images", type=Path, required=True)
     parser.add_argument("--out", type=Path, default=Path("cache"))
     parser.add_argument("--limit", type=int, default=None, help="default is every image under --images")
-    parser.add_argument("--batch-size", type=int, default=16)
+    parser.add_argument(
+        "--batch-size", type=int, default=None,
+        help="defaults to 1 for Kimi K3 and K3.1 Pro, 16 for other models",
+    )
     parser.add_argument("--resolution", type=int, default=448)
     parser.add_argument("--device", default="mps")
     parser.add_argument(
@@ -93,6 +96,11 @@ def main() -> None:
         help="write only the named Stages at the final Tower layer",
     )
     args = parser.parse_args()
+    batch_one = args.model in {"moonvit_v2", "kimi_k31_pro"}
+    if args.batch_size is None:
+        args.batch_size = 1 if batch_one else 16
+    if batch_one and args.batch_size != 1:
+        parser.error(f"{args.model} requires --batch-size 1")
 
     options = {"stages": args.stages} if args.stages else {}
     adapter = ADAPTERS[args.model](resolution=args.resolution, device=args.device, **options)

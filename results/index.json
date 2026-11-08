@@ -43,7 +43,7 @@
       "models": [
         "kimi_k31_pro"
       ],
-      "description": "Matched vision-architecture checkpoint comparison against Kimi K3. Independent conversion and complete CPU DIODE extraction are verified; full task-quality suite and final figures remain in progress."
+      "description": "Matched vision-architecture checkpoint comparison against fresh Kimi K3 controls. Complete 286 primary cells and 102 paired comparisons, independent content checks, exact interval replays and final figures; production BF16 backend limitation retained."
     }
   },
   "experiments": {
@@ -170,8 +170,8 @@
     },
     "kimi_k31_pro_checkpoint": {
       "path": "diagnostics/kimi-k31-pro-checkpoint/",
-      "protocol": "Pinned source identity and independent mathematical-reference conversion parity; full tensor drift; full-data mean raw/matched and attention matched recognition at all ten slices; unchanged seed-0 LR search and three selected-rate retrainings. CPU4/8 actual threads recorded per cell and matched within sibling pairs. Complete label budgets, opt-in standardized diagnostics, 13-condition perturbation and NAVI controls.",
-      "status": "In progress: 266/286 primary cells and 80/102 registered comparisons content-validated, plus four staged ScanNet intervals. Both raw-normal controls and Pro matched normals complete; final K3 matched normals, SPair, KITTI and remaining paired fits active/queued. All11 matched-depth comparisons complete. Production official TORCH_SDPA BF16 remains failed; mathematical conversion acceptance unchanged. Original5311 published functional gate passed; corrected exact-GELU owner publication/numerical CUDA proof pending.",
+      "protocol": "Matched vision-architecture checkpoint comparison at 448px; all ten recognition and geometry slices, both capacities and readouts, full label budgets, isolated standardized diagnostics, 13 perturbations, all three correspondence datasets, KITTI and throughput. Seed-0 LR search followed by selected-rate three-seed retraining; paired controls share actual devices and settings.",
+      "status": "Complete benchmark inventory of 286 primary cells and 102 paired comparisons; actual content and exact interval replay verified. Production official TORCH_SDPA BF16 remains failed; accepted mathematical-reference conversion parity unchanged. Original 5311 published functional gate passed; see evidence for the separately tracked exact-GELU example correction.",
       "measurements": {
         "pro_recognition": "recognition/kimi_k31_pro_probe_{readout}_{arm}.json",
         "pro_mean_label_budget": "label-budget/kimi_k31_pro_probe_mean_matched_f*.json",
@@ -193,8 +193,14 @@
         "staged_scannet_intervals": "diagnostics/kimi-k31-pro-checkpoint/staged-correspondence-statistics/staged-scannet-intervals.json",
         "example_numerical_correction": "diagnostics/kimi-k31-pro-checkpoint/inference-smoke/projector-activation-correction/",
         "legacy_preservation": "diagnostics/kimi-k31-pro-checkpoint/historical-k3-results-preserved.json",
-        "paired_comparison_report_generator": "scripts/summarize_kimi_checkpoint_pairs.py (run after all102 independent replays)",
-        "raw_normal_figure": "diagnostics/kimi-k31-pro-checkpoint/raw-normal-comparison.png"
+        "paired_comparison_report_generator": "scripts/summarize_kimi_checkpoint_pairs.py",
+        "raw_normal_figure": "diagnostics/kimi-k31-pro-checkpoint/raw-normal-comparison.png",
+        "full_primary_content_audit": "diagnostics/kimi-k31-pro-checkpoint/independent-content-audits/completed-primary-independent-content-audit.json",
+        "all_paired_replay": "diagnostics/kimi-k31-pro-checkpoint/independent-content-audits/all-paired-intervals-independent-replay.json",
+        "paired_comparison_report": "diagnostics/kimi-k31-pro-checkpoint/paired-comparisons.md",
+        "paired_relative_depth_figure": "diagnostics/kimi-k31-pro-checkpoint/matched-sibling-relative-depth-intervals.png",
+        "final_regression": "diagnostics/kimi-k31-pro-checkpoint/final-regression-tests.json",
+        "corrected_published_example": "diagnostics/kimi-k31-pro-checkpoint/inference-smoke/corrected-publication/smoke/summary.json"
       }
     },
     "throughput": {

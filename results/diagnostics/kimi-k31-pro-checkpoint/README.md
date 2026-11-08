@@ -5,12 +5,11 @@ Stage widths, but all 168 saved vision and Projector tensors differ. This
 comparison measures frozen checkpoints at matched depth and Stage. It does
 not identify which training phase caused a change or establish an RL-only effect.
 
-[PR #29](https://github.com/immanuel-peter/vision-tower-bench/pull/29) is active.
-The verified inventory has **266/286 primary cells and 80/102 paired comparisons**.
-Recognition, label budgets, standardized diagnostics, all 13 perturbation
-conditions, NAVI, all 40 depth cells and Pro throughput are complete. Normals,
-SPair, KITTI and dense paired refits are active
-or queued. Final audits, figures and regression checks remain required.
+The full inventory contains **286/286 primary cells and 102/102 paired comparisons**.
+All primary payloads passed independent content checks, and every interval was
+replayed exactly from its actual rows. Both original GPU phases are released.
+[PR #29](https://github.com/immanuel-peter/vision-tower-bench/pull/29) contains
+the implementation, measurements, audits and reproducibility records.
 
 **Production official vLLM TORCH_SDPA BF16 parity failed for both checkpoints.**
 Accepted conversion parity uses an independently executed mathematical
@@ -36,7 +35,7 @@ checkpoint's own config and vision weights, without an LM or server.
 narrow engine substitutions.
 
 Official packed Triton rotary plus independent masked-SDPA math matches all
-ten slices on three fixed448 px images, bit-exact in BF16 for both checkpoints.
+ten slices on three fixed 448 px images, bit-exact in BF16 for both checkpoints.
 Final Tower includes encoder RMSNorm. Positional initialization, merge order
 and Projector execution are covered. Still images use T=1, where the derived
 temporal embedding is not added. [Controlled GPU evidence](gpu-parity2-summary.json)
@@ -51,10 +50,10 @@ behavior and historical measurements are preserved; fresh controls live in
 
 ## Weight drift
 
-All168 tensors differ, including learned positions, final norm and every
+All 168 tensors differ, including learned positions, final norm and every
 Projector tensor. FP64 accumulated relative L2 uses the K3 norm as denominator.
 The concatenated Projector changes by 10.35%, individual Tower blocks by
-0.80% to0.93%, spatial positions by 1.15%, the patch stem by 0.55%, and the
+0.80% to 0.93%, spatial positions by 1.15%, the patch stem by 0.55%, and the
 final norm by 0.37%. These measurements do not predict task quality.
 
 [Per-tensor metrics](weight-drift.json), [concatenated groups](weight-drift-aggregated.json)
@@ -76,13 +75,13 @@ scaling before the original PCA.
 | ImageNet-100 | 13,000 | 10 | 4x4 pooled | GPU1, BF16, batch 1, 8 CPU threads |
 | DIODE | 771 | 10 | Full native | 4 CPU threads, BF16, batch 1 |
 | KITTI | 1,000 | Final Tower/projected | Full native | GPU1, BF16, batch 1, 8 CPU threads |
-| Perturbation | 13 conditions x2,000 | 3 per condition | 4x4 pooled | GPU1, BF16, batch 1, 8 CPU threads |
+| Perturbation | 13 conditions x 2,000 | 3 per condition | 4x4 pooled | GPU1, BF16, batch 1, 8 CPU threads |
 
 Every shard was reread for IDs, Stage/depth shape, raster order, finite BF16
 values and content hashes. CPU/GPU entries occupy separate cache namespaces.
 [CPU extraction](cpu-feature-extraction/pair-audit.json) covers 970 shards
 per model and 2,562.77 s total. [GPU extraction](gpu-feature-extraction/pair-audit.json)
-covers 80,000 image-condition entries,1,660 shards,48.18 GB and 2,554.31 s.
+covers 80,000 image-condition entries, 1,660 shards, 48.18 GB and 2,554.31 s.
 Extraction timings are distinct from the prescribed throughput measurement.
 
 Every sibling pair shares actual fit device and thread settings. Completed
@@ -93,170 +92,165 @@ launch, after the active K3 depth matrix finished normally. Each fresh paired
 refit trains both arms on one physical GPU. Its point estimates come from
 its own rows, never substituted matrix means.
 
-## Completed recognition and depth
+## Recognition and geometry
 
-Both models have all 10 slices for mean/attention x raw/matched, totaling 80
-recognition cells. All16 primary label-budget and 8 standardized diagnostic
-cells are complete. Final matched-attention results are:
+Final matched-attention accuracy is 84.12% for the Pro Tower, 85.49% for merged
+and 84.91% for projected. The paired sibling differences are +0.19pp
+[-0.53,+0.91], +1.52pp [+0.65,+2.41] and +0.51pp [-0.17,+1.21]. The within-Pro
+projected-minus-Tower interval is +0.79pp [+0.10,+1.49]. All ten slices of
+both attention and mean, raw and matched recognition matrices are retained.
 
-| Stage | Fresh K3 accuracy | Pro accuracy | Pro minus K3, pp, paired 95% interval |
-| --- | ---: | ---: | ---: |
-| Tower | 83.93% | 84.12% | +0.19 [-0.53,+0.91] |
-| Merged | 83.97% | 85.49% | +1.52 [+0.65,+2.41] |
-| Projected | 84.39% | 84.91% | +0.51 [-0.17,+1.21] |
+The [matched sibling figure](matched-sibling-relative-depth-intervals.png)
+shows all eight Tower depths and final merged/projected comparisons for
+recognition, depth and normals. Its 30 intervals use their own paired rows.
+The [complete comparison report](paired-comparisons.md) gives every one of
+the 102 required comparisons, with sample count, sign, units and source hash.
+These are individual 95% intervals with 10,000 resamples and seed 0, without
+multiplicity adjustment.
 
-Pro projected-minus-Tower is +0.79pp [+0.10,+1.49]. All11 semantic comparisons
-use actual three-seed predictions on the same 1,950 test IDs and replay
-exactly at recorded settings. These are individual intervals without
-multiplicity adjustment. [Recognition audit](cpu-matched-attention/matched-semantic-complete-audit.json)
-and [full-depth figure](matched-attention-comparison.png) retain the evidence.
+The geometry matrix points below describe the prescribed primary fits.
+Normal error is in degrees and lower is better. Depth d1 is a percentage.
 
-Both raw and matched depth matrices have all 10 full-grid slices, with the
-authoritative DIODE split 541/115/115. These are matrix points; dense paired
-intervals are pending.
+| Task | Stage | Fresh K3 | Pro |
+| --- | --- | ---: | ---: |
+| Matched depth | tower | 53.650 | 54.220 |
+| Matched depth | merged | 61.510 | 58.260 |
+| Matched depth | projected | 61.280 | 62.280 |
+| Matched normal | tower | 32.217 | 31.566 |
+| Matched normal | merged | 29.395 | 29.004 |
+| Matched normal | projected | 29.253 | 28.804 |
 
-| Final Stage | K3 raw d1 | Pro raw d1 | K3 matched d1 | Pro matched d1 |
-| --- | ---: | ---: | ---: | ---: |
-| Tower | 45.70% | 45.37% | 53.65% | 54.22% |
-| Merged | 46.66% | 52.12% | 61.51% | 58.26% |
-| Projected | 48.45% | 47.79% | 61.28% | 62.28% |
+All ten full-grid slices are retained in each raw and matched geometry
+matrix. See the [raw depth](raw-depth-comparison.png),
+[matched depth](matched-depth-comparison.png), [raw normals](raw-normal-comparison.png)
+and [matched normals](matched-normal-comparison.png) figures. Head parameter
+counts are printed separately for each task and Stage in those figures.
+Matched width is 512 for both tasks; depth and normal output heads differ.
 
-Raw heads have 1,706,752 Tower parameters,3,279,616 merged and 4,852,480
-projected. Matched heads have 1,444,608 parameters. Full eight-depth sweeps
-are preserved in standard results and fresh controls. The [raw-depth figure](raw-depth-comparison.png)
-shows descriptive points without attaching intervals from another run. The [matched-depth figure](matched-depth-comparison.png) uses the complete fresh sibling matrices.
+The paired matched-depth final Tower and projected intervals favor Pro;
+the merged interval crosses zero. Matched-normal paired errors are lower
+for Pro at all three final Stages. These statements concern the independent
+paired refits. Geometry GPU bilinear backward is nondeterministic, and a
+fresh validation search can select a different best rate. In particular,
+the Pro merged-depth matrix selected 0.03 and scored 58.26% d1, while its
+paired refit selected 0.01 and scored 61.28%. The sibling paired difference
+is -0.014pp [-0.630,+0.594], rather than the matrix difference of -3.25pp.
+[The actual-rate and point audit](geometry-matrix-versus-paired-points.json)
+records both. Image-bootstrap intervals do not measure variation across
+training runs and must not be attached to a different matrix point.
 
-## Correspondence and perturbations
+## Correspondence, perturbations and transfer
 
-NAVI is complete for 555 pairs, three Stages and four paired comparisons.
-[Its figure](navi-stage-comparison.png) uses the same rows as the 10,000-resample,
-seed-0 intervals. ScanNet retains 1,500 selected pairs; SPair retains 3,600.
-Runners use exact roots and audit selected IDs before CUDA evaluation.
+NAVI retains all 555 selected pairs, ScanNet all 1,500 and SPair all 3,600.
+Each dataset has all three Stages, three sibling intervals and the within-Pro
+projected-minus-Tower interval. NAVI uses paired CPU settings, ScanNet paired
+physical GPU0 and SPair paired physical GPU1, with recorded BF16 batch-one
+provenance. ScanNet uses the bench adaptation at evaluation side 64 with
+1,000 sampled correspondences. It is not a Probe3D reproduction.
 
-[SPair visibility audit](spair-visibility-audit.json) individually confirms
-192 zero-visible-keypoint pairs and 3,408 nonempty pairs. All3,600 IDs remain.
-Only source-confirmed empty pairs may have NaN per-pair PCK. Every nonempty
-row and aggregate must be finite. Comparisons record actual finite
-intersections and exclusion unions with IDs and reasons.
+| Dataset / metric | Stage | Fresh K3 | Pro |
+| --- | --- | ---: | ---: |
+| navi / recall_2cm, % | tower | 33.651 | 34.551 |
+| navi / recall_2cm, % | merged | 39.318 | 39.628 |
+| navi / recall_2cm, % | projected | 39.739 | 40.150 |
+| scannet / recall_10px, % | tower | 2.579 | 2.762 |
+| scannet / recall_10px, % | merged | 4.712 | 4.919 |
+| scannet / recall_10px, % | projected | 4.723 | 4.949 |
+| spair / pck_0.1, % | tower | 27.649 | 28.605 |
+| spair / pck_0.1, % | merged | 26.038 | 27.485 |
+| spair / pck_0.1, % | projected | 26.457 | 27.801 |
 
-Both models have 13 perturbation conditions x three Stages, totaling 78 primary
-cells and 52 paired comparisons. Actual 2,000 IDs,1,400/300/300 split, transform
-hash and condition identities are checked. [The comparison figure](perturbation-comparison.png)
-retains clean performance alongside condition effects.
+[SPair source visibility](spair-visibility-audit.json) independently identifies
+192 pairs with zero visible keypoints and 3,408 nonempty pairs. All 3,600
+selection IDs remain in both payloads. Every nonempty metric and every
+aggregate is finite. The paired finite intersection and exclusion union are
+checked against the source, including every excluded ID and reason.
+Class-macro SPair intervals appear alongside pair-mean intervals in the full
+comparison report.
 
-## Published inference and ownership
-
-The parent published only `examples/inference.py` at immutable
-`5311e0408a6107f78f8c70bb70f7aa205b94e724`. A fresh snapshot ran the exact
-published command on a real 500x334 image processed 448, CUDA BF16 batch 1,
-physical GPU1/logical cuda:0, exit0 in 7.606 s. Actual outputs were Tower
-`[1,1024,1024]`, merged `[1,256,4096]`, projected `[1,256,7168]`.
-[Published functional proof](inference-smoke/published-example-pass/published-example-gate.json)
-records command, image hash, preprocessing, revision, device and release.
-The historical missing-file failure is explicitly resolved and retained.
-
-A later audit found tanh-approximate GELU in that example, while the adapter
-and pinned official Projector use exact GELU. The corrected bench example
-matches the adapter bit-exact on one real-image merged cache in CPU BF16.
-The old activation differs by maximum absolute0.0009765625 and relative
-L2 0.0002586. Twelve regressions pass.
-[Correction evidence and one-line owner patch](inference-smoke/projector-activation-correction/)
-retain this separate issue. Corrected owner publication and fresh published
-CUDA numerical proof are pending. No benchmark cache or fit changes.
-The earlier functional shape/finite smoke remains a historical pass.
-
-Cards, HF structure, manifests, licenses, layout and weights belong to other
-actors. This worker makes no competing HF upload. The bench-side functional
-fix and exact owner handoff are the retained exception.
-
-## Audits and reproduction
-
-[Actual inventory](completed-inventory.json) maps cells to source SHA256.
-[Independent audits](independent-content-audits/) recheck actual IDs, splits,
-grids, rates, seeds and metrics. After both GPUs release, the CPU continuation
-will finish eight correspondence comparisons, replay all 102 required
-intervals from actual rows and verify exact 286/102 inventory equality.
-Final tests and all default figures remain completion requirements.
-
-```bash
-CUDA_VISIBLE_DEVICES="" OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 bash -ic '
-uv run python -m scripts.fetch_kimi_reference --out /tmp/kimi-validation
-uv run python -m scripts.export_moonvit_v2 --checkpoint kimi_k31_pro --out /tmp/kimi-validation/bundle
-uv run python -m scripts.export_moonvit_v2 --checkpoint moonvit_v2 --out /tmp/kimi-validation/k3-bundle
-VTB_KIMI_VALIDATION_ROOT=/tmp/kimi-validation VTB_PARITY_DTYPE=bfloat16 uv run pytest -q tests/test_moonvit_v2_forward_parity.py
-'
-```
-
-CUDA additionally requires an explicit physical GPU reservation and exclusive
-full-process lock. [Earlier phase notes](history-through-b30b023.md) preserve
-superseded progress counts and historical blockers.
-
-
-## Newly completed ScanNet and throughput
-
-Both ScanNet runs retain all 1,500 selected IDs with finite Stage metrics.
-Both used physical GPU0, BF16 batch 1 and 8 CPU threads. Four intervals replay
-exactly from these rows and are staged for the post-GPU inventory registration.
-They are additional completed statistics, not included in the current 80
-registered comparison count.
-
-| Stage | K3 recall at 10px | Pro recall at 10px | Pro minus K3, pp, paired 95% interval |
-| --- | ---: | ---: | ---: |
-| Tower | 2.579% | 2.762% | +0.182 [+0.149,+0.216] |
-| Merged | 4.712% | 4.919% | +0.207 [+0.154,+0.260] |
-| Projected | 4.723% | 4.949% | +0.226 [+0.171,+0.281] |
-
-The within-Pro projected-minus-Tower interval is +2.188pp [+2.066,+2.311].
-This is the bench ScanNet adaptation at evaluation side 64 and 1,000 sampled
-correspondences, not a Probe3D reproduction. All intervals are individual 95%
-intervals with 10,000 resamples and seed 0; there is no multiplicity adjustment.
+Both checkpoints have all 13 perturbation conditions at all three Stages,
+78 primary cells and 52 paired comparisons, using the same 2,000 IDs and
+1,400/300/300 split. [The perturbation figure](perturbation-paired-comparison.png)
+retains clean accuracy alongside condition effects. KITTI transfer has both
+final Tower and projected cells for each checkpoint and all three prescribed
+comparisons. KITTI is a separate driving-scene transfer probe.
 
 Prescribed Tower-only throughput is 45.989 images/s for Pro and 47.228 images/s
 for fresh K3. Both measure 768 images at 448, BF16 batch 1, two warmup batches,
-two loaders, physical GPU0 and 8 CPU threads. Runtime and exact immutable tensor
-identity are retained with each source. These point measurements do not carry
-an interval or establish a meaningful speed ranking.
+two loaders, physical GPU0 and 8 CPU threads. These point measurements do not
+carry an interval or establish a meaningful speed ranking.
 
+## Validation and reproduction
 
-## First complete normal matrix and preservation audit
-
-The Pro raw-normal matrix is complete at all ten full-grid slices. All three
-seed metrics, IDs, split hashes, six-rate search, Stage shapes and finite
-aggregates passed the independent primary-content audit. Final Tower error
-is 33.1201 degrees, merged 31.1327 and projected 30.1977. Fresh K3 raw normals and Pro matched normals are now complete. The K3
-matched-normal control and remaining paired fits continue. No sibling
-interval is inferred from matrix points alone.
+[The primary-content audit](independent-content-audits/completed-primary-independent-content-audit.json)
+checks actual cell mappings, full sample and split IDs, seeds, exact search
+grids, selected rates, finite metrics, dense grids and immutable provenance.
+[The paired replay](independent-content-audits/all-paired-intervals-independent-replay.json)
+recomputes all required intervals from their actual rows at the recorded
+thread settings. The [inventory hash audit](full-experiment-inventory-hash-audit.json)
+compares all expected cell IDs and source bytes. Counts alone are insufficient.
 
 [The preservation audit](historical-k3-results-preserved.json) verifies all 36
-baseline result paths named for K3 are byte-identical to the requested main
-base. All 64 original shared standardized label-budget rows and their protocol
-fields are also exact; only four Pro rows were added. Fresh K3 controls stay
-separate from historical measurements.
+named K3 result files against their base Git blobs and all 64 original shared
+standardized rows and protocol fields. Fresh K3 controls do not replace them.
 
+Run the paired report and figure only after those audits pass:
 
-## Complete raw-normal controls and Pro matched normals
+```bash
+python -m scripts.summarize_kimi_checkpoint_pairs
+python -m scripts.plot_kimi_checkpoint_pairs
+python scripts/figures.py --out results/diagnostics/kimi-k31-pro-checkpoint/final-default-figures --format svg png pdf
+VTB_SKIP_WEIGHTS=1 CUDA_VISIBLE_DEVICES="" pytest -q
+```
 
-Both siblings have complete ten-cell raw-normal matrices at native grids.
-The Pro matched-normal ten-cell matrix also passed. The independent primary
-content audit now covers 266 cells across 83 payload groups. Both sibling raw
-matrices used physical GPU1 and 8 CPU threads, reusing the same CPU4/BF16/batch1
-DIODE feature producer. Final-Stage raw normal errors are descriptive points:
+The final CPU regression suite passed 176 tests and skipped
+51 weight-dependent cases under `VTB_SKIP_WEIGHTS=1`.
+[The test record](final-regression-tests.json) and [full output](final-regression-tests.txt)
+retain the command, runtime and source hashes. Independent real-weight identity
+and reference-forward evidence remain separate from the offline suite.
 
-| Stage | Fresh K3 error, degrees | Pro error, degrees |
-| --- | ---: | ---: |
-| Tower | 33.3137 | 33.1201 |
-| Merged | 31.4691 | 31.1327 |
-| Projected | 30.4294 | 30.1977 |
+## Published inference and ownership
 
-[The full raw-normal comparison](raw-normal-comparison.png) preserves all
-eight Tower depths and final Stages, with actual head parameter counts.
-It attaches no interval from another fit. All 11 matched-depth comparisons
-have also completed and replayed from their own 115 test-image rows. Normal,
-transfer and remaining correspondence comparisons continue.
+The original published functional gate passed from a clean immutable
+`5311e0408a6107f78f8c70bb70f7aa205b94e724` snapshot, using the exact command
+`python examples/inference.py /tmp/vtb-delivery/data/imagenet100/validation/validation_000000.jpg`.
+A real 500x334 image became 448x448 after bicubic short-edge resizing and a
+center crop. CUDA BF16 batch 1 on physical GPU1, logical cuda:0, exited zero
+in 7.606 s with Tower `[1,1024,1024]`, merged `[1,256,4096]` and projected
+`[1,256,7168]`. [The published proof](inference-smoke/published-example-pass/published-example-gate.json)
+retains image and script hashes, preprocessing, immutable revision and GPU
+release. The historical missing-example failure is resolved and retained.
 
-The exact fixed-image preprocessing check is bit-exact between the published
-5311 processor and bench adapter in both FP32 and BF16. This CPU-only check
-is [recorded separately](inference-smoke/projector-activation-correction/example-preprocess-equivalence.json)
-from the pending corrected-published CUDA proof. A read-only Hub observation
-at 04:08:53 found revision 81454a8cbd34425485f16204c4f96019c747fceb still carrying
-the old tanh-GELU example hash 77516f1. No worker HF upload occurred.
+A later numerical audit found approximate-tanh GELU in that example. The
+bench-side example now uses exact GELU, matching the adapter and pinned
+official Projector. On real cached merged tokens, the corrected BF16 output
+is bit-exact; the old output differs by maximum absolute 0.0009765625 and
+relative L2 0.0002586. CPU preprocessing also matches the adapter bit-exact
+in FP32 and BF16. [Correction evidence](inference-smoke/projector-activation-correction/)
+keeps the old and corrected numerical results separate.
+
+The corrected published example passed from a new clean HF download at
+immutable `d32b4a05dc0f52259334b0c808514b2bb44c3130`. Standalone inference
+exited zero in 8.784626 s; a separate all-Stage
+comparison exited zero in 8.600946 s. Tower, merged
+and projected features are bit-exact with the bench adapter in CUDA BF16
+batch 1 on physical GPU0, logical cuda:0, with 2 CPU threads.
+[The corrected published proof](inference-smoke/corrected-publication/smoke/summary.json)
+records both commands, the real image, actual shapes and immutable revision.
+[The GPU release](inference-smoke/corrected-publication/smoke/gpu0-release.json)
+verifies idle memory, no CUDA PIDs and lock reacquisition. A post-success CPU
+wrapper descriptor-shutdown error is retained separately in
+[the cleanup record](inference-smoke/corrected-publication/smoke/wrapper-cleanup.json);
+both model checks passed before that cleanup. No numerical gate was loosened.
+The original approximate-GELU functional proof remains historical evidence.
+
+HF cards, layout, manifests, licenses and uploads belong to other actors.
+This worker preserves the published bundles and provides the narrow example
+fix and functional evidence without competing HF changes. The corrected
+example changes no adapter, cached feature, benchmark method or result.
+
+This is a matched vision-architecture checkpoint comparison. It does not
+attribute changes to RL alone, identify which training stage changed each
+weight, or infer full-model coding, finance, CAD or factuality capabilities.
+[Historical delivery notes](history-through-b30b023.md) preserve earlier
+progress and superseded blockers.

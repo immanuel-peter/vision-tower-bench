@@ -1,0 +1,1356 @@
+{
+  "passed": true,
+  "comparison_cells": 102,
+  "source_files": 54,
+  "all_intervals_replayed_exactly": true,
+  "source_backed_spair_exclusions_verified": true,
+  "resamples": 10000,
+  "seed": 0,
+  "results": [
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/perturbation-kimi_k31_pro-vs-moonvit_v2-tower.json",
+      "sha256": "e55c51c44d8ce6327c6f8be15bbe8dbe49f4a6865fe84442e624c9ef84acd8fe",
+      "task": "perturbation",
+      "required_comparison_cells": 13,
+      "bootstrap_threads": 4,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "perturbation",
+          "condition": "identity",
+          "first_stage": "tower",
+          "second_stage": "tower"
+        },
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "perturbation",
+          "condition": "scale_l1",
+          "first_stage": "tower",
+          "second_stage": "tower"
+        },
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "perturbation",
+          "condition": "scale_l2",
+          "first_stage": "tower",
+          "second_stage": "tower"
+        },
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "perturbation",
+          "condition": "scale_l3",
+          "first_stage": "tower",
+          "second_stage": "tower"
+        },
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "perturbation",
+          "condition": "scale_l4",
+          "first_stage": "tower",
+          "second_stage": "tower"
+        },
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "perturbation",
+          "condition": "occlusion_l1",
+          "first_stage": "tower",
+          "second_stage": "tower"
+        },
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "perturbation",
+          "condition": "occlusion_l2",
+          "first_stage": "tower",
+          "second_stage": "tower"
+        },
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "perturbation",
+          "condition": "occlusion_l3",
+          "first_stage": "tower",
+          "second_stage": "tower"
+        },
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "perturbation",
+          "condition": "occlusion_l4",
+          "first_stage": "tower",
+          "second_stage": "tower"
+        },
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "perturbation",
+          "condition": "motion_blur_l1",
+          "first_stage": "tower",
+          "second_stage": "tower"
+        },
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "perturbation",
+          "condition": "motion_blur_l2",
+          "first_stage": "tower",
+          "second_stage": "tower"
+        },
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "perturbation",
+          "condition": "motion_blur_l3",
+          "first_stage": "tower",
+          "second_stage": "tower"
+        },
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "perturbation",
+          "condition": "motion_blur_l4",
+          "first_stage": "tower",
+          "second_stage": "tower"
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/perturbation-kimi_k31_pro-vs-moonvit_v2-merged.json",
+      "sha256": "21142f4afbceb0f652dde51bd4ac8cf885d027adaf2cd2616413d86ee9c4eff4",
+      "task": "perturbation",
+      "required_comparison_cells": 13,
+      "bootstrap_threads": 4,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "perturbation",
+          "condition": "identity",
+          "first_stage": "merged",
+          "second_stage": "merged"
+        },
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "perturbation",
+          "condition": "scale_l1",
+          "first_stage": "merged",
+          "second_stage": "merged"
+        },
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "perturbation",
+          "condition": "scale_l2",
+          "first_stage": "merged",
+          "second_stage": "merged"
+        },
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "perturbation",
+          "condition": "scale_l3",
+          "first_stage": "merged",
+          "second_stage": "merged"
+        },
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "perturbation",
+          "condition": "scale_l4",
+          "first_stage": "merged",
+          "second_stage": "merged"
+        },
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "perturbation",
+          "condition": "occlusion_l1",
+          "first_stage": "merged",
+          "second_stage": "merged"
+        },
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "perturbation",
+          "condition": "occlusion_l2",
+          "first_stage": "merged",
+          "second_stage": "merged"
+        },
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "perturbation",
+          "condition": "occlusion_l3",
+          "first_stage": "merged",
+          "second_stage": "merged"
+        },
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "perturbation",
+          "condition": "occlusion_l4",
+          "first_stage": "merged",
+          "second_stage": "merged"
+        },
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "perturbation",
+          "condition": "motion_blur_l1",
+          "first_stage": "merged",
+          "second_stage": "merged"
+        },
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "perturbation",
+          "condition": "motion_blur_l2",
+          "first_stage": "merged",
+          "second_stage": "merged"
+        },
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "perturbation",
+          "condition": "motion_blur_l3",
+          "first_stage": "merged",
+          "second_stage": "merged"
+        },
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "perturbation",
+          "condition": "motion_blur_l4",
+          "first_stage": "merged",
+          "second_stage": "merged"
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/perturbation-kimi_k31_pro-vs-moonvit_v2-projected.json",
+      "sha256": "866eaaab0ebae6ae89ad54f19ddf8a3942780f29475f27460224cf10bc0d4d3d",
+      "task": "perturbation",
+      "required_comparison_cells": 13,
+      "bootstrap_threads": 4,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "perturbation",
+          "condition": "identity",
+          "first_stage": "projected",
+          "second_stage": "projected"
+        },
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "perturbation",
+          "condition": "scale_l1",
+          "first_stage": "projected",
+          "second_stage": "projected"
+        },
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "perturbation",
+          "condition": "scale_l2",
+          "first_stage": "projected",
+          "second_stage": "projected"
+        },
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "perturbation",
+          "condition": "scale_l3",
+          "first_stage": "projected",
+          "second_stage": "projected"
+        },
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "perturbation",
+          "condition": "scale_l4",
+          "first_stage": "projected",
+          "second_stage": "projected"
+        },
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "perturbation",
+          "condition": "occlusion_l1",
+          "first_stage": "projected",
+          "second_stage": "projected"
+        },
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "perturbation",
+          "condition": "occlusion_l2",
+          "first_stage": "projected",
+          "second_stage": "projected"
+        },
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "perturbation",
+          "condition": "occlusion_l3",
+          "first_stage": "projected",
+          "second_stage": "projected"
+        },
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "perturbation",
+          "condition": "occlusion_l4",
+          "first_stage": "projected",
+          "second_stage": "projected"
+        },
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "perturbation",
+          "condition": "motion_blur_l1",
+          "first_stage": "projected",
+          "second_stage": "projected"
+        },
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "perturbation",
+          "condition": "motion_blur_l2",
+          "first_stage": "projected",
+          "second_stage": "projected"
+        },
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "perturbation",
+          "condition": "motion_blur_l3",
+          "first_stage": "projected",
+          "second_stage": "projected"
+        },
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "perturbation",
+          "condition": "motion_blur_l4",
+          "first_stage": "projected",
+          "second_stage": "projected"
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/perturbation-kimi_k31_pro-projected-vs-tower-all-conditions.json",
+      "sha256": "47ae3c6dfa0a7fdcae466abfcb9c3f34c864c2089b141363cc5415c579faf6a2",
+      "task": "perturbation",
+      "required_comparison_cells": 13,
+      "bootstrap_threads": 4,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-projected-minus-tower",
+          "task": "perturbation",
+          "condition": "identity",
+          "first_stage": "projected",
+          "second_stage": "tower"
+        },
+        {
+          "comparison": "kimi_k31_pro-projected-minus-tower",
+          "task": "perturbation",
+          "condition": "scale_l1",
+          "first_stage": "projected",
+          "second_stage": "tower"
+        },
+        {
+          "comparison": "kimi_k31_pro-projected-minus-tower",
+          "task": "perturbation",
+          "condition": "scale_l2",
+          "first_stage": "projected",
+          "second_stage": "tower"
+        },
+        {
+          "comparison": "kimi_k31_pro-projected-minus-tower",
+          "task": "perturbation",
+          "condition": "scale_l3",
+          "first_stage": "projected",
+          "second_stage": "tower"
+        },
+        {
+          "comparison": "kimi_k31_pro-projected-minus-tower",
+          "task": "perturbation",
+          "condition": "scale_l4",
+          "first_stage": "projected",
+          "second_stage": "tower"
+        },
+        {
+          "comparison": "kimi_k31_pro-projected-minus-tower",
+          "task": "perturbation",
+          "condition": "occlusion_l1",
+          "first_stage": "projected",
+          "second_stage": "tower"
+        },
+        {
+          "comparison": "kimi_k31_pro-projected-minus-tower",
+          "task": "perturbation",
+          "condition": "occlusion_l2",
+          "first_stage": "projected",
+          "second_stage": "tower"
+        },
+        {
+          "comparison": "kimi_k31_pro-projected-minus-tower",
+          "task": "perturbation",
+          "condition": "occlusion_l3",
+          "first_stage": "projected",
+          "second_stage": "tower"
+        },
+        {
+          "comparison": "kimi_k31_pro-projected-minus-tower",
+          "task": "perturbation",
+          "condition": "occlusion_l4",
+          "first_stage": "projected",
+          "second_stage": "tower"
+        },
+        {
+          "comparison": "kimi_k31_pro-projected-minus-tower",
+          "task": "perturbation",
+          "condition": "motion_blur_l1",
+          "first_stage": "projected",
+          "second_stage": "tower"
+        },
+        {
+          "comparison": "kimi_k31_pro-projected-minus-tower",
+          "task": "perturbation",
+          "condition": "motion_blur_l2",
+          "first_stage": "projected",
+          "second_stage": "tower"
+        },
+        {
+          "comparison": "kimi_k31_pro-projected-minus-tower",
+          "task": "perturbation",
+          "condition": "motion_blur_l3",
+          "first_stage": "projected",
+          "second_stage": "tower"
+        },
+        {
+          "comparison": "kimi_k31_pro-projected-minus-tower",
+          "task": "perturbation",
+          "condition": "motion_blur_l4",
+          "first_stage": "projected",
+          "second_stage": "tower"
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/007-recognition-kimi_k31_pro-minus-moonvit_v2-tower-L27.json",
+      "sha256": "c091a5e32b6ed1a82d5b5d1b3d9b6544383583e46a18f5599e89083f1c28cd81",
+      "task": "recognition",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 4,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "recognition",
+          "first_stage": "tower",
+          "second_stage": "tower",
+          "first_layer": 27,
+          "second_layer": 27,
+          "arm": "matched",
+          "readout": "attention"
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/correspondence-kimi_k31_pro-vs-moonvit_v2-navi-tower.json",
+      "sha256": "004e5b35993e609e8ad630af4fe179e69d47f96547bc356fe42129330b36bf1a",
+      "task": "navi",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 4,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "navi",
+          "first_stage": "tower",
+          "second_stage": "tower"
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/correspondence-kimi_k31_pro-vs-moonvit_v2-navi-merged.json",
+      "sha256": "08691e12f09453534509c10b8f7b66634a40c9576c79d5a65160dfa27682c5ed",
+      "task": "navi",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 4,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "navi",
+          "first_stage": "merged",
+          "second_stage": "merged"
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/correspondence-kimi_k31_pro-vs-moonvit_v2-navi-projected.json",
+      "sha256": "12c1ea540d02299ce16d0aa35a60d424029c7b281fcdde4728e02e2b77cdf087",
+      "task": "navi",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 4,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "navi",
+          "first_stage": "projected",
+          "second_stage": "projected"
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/correspondence-navi-kimi_k31_pro-projected-vs-tower.json",
+      "sha256": "bf49301eb950fec6a301c904ffaeb66b6e8466e071fb0b90a7d6fde829a1010b",
+      "task": "navi",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 4,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-projected-minus-tower",
+          "task": "navi",
+          "first_stage": "projected",
+          "second_stage": "tower"
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/semantic-kimi_k31_pro-projected-vs-tower-attention-matched.json",
+      "sha256": "49ff6149455af2de2e2a6b79cdfba617ae1306d33a36d6302eccb2dd7b27d4c1",
+      "task": "recognition",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 4,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-projected-minus-tower",
+          "task": "recognition",
+          "first_stage": "projected",
+          "second_stage": "tower",
+          "first_layer": 27,
+          "second_layer": 27,
+          "arm": "matched",
+          "readout": "attention"
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/009-recognition-kimi_k31_pro-minus-moonvit_v2-projected-L27.json",
+      "sha256": "b628f486245cc435aa2c2146b17c14e12ac5601c5db5f78cc5f32e94845bcd3b",
+      "task": "recognition",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 8,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "recognition",
+          "first_stage": "projected",
+          "second_stage": "projected",
+          "first_layer": 27,
+          "second_layer": 27,
+          "arm": "matched",
+          "readout": "attention"
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/008-recognition-kimi_k31_pro-minus-moonvit_v2-merged-L27.json",
+      "sha256": "4095adaf607281f296f070f0e19a75d35f141d0a4768ac55d96c4ffea8897ac7",
+      "task": "recognition",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 8,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "recognition",
+          "first_stage": "merged",
+          "second_stage": "merged",
+          "first_layer": 27,
+          "second_layer": 27,
+          "arm": "matched",
+          "readout": "attention"
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/006-recognition-kimi_k31_pro-minus-moonvit_v2-tower-L24.json",
+      "sha256": "1cf9e2775da8bc76426268cf19f07b461895e588ec82242cbab1b5de1cc60f52",
+      "task": "recognition",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 8,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "recognition",
+          "first_stage": "tower",
+          "second_stage": "tower",
+          "first_layer": 24,
+          "second_layer": 24,
+          "arm": "matched",
+          "readout": "attention"
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/005-recognition-kimi_k31_pro-minus-moonvit_v2-tower-L20.json",
+      "sha256": "b831da6de591af160db48a24eb3dc5db84165e83901c471087e430313e060bd7",
+      "task": "recognition",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 8,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "recognition",
+          "first_stage": "tower",
+          "second_stage": "tower",
+          "first_layer": 20,
+          "second_layer": 20,
+          "arm": "matched",
+          "readout": "attention"
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/004-recognition-kimi_k31_pro-minus-moonvit_v2-tower-L17.json",
+      "sha256": "3ebf436176087232d7714b85e4088e28fcea3a19dc25449ff45e9aa9d790de5a",
+      "task": "recognition",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 8,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "recognition",
+          "first_stage": "tower",
+          "second_stage": "tower",
+          "first_layer": 17,
+          "second_layer": 17,
+          "arm": "matched",
+          "readout": "attention"
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/003-recognition-kimi_k31_pro-minus-moonvit_v2-tower-L14.json",
+      "sha256": "5add564432969f3d0d7789b3cab54ac39ba6a9edacb539d1f8d9075dec290789",
+      "task": "recognition",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 8,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "recognition",
+          "first_stage": "tower",
+          "second_stage": "tower",
+          "first_layer": 14,
+          "second_layer": 14,
+          "arm": "matched",
+          "readout": "attention"
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/002-recognition-kimi_k31_pro-minus-moonvit_v2-tower-L10.json",
+      "sha256": "c7adbafb53a5a398d1d135127ded28b400ebda3190cdff6652f4c67e55a14ee8",
+      "task": "recognition",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 8,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "recognition",
+          "first_stage": "tower",
+          "second_stage": "tower",
+          "first_layer": 10,
+          "second_layer": 10,
+          "arm": "matched",
+          "readout": "attention"
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/001-recognition-kimi_k31_pro-minus-moonvit_v2-tower-L7.json",
+      "sha256": "15a0d51fec090c81c885e1d337f66578ce26195beda23440c5a52f969966898b",
+      "task": "recognition",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 8,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "recognition",
+          "first_stage": "tower",
+          "second_stage": "tower",
+          "first_layer": 7,
+          "second_layer": 7,
+          "arm": "matched",
+          "readout": "attention"
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/000-recognition-kimi_k31_pro-minus-moonvit_v2-tower-L3.json",
+      "sha256": "fec87e7b5edf4c5df65af9d6a0bd65a2f96d28e4683b614ac8c71bfc97bed7e6",
+      "task": "recognition",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 8,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "recognition",
+          "first_stage": "tower",
+          "second_stage": "tower",
+          "first_layer": 3,
+          "second_layer": 3,
+          "arm": "matched",
+          "readout": "attention"
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/011-depth-kimi_k31_pro-minus-moonvit_v2-tower-L3.json",
+      "sha256": "6496152a11117530296bca6e895be13467cc0b2b588e3dee0bb24911e17216d9",
+      "task": "depth",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 8,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "depth",
+          "first_stage": "tower",
+          "second_stage": "tower",
+          "first_layer": 3,
+          "second_layer": 3,
+          "arm": "matched",
+          "readout": null
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/012-depth-kimi_k31_pro-minus-moonvit_v2-tower-L7.json",
+      "sha256": "903d9491516fdca18a1ecff2abeae5da2c29dc5712d61ceb88d6f1020deeb397",
+      "task": "depth",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 8,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "depth",
+          "first_stage": "tower",
+          "second_stage": "tower",
+          "first_layer": 7,
+          "second_layer": 7,
+          "arm": "matched",
+          "readout": null
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/013-depth-kimi_k31_pro-minus-moonvit_v2-tower-L10.json",
+      "sha256": "ec0b3eb587ea4b7307fa4306426b4085b8bc219348b2bf448e45ab9c80a6d82b",
+      "task": "depth",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 8,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "depth",
+          "first_stage": "tower",
+          "second_stage": "tower",
+          "first_layer": 10,
+          "second_layer": 10,
+          "arm": "matched",
+          "readout": null
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/014-depth-kimi_k31_pro-minus-moonvit_v2-tower-L14.json",
+      "sha256": "a5d4b4317edabc00555bd0d721d57a8ab3d1192336f5509c8124c3149d0b7b5b",
+      "task": "depth",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 8,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "depth",
+          "first_stage": "tower",
+          "second_stage": "tower",
+          "first_layer": 14,
+          "second_layer": 14,
+          "arm": "matched",
+          "readout": null
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/015-depth-kimi_k31_pro-minus-moonvit_v2-tower-L17.json",
+      "sha256": "d4c8da68283730035b8f587eec214b0703d3d20fc5c0ba7e1a0dff0ecbc94f0a",
+      "task": "depth",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 8,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "depth",
+          "first_stage": "tower",
+          "second_stage": "tower",
+          "first_layer": 17,
+          "second_layer": 17,
+          "arm": "matched",
+          "readout": null
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/016-depth-kimi_k31_pro-minus-moonvit_v2-tower-L20.json",
+      "sha256": "14f48f4720af7e1b081f37560c388afa379686307a94418872366313c1b00b9b",
+      "task": "depth",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 8,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "depth",
+          "first_stage": "tower",
+          "second_stage": "tower",
+          "first_layer": 20,
+          "second_layer": 20,
+          "arm": "matched",
+          "readout": null
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/017-depth-kimi_k31_pro-minus-moonvit_v2-tower-L24.json",
+      "sha256": "acdba83ed6cbe496c1ee898e6ea5c4b98e2849ff26627bfee6018d359740026b",
+      "task": "depth",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 8,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "depth",
+          "first_stage": "tower",
+          "second_stage": "tower",
+          "first_layer": 24,
+          "second_layer": 24,
+          "arm": "matched",
+          "readout": null
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/018-depth-kimi_k31_pro-minus-moonvit_v2-tower-L27.json",
+      "sha256": "253eb2ec0290d17283afdcf33e7c7804186a11005b8884dfe2fc7d76637703bc",
+      "task": "depth",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 8,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "depth",
+          "first_stage": "tower",
+          "second_stage": "tower",
+          "first_layer": 27,
+          "second_layer": 27,
+          "arm": "matched",
+          "readout": null
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/019-depth-kimi_k31_pro-minus-moonvit_v2-merged-L27.json",
+      "sha256": "7c4976621ded4073d2fbf206ca3b06d830b9c7466e7495cabd85e538492b060d",
+      "task": "depth",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 8,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "depth",
+          "first_stage": "merged",
+          "second_stage": "merged",
+          "first_layer": 27,
+          "second_layer": 27,
+          "arm": "matched",
+          "readout": null
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/020-depth-kimi_k31_pro-minus-moonvit_v2-projected-L27.json",
+      "sha256": "7336f8633d5069874672c31bfa48ec33132b78997c05b326471f73b98492a1c3",
+      "task": "depth",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 8,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "depth",
+          "first_stage": "projected",
+          "second_stage": "projected",
+          "first_layer": 27,
+          "second_layer": 27,
+          "arm": "matched",
+          "readout": null
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/geometry-depth-matched-kimi_k31_pro-projected-vs-tower.json",
+      "sha256": "b39c58d853032dcc73fb2fd268585777d78506a89a8c4dbc43772258c06590fa",
+      "task": "depth",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 8,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-projected-minus-tower",
+          "task": "depth",
+          "first_stage": "projected",
+          "second_stage": "tower",
+          "first_layer": 27,
+          "second_layer": 27,
+          "arm": "matched",
+          "readout": null
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/022-normal-kimi_k31_pro-minus-moonvit_v2-tower-L3.json",
+      "sha256": "edbc14cbf4d97bc99d8b46fde3c6f42673c4accdb062fc55ade9dd99cab6b3a3",
+      "task": "normal",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 8,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "normal",
+          "first_stage": "tower",
+          "second_stage": "tower",
+          "first_layer": 3,
+          "second_layer": 3,
+          "arm": "matched",
+          "readout": null
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/023-normal-kimi_k31_pro-minus-moonvit_v2-tower-L7.json",
+      "sha256": "db48baaa322668906488627fe48085e37f355518838c97bd50b1627bb4a77717",
+      "task": "normal",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 8,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "normal",
+          "first_stage": "tower",
+          "second_stage": "tower",
+          "first_layer": 7,
+          "second_layer": 7,
+          "arm": "matched",
+          "readout": null
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/024-normal-kimi_k31_pro-minus-moonvit_v2-tower-L10.json",
+      "sha256": "22e6efa9662d2489dd326bc2fab7433010ed99cd93b95f4d1860cc2f8ff3fd13",
+      "task": "normal",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 8,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "normal",
+          "first_stage": "tower",
+          "second_stage": "tower",
+          "first_layer": 10,
+          "second_layer": 10,
+          "arm": "matched",
+          "readout": null
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/025-normal-kimi_k31_pro-minus-moonvit_v2-tower-L14.json",
+      "sha256": "d1ca75dcb4e72f8459f099d0a03bb2095914be082c137fcce4548f42e1942c7b",
+      "task": "normal",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 8,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "normal",
+          "first_stage": "tower",
+          "second_stage": "tower",
+          "first_layer": 14,
+          "second_layer": 14,
+          "arm": "matched",
+          "readout": null
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/026-normal-kimi_k31_pro-minus-moonvit_v2-tower-L17.json",
+      "sha256": "025a5d24927e9adad72909cd75bf02cc4ab9597e3e41a109d82533836bc43f04",
+      "task": "normal",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 8,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "normal",
+          "first_stage": "tower",
+          "second_stage": "tower",
+          "first_layer": 17,
+          "second_layer": 17,
+          "arm": "matched",
+          "readout": null
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/027-normal-kimi_k31_pro-minus-moonvit_v2-tower-L20.json",
+      "sha256": "edad7646a6da5404ce1190ec899fb067d2fef4d75ac461b99757212bc2461669",
+      "task": "normal",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 8,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "normal",
+          "first_stage": "tower",
+          "second_stage": "tower",
+          "first_layer": 20,
+          "second_layer": 20,
+          "arm": "matched",
+          "readout": null
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/028-normal-kimi_k31_pro-minus-moonvit_v2-tower-L24.json",
+      "sha256": "7390477205a0e7e37a9558dd8494bbd3d21db20f86c92c4cdfcbd5f4ade6ac2c",
+      "task": "normal",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 8,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "normal",
+          "first_stage": "tower",
+          "second_stage": "tower",
+          "first_layer": 24,
+          "second_layer": 24,
+          "arm": "matched",
+          "readout": null
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/029-normal-kimi_k31_pro-minus-moonvit_v2-tower-L27.json",
+      "sha256": "37e53ba6696f2ed67bb039be168da8c0cf04ce6e3b789febb6e345e9a4fb3c77",
+      "task": "normal",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 8,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "normal",
+          "first_stage": "tower",
+          "second_stage": "tower",
+          "first_layer": 27,
+          "second_layer": 27,
+          "arm": "matched",
+          "readout": null
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/030-normal-kimi_k31_pro-minus-moonvit_v2-merged-L27.json",
+      "sha256": "f11c8bcbd5c774cc3f72df5e8e32a9301a9fab555e51ee356e61f99227904c54",
+      "task": "normal",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 8,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "normal",
+          "first_stage": "merged",
+          "second_stage": "merged",
+          "first_layer": 27,
+          "second_layer": 27,
+          "arm": "matched",
+          "readout": null
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/031-normal-kimi_k31_pro-minus-moonvit_v2-projected-L27.json",
+      "sha256": "2ef1700dadf172a4fb750667d03dc68dbebe0f67760a4262572f5fb6ceeef672",
+      "task": "normal",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 8,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "normal",
+          "first_stage": "projected",
+          "second_stage": "projected",
+          "first_layer": 27,
+          "second_layer": 27,
+          "arm": "matched",
+          "readout": null
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/geometry-depth-raw-kimi_k31_pro-projected-vs-tower.json",
+      "sha256": "e41b6ec787edc2843c2b83524bad7fa97bfc588d99d9cf114f17d08106a00bb7",
+      "task": "depth",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 8,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-projected-minus-tower",
+          "task": "depth",
+          "first_stage": "projected",
+          "second_stage": "tower",
+          "first_layer": 27,
+          "second_layer": 27,
+          "arm": "raw",
+          "readout": null
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/geometry-normal-matched-kimi_k31_pro-projected-vs-tower.json",
+      "sha256": "6e8adbac85c954af261211ca3245c4d8ae5161d46ea79542b044be12e6360532",
+      "task": "normal",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 8,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-projected-minus-tower",
+          "task": "normal",
+          "first_stage": "projected",
+          "second_stage": "tower",
+          "first_layer": 27,
+          "second_layer": 27,
+          "arm": "matched",
+          "readout": null
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/097-kitti-kimi_k31_pro-minus-moonvit_v2-tower-L27.json",
+      "sha256": "fcc0669e94ffc41c63cf13eebc85ba90bda3dc95dea8f1a3cd2b53420d5c4334",
+      "task": "kitti",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 8,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "kitti",
+          "first_stage": "tower",
+          "second_stage": "tower"
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/098-kitti-kimi_k31_pro-minus-moonvit_v2-projected-L27.json",
+      "sha256": "cd064a6c8ffe84ab081d7bb1d86e6ab59022e8763d52eea0c28d547819e8a4ae",
+      "task": "kitti",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 8,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "kitti",
+          "first_stage": "projected",
+          "second_stage": "projected"
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/geometry-depth-kitti-matched-kimi_k31_pro-projected-vs-tower.json",
+      "sha256": "4181ff338a64d0695ec68383f555a6c2897e02c38fc9f07aa7e3d4331b1c4910",
+      "task": "kitti",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 8,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-projected-minus-tower",
+          "task": "kitti",
+          "first_stage": "projected",
+          "second_stage": "tower"
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/geometry-normal-raw-kimi_k31_pro-projected-vs-tower.json",
+      "sha256": "ccdc87dc725675f84a1c7753285103b8cb784340c012bf5595b74c49b4580f19",
+      "task": "normal",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 8,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-projected-minus-tower",
+          "task": "normal",
+          "first_stage": "projected",
+          "second_stage": "tower",
+          "first_layer": 27,
+          "second_layer": 27,
+          "arm": "raw",
+          "readout": null
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/correspondence-kimi_k31_pro-vs-moonvit_v2-scannet-tower.json",
+      "sha256": "d5a91bec69ec6bb7a38f8bc439e1dcafd75e8c69ee6c25c8b8881d71cbb2f182",
+      "task": "scannet",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 8,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "scannet",
+          "first_stage": "tower",
+          "second_stage": "tower"
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/correspondence-kimi_k31_pro-vs-moonvit_v2-scannet-merged.json",
+      "sha256": "c0b0a4eb955227ef1c141d8767b349664b1f53ff6ffac8565d7eeb537de8a209",
+      "task": "scannet",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 8,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "scannet",
+          "first_stage": "merged",
+          "second_stage": "merged"
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/correspondence-kimi_k31_pro-vs-moonvit_v2-scannet-projected.json",
+      "sha256": "9a077fabc4755b5127aad0c9c9583cbb15c09e981fa56fc2b75abb86afb5c4c7",
+      "task": "scannet",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 8,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "scannet",
+          "first_stage": "projected",
+          "second_stage": "projected"
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/correspondence-scannet-kimi_k31_pro-projected-vs-tower.json",
+      "sha256": "b39788f3438893b20179eb50c8231f23c4c21671c7ce2a20fd5947caf16f50e6",
+      "task": "scannet",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 8,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-projected-minus-tower",
+          "task": "scannet",
+          "first_stage": "projected",
+          "second_stage": "tower"
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/correspondence-kimi_k31_pro-vs-moonvit_v2-spair-tower.json",
+      "sha256": "1c1b4df5b43fd12985bb74cf0837a5c304cde9020d342c716a389a1f696a18ec",
+      "task": "spair",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 8,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "spair",
+          "first_stage": "tower",
+          "second_stage": "tower"
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/correspondence-kimi_k31_pro-vs-moonvit_v2-spair-merged.json",
+      "sha256": "f416d4e6349af6318b2b5f5433f6ae066d15a3f3538304230ef7841583973076",
+      "task": "spair",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 8,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "spair",
+          "first_stage": "merged",
+          "second_stage": "merged"
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/correspondence-kimi_k31_pro-vs-moonvit_v2-spair-projected.json",
+      "sha256": "2e581e50dd8c1c879a1d63e78f38d18f39af386b1236da72637e83324b3a04e0",
+      "task": "spair",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 8,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-minus-moonvit_v2",
+          "task": "spair",
+          "first_stage": "projected",
+          "second_stage": "projected"
+        }
+      ]
+    },
+    {
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/correspondence-spair-kimi_k31_pro-projected-vs-tower.json",
+      "sha256": "a20551c515aa8682e7b34473336932dc0c7a9010feb76a297bd5336e7cb73f49",
+      "task": "spair",
+      "required_comparison_cells": 1,
+      "bootstrap_threads": 8,
+      "exact_numerical_replay": true,
+      "cells": [
+        {
+          "comparison": "kimi_k31_pro-projected-minus-tower",
+          "task": "spair",
+          "first_stage": "projected",
+          "second_stage": "tower"
+        }
+      ]
+    }
+  ],
+  "verified_at": "2026-11-08T05:57:17.143317+00:00"
+}

@@ -67,10 +67,26 @@ def test_projector_matrix_covers_every_projector_and_panel():
         assert {row[0] for row in panels[panel]} == rows
 
     states = []
+    legacy_states = []
+    pro_states = {}
     for panel in ("depth-matched", "depth-raw", "normal-matched", "normal-raw"):
-        for _, _, low, high in panels[panel]:
-            states.append("projector" if low > 0 else "tower" if high < 0 else "unresolved")
-    assert states.count("projector") == 30
+        for model, _, low, high in panels[panel]:
+            state = "projector" if low > 0 else "tower" if high < 0 else "unresolved"
+            states.append(state)
+            if model == "kimi_k31_pro":
+                pro_states[panel] = state
+            else:
+                legacy_states.append(state)
+    assert len(legacy_states) == 48
+    assert legacy_states.count("projector") == 30
+    assert legacy_states.count("tower") == 13
+    assert legacy_states.count("unresolved") == 5
+    assert pro_states == {
+        "depth-matched": "projector", "depth-raw": "projector",
+        "normal-matched": "projector", "normal-raw": "projector",
+    }
+    assert len(states) == 52
+    assert states.count("projector") == 34
     assert states.count("tower") == 13
     assert states.count("unresolved") == 5
 

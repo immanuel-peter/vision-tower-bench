@@ -168,12 +168,13 @@ runs in a separate directory when a protocol changes, and update the index with
 the correction's scope. JSON, JSONL, and TSV measurements remain in Git so a
 clone contains the evidence needed to inspect the figures.
 
-Kimi K3.1 Pro delivery is in progress under
+The complete Kimi K3.1 Pro comparison is under
 [diagnostics/kimi-k31-pro-checkpoint/](diagnostics/kimi-k31-pro-checkpoint/).
 It contains exact source identity, CPU/CUDA mathematical-reference conversion
-parity, immutable release reload and weight drift evidence. Production BF16
-SDPA agreement failed and remains a documented limitation. Recognition, label
-budgets, perturbations, depth, NAVI, ScanNet and throughput are complete for
-Pro and fresh K3 controls. Normals, SPair, transfer and remaining paired
-comparisons are active or queued. The diagnostic's actual inventory records
-verified progress; no incomplete suite is marked complete.
+parity, immutable release reload, full weight drift, all 286 primary cells and
+102 paired comparisons for Pro and fresh K3 controls. Actual contents and all
+intervals were independently verified. The comparison includes full recognition
+and geometry sweeps, label budgets, all 13 perturbations, NAVI, ScanNet, SPair,
+KITTI and throughput. The corrected published inference example also passes
+fresh-download CUDA BF16 testing at all three Stages. Production official BF16
+SDPA agreement remains failed and is documented separately.
