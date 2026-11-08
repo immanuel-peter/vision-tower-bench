@@ -4,63 +4,66 @@ license_name: kimi-k3-1-pro
 license_link: LICENSE
 pipeline_tag: image-feature-extraction
 library_name: transformers
+tags:
+- vision
 base_model:
 - moonshotai/Kimi-K3.1-Pro
 ---
 
-# MoonViT K3.1 Pro
+# MoonViT-K3.1-Pro
 
-The Tower and Projector from Moonshot AI's Kimi K3.1 Pro at
-`6d0a0202956796543364d666ab19c6ad1a494ee1`. This bundle contains 165 Tower
-tensors and 3 Projector tensors in their original BF16 dtype. The export checks
-every tensor against the pinned parent.
+This repository packages the [Kimi K3.1 Pro](https://huggingface.co/moonshotai/Kimi-K3.1-Pro)
+MoonViT Tower and Projector.
 
-The architecture matches Kimi K3. The Tower has 27 blocks of width 1024.
-The spatial merger groups each 2x2 patch square into a 4096-wide token.
-The Projector produces 7168-wide tokens. The final Tower extraction includes
-the final RMSNorm.
+## Contents
 
-Use batch size 1 for reproducible attention. The bench uses a 448px bicubic
-short-side resize and center crop. This square-crop protocol differs from the
-full model's dynamic image preprocessing.
+| File | Tensors | What it holds |
+|---|---|---|
+| `model.safetensors` | 165 | MoonViT Tower, in the original BF16 dtype |
+| `projector.safetensors` | 3 | Kimi K3.1 Pro `mm_projector` |
+| `projector_config.json` | | Projector shapes, read from the weights |
+| `config.json`, `configuration_moonvit_v2.py`, `modeling_moonvit_v2.py`, `image_processing_moonvit_v2.py`, `preprocessor_config.json` | | Vendored from `AI4Industry/MoonViT-V2` |
+| `export_manifest.json` | | Source pin, tensor counts and file hashes |
+| `LICENSE`, `CODE_LICENSE`, `NOTICE` | | Weight license, code license and attribution |
 
-`export_manifest.json` records checkpoint, code and file provenance.
-The standalone modeling code comes from AI4Industry/MoonViT-V2 at
-`c5acb88baf02a94e68ca8a225f7eebee152c1fc6`.
-Independent parity uses official vLLM vision source registered for Pro,
-with only engine dependencies replaced by single-rank PyTorch operations.
-See the bench's reproducibility evidence for numerical errors and substitutions.
+## Architecture
+
+| Component | Details |
+|---|---|
+| Tower | 27 layers, 1024 hidden, 12 heads, 1536 QKV, patch size 14 |
+| Token compression | 2x2 pixel shuffle plus temporal pooling, no learned parameters |
+| Projector | `Linear(4096, 4096)` no bias, GELU, `Linear(4096, 7168)` no bias, `RMSNorm(7168)` |
+
+The Tower output includes the final RMSNorm. At 448 pixels the example reports
+Tower `(1, 1024, 1024)`, merged `(1, 256, 4096)` and projected `(1, 256, 7168)`.
+
+## Usage
+
+See [`examples/inference.py`](examples/inference.py) for a complete image-to-projected-features
+example. Use batch size 1 for reproducible attention.
+
+## Validation
+
+The release tests compare all 165 Tower tensors and three Projector tensors with
+the pinned parent checkpoint using `torch.equal`. Fixed-image Tower, merged and
+projected outputs also match the parent implementation bit-for-bit in FP32 and
+in BF16 with mathematical attention. Under production vLLM BF16 attention they
+differ, by up to about 8.1% relative L2, so this bundle is not bit-identical to
+that execution.
+
+## Reproduction
+
+The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/scripts/export_moonvit_v2.py)
+extracts `vision_tower` from shard 96 and `mm_projector` from shard 95 of
+`moonshotai/Kimi-K3.1-Pro`. It preserves the original BF16 weights and verifies
+every exported tensor against the pinned parent before writing.
+
+## Credits
+
+Moonshot AI released the Kimi K3.1 Pro weights. The modeling and image-processing
+code comes unchanged from `AI4Industry/MoonViT-V2`.
 
 ## License
 
-Weights retain Moonshot AI's custom Kimi K3.1-Pro License, copied byte for byte
-from the pinned parent into LICENSE. They are not covered by the bench's MIT
-license. Vendored standalone code retains its original copyright notices.
-See NOTICE for source attribution.
-
-## Interpretation
-
-K3 versus K3.1 Pro is a matched vision-architecture checkpoint comparison.
-The released checkpoints do not isolate which training stage caused weight
-changes. Frozen-feature measurements cannot establish an RL-only causal
-effect or explain full-model coding, finance, CAD, or factuality scores.
-
-## Numerical backend scope
-
-Independent validation executes official Pro-supported vLLM source at
-`1ecc9cc4ce6626352df39e4364579ec376c10761`, with Pro tensors loaded directly
-from the pinned source shards. The official packed Triton rotary kernel on CUDA, or official native rotary
-on CPU, with the bench's masked SDPA math attention gives bit-exact BF16 outputs for three fixed 448px images, every tapped Tower depth, merged and
-projected. K3 regression passes the same comparison.
-
-The directly executed official vLLM TORCH_SDPA wrapper agrees within the
-recorded FP32 tolerances but differs in BF16. With the official packed rotary
-kernel held fixed, changing only the attention execution causes this difference.
-The maximum per-slice relative L2 difference in the Pro BF16 diagnostic is
-about 8.1%. Do not interpret this bundle as bit-identical to production vLLM
-BF16 execution. The original tolerances and failed diagnostics are preserved.
-The bench's primary attention behavior has not changed.
-
-The release includes the exact-parent tensor manifest, pinned source hashes
-and numerical validation payloads. Full frozen-feature capability measurements
-are pending and no model-quality advantage is claimed.
+[Kimi K3.1-Pro License](LICENSE), the same license as the source model. The vendored
+code retains its original copyright notices; see `CODE_LICENSE` and `NOTICE`.
