@@ -1,0 +1,23 @@
+{
+  "status": "applied only after both original GPU phases released",
+  "source": "vtb/extract.py",
+  "current_sha256": "2de1fed4a8a1861ce3f8cc44e3cccf700e38c0ad6610c05895dbbc7ecc13ed88",
+  "fix": "Model-aware default batch1 for moonvit_v2/kimi_k31_pro; explicit invalid batch raises parser error before model load. Other default remains16.",
+  "tests": "CPU dummy adapters: both Kimi defaults produce batch1; explicit invalid batch rejected before model or dataloader; other models keep16.",
+  "no_change_to_completed_or_running_benchmark_arguments": true,
+  "recorded_at": "2026-11-08T02:44:33.886016+00:00",
+  "queued_test_path": "test_extract_kimi_batching.py.pending",
+  "queued_test_sha256": "19a75f4829c545b3da66591f9d980007352f53c4c1c138fe043f26e3119a072b",
+  "source_patch_plan": {
+    "argument_default": "None, then model-aware1or16 after parse",
+    "batch_one_models": [
+      "moonvit_v2",
+      "kimi_k31_pro"
+    ],
+    "invalid_explicit_batch": "parser.error before adapter creation",
+    "active_source_unchanged": true
+  },
+  "before_sha256": "2de1fed4a8a1861ce3f8cc44e3cccf700e38c0ad6610c05895dbbc7ecc13ed88",
+  "after_sha256": "88b366202e04e6062963e37460097e5bfa8e231ab05023e53a95e13eff8eaba5",
+  "benchmark_retraining_or_feature_reruns": false
+}

@@ -1,0 +1,320 @@
+{
+  "issue": 21,
+  "resolution": 448,
+  "gpu": {
+    "physical": 0,
+    "logical": "cuda:0",
+    "lock": "/tmp/vtb-delivery/locks/gpu0.lock",
+    "threads": 8,
+    "loader_workers_max": 2,
+    "budget_note": "Parent CPU budget update for all jobs after the active M3 recognition extraction finished."
+  },
+  "checkpoints": {
+    "minimax_m3": "f0e1c1e04d40177e4673a22097036854f536e9c0",
+    "minimax_m31_flash": "54e4e69dfc452b1e94a426c24a4fdeeaa8e3ad5e"
+  },
+  "slices": [
+    [
+      "tower",
+      4
+    ],
+    [
+      "tower",
+      8
+    ],
+    [
+      "tower",
+      12
+    ],
+    [
+      "tower",
+      16
+    ],
+    [
+      "tower",
+      20
+    ],
+    [
+      "tower",
+      24
+    ],
+    [
+      "tower",
+      28
+    ],
+    [
+      "tower",
+      32
+    ],
+    [
+      "merged",
+      32
+    ],
+    [
+      "projected",
+      32
+    ]
+  ],
+  "recognition": {
+    "cells": 40,
+    "readouts": [
+      "attention",
+      "mean"
+    ],
+    "arms": [
+      "raw",
+      "matched"
+    ],
+    "learning_rates": [
+      1e-05,
+      3e-05,
+      0.0001,
+      0.0003,
+      0.001,
+      0.003,
+      0.01,
+      0.03,
+      0.1,
+      0.3,
+      1
+    ],
+    "seeds": [
+      0,
+      1,
+      2
+    ],
+    "epochs": 20,
+    "pool": [
+      4,
+      4
+    ],
+    "lr_search_seeds": [
+      0
+    ],
+    "selected_lr_retrain_seeds": [
+      0,
+      1,
+      2
+    ]
+  },
+  "geometry": {
+    "cells": 40,
+    "tasks": [
+      "depth",
+      "normal"
+    ],
+    "arms": [
+      "raw",
+      "matched"
+    ],
+    "learning_rates": [
+      0.0001,
+      0.0003,
+      0.001,
+      0.003,
+      0.01,
+      0.03
+    ],
+    "epochs": 10,
+    "seeds": [
+      0,
+      1,
+      2
+    ],
+    "tokens": "full",
+    "lr_search_seeds": [
+      0
+    ],
+    "selected_lr_retrain_seeds": [
+      0,
+      1,
+      2
+    ]
+  },
+  "correspondence": {
+    "datasets": [
+      "navi",
+      "scannet",
+      "spair"
+    ],
+    "stages": [
+      "tower",
+      "merged",
+      "projected"
+    ],
+    "cells": 9,
+    "tokens": "full"
+  },
+  "label_budget": {
+    "cells": 8,
+    "fractions": [
+      0.01,
+      0.05,
+      0.2,
+      1
+    ],
+    "readouts": [
+      "attention",
+      "mean"
+    ],
+    "arms": [
+      "matched"
+    ],
+    "slice": [
+      "tower",
+      32
+    ],
+    "lr_search_seeds": [
+      0
+    ],
+    "selected_lr_retrain_seeds": [
+      0,
+      1,
+      2
+    ]
+  },
+  "perturbation": {
+    "conditions": 13,
+    "stages": [
+      "tower",
+      "merged",
+      "projected"
+    ],
+    "cells": 39
+  },
+  "throughput": {
+    "resolution": 448
+  },
+  "kitti": {
+    "stages": [
+      "tower",
+      "projected"
+    ],
+    "task": "depth",
+    "arm": "matched"
+  },
+  "bootstrap": {
+    "within_flash": [
+      "recognition",
+      "depth",
+      "normal",
+      "navi",
+      "scannet",
+      "spair",
+      "perturbation",
+      "kitti"
+    ],
+    "sibling": [
+      "recognition",
+      "depth",
+      "normal",
+      "navi",
+      "scannet",
+      "spair",
+      "perturbation",
+      "kitti"
+    ],
+    "stages": [
+      "tower",
+      "merged",
+      "projected"
+    ],
+    "points": "same paired runs only",
+    "within_model_payloads_per_checkpoint": 10,
+    "sibling_payloads": 29,
+    "expected_files": [
+      "correspondence-navi-m31-vs-m3-merged.json",
+      "correspondence-navi-m31-vs-m3-projected.json",
+      "correspondence-navi-m31-vs-m3-tower.json",
+      "correspondence-navi-minimax_m3-projected-vs-tower.json",
+      "correspondence-navi-minimax_m31_flash-projected-vs-tower.json",
+      "correspondence-scannet-m31-vs-m3-merged.json",
+      "correspondence-scannet-m31-vs-m3-projected.json",
+      "correspondence-scannet-m31-vs-m3-tower.json",
+      "correspondence-scannet-minimax_m3-projected-vs-tower.json",
+      "correspondence-scannet-minimax_m31_flash-projected-vs-tower.json",
+      "correspondence-spair-m31-vs-m3-merged.json",
+      "correspondence-spair-m31-vs-m3-projected.json",
+      "correspondence-spair-m31-vs-m3-tower.json",
+      "correspondence-spair-minimax_m3-projected-vs-tower.json",
+      "correspondence-spair-minimax_m31_flash-projected-vs-tower.json",
+      "geometry-depth-diode-matched-m31-vs-m3-merged.json",
+      "geometry-depth-diode-matched-m31-vs-m3-projected.json",
+      "geometry-depth-diode-matched-m31-vs-m3-tower.json",
+      "geometry-depth-diode-raw-m31-vs-m3-merged.json",
+      "geometry-depth-diode-raw-m31-vs-m3-projected.json",
+      "geometry-depth-diode-raw-m31-vs-m3-tower.json",
+      "geometry-depth-kitti-matched-m31-vs-m3-projected.json",
+      "geometry-depth-kitti-matched-m31-vs-m3-tower.json",
+      "geometry-depth-kitti-matched-minimax_m3-projected-vs-tower.json",
+      "geometry-depth-kitti-matched-minimax_m31_flash-projected-vs-tower.json",
+      "geometry-depth-matched-minimax_m3-projected-vs-tower.json",
+      "geometry-depth-matched-minimax_m31_flash-projected-vs-tower.json",
+      "geometry-depth-raw-minimax_m3-projected-vs-tower.json",
+      "geometry-depth-raw-minimax_m31_flash-projected-vs-tower.json",
+      "geometry-normal-diode-matched-m31-vs-m3-merged.json",
+      "geometry-normal-diode-matched-m31-vs-m3-projected.json",
+      "geometry-normal-diode-matched-m31-vs-m3-tower.json",
+      "geometry-normal-diode-raw-m31-vs-m3-merged.json",
+      "geometry-normal-diode-raw-m31-vs-m3-projected.json",
+      "geometry-normal-diode-raw-m31-vs-m3-tower.json",
+      "geometry-normal-matched-minimax_m3-projected-vs-tower.json",
+      "geometry-normal-matched-minimax_m31_flash-projected-vs-tower.json",
+      "geometry-normal-raw-minimax_m3-projected-vs-tower.json",
+      "geometry-normal-raw-minimax_m31_flash-projected-vs-tower.json",
+      "perturbation-m31-vs-m3-merged.json",
+      "perturbation-m31-vs-m3-projected.json",
+      "perturbation-m31-vs-m3-tower.json",
+      "perturbation-minimax_m3.json",
+      "perturbation-minimax_m31_flash.json",
+      "semantic-attention-matched-minimax_m3-projected-minus-tower.json",
+      "semantic-attention-matched-minimax_m31_flash-projected-minus-tower.json",
+      "semantic-m31-vs-m3-merged.json",
+      "semantic-m31-vs-m3-projected.json",
+      "semantic-m31-vs-m3-tower.json"
+    ],
+    "source_pairing": "Every point and interval comes from the same paired rerun; SPair finite intersections and source-visible exclusions retained."
+  },
+  "reuse_policy": "No baseline reuse until sample IDs, splits, seeds and checkpoint identity are audited.",
+  "protocol_note": "Current corrected runner defaults; seed-0 LR search then selected LR retraining with three seeds.",
+  "standardized_label_budget": {
+    "diagnostic_only": true,
+    "primary_reducer_unchanged": true,
+    "readout": "attention",
+    "arm": "matched",
+    "fractions": [
+      0.01,
+      0.05,
+      0.2,
+      1.0
+    ],
+    "images": 13000,
+    "stage": "tower",
+    "layer": 32,
+    "lr_search_seeds": [
+      0
+    ],
+    "selected_lr_retrain_seeds": [
+      0,
+      1,
+      2
+    ],
+    "epochs": 20,
+    "patch_sha256": "f5a2bc1dcda0e6be9a2d6abea9c1bcc9cb5817282ff6406489b5022dc65e330a",
+    "patch_source": "r2:vtb/backups/v3/2026-10-19/proposed/reducer-channel-standardization.patch"
+  },
+  "image_inference": "Independent single-image native forwards inside every external batch; no attention across unrelated dataset images.",
+  "m3_image_isolation_control": {
+    "model": "minimax_m3",
+    "recognition_cells": 40,
+    "geometry_cells": 40,
+    "label_budget_cells": 8,
+    "standardized_cells": 4,
+    "correspondence_cells": 9,
+    "perturbation_conditions": 39,
+    "kitti_cells": 2,
+    "throughput_records": 1,
+    "within_model_bootstrap_payloads": 10,
+    "historical_results": "Preserved; new controls and figure source overrides are additive."
+  }
+}

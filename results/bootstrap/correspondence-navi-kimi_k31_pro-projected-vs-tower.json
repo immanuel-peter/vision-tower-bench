@@ -1,0 +1,66 @@
+{
+  "protocol": {
+    "dataset": "navi",
+    "metric": "recall_2cm",
+    "pairing": "paired over image pairs",
+    "resolution": 448,
+    "evaluation_side": 64,
+    "num_correspondences": 1000
+  },
+  "model": "kimi_k31_pro",
+  "model_id": "immanuelpeter/MoonViT-K3.1-Pro",
+  "first": "projected:27",
+  "second": "tower:27",
+  "first_advantage": {
+    "point_estimate": 0.055990152060985565,
+    "confidence": 0.95,
+    "lower": 0.05114368721842766,
+    "upper": 0.06084173172712326,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "first_minus_second",
+    "pairs": 555
+  },
+  "by_difficulty": {
+    "[0,30)": {
+      "point_estimate": 0.10897426307201385,
+      "confidence": 0.95,
+      "lower": 0.10047020763158798,
+      "upper": 0.11765769869089127,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 74
+    },
+    "[30,60)": {
+      "point_estimate": 0.08914262056350708,
+      "confidence": 0.95,
+      "lower": 0.07993609458208084,
+      "upper": 0.09824569523334503,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 141
+    },
+    "[60,90)": {
+      "point_estimate": 0.04281209409236908,
+      "confidence": 0.95,
+      "lower": 0.03505554422736168,
+      "upper": 0.050853181630373,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 149
+    },
+    "[90,120)": {
+      "point_estimate": 0.021268725395202637,
+      "confidence": 0.95,
+      "lower": 0.015390397049486637,
+      "upper": 0.027297215536236763,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "first_minus_second",
+      "pairs": 191
+    }
+  }
+}

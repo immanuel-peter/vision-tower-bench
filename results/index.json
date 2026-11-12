@@ -38,18 +38,48 @@
         "mimo26_flash"
       ],
       "description": "Nemotron Super, Nemotron Bolt, the DINOv3 ViT-L/16 control and MiMo 2.6 Pro and Flash, measured after the v2 report and included in the default figures. Super follows the v2 protocols with all three Stages. Bolt covers only the merged and projected Stages, plus one final Tower sanity cell under diagnostics/nemotron35-bolt-tower/. DINOv3 runs at 512 px for a 32x32 grid, equal to DINOv2 at 448 px, with DINOv2's bicubic crop and ImageNet normalization; its 448 px equal-pixel check is under diagnostics/dinov3-equal-pixels/. MiMo 2.6 Pro and MiMo 2.6 Flash follow the v2 protocols with all three Stages at 448 px; each still image is fed as two identical frames, and every Tower depth is restored to raster order. Their paired Pro-versus-Flash intervals are under bootstrap/*-mimo26-pro-vs-flash*.json, and the attention sink check is under diagnostics/mimo26-attention-sinks/."
+    },
+    "checkpoint_additions": {
+      "models": [
+        "qwen38_flash_next"
+      ],
+      "description": "Checkpoints added after v3 under the same task protocols. Source identity, sibling controls, diagnostics, and completion status are recorded per experiment; historical cohorts remain unchanged."
+    },
+    "minimax_m31_flash": {
+      "models": [
+        "minimax_m31_flash"
+      ],
+      "description": "Full image-independent 448-pixel suite for MiniMax M3.1 Flash, with fresh pinned M3 controls under the same inference and readout protocols."
+    },
+    "minimax_m3_image_isolation": {
+      "models": [
+        "minimax_m3"
+      ],
+      "description": "Fresh M3 controls with image-independent native forwards. Historical published M3 payloads are preserved; only the explicit additive overrides select these reruns."
+    },
+    "v4": {
+      "models": [
+        "mistral_large4"
+      ],
+      "description": "Mistral Large 4 (immanuelpeter/PixtralViT-Large-4), the first Pixtral-family Tower, follows the v2 protocols with all three Stages at 448 px. Tower depths are 4, 8, 11, 15, 19, 22, 26 and 30; L30 has no final norm and carries a few channels with RMS above 3e4. merged is the 2048-wide patch-merger output and projected the 6144-wide adapter output. Features come from the release's parent-order BF16 forward (vtb/models/pixtral_large4.py), which matches mistral-inference bit for bit; see diagnostics/mistral-large4-parity/. Projected-versus-Tower intervals are under bootstrap/*-mistral_large4-projected-*.json."
+    },
+    "kimi_k31_pro_checkpoint": {
+      "models": [
+        "kimi_k31_pro"
+      ],
+      "description": "Matched vision-architecture checkpoint comparison against fresh Kimi K3 controls. Complete 286 primary cells and 102 paired comparisons, independent content checks, exact interval replays and final figures; production BF16 backend limitation retained."
     }
   },
   "experiments": {
     "recognition": {
       "path": "recognition/",
-      "protocol": "ImageNet-100; 4x4 pooled tokens; attention/mean readouts; raw/matched capacities; eleven learning rates and three seeds.",
+      "protocol": "ImageNet-100; 4x4 pooled tokens; attention/mean readouts; raw/matched capacities; eleven learning rates searched with seed 0, then selected-rate retraining with seeds 0, 1, and 2.",
       "status": "Corrected extended-grid matrices.",
       "cohort": "v2_eleven"
     },
     "geometry": {
       "path": "geometry/",
-      "protocol": "DIODE; full native patch tokens; depth/normals; raw/matched capacities; six learning rates, ten epochs and three seeds.",
+      "protocol": "DIODE; full native patch tokens; depth/normals; raw/matched capacities; six learning rates searched with seed 0 for ten epochs, then selected-rate retraining with seeds 0, 1, and 2.",
       "status": "Full layer sweeps. Original six-Tower matched PCA draws were unseeded; deepest-stage values are superseded only within the correction scope below.",
       "cohort": "v2_eleven"
     },
@@ -97,19 +127,19 @@
     "label_budget": {
       "path": "label-budget/",
       "protocol": "ImageNet-100 final Tower layer; matched capacity; attention/mean at 1%, 5%, 20% and 100% labels; fixed validation/test splits.",
-      "status": "Includes throughput records for the original six Towers. The v3 Towers have both reducer arms; Bolt runs at merged L32, and the channel-standardized runs that the default figure reads are under diagnostics/mimo26-tower-outlier-channel/.",
+      "status": "Includes throughput records for the original six Towers. The v3 Towers have both reducer arms; Bolt runs at merged L32, and the channel-standardized runs that the default figure reads are under diagnostics/mimo26-tower-outlier-channel/. Mistral Large 4 (v4) has both readouts; its mean-readout cells, and its mean recognition matrices, were trained on CPU with the same protocol.",
       "cohort": "v2_eleven"
     },
     "perturbation": {
       "path": "perturbation/",
       "protocol": "Frozen clean-trained matched attention readout; per-condition and per-image records.",
-      "status": "Occlusion across the roster; added-model payloads also contain scale and motion blur. Shared transforms.jsonl and transforms.manifest.json describe all 13 conditions: identity plus four levels each of scale, occlusion and motion blur. Their occlusion rows are byte-identical to the original occlusion experiment's. The MiMo 2.6 Tower L28 cells, and the Tower rows of bootstrap/perturbation-mimo26-pro-vs-flash.json, are a readout failure, not a robustness measurement; see diagnostics/mimo26-tower-outlier-channel/.",
+      "status": "Occlusion across the roster; added-model payloads also contain scale and motion blur. Shared transforms.jsonl and transforms.manifest.json describe all 13 conditions: identity plus four levels each of scale, occlusion and motion blur. Their occlusion rows are byte-identical to the original occlusion experiment's. The MiMo 2.6 Tower L28 cells, and the Tower rows of bootstrap/perturbation-mimo26-pro-vs-flash.json, are a readout failure, not a robustness measurement; see diagnostics/mimo26-tower-outlier-channel/. The Mistral Large 4 Tower L30 cells are likewise a readout failure; see diagnostics/mistral-large4-outlier-channels/.",
       "cohort": "v2_eleven"
     },
     "kitti": {
       "path": "kitti/",
       "protocol": "KITTI selected depth-completion validation set; matched depth readout at final Tower and Projector stages.",
-      "status": "Single transfer column. Paired intervals are under bootstrap/. The v3 cohort adds Nemotron Super and MiMo 2.6 Pro and Flash.",
+      "status": "Single transfer column. Paired intervals are under bootstrap/. The v3 cohort adds Nemotron Super and MiMo 2.6 Pro and Flash. The v4 cohort adds Mistral Large 4.",
       "cohort": "v2_eleven"
     },
     "pooling": {
@@ -152,7 +182,7 @@
     },
     "mimo26_attention_sinks": {
       "path": "diagnostics/mimo26-attention-sinks/",
-      "protocol": "Pinned vLLM Triton prefill kernel with sinks_bias_key0 against HF key-0 sink semantics in PyTorch SDPA; two packed BF16 images at 36, 196 and 784 tokens, 32 query and 8 KV heads, ±64-token window.",
+      "protocol": "Pinned vLLM Triton prefill kernel with sinks_bias_key0 against HF key-0 sink semantics in PyTorch SDPA; two packed BF16 images at 36, 196 and 784 tokens, 32 query and 8 KV heads, \u00b164-token window.",
       "status": "Agreement within BF16 rounding. Kernel-level check only; no benchmark arm changed.",
       "cohort": "v3"
     },
@@ -161,6 +191,107 @@
       "protocol": "MiMo 2.6 Tower L28 perturbation readout with the published reducer and with channels standardized before PCA, plus Pro-minus-Flash intervals from cross_run_bootstrap.py; channel and PCA statistics on 1,000 ImageNet-100 images at every tapped depth for MiMo and the eleven v2 Towers, with 1%-label readouts at the final Tower layer; the attention-matched label budget for the eleven v2 Towers on the full recognition split, unchanged and standardized; and Qwen3.8 Tower L20, L24 and L27 depth probes.",
       "status": "The published MiMo Tower L28 perturbation cells are a readout failure, not a robustness measurement. Standardized results are diagnostic only; no published file or benchmark arm changed.",
       "cohort": "v3"
+    },
+    "qwen38_flash_next_source": {
+      "path": "evidence/qwen38-flash-next/",
+      "protocol": "Pinned source tensor identity; independent Qwen4ExpVisionModel forward at 96/448 pixels in CPU FP32, CPU BF16 and CUDA BF16; full 333-tensor sibling drift; immutable HF reload.",
+      "status": "Complete: 333 exact source tensors, 20 exact forward cases per dtype and immutable release reload; 331 shared-shaped sibling tensors all differ, two Projector output shapes change.",
+      "cohort": "checkpoint_additions"
+    },
+    "qwen38_flash_next_conditioning": {
+      "path": "diagnostics/qwen38-flash-next-conditioning/",
+      "protocol": "Isolated exact-R2 training-only channel sample standardization and seeded PCA; FlashNext and fresh 27B control, all 13 perturbation conditions and three Stages; sequential CPU with six threads, the prescribed eleven-rate search with seed 0 and selected-rate seeds 0, 1, and 2; four paired diagnostic comparisons with their own points.",
+      "status": "Complete separate diagnostic. Primary results retained. Flash-Next Tower and merged clean readouts recover under standardization; training causes and a shared cause with MiMo are untested. Primary Tower/merged intrinsic robustness claims withheld.",
+      "cohort": "checkpoint_additions"
+    },
+    "qwen38_flash_next_benchmarks": {
+      "path": "evidence/qwen38-flash-next/",
+      "writeup": "evidence/qwen38-flash-next/benchmark-summary.md",
+      "protocol": "Full corrected 448-pixel suite: 40 recognition cells, 40 geometry cells, two KITTI cells, eight label-budget cells, three correspondence datasets at every Stage, 13 perturbation conditions at every Stage, throughput, and 33 primary paired interval records. Prescribed seed-0 LR searches and selected-rate seeds 0/1/2 unchanged.",
+      "status": "Complete actual-content and provenance audit of 153 artifacts. Fresh paired per-Stage sibling controls retain their own point estimates and intervals. Historical cohorts and measurements preserved.",
+      "cohort": "checkpoint_additions"
+    },
+    "minimax_m31_flash_validation": {
+      "path": "diagnostics/minimax-m31-flash/",
+      "protocol": "Pinned source identity, full Tower and Projector tensor drift, independent HF parent loading, nominal image-size sensitivity, immutable release reload.",
+      "status": "Complete source/release identity, independent image-wise HF parity, input/cache validation, full primary inventory and paired comparisons.",
+      "cohort": "minimax_m31_flash"
+    },
+    "minimax_m3_image_isolation": {
+      "path": "diagnostics/minimax-m31-flash/m3-image-isolation/",
+      "protocol": "Same corrected primary readout protocols as Flash, using independent single-image native inference inside external batches. Full M3 controls and standardized figure data are rerun.",
+      "status": "Complete primary matrices, standardized label budgets, correspondence, perturbations, transfer, throughput and paired within-model comparisons. Historical files preserved.",
+      "cohort": "minimax_m3_image_isolation",
+      "supersedes": {
+        "scope": "Default figure sources and the new training-only sibling comparison, for M3 only.",
+        "historical_paths": [
+          "recognition/minimax_m3_*",
+          "geometry/minimax_m3_*",
+          "label-budget/minimax_m3_*",
+          "perturbation/minimax_m3_*",
+          "correspondence/minimax_m3_*",
+          "kitti/minimax_m3_*",
+          "bootstrap/*-minimax_m3-projected-vs-tower.json"
+        ]
+      }
+    },
+    "minimax_m31_flash_suite": {
+      "path": "diagnostics/minimax-m31-flash/",
+      "protocol": "All primary protocols at 448, image-independent inference, full eight-depth sweeps, opt-in standardized label-budget diagnostics, matched pinned M3 controls and same-run paired intervals.",
+      "status": "Complete; see measurement-provenance.json and both content-validation reports.",
+      "cohort": "minimax_m31_flash"
+    },
+    "mistral_large4_parity": {
+      "path": "diagnostics/mistral-large4-parity/",
+      "protocol": "Shard SHA256 and per-tensor identity of the release; mistral-inference 1.6.0 from its pinned wheel as the independent reference, with the xformers-derived memory-efficient SDPA kernel and with explicit float32 attention; four fixed images at 448 and 1540 px; eight Tower depths plus merged and projected; FP32 and BF16; negative controls for the RoPE permutation, merger order and final norm.",
+      "status": "Conversion parity: bit-exact in FP32 and BF16 against the memory-efficient reference in 80 of 80 comparisons. Against explicit float32 attention, BF16 cosine is at least 0.9947, the reference's own attention-kernel sensitivity. The predeclared BF16-vs-FP32 gate (cosine 0.999) fails in 29 of 80 comparisons for the parent's own forward and the release alike; it is recorded, not loosened. The first failure and every intermediate report are under history/.",
+      "cohort": "v4"
+    },
+    "mistral_large4_outlier_channels": {
+      "path": "diagnostics/mistral-large4-outlier-channels/",
+      "protocol": "Channel RMS and unscaled first-component variance share on the 13,000-image recognition cache at Tower L26, Tower L30, merged and projected; the perturbation readout and the attention-matched label budget at Tower L30 rerun with channels standardized before PCA.",
+      "status": "The published Mistral Large 4 Tower L30 perturbation cells and low-label attention cells are a readout failure, not a measurement. Standardized results are diagnostic only; no published file or benchmark arm changed.",
+      "cohort": "v4"
+    },
+    "kimi_k31_pro_checkpoint": {
+      "path": "diagnostics/kimi-k31-pro-checkpoint/",
+      "protocol": "Matched vision-architecture checkpoint comparison at 448px; all ten recognition and geometry slices, both capacities and readouts, full label budgets, isolated standardized diagnostics, 13 perturbations, all three correspondence datasets, KITTI and throughput. Seed-0 LR search followed by selected-rate three-seed retraining; paired controls share actual devices and settings.",
+      "status": "Complete benchmark inventory of 286 primary cells and 102 paired comparisons; actual content and exact interval replay verified. Production official TORCH_SDPA BF16 remains failed; accepted mathematical-reference conversion parity unchanged. Original 5311 published functional gate passed; see evidence for the separately tracked exact-GELU example correction.",
+      "measurements": {
+        "pro_recognition": "recognition/kimi_k31_pro_probe_{readout}_{arm}.json",
+        "pro_mean_label_budget": "label-budget/kimi_k31_pro_probe_mean_matched_f*.json",
+        "fresh_k3_controls": "diagnostics/kimi-k31-pro-checkpoint/sibling-control/",
+        "actual_inventory": "diagnostics/kimi-k31-pro-checkpoint/completed-inventory.json",
+        "pro_perturbation": "perturbation/kimi_k31_pro_perturbation.json",
+        "perturbation_paired": "bootstrap/perturbation-kimi_k31_pro-*.json",
+        "standardized_label_budgets": "diagnostics/kimi-k31-pro-checkpoint/standardized-label-budget/",
+        "recognition_partial": "diagnostics/kimi-k31-pro-checkpoint/recognition-cells/",
+        "navi": "correspondence/kimi_k31_pro_correspondence_navi.json",
+        "pro_matched_attention": "recognition/kimi_k31_pro_probe_attention_matched.json",
+        "matched_attention_audit": "diagnostics/kimi-k31-pro-checkpoint/cpu-matched-attention/matched-semantic-complete-audit.json",
+        "pro_raw_attention": "recognition/kimi_k31_pro_probe_attention_raw.json",
+        "raw_attention_audit": "diagnostics/kimi-k31-pro-checkpoint/raw-attention-recognition/raw-recognition-complete-audit.json",
+        "pro_geometry": "geometry/kimi_k31_pro_geometry_{task}_{arm}.json",
+        "published_inference_gate": "diagnostics/kimi-k31-pro-checkpoint/inference-smoke/published-example-pass/published-example-gate.json",
+        "pro_correspondence": "correspondence/kimi_k31_pro_correspondence_{dataset}.json",
+        "pro_throughput": "throughput/kimi_k31_pro_throughput.json",
+        "staged_scannet_intervals": "diagnostics/kimi-k31-pro-checkpoint/staged-correspondence-statistics/staged-scannet-intervals.json",
+        "example_numerical_correction": "diagnostics/kimi-k31-pro-checkpoint/inference-smoke/projector-activation-correction/",
+        "legacy_preservation": "diagnostics/kimi-k31-pro-checkpoint/historical-k3-results-preserved.json",
+        "paired_comparison_report_generator": "scripts/summarize_kimi_checkpoint_pairs.py",
+        "raw_normal_figure": "diagnostics/kimi-k31-pro-checkpoint/raw-normal-comparison.png",
+        "full_primary_content_audit": "diagnostics/kimi-k31-pro-checkpoint/independent-content-audits/completed-primary-independent-content-audit.json",
+        "all_paired_replay": "diagnostics/kimi-k31-pro-checkpoint/independent-content-audits/all-paired-intervals-independent-replay.json",
+        "paired_comparison_report": "diagnostics/kimi-k31-pro-checkpoint/paired-comparisons.md",
+        "paired_relative_depth_figure": "diagnostics/kimi-k31-pro-checkpoint/matched-sibling-relative-depth-intervals.png",
+        "final_regression": "diagnostics/kimi-k31-pro-checkpoint/final-regression-tests.json",
+        "corrected_published_example": "diagnostics/kimi-k31-pro-checkpoint/inference-smoke/corrected-publication/smoke/summary.json"
+      }
+    },
+    "throughput": {
+      "path": "throughput/",
+      "protocol": "Tower-only 448px throughput, 768 validation images, two warmup batches; Kimi BF16 batch1 and two loaders; actual device/runtime/source identities retained.",
+      "status": "Pro and fresh K3 control complete; existing cohort throughput files under label-budget remain preserved."
     }
   },
   "cell_manifests": [
@@ -178,6 +309,76 @@
       "path": "manifests/expected_cells_geometry_matched.tsv",
       "results_directory": "geometry/",
       "cohort": "v1_six"
+    },
+    {
+      "path": "manifests/expected_cells_minimax_m31_flash_recognition.tsv",
+      "results_directory": "recognition/",
+      "cohort": "minimax_m31_flash"
+    },
+    {
+      "path": "manifests/expected_cells_minimax_m31_flash_geometry.tsv",
+      "results_directory": "geometry/",
+      "cohort": "minimax_m31_flash"
+    },
+    {
+      "path": "manifests/expected_cells_minimax_m31_flash_label_budget.tsv",
+      "results_directory": "label-budget/",
+      "cohort": "minimax_m31_flash"
+    },
+    {
+      "path": "manifests/expected_cells_minimax_m31_flash_correspondence.tsv",
+      "results_directory": "correspondence/",
+      "cohort": "minimax_m31_flash"
+    },
+    {
+      "path": "manifests/expected_cells_minimax_m31_flash_perturbation.tsv",
+      "results_directory": "perturbation/",
+      "cohort": "minimax_m31_flash"
+    },
+    {
+      "path": "manifests/expected_cells_minimax_m31_flash_kitti.tsv",
+      "results_directory": "kitti/",
+      "cohort": "minimax_m31_flash"
+    },
+    {
+      "path": "manifests/expected_cells_minimax_m31_flash_standardized.tsv",
+      "results_directory": "diagnostics/minimax-m31-flash/standardized/",
+      "cohort": "minimax_m31_flash"
+    },
+    {
+      "path": "manifests/expected_cells_minimax_m3_recognition.tsv",
+      "results_directory": "diagnostics/minimax-m31-flash/m3-image-isolation/recognition/",
+      "cohort": "minimax_m3_image_isolation"
+    },
+    {
+      "path": "manifests/expected_cells_minimax_m3_geometry.tsv",
+      "results_directory": "diagnostics/minimax-m31-flash/m3-image-isolation/geometry/",
+      "cohort": "minimax_m3_image_isolation"
+    },
+    {
+      "path": "manifests/expected_cells_minimax_m3_label_budget.tsv",
+      "results_directory": "diagnostics/minimax-m31-flash/m3-image-isolation/label-budget/",
+      "cohort": "minimax_m3_image_isolation"
+    },
+    {
+      "path": "manifests/expected_cells_minimax_m3_correspondence.tsv",
+      "results_directory": "diagnostics/minimax-m31-flash/m3-image-isolation/correspondence/",
+      "cohort": "minimax_m3_image_isolation"
+    },
+    {
+      "path": "manifests/expected_cells_minimax_m3_perturbation.tsv",
+      "results_directory": "diagnostics/minimax-m31-flash/m3-image-isolation/perturbation/",
+      "cohort": "minimax_m3_image_isolation"
+    },
+    {
+      "path": "manifests/expected_cells_minimax_m3_kitti.tsv",
+      "results_directory": "diagnostics/minimax-m31-flash/m3-image-isolation/kitti/",
+      "cohort": "minimax_m3_image_isolation"
+    },
+    {
+      "path": "manifests/expected_cells_minimax_m3_standardized.tsv",
+      "results_directory": "diagnostics/minimax-m31-flash/m3-image-isolation/standardized/",
+      "cohort": "minimax_m3_image_isolation"
     }
   ],
   "figure_sources": {
@@ -194,13 +395,38 @@
       "deepseek_v41": "geometry/deepseek_v41_geometry_depth_matched.json",
       "gemma4": "geometry/gemma4_geometry_depth_matched.json",
       "moonvit_v2": "geometry/deterministic/moonvit_v2_geometry_depth_matched.json",
-      "minimax_m3": "geometry/minimax_m3_geometry_depth_matched.json",
+      "minimax_m3": "diagnostics/minimax-m31-flash/m3-image-isolation/geometry/minimax_m3_geometry_depth_matched.json",
       "nemotron35_super": "geometry/nemotron35_super_geometry_depth_matched.json",
       "nemotron35_bolt": "geometry/nemotron35_bolt_geometry_depth_matched.json",
       "mimo26_pro": "geometry/mimo26_pro_geometry_depth_matched.json",
-      "mimo26_flash": "geometry/mimo26_flash_geometry_depth_matched.json"
+      "mimo26_flash": "geometry/mimo26_flash_geometry_depth_matched.json",
+      "qwen38_flash_next": "geometry/qwen38_flash_next_geometry_depth_matched.json",
+      "minimax_m31_flash": "geometry/minimax_m31_flash_geometry_depth_matched.json",
+      "mistral_large4": "geometry/mistral_large4_geometry_depth_matched.json",
+      "kimi_k31_pro": "geometry/kimi_k31_pro_geometry_depth_matched.json"
     },
-    "label_budget": "diagnostics/mimo26-tower-outlier-channel/label_budget_standardized.json"
+    "label_budget": "diagnostics/mimo26-tower-outlier-channel/label_budget_standardized.json",
+    "model_overrides": {
+      "minimax_m3": {
+        "recognition": "diagnostics/minimax-m31-flash/m3-image-isolation/recognition/{model}_probe_{readout}_{arm}.json",
+        "geometry_layer_sweep": "diagnostics/minimax-m31-flash/m3-image-isolation/geometry/{model}_geometry_depth_matched.json",
+        "geometry": "diagnostics/minimax-m31-flash/m3-image-isolation/geometry/{model}_geometry_{task}_{arm}.json",
+        "correspondence": "diagnostics/minimax-m31-flash/m3-image-isolation/correspondence/{model}_correspondence_{dataset}.json",
+        "perturbation": "diagnostics/minimax-m31-flash/m3-image-isolation/perturbation/{model}_perturbation.json",
+        "projector_intervals": "diagnostics/minimax-m31-flash/m3-image-isolation/bootstrap/*-projected-vs-tower.json"
+      }
+    },
+    "label_budget_additional": [
+      "diagnostics/minimax-m31-flash/label_budget_standardized.json"
+    ],
+    "label_budget_overrides": {
+      "minimax_m3": "diagnostics/minimax-m31-flash/m3-image-isolation/label_budget_standardized.json"
+    },
+    "semantic_checkpoint_comparisons": [
+      "bootstrap/007-recognition-kimi_k31_pro-minus-moonvit_v2-tower-L27.json",
+      "bootstrap/008-recognition-kimi_k31_pro-minus-moonvit_v2-merged-L27.json",
+      "bootstrap/009-recognition-kimi_k31_pro-minus-moonvit_v2-projected-L27.json"
+    ]
   },
   "history": "history/roster-run.md"
 }

@@ -15,7 +15,20 @@ FIGURE_SCRIPT = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(FIGURE_SCRIPT)
 
 
-def test_roster_covers_the_sixteen_tower_suite():
+@pytest.mark.parametrize("model", ["minimax_m3", "minimax_m31_flash"])
+@pytest.mark.parametrize("suffix", ["", "_448_pool4"])
+def test_tower_name_distinguishes_minimax_siblings(model, suffix):
+    assert FIGURE_SCRIPT.tower_name(model + suffix) == model
+
+
+def test_m3_image_isolation_override_preserves_other_models_and_historical_files():
+    path = FIGURE_SCRIPT.measurement_path("recognition", "minimax_m3", readout="attention", arm="matched")
+    assert path == ROOT / "results/diagnostics/minimax-m31-flash/m3-image-isolation/recognition/minimax_m3_probe_attention_matched.json"
+    assert (ROOT / "results/recognition/minimax_m3_probe_attention_matched.json").is_file()
+    assert FIGURE_SCRIPT.measurement_path("recognition", "dinov2", readout="attention", arm="matched") == ROOT / "results/recognition/dinov2_probe_attention_matched.json"
+
+
+def test_roster_covers_the_registered_tower_suite():
     assert FIGURE_SCRIPT.TOWERS == (
         "dinov2",
         "siglip2",
@@ -27,23 +40,29 @@ def test_roster_covers_the_sixteen_tower_suite():
         "deepseek_v41",
         "gemma4",
         "moonvit_v2",
+        "kimi_k31_pro",
         "minimax_m3",
+        "minimax_m31_flash",
         "nemotron35_super",
         "nemotron35_bolt",
         "dinov3",
         "mimo26_pro",
         "mimo26_flash",
+        "qwen38_flash_next",
+        "mistral_large4",
     )
     assert set(FIGURE_SCRIPT.COLOUR) == set(FIGURE_SCRIPT.TOWERS)
     assert set(FIGURE_SCRIPT.DISPLAY) == set(FIGURE_SCRIPT.TOWERS)
     assert FIGURE_SCRIPT.DISPLAY["glm5"] == "GLM 5.3 Flash"
-    assert FIGURE_SCRIPT.DISPLAY["nemotron_omni"] == "Nemotron Omni"
+    assert FIGURE_SCRIPT.DISPLAY["nemotron_omni"] == "Nemotron 3 Omni"
+    assert FIGURE_SCRIPT.DISPLAY["mistral_large4"] == "Mistral Large 4"
     assert FIGURE_SCRIPT.DISPLAY["deepseek_v41"] == "DeepSeek V4.1"
     assert FIGURE_SCRIPT.DISPLAY["minimax_m3"] == "MiniMax M3"
     assert len(set(FIGURE_SCRIPT.COLOUR.values())) == len(FIGURE_SCRIPT.TOWERS)
     assert "dinov3" not in FIGURE_SCRIPT.PROJECTORS
     assert "nemotron35_bolt" not in FIGURE_SCRIPT.TOWER_STAGE
     assert not FIGURE_SCRIPT.OUTLIER_CHANNEL & set(FIGURE_SCRIPT.OCCLUSION)
+    assert "qwen38_flash_next" not in FIGURE_SCRIPT.OCCLUSION
 
 
 def test_occlusion_filter_excludes_scale_and_motion_blur():
@@ -66,11 +85,29 @@ def test_projector_matrix_covers_every_projector_and_panel():
         assert {row[0] for row in panels[panel]} == rows
 
     states = []
+    legacy_states = []
+    pro_states = {}
     for panel in ("depth-matched", "depth-raw", "normal-matched", "normal-raw"):
-        for _, _, low, high in panels[panel]:
-            states.append("projector" if low > 0 else "tower" if high < 0 else "unresolved")
-    assert states.count("projector") == 30
-    assert states.count("tower") == 13
+        for model, _, low, high in panels[panel]:
+            if model in ("minimax_m31_flash", "minimax_m3", "qwen38_flash_next"):
+                continue
+            state = "projector" if low > 0 else "tower" if high < 0 else "unresolved"
+            states.append(state)
+            if model == "kimi_k31_pro":
+                pro_states[panel] = state
+            else:
+                legacy_states.append(state)
+    assert len(legacy_states) == 48
+    assert legacy_states.count("projector") == 33
+    assert legacy_states.count("tower") == 10
+    assert legacy_states.count("unresolved") == 5
+    assert pro_states == {
+        "depth-matched": "projector", "depth-raw": "projector",
+        "normal-matched": "projector", "normal-raw": "projector",
+    }
+    assert len(states) == 52
+    assert states.count("projector") == 37
+    assert states.count("tower") == 10
     assert states.count("unresolved") == 5
 
 
@@ -104,20 +141,25 @@ def test_geometry_figures_separate_corrected_stages_from_historical_sweeps(monke
     for model, line in zip(FIGURE_SCRIPT.PROJECTORS, stage_lines, strict=True):
         directory = "geometry/deterministic" if model in corrected else "geometry"
         path = ROOT / "results" / directory / f"{model}_geometry_depth_matched.json"
+        if model == "minimax_m3":
+            path = FIGURE_SCRIPT.measurement_path("geometry", model, task="depth", arm="matched")
         cells = json.loads(path.read_text())["cells"]
         deepest = {cell["stage"]: cell["d1"] for cell in cells if cell["relative_depth"] == 1.0}
         assert list(line.get_xdata()) == [stages.index(stage) for stage in stages if stage in deepest]
         assert list(line.get_ydata()) == pytest.approx([deepest[stage] for stage in stages if stage in deepest])
 
-    sweep_lines = {line.get_label(): line for line in figures[1].axes[1].lines}
+    assert len(figures[1].axes) == 1
+    sweep_lines = {line.get_label(): line for line in figures[1].axes[0].lines}
     for model in FIGURE_SCRIPT.TOWER_STAGE:
-        path = ROOT / "results/geometry" / f"{model}_geometry_depth_matched.json"
+        path = FIGURE_SCRIPT.measurement_path("geometry_layer_sweep", model)
         cells = sorted(
             (cell for cell in json.loads(path.read_text())["cells"] if cell["stage"] == "tower"),
             key=lambda cell: cell["relative_depth"],
         )
         assert len(cells) == 8
-        assert list(sweep_lines[model].get_ydata()) == pytest.approx([cell["d1"] for cell in cells])
+        line = sweep_lines[FIGURE_SCRIPT.DISPLAY[model]]
+        assert list(line.get_xdata()) == pytest.approx([cell["relative_depth"] for cell in cells])
+        assert list(line.get_ydata()) == pytest.approx([cell["d1"] for cell in cells])
 
 
 def test_semantic_forest_includes_the_v3_comparisons(tmp_path):
@@ -131,9 +173,55 @@ def test_semantic_forest_includes_the_v3_comparisons(tmp_path):
         assert f"attention, matched, {stage}" in labels
 
 
+def test_semantic_forest_includes_all_kimi_sibling_stages(tmp_path):
+    paths = FIGURE_SCRIPT.SOURCES["semantic_checkpoint_comparisons"]
+    payloads = [json.loads((ROOT / "results" / path).read_text()) for path in paths]
+    assert len(payloads) == 3
+    assert {payload["first"]["stage"] for payload in payloads} == {"tower", "merged", "projected"}
+    assert all(payload["first"]["name"] == "kimi_k31_pro" and payload["second"]["name"] == "moonvit_v2"
+               and payload["first"]["stage"] == payload["second"]["stage"]
+               and payload["protocol"]["test_images"] == 1950 for payload in payloads)
+    path = tmp_path / "kimi-semantic.svg"
+    FIGURE_SCRIPT.semantic_forest(path)
+    assert path.read_text().count("kimi_k31_pro - moonvit_v2") == 3
+
+
 def test_label_budget_reads_the_standardized_runs_for_every_tower():
     series = FIGURE_SCRIPT.label_budget_series()
 
     assert set(series) == set(FIGURE_SCRIPT.TOWERS)
     for model in FIGURE_SCRIPT.TOWERS:
         assert sorted(series[model]) == [0.01, 0.05, 0.2, 1.0]
+
+
+def test_qwen_sibling_figure_uses_paired_points_and_spair_macro_intervals(monkeypatch, tmp_path):
+    figures = []
+    subplots = FIGURE_SCRIPT.plt.subplots
+
+    def capture(*args, **kwargs):
+        figure, axes = subplots(*args, **kwargs)
+        figures.append(figure)
+        return figure, axes
+
+    monkeypatch.setattr(FIGURE_SCRIPT.plt, "subplots", capture)
+    FIGURE_SCRIPT.qwen_sibling_intervals(tmp_path / "siblings.svg")
+    panels = [
+        ("semantic-qwen38_flash_next-vs-qwen3_5-{}", "difference", 100),
+        ("depth-qwen38_flash_next-sibling-{}", "first_advantage", 100),
+        ("normal-qwen38_flash_next-sibling-{}", "first_advantage", 1),
+        ("kitti-qwen38_flash_next-sibling-{}", "first_advantage", 100),
+        ("correspondence-navi-flash-next-vs-27b-{}", "difference", 100),
+        ("correspondence-scannet-flash-next-vs-27b-{}", "difference", 100),
+        ("correspondence-spair-flash-next-vs-27b-{}", "class_macro_difference", 100),
+    ]
+    for axis, (pattern, key, scale) in zip(figures[0].axes, panels):
+        stages = ["tower", "projected"] if pattern.startswith("kitti") else ["tower", "merged", "projected"]
+        for index, stage in enumerate(stages):
+            payload = json.loads((ROOT / "results/bootstrap" / f"{pattern.format(stage)}.json").read_text())
+            interval = payload[key]
+            assert list(axis.lines[2 * index].get_xdata()) == pytest.approx(
+                [interval["lower"] * scale, interval["upper"] * scale]
+            )
+            assert list(axis.lines[2 * index + 1].get_xdata()) == pytest.approx(
+                [interval["point_estimate"] * scale]
+            )

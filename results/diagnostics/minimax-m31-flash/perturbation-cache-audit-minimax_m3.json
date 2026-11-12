@@ -1,0 +1,4107 @@
+{
+  "model": "minimax_m3",
+  "model_id": "immanuelpeter/MiniMax-M3-Vision",
+  "common_image_ids": [
+    "validation_000000",
+    "validation_000001",
+    "validation_000002",
+    "validation_000003",
+    "validation_000004",
+    "validation_000005",
+    "validation_000006",
+    "validation_000007",
+    "validation_000008",
+    "validation_000009",
+    "validation_000010",
+    "validation_000011",
+    "validation_000012",
+    "validation_000013",
+    "validation_000014",
+    "validation_000015",
+    "validation_000016",
+    "validation_000017",
+    "validation_000018",
+    "validation_000019",
+    "validation_000020",
+    "validation_000021",
+    "validation_000022",
+    "validation_000023",
+    "validation_000024",
+    "validation_000025",
+    "validation_000026",
+    "validation_000027",
+    "validation_000028",
+    "validation_000029",
+    "validation_000030",
+    "validation_000031",
+    "validation_000032",
+    "validation_000033",
+    "validation_000034",
+    "validation_000035",
+    "validation_000036",
+    "validation_000037",
+    "validation_000038",
+    "validation_000039",
+    "validation_000040",
+    "validation_000041",
+    "validation_000042",
+    "validation_000043",
+    "validation_000044",
+    "validation_000045",
+    "validation_000046",
+    "validation_000047",
+    "validation_000048",
+    "validation_000049",
+    "validation_000050",
+    "validation_000051",
+    "validation_000052",
+    "validation_000053",
+    "validation_000054",
+    "validation_000055",
+    "validation_000056",
+    "validation_000057",
+    "validation_000058",
+    "validation_000059",
+    "validation_000060",
+    "validation_000061",
+    "validation_000062",
+    "validation_000063",
+    "validation_000064",
+    "validation_000065",
+    "validation_000066",
+    "validation_000067",
+    "validation_000068",
+    "validation_000069",
+    "validation_000070",
+    "validation_000071",
+    "validation_000072",
+    "validation_000073",
+    "validation_000074",
+    "validation_000075",
+    "validation_000076",
+    "validation_000077",
+    "validation_000078",
+    "validation_000079",
+    "validation_000080",
+    "validation_000081",
+    "validation_000082",
+    "validation_000083",
+    "validation_000084",
+    "validation_000085",
+    "validation_000086",
+    "validation_000087",
+    "validation_000088",
+    "validation_000089",
+    "validation_000090",
+    "validation_000091",
+    "validation_000092",
+    "validation_000093",
+    "validation_000094",
+    "validation_000095",
+    "validation_000096",
+    "validation_000097",
+    "validation_000098",
+    "validation_000099",
+    "validation_000100",
+    "validation_000101",
+    "validation_000102",
+    "validation_000103",
+    "validation_000104",
+    "validation_000105",
+    "validation_000106",
+    "validation_000107",
+    "validation_000108",
+    "validation_000109",
+    "validation_000110",
+    "validation_000111",
+    "validation_000112",
+    "validation_000113",
+    "validation_000114",
+    "validation_000115",
+    "validation_000116",
+    "validation_000117",
+    "validation_000118",
+    "validation_000119",
+    "validation_000120",
+    "validation_000121",
+    "validation_000122",
+    "validation_000123",
+    "validation_000124",
+    "validation_000125",
+    "validation_000126",
+    "validation_000127",
+    "validation_000128",
+    "validation_000129",
+    "validation_000130",
+    "validation_000131",
+    "validation_000132",
+    "validation_000133",
+    "validation_000134",
+    "validation_000135",
+    "validation_000136",
+    "validation_000137",
+    "validation_000138",
+    "validation_000139",
+    "validation_000140",
+    "validation_000141",
+    "validation_000142",
+    "validation_000143",
+    "validation_000144",
+    "validation_000145",
+    "validation_000146",
+    "validation_000147",
+    "validation_000148",
+    "validation_000149",
+    "validation_000150",
+    "validation_000151",
+    "validation_000152",
+    "validation_000153",
+    "validation_000154",
+    "validation_000155",
+    "validation_000156",
+    "validation_000157",
+    "validation_000158",
+    "validation_000159",
+    "validation_000160",
+    "validation_000161",
+    "validation_000162",
+    "validation_000163",
+    "validation_000164",
+    "validation_000165",
+    "validation_000166",
+    "validation_000167",
+    "validation_000168",
+    "validation_000169",
+    "validation_000170",
+    "validation_000171",
+    "validation_000172",
+    "validation_000173",
+    "validation_000174",
+    "validation_000175",
+    "validation_000176",
+    "validation_000177",
+    "validation_000178",
+    "validation_000179",
+    "validation_000180",
+    "validation_000181",
+    "validation_000182",
+    "validation_000183",
+    "validation_000184",
+    "validation_000185",
+    "validation_000186",
+    "validation_000187",
+    "validation_000188",
+    "validation_000189",
+    "validation_000190",
+    "validation_000191",
+    "validation_000192",
+    "validation_000193",
+    "validation_000194",
+    "validation_000195",
+    "validation_000196",
+    "validation_000197",
+    "validation_000198",
+    "validation_000199",
+    "validation_000200",
+    "validation_000201",
+    "validation_000202",
+    "validation_000203",
+    "validation_000204",
+    "validation_000205",
+    "validation_000206",
+    "validation_000207",
+    "validation_000208",
+    "validation_000209",
+    "validation_000210",
+    "validation_000211",
+    "validation_000212",
+    "validation_000213",
+    "validation_000214",
+    "validation_000215",
+    "validation_000216",
+    "validation_000217",
+    "validation_000218",
+    "validation_000219",
+    "validation_000220",
+    "validation_000221",
+    "validation_000222",
+    "validation_000223",
+    "validation_000224",
+    "validation_000225",
+    "validation_000226",
+    "validation_000227",
+    "validation_000228",
+    "validation_000229",
+    "validation_000230",
+    "validation_000231",
+    "validation_000232",
+    "validation_000233",
+    "validation_000234",
+    "validation_000235",
+    "validation_000236",
+    "validation_000237",
+    "validation_000238",
+    "validation_000239",
+    "validation_000240",
+    "validation_000241",
+    "validation_000242",
+    "validation_000243",
+    "validation_000244",
+    "validation_000245",
+    "validation_000246",
+    "validation_000247",
+    "validation_000248",
+    "validation_000249",
+    "validation_000250",
+    "validation_000251",
+    "validation_000252",
+    "validation_000253",
+    "validation_000254",
+    "validation_000255",
+    "validation_000256",
+    "validation_000257",
+    "validation_000258",
+    "validation_000259",
+    "validation_000260",
+    "validation_000261",
+    "validation_000262",
+    "validation_000263",
+    "validation_000264",
+    "validation_000265",
+    "validation_000266",
+    "validation_000267",
+    "validation_000268",
+    "validation_000269",
+    "validation_000270",
+    "validation_000271",
+    "validation_000272",
+    "validation_000273",
+    "validation_000274",
+    "validation_000275",
+    "validation_000276",
+    "validation_000277",
+    "validation_000278",
+    "validation_000279",
+    "validation_000280",
+    "validation_000281",
+    "validation_000282",
+    "validation_000283",
+    "validation_000284",
+    "validation_000285",
+    "validation_000286",
+    "validation_000287",
+    "validation_000288",
+    "validation_000289",
+    "validation_000290",
+    "validation_000291",
+    "validation_000292",
+    "validation_000293",
+    "validation_000294",
+    "validation_000295",
+    "validation_000296",
+    "validation_000297",
+    "validation_000298",
+    "validation_000299",
+    "validation_000300",
+    "validation_000301",
+    "validation_000302",
+    "validation_000303",
+    "validation_000304",
+    "validation_000305",
+    "validation_000306",
+    "validation_000307",
+    "validation_000308",
+    "validation_000309",
+    "validation_000310",
+    "validation_000311",
+    "validation_000312",
+    "validation_000313",
+    "validation_000314",
+    "validation_000315",
+    "validation_000316",
+    "validation_000317",
+    "validation_000318",
+    "validation_000319",
+    "validation_000320",
+    "validation_000321",
+    "validation_000322",
+    "validation_000323",
+    "validation_000324",
+    "validation_000325",
+    "validation_000326",
+    "validation_000327",
+    "validation_000328",
+    "validation_000329",
+    "validation_000330",
+    "validation_000331",
+    "validation_000332",
+    "validation_000333",
+    "validation_000334",
+    "validation_000335",
+    "validation_000336",
+    "validation_000337",
+    "validation_000338",
+    "validation_000339",
+    "validation_000340",
+    "validation_000341",
+    "validation_000342",
+    "validation_000343",
+    "validation_000344",
+    "validation_000345",
+    "validation_000346",
+    "validation_000347",
+    "validation_000348",
+    "validation_000349",
+    "validation_000350",
+    "validation_000351",
+    "validation_000352",
+    "validation_000353",
+    "validation_000354",
+    "validation_000355",
+    "validation_000356",
+    "validation_000357",
+    "validation_000358",
+    "validation_000359",
+    "validation_000360",
+    "validation_000361",
+    "validation_000362",
+    "validation_000363",
+    "validation_000364",
+    "validation_000365",
+    "validation_000366",
+    "validation_000367",
+    "validation_000368",
+    "validation_000369",
+    "validation_000370",
+    "validation_000371",
+    "validation_000372",
+    "validation_000373",
+    "validation_000374",
+    "validation_000375",
+    "validation_000376",
+    "validation_000377",
+    "validation_000378",
+    "validation_000379",
+    "validation_000380",
+    "validation_000381",
+    "validation_000382",
+    "validation_000383",
+    "validation_000384",
+    "validation_000385",
+    "validation_000386",
+    "validation_000387",
+    "validation_000388",
+    "validation_000389",
+    "validation_000390",
+    "validation_000391",
+    "validation_000392",
+    "validation_000393",
+    "validation_000394",
+    "validation_000395",
+    "validation_000396",
+    "validation_000397",
+    "validation_000398",
+    "validation_000399",
+    "validation_000400",
+    "validation_000401",
+    "validation_000402",
+    "validation_000403",
+    "validation_000404",
+    "validation_000405",
+    "validation_000406",
+    "validation_000407",
+    "validation_000408",
+    "validation_000409",
+    "validation_000410",
+    "validation_000411",
+    "validation_000412",
+    "validation_000413",
+    "validation_000414",
+    "validation_000415",
+    "validation_000416",
+    "validation_000417",
+    "validation_000418",
+    "validation_000419",
+    "validation_000420",
+    "validation_000421",
+    "validation_000422",
+    "validation_000423",
+    "validation_000424",
+    "validation_000425",
+    "validation_000426",
+    "validation_000427",
+    "validation_000428",
+    "validation_000429",
+    "validation_000430",
+    "validation_000431",
+    "validation_000432",
+    "validation_000433",
+    "validation_000434",
+    "validation_000435",
+    "validation_000436",
+    "validation_000437",
+    "validation_000438",
+    "validation_000439",
+    "validation_000440",
+    "validation_000441",
+    "validation_000442",
+    "validation_000443",
+    "validation_000444",
+    "validation_000445",
+    "validation_000446",
+    "validation_000447",
+    "validation_000448",
+    "validation_000449",
+    "validation_000450",
+    "validation_000451",
+    "validation_000452",
+    "validation_000453",
+    "validation_000454",
+    "validation_000455",
+    "validation_000456",
+    "validation_000457",
+    "validation_000458",
+    "validation_000459",
+    "validation_000460",
+    "validation_000461",
+    "validation_000462",
+    "validation_000463",
+    "validation_000464",
+    "validation_000465",
+    "validation_000466",
+    "validation_000467",
+    "validation_000468",
+    "validation_000469",
+    "validation_000470",
+    "validation_000471",
+    "validation_000472",
+    "validation_000473",
+    "validation_000474",
+    "validation_000475",
+    "validation_000476",
+    "validation_000477",
+    "validation_000478",
+    "validation_000479",
+    "validation_000480",
+    "validation_000481",
+    "validation_000482",
+    "validation_000483",
+    "validation_000484",
+    "validation_000485",
+    "validation_000486",
+    "validation_000487",
+    "validation_000488",
+    "validation_000489",
+    "validation_000490",
+    "validation_000491",
+    "validation_000492",
+    "validation_000493",
+    "validation_000494",
+    "validation_000495",
+    "validation_000496",
+    "validation_000497",
+    "validation_000498",
+    "validation_000499",
+    "validation_000500",
+    "validation_000501",
+    "validation_000502",
+    "validation_000503",
+    "validation_000504",
+    "validation_000505",
+    "validation_000506",
+    "validation_000507",
+    "validation_000508",
+    "validation_000509",
+    "validation_000510",
+    "validation_000511",
+    "validation_000512",
+    "validation_000513",
+    "validation_000514",
+    "validation_000515",
+    "validation_000516",
+    "validation_000517",
+    "validation_000518",
+    "validation_000519",
+    "validation_000520",
+    "validation_000521",
+    "validation_000522",
+    "validation_000523",
+    "validation_000524",
+    "validation_000525",
+    "validation_000526",
+    "validation_000527",
+    "validation_000528",
+    "validation_000529",
+    "validation_000530",
+    "validation_000531",
+    "validation_000532",
+    "validation_000533",
+    "validation_000534",
+    "validation_000535",
+    "validation_000536",
+    "validation_000537",
+    "validation_000538",
+    "validation_000539",
+    "validation_000540",
+    "validation_000541",
+    "validation_000542",
+    "validation_000543",
+    "validation_000544",
+    "validation_000545",
+    "validation_000546",
+    "validation_000547",
+    "validation_000548",
+    "validation_000549",
+    "validation_000550",
+    "validation_000551",
+    "validation_000552",
+    "validation_000553",
+    "validation_000554",
+    "validation_000555",
+    "validation_000556",
+    "validation_000557",
+    "validation_000558",
+    "validation_000559",
+    "validation_000560",
+    "validation_000561",
+    "validation_000562",
+    "validation_000563",
+    "validation_000564",
+    "validation_000565",
+    "validation_000566",
+    "validation_000567",
+    "validation_000568",
+    "validation_000569",
+    "validation_000570",
+    "validation_000571",
+    "validation_000572",
+    "validation_000573",
+    "validation_000574",
+    "validation_000575",
+    "validation_000576",
+    "validation_000577",
+    "validation_000578",
+    "validation_000579",
+    "validation_000580",
+    "validation_000581",
+    "validation_000582",
+    "validation_000583",
+    "validation_000584",
+    "validation_000585",
+    "validation_000586",
+    "validation_000587",
+    "validation_000588",
+    "validation_000589",
+    "validation_000590",
+    "validation_000591",
+    "validation_000592",
+    "validation_000593",
+    "validation_000594",
+    "validation_000595",
+    "validation_000596",
+    "validation_000597",
+    "validation_000598",
+    "validation_000599",
+    "validation_000600",
+    "validation_000601",
+    "validation_000602",
+    "validation_000603",
+    "validation_000604",
+    "validation_000605",
+    "validation_000606",
+    "validation_000607",
+    "validation_000608",
+    "validation_000609",
+    "validation_000610",
+    "validation_000611",
+    "validation_000612",
+    "validation_000613",
+    "validation_000614",
+    "validation_000615",
+    "validation_000616",
+    "validation_000617",
+    "validation_000618",
+    "validation_000619",
+    "validation_000620",
+    "validation_000621",
+    "validation_000622",
+    "validation_000623",
+    "validation_000624",
+    "validation_000625",
+    "validation_000626",
+    "validation_000627",
+    "validation_000628",
+    "validation_000629",
+    "validation_000630",
+    "validation_000631",
+    "validation_000632",
+    "validation_000633",
+    "validation_000634",
+    "validation_000635",
+    "validation_000636",
+    "validation_000637",
+    "validation_000638",
+    "validation_000639",
+    "validation_000640",
+    "validation_000641",
+    "validation_000642",
+    "validation_000643",
+    "validation_000644",
+    "validation_000645",
+    "validation_000646",
+    "validation_000647",
+    "validation_000648",
+    "validation_000649",
+    "validation_000650",
+    "validation_000651",
+    "validation_000652",
+    "validation_000653",
+    "validation_000654",
+    "validation_000655",
+    "validation_000656",
+    "validation_000657",
+    "validation_000658",
+    "validation_000659",
+    "validation_000660",
+    "validation_000661",
+    "validation_000662",
+    "validation_000663",
+    "validation_000664",
+    "validation_000665",
+    "validation_000666",
+    "validation_000667",
+    "validation_000668",
+    "validation_000669",
+    "validation_000670",
+    "validation_000671",
+    "validation_000672",
+    "validation_000673",
+    "validation_000674",
+    "validation_000675",
+    "validation_000676",
+    "validation_000677",
+    "validation_000678",
+    "validation_000679",
+    "validation_000680",
+    "validation_000681",
+    "validation_000682",
+    "validation_000683",
+    "validation_000684",
+    "validation_000685",
+    "validation_000686",
+    "validation_000687",
+    "validation_000688",
+    "validation_000689",
+    "validation_000690",
+    "validation_000691",
+    "validation_000692",
+    "validation_000693",
+    "validation_000694",
+    "validation_000695",
+    "validation_000696",
+    "validation_000697",
+    "validation_000698",
+    "validation_000699",
+    "validation_000700",
+    "validation_000701",
+    "validation_000702",
+    "validation_000703",
+    "validation_000704",
+    "validation_000705",
+    "validation_000706",
+    "validation_000707",
+    "validation_000708",
+    "validation_000709",
+    "validation_000710",
+    "validation_000711",
+    "validation_000712",
+    "validation_000713",
+    "validation_000714",
+    "validation_000715",
+    "validation_000716",
+    "validation_000717",
+    "validation_000718",
+    "validation_000719",
+    "validation_000720",
+    "validation_000721",
+    "validation_000722",
+    "validation_000723",
+    "validation_000724",
+    "validation_000725",
+    "validation_000726",
+    "validation_000727",
+    "validation_000728",
+    "validation_000729",
+    "validation_000730",
+    "validation_000731",
+    "validation_000732",
+    "validation_000733",
+    "validation_000734",
+    "validation_000735",
+    "validation_000736",
+    "validation_000737",
+    "validation_000738",
+    "validation_000739",
+    "validation_000740",
+    "validation_000741",
+    "validation_000742",
+    "validation_000743",
+    "validation_000744",
+    "validation_000745",
+    "validation_000746",
+    "validation_000747",
+    "validation_000748",
+    "validation_000749",
+    "validation_000750",
+    "validation_000751",
+    "validation_000752",
+    "validation_000753",
+    "validation_000754",
+    "validation_000755",
+    "validation_000756",
+    "validation_000757",
+    "validation_000758",
+    "validation_000759",
+    "validation_000760",
+    "validation_000761",
+    "validation_000762",
+    "validation_000763",
+    "validation_000764",
+    "validation_000765",
+    "validation_000766",
+    "validation_000767",
+    "validation_000768",
+    "validation_000769",
+    "validation_000770",
+    "validation_000771",
+    "validation_000772",
+    "validation_000773",
+    "validation_000774",
+    "validation_000775",
+    "validation_000776",
+    "validation_000777",
+    "validation_000778",
+    "validation_000779",
+    "validation_000780",
+    "validation_000781",
+    "validation_000782",
+    "validation_000783",
+    "validation_000784",
+    "validation_000785",
+    "validation_000786",
+    "validation_000787",
+    "validation_000788",
+    "validation_000789",
+    "validation_000790",
+    "validation_000791",
+    "validation_000792",
+    "validation_000793",
+    "validation_000794",
+    "validation_000795",
+    "validation_000796",
+    "validation_000797",
+    "validation_000798",
+    "validation_000799",
+    "validation_000800",
+    "validation_000801",
+    "validation_000802",
+    "validation_000803",
+    "validation_000804",
+    "validation_000805",
+    "validation_000806",
+    "validation_000807",
+    "validation_000808",
+    "validation_000809",
+    "validation_000810",
+    "validation_000811",
+    "validation_000812",
+    "validation_000813",
+    "validation_000814",
+    "validation_000815",
+    "validation_000816",
+    "validation_000817",
+    "validation_000818",
+    "validation_000819",
+    "validation_000820",
+    "validation_000821",
+    "validation_000822",
+    "validation_000823",
+    "validation_000824",
+    "validation_000825",
+    "validation_000826",
+    "validation_000827",
+    "validation_000828",
+    "validation_000829",
+    "validation_000830",
+    "validation_000831",
+    "validation_000832",
+    "validation_000833",
+    "validation_000834",
+    "validation_000835",
+    "validation_000836",
+    "validation_000837",
+    "validation_000838",
+    "validation_000839",
+    "validation_000840",
+    "validation_000841",
+    "validation_000842",
+    "validation_000843",
+    "validation_000844",
+    "validation_000845",
+    "validation_000846",
+    "validation_000847",
+    "validation_000848",
+    "validation_000849",
+    "validation_000850",
+    "validation_000851",
+    "validation_000852",
+    "validation_000853",
+    "validation_000854",
+    "validation_000855",
+    "validation_000856",
+    "validation_000857",
+    "validation_000858",
+    "validation_000859",
+    "validation_000860",
+    "validation_000861",
+    "validation_000862",
+    "validation_000863",
+    "validation_000864",
+    "validation_000865",
+    "validation_000866",
+    "validation_000867",
+    "validation_000868",
+    "validation_000869",
+    "validation_000870",
+    "validation_000871",
+    "validation_000872",
+    "validation_000873",
+    "validation_000874",
+    "validation_000875",
+    "validation_000876",
+    "validation_000877",
+    "validation_000878",
+    "validation_000879",
+    "validation_000880",
+    "validation_000881",
+    "validation_000882",
+    "validation_000883",
+    "validation_000884",
+    "validation_000885",
+    "validation_000886",
+    "validation_000887",
+    "validation_000888",
+    "validation_000889",
+    "validation_000890",
+    "validation_000891",
+    "validation_000892",
+    "validation_000893",
+    "validation_000894",
+    "validation_000895",
+    "validation_000896",
+    "validation_000897",
+    "validation_000898",
+    "validation_000899",
+    "validation_000900",
+    "validation_000901",
+    "validation_000902",
+    "validation_000903",
+    "validation_000904",
+    "validation_000905",
+    "validation_000906",
+    "validation_000907",
+    "validation_000908",
+    "validation_000909",
+    "validation_000910",
+    "validation_000911",
+    "validation_000912",
+    "validation_000913",
+    "validation_000914",
+    "validation_000915",
+    "validation_000916",
+    "validation_000917",
+    "validation_000918",
+    "validation_000919",
+    "validation_000920",
+    "validation_000921",
+    "validation_000922",
+    "validation_000923",
+    "validation_000924",
+    "validation_000925",
+    "validation_000926",
+    "validation_000927",
+    "validation_000928",
+    "validation_000929",
+    "validation_000930",
+    "validation_000931",
+    "validation_000932",
+    "validation_000933",
+    "validation_000934",
+    "validation_000935",
+    "validation_000936",
+    "validation_000937",
+    "validation_000938",
+    "validation_000939",
+    "validation_000940",
+    "validation_000941",
+    "validation_000942",
+    "validation_000943",
+    "validation_000944",
+    "validation_000945",
+    "validation_000946",
+    "validation_000947",
+    "validation_000948",
+    "validation_000949",
+    "validation_000950",
+    "validation_000951",
+    "validation_000952",
+    "validation_000953",
+    "validation_000954",
+    "validation_000955",
+    "validation_000956",
+    "validation_000957",
+    "validation_000958",
+    "validation_000959",
+    "validation_000960",
+    "validation_000961",
+    "validation_000962",
+    "validation_000963",
+    "validation_000964",
+    "validation_000965",
+    "validation_000966",
+    "validation_000967",
+    "validation_000968",
+    "validation_000969",
+    "validation_000970",
+    "validation_000971",
+    "validation_000972",
+    "validation_000973",
+    "validation_000974",
+    "validation_000975",
+    "validation_000976",
+    "validation_000977",
+    "validation_000978",
+    "validation_000979",
+    "validation_000980",
+    "validation_000981",
+    "validation_000982",
+    "validation_000983",
+    "validation_000984",
+    "validation_000985",
+    "validation_000986",
+    "validation_000987",
+    "validation_000988",
+    "validation_000989",
+    "validation_000990",
+    "validation_000991",
+    "validation_000992",
+    "validation_000993",
+    "validation_000994",
+    "validation_000995",
+    "validation_000996",
+    "validation_000997",
+    "validation_000998",
+    "validation_000999",
+    "validation_001000",
+    "validation_001001",
+    "validation_001002",
+    "validation_001003",
+    "validation_001004",
+    "validation_001005",
+    "validation_001006",
+    "validation_001007",
+    "validation_001008",
+    "validation_001009",
+    "validation_001010",
+    "validation_001011",
+    "validation_001012",
+    "validation_001013",
+    "validation_001014",
+    "validation_001015",
+    "validation_001016",
+    "validation_001017",
+    "validation_001018",
+    "validation_001019",
+    "validation_001020",
+    "validation_001021",
+    "validation_001022",
+    "validation_001023",
+    "validation_001024",
+    "validation_001025",
+    "validation_001026",
+    "validation_001027",
+    "validation_001028",
+    "validation_001029",
+    "validation_001030",
+    "validation_001031",
+    "validation_001032",
+    "validation_001033",
+    "validation_001034",
+    "validation_001035",
+    "validation_001036",
+    "validation_001037",
+    "validation_001038",
+    "validation_001039",
+    "validation_001040",
+    "validation_001041",
+    "validation_001042",
+    "validation_001043",
+    "validation_001044",
+    "validation_001045",
+    "validation_001046",
+    "validation_001047",
+    "validation_001048",
+    "validation_001049",
+    "validation_001050",
+    "validation_001051",
+    "validation_001052",
+    "validation_001053",
+    "validation_001054",
+    "validation_001055",
+    "validation_001056",
+    "validation_001057",
+    "validation_001058",
+    "validation_001059",
+    "validation_001060",
+    "validation_001061",
+    "validation_001062",
+    "validation_001063",
+    "validation_001064",
+    "validation_001065",
+    "validation_001066",
+    "validation_001067",
+    "validation_001068",
+    "validation_001069",
+    "validation_001070",
+    "validation_001071",
+    "validation_001072",
+    "validation_001073",
+    "validation_001074",
+    "validation_001075",
+    "validation_001076",
+    "validation_001077",
+    "validation_001078",
+    "validation_001079",
+    "validation_001080",
+    "validation_001081",
+    "validation_001082",
+    "validation_001083",
+    "validation_001084",
+    "validation_001085",
+    "validation_001086",
+    "validation_001087",
+    "validation_001088",
+    "validation_001089",
+    "validation_001090",
+    "validation_001091",
+    "validation_001092",
+    "validation_001093",
+    "validation_001094",
+    "validation_001095",
+    "validation_001096",
+    "validation_001097",
+    "validation_001098",
+    "validation_001099",
+    "validation_001100",
+    "validation_001101",
+    "validation_001102",
+    "validation_001103",
+    "validation_001104",
+    "validation_001105",
+    "validation_001106",
+    "validation_001107",
+    "validation_001108",
+    "validation_001109",
+    "validation_001110",
+    "validation_001111",
+    "validation_001112",
+    "validation_001113",
+    "validation_001114",
+    "validation_001115",
+    "validation_001116",
+    "validation_001117",
+    "validation_001118",
+    "validation_001119",
+    "validation_001120",
+    "validation_001121",
+    "validation_001122",
+    "validation_001123",
+    "validation_001124",
+    "validation_001125",
+    "validation_001126",
+    "validation_001127",
+    "validation_001128",
+    "validation_001129",
+    "validation_001130",
+    "validation_001131",
+    "validation_001132",
+    "validation_001133",
+    "validation_001134",
+    "validation_001135",
+    "validation_001136",
+    "validation_001137",
+    "validation_001138",
+    "validation_001139",
+    "validation_001140",
+    "validation_001141",
+    "validation_001142",
+    "validation_001143",
+    "validation_001144",
+    "validation_001145",
+    "validation_001146",
+    "validation_001147",
+    "validation_001148",
+    "validation_001149",
+    "validation_001150",
+    "validation_001151",
+    "validation_001152",
+    "validation_001153",
+    "validation_001154",
+    "validation_001155",
+    "validation_001156",
+    "validation_001157",
+    "validation_001158",
+    "validation_001159",
+    "validation_001160",
+    "validation_001161",
+    "validation_001162",
+    "validation_001163",
+    "validation_001164",
+    "validation_001165",
+    "validation_001166",
+    "validation_001167",
+    "validation_001168",
+    "validation_001169",
+    "validation_001170",
+    "validation_001171",
+    "validation_001172",
+    "validation_001173",
+    "validation_001174",
+    "validation_001175",
+    "validation_001176",
+    "validation_001177",
+    "validation_001178",
+    "validation_001179",
+    "validation_001180",
+    "validation_001181",
+    "validation_001182",
+    "validation_001183",
+    "validation_001184",
+    "validation_001185",
+    "validation_001186",
+    "validation_001187",
+    "validation_001188",
+    "validation_001189",
+    "validation_001190",
+    "validation_001191",
+    "validation_001192",
+    "validation_001193",
+    "validation_001194",
+    "validation_001195",
+    "validation_001196",
+    "validation_001197",
+    "validation_001198",
+    "validation_001199",
+    "validation_001200",
+    "validation_001201",
+    "validation_001202",
+    "validation_001203",
+    "validation_001204",
+    "validation_001205",
+    "validation_001206",
+    "validation_001207",
+    "validation_001208",
+    "validation_001209",
+    "validation_001210",
+    "validation_001211",
+    "validation_001212",
+    "validation_001213",
+    "validation_001214",
+    "validation_001215",
+    "validation_001216",
+    "validation_001217",
+    "validation_001218",
+    "validation_001219",
+    "validation_001220",
+    "validation_001221",
+    "validation_001222",
+    "validation_001223",
+    "validation_001224",
+    "validation_001225",
+    "validation_001226",
+    "validation_001227",
+    "validation_001228",
+    "validation_001229",
+    "validation_001230",
+    "validation_001231",
+    "validation_001232",
+    "validation_001233",
+    "validation_001234",
+    "validation_001235",
+    "validation_001236",
+    "validation_001237",
+    "validation_001238",
+    "validation_001239",
+    "validation_001240",
+    "validation_001241",
+    "validation_001242",
+    "validation_001243",
+    "validation_001244",
+    "validation_001245",
+    "validation_001246",
+    "validation_001247",
+    "validation_001248",
+    "validation_001249",
+    "validation_001250",
+    "validation_001251",
+    "validation_001252",
+    "validation_001253",
+    "validation_001254",
+    "validation_001255",
+    "validation_001256",
+    "validation_001257",
+    "validation_001258",
+    "validation_001259",
+    "validation_001260",
+    "validation_001261",
+    "validation_001262",
+    "validation_001263",
+    "validation_001264",
+    "validation_001265",
+    "validation_001266",
+    "validation_001267",
+    "validation_001268",
+    "validation_001269",
+    "validation_001270",
+    "validation_001271",
+    "validation_001272",
+    "validation_001273",
+    "validation_001274",
+    "validation_001275",
+    "validation_001276",
+    "validation_001277",
+    "validation_001278",
+    "validation_001279",
+    "validation_001280",
+    "validation_001281",
+    "validation_001282",
+    "validation_001283",
+    "validation_001284",
+    "validation_001285",
+    "validation_001286",
+    "validation_001287",
+    "validation_001288",
+    "validation_001289",
+    "validation_001290",
+    "validation_001291",
+    "validation_001292",
+    "validation_001293",
+    "validation_001294",
+    "validation_001295",
+    "validation_001296",
+    "validation_001297",
+    "validation_001298",
+    "validation_001299",
+    "validation_001300",
+    "validation_001301",
+    "validation_001302",
+    "validation_001303",
+    "validation_001304",
+    "validation_001305",
+    "validation_001306",
+    "validation_001307",
+    "validation_001308",
+    "validation_001309",
+    "validation_001310",
+    "validation_001311",
+    "validation_001312",
+    "validation_001313",
+    "validation_001314",
+    "validation_001315",
+    "validation_001316",
+    "validation_001317",
+    "validation_001318",
+    "validation_001319",
+    "validation_001320",
+    "validation_001321",
+    "validation_001322",
+    "validation_001323",
+    "validation_001324",
+    "validation_001325",
+    "validation_001326",
+    "validation_001327",
+    "validation_001328",
+    "validation_001329",
+    "validation_001330",
+    "validation_001331",
+    "validation_001332",
+    "validation_001333",
+    "validation_001334",
+    "validation_001335",
+    "validation_001336",
+    "validation_001337",
+    "validation_001338",
+    "validation_001339",
+    "validation_001340",
+    "validation_001341",
+    "validation_001342",
+    "validation_001343",
+    "validation_001344",
+    "validation_001345",
+    "validation_001346",
+    "validation_001347",
+    "validation_001348",
+    "validation_001349",
+    "validation_001350",
+    "validation_001351",
+    "validation_001352",
+    "validation_001353",
+    "validation_001354",
+    "validation_001355",
+    "validation_001356",
+    "validation_001357",
+    "validation_001358",
+    "validation_001359",
+    "validation_001360",
+    "validation_001361",
+    "validation_001362",
+    "validation_001363",
+    "validation_001364",
+    "validation_001365",
+    "validation_001366",
+    "validation_001367",
+    "validation_001368",
+    "validation_001369",
+    "validation_001370",
+    "validation_001371",
+    "validation_001372",
+    "validation_001373",
+    "validation_001374",
+    "validation_001375",
+    "validation_001376",
+    "validation_001377",
+    "validation_001378",
+    "validation_001379",
+    "validation_001380",
+    "validation_001381",
+    "validation_001382",
+    "validation_001383",
+    "validation_001384",
+    "validation_001385",
+    "validation_001386",
+    "validation_001387",
+    "validation_001388",
+    "validation_001389",
+    "validation_001390",
+    "validation_001391",
+    "validation_001392",
+    "validation_001393",
+    "validation_001394",
+    "validation_001395",
+    "validation_001396",
+    "validation_001397",
+    "validation_001398",
+    "validation_001399",
+    "validation_001400",
+    "validation_001401",
+    "validation_001402",
+    "validation_001403",
+    "validation_001404",
+    "validation_001405",
+    "validation_001406",
+    "validation_001407",
+    "validation_001408",
+    "validation_001409",
+    "validation_001410",
+    "validation_001411",
+    "validation_001412",
+    "validation_001413",
+    "validation_001414",
+    "validation_001415",
+    "validation_001416",
+    "validation_001417",
+    "validation_001418",
+    "validation_001419",
+    "validation_001420",
+    "validation_001421",
+    "validation_001422",
+    "validation_001423",
+    "validation_001424",
+    "validation_001425",
+    "validation_001426",
+    "validation_001427",
+    "validation_001428",
+    "validation_001429",
+    "validation_001430",
+    "validation_001431",
+    "validation_001432",
+    "validation_001433",
+    "validation_001434",
+    "validation_001435",
+    "validation_001436",
+    "validation_001437",
+    "validation_001438",
+    "validation_001439",
+    "validation_001440",
+    "validation_001441",
+    "validation_001442",
+    "validation_001443",
+    "validation_001444",
+    "validation_001445",
+    "validation_001446",
+    "validation_001447",
+    "validation_001448",
+    "validation_001449",
+    "validation_001450",
+    "validation_001451",
+    "validation_001452",
+    "validation_001453",
+    "validation_001454",
+    "validation_001455",
+    "validation_001456",
+    "validation_001457",
+    "validation_001458",
+    "validation_001459",
+    "validation_001460",
+    "validation_001461",
+    "validation_001462",
+    "validation_001463",
+    "validation_001464",
+    "validation_001465",
+    "validation_001466",
+    "validation_001467",
+    "validation_001468",
+    "validation_001469",
+    "validation_001470",
+    "validation_001471",
+    "validation_001472",
+    "validation_001473",
+    "validation_001474",
+    "validation_001475",
+    "validation_001476",
+    "validation_001477",
+    "validation_001478",
+    "validation_001479",
+    "validation_001480",
+    "validation_001481",
+    "validation_001482",
+    "validation_001483",
+    "validation_001484",
+    "validation_001485",
+    "validation_001486",
+    "validation_001487",
+    "validation_001488",
+    "validation_001489",
+    "validation_001490",
+    "validation_001491",
+    "validation_001492",
+    "validation_001493",
+    "validation_001494",
+    "validation_001495",
+    "validation_001496",
+    "validation_001497",
+    "validation_001498",
+    "validation_001499",
+    "validation_001500",
+    "validation_001501",
+    "validation_001502",
+    "validation_001503",
+    "validation_001504",
+    "validation_001505",
+    "validation_001506",
+    "validation_001507",
+    "validation_001508",
+    "validation_001509",
+    "validation_001510",
+    "validation_001511",
+    "validation_001512",
+    "validation_001513",
+    "validation_001514",
+    "validation_001515",
+    "validation_001516",
+    "validation_001517",
+    "validation_001518",
+    "validation_001519",
+    "validation_001520",
+    "validation_001521",
+    "validation_001522",
+    "validation_001523",
+    "validation_001524",
+    "validation_001525",
+    "validation_001526",
+    "validation_001527",
+    "validation_001528",
+    "validation_001529",
+    "validation_001530",
+    "validation_001531",
+    "validation_001532",
+    "validation_001533",
+    "validation_001534",
+    "validation_001535",
+    "validation_001536",
+    "validation_001537",
+    "validation_001538",
+    "validation_001539",
+    "validation_001540",
+    "validation_001541",
+    "validation_001542",
+    "validation_001543",
+    "validation_001544",
+    "validation_001545",
+    "validation_001546",
+    "validation_001547",
+    "validation_001548",
+    "validation_001549",
+    "validation_001550",
+    "validation_001551",
+    "validation_001552",
+    "validation_001553",
+    "validation_001554",
+    "validation_001555",
+    "validation_001556",
+    "validation_001557",
+    "validation_001558",
+    "validation_001559",
+    "validation_001560",
+    "validation_001561",
+    "validation_001562",
+    "validation_001563",
+    "validation_001564",
+    "validation_001565",
+    "validation_001566",
+    "validation_001567",
+    "validation_001568",
+    "validation_001569",
+    "validation_001570",
+    "validation_001571",
+    "validation_001572",
+    "validation_001573",
+    "validation_001574",
+    "validation_001575",
+    "validation_001576",
+    "validation_001577",
+    "validation_001578",
+    "validation_001579",
+    "validation_001580",
+    "validation_001581",
+    "validation_001582",
+    "validation_001583",
+    "validation_001584",
+    "validation_001585",
+    "validation_001586",
+    "validation_001587",
+    "validation_001588",
+    "validation_001589",
+    "validation_001590",
+    "validation_001591",
+    "validation_001592",
+    "validation_001593",
+    "validation_001594",
+    "validation_001595",
+    "validation_001596",
+    "validation_001597",
+    "validation_001598",
+    "validation_001599",
+    "validation_001600",
+    "validation_001601",
+    "validation_001602",
+    "validation_001603",
+    "validation_001604",
+    "validation_001605",
+    "validation_001606",
+    "validation_001607",
+    "validation_001608",
+    "validation_001609",
+    "validation_001610",
+    "validation_001611",
+    "validation_001612",
+    "validation_001613",
+    "validation_001614",
+    "validation_001615",
+    "validation_001616",
+    "validation_001617",
+    "validation_001618",
+    "validation_001619",
+    "validation_001620",
+    "validation_001621",
+    "validation_001622",
+    "validation_001623",
+    "validation_001624",
+    "validation_001625",
+    "validation_001626",
+    "validation_001627",
+    "validation_001628",
+    "validation_001629",
+    "validation_001630",
+    "validation_001631",
+    "validation_001632",
+    "validation_001633",
+    "validation_001634",
+    "validation_001635",
+    "validation_001636",
+    "validation_001637",
+    "validation_001638",
+    "validation_001639",
+    "validation_001640",
+    "validation_001641",
+    "validation_001642",
+    "validation_001643",
+    "validation_001644",
+    "validation_001645",
+    "validation_001646",
+    "validation_001647",
+    "validation_001648",
+    "validation_001649",
+    "validation_001650",
+    "validation_001651",
+    "validation_001652",
+    "validation_001653",
+    "validation_001654",
+    "validation_001655",
+    "validation_001656",
+    "validation_001657",
+    "validation_001658",
+    "validation_001659",
+    "validation_001660",
+    "validation_001661",
+    "validation_001662",
+    "validation_001663",
+    "validation_001664",
+    "validation_001665",
+    "validation_001666",
+    "validation_001667",
+    "validation_001668",
+    "validation_001669",
+    "validation_001670",
+    "validation_001671",
+    "validation_001672",
+    "validation_001673",
+    "validation_001674",
+    "validation_001675",
+    "validation_001676",
+    "validation_001677",
+    "validation_001678",
+    "validation_001679",
+    "validation_001680",
+    "validation_001681",
+    "validation_001682",
+    "validation_001683",
+    "validation_001684",
+    "validation_001685",
+    "validation_001686",
+    "validation_001687",
+    "validation_001688",
+    "validation_001689",
+    "validation_001690",
+    "validation_001691",
+    "validation_001692",
+    "validation_001693",
+    "validation_001694",
+    "validation_001695",
+    "validation_001696",
+    "validation_001697",
+    "validation_001698",
+    "validation_001699",
+    "validation_001700",
+    "validation_001701",
+    "validation_001702",
+    "validation_001703",
+    "validation_001704",
+    "validation_001705",
+    "validation_001706",
+    "validation_001707",
+    "validation_001708",
+    "validation_001709",
+    "validation_001710",
+    "validation_001711",
+    "validation_001712",
+    "validation_001713",
+    "validation_001714",
+    "validation_001715",
+    "validation_001716",
+    "validation_001717",
+    "validation_001718",
+    "validation_001719",
+    "validation_001720",
+    "validation_001721",
+    "validation_001722",
+    "validation_001723",
+    "validation_001724",
+    "validation_001725",
+    "validation_001726",
+    "validation_001727",
+    "validation_001728",
+    "validation_001729",
+    "validation_001730",
+    "validation_001731",
+    "validation_001732",
+    "validation_001733",
+    "validation_001734",
+    "validation_001735",
+    "validation_001736",
+    "validation_001737",
+    "validation_001738",
+    "validation_001739",
+    "validation_001740",
+    "validation_001741",
+    "validation_001742",
+    "validation_001743",
+    "validation_001744",
+    "validation_001745",
+    "validation_001746",
+    "validation_001747",
+    "validation_001748",
+    "validation_001749",
+    "validation_001750",
+    "validation_001751",
+    "validation_001752",
+    "validation_001753",
+    "validation_001754",
+    "validation_001755",
+    "validation_001756",
+    "validation_001757",
+    "validation_001758",
+    "validation_001759",
+    "validation_001760",
+    "validation_001761",
+    "validation_001762",
+    "validation_001763",
+    "validation_001764",
+    "validation_001765",
+    "validation_001766",
+    "validation_001767",
+    "validation_001768",
+    "validation_001769",
+    "validation_001770",
+    "validation_001771",
+    "validation_001772",
+    "validation_001773",
+    "validation_001774",
+    "validation_001775",
+    "validation_001776",
+    "validation_001777",
+    "validation_001778",
+    "validation_001779",
+    "validation_001780",
+    "validation_001781",
+    "validation_001782",
+    "validation_001783",
+    "validation_001784",
+    "validation_001785",
+    "validation_001786",
+    "validation_001787",
+    "validation_001788",
+    "validation_001789",
+    "validation_001790",
+    "validation_001791",
+    "validation_001792",
+    "validation_001793",
+    "validation_001794",
+    "validation_001795",
+    "validation_001796",
+    "validation_001797",
+    "validation_001798",
+    "validation_001799",
+    "validation_001800",
+    "validation_001801",
+    "validation_001802",
+    "validation_001803",
+    "validation_001804",
+    "validation_001805",
+    "validation_001806",
+    "validation_001807",
+    "validation_001808",
+    "validation_001809",
+    "validation_001810",
+    "validation_001811",
+    "validation_001812",
+    "validation_001813",
+    "validation_001814",
+    "validation_001815",
+    "validation_001816",
+    "validation_001817",
+    "validation_001818",
+    "validation_001819",
+    "validation_001820",
+    "validation_001821",
+    "validation_001822",
+    "validation_001823",
+    "validation_001824",
+    "validation_001825",
+    "validation_001826",
+    "validation_001827",
+    "validation_001828",
+    "validation_001829",
+    "validation_001830",
+    "validation_001831",
+    "validation_001832",
+    "validation_001833",
+    "validation_001834",
+    "validation_001835",
+    "validation_001836",
+    "validation_001837",
+    "validation_001838",
+    "validation_001839",
+    "validation_001840",
+    "validation_001841",
+    "validation_001842",
+    "validation_001843",
+    "validation_001844",
+    "validation_001845",
+    "validation_001846",
+    "validation_001847",
+    "validation_001848",
+    "validation_001849",
+    "validation_001850",
+    "validation_001851",
+    "validation_001852",
+    "validation_001853",
+    "validation_001854",
+    "validation_001855",
+    "validation_001856",
+    "validation_001857",
+    "validation_001858",
+    "validation_001859",
+    "validation_001860",
+    "validation_001861",
+    "validation_001862",
+    "validation_001863",
+    "validation_001864",
+    "validation_001865",
+    "validation_001866",
+    "validation_001867",
+    "validation_001868",
+    "validation_001869",
+    "validation_001870",
+    "validation_001871",
+    "validation_001872",
+    "validation_001873",
+    "validation_001874",
+    "validation_001875",
+    "validation_001876",
+    "validation_001877",
+    "validation_001878",
+    "validation_001879",
+    "validation_001880",
+    "validation_001881",
+    "validation_001882",
+    "validation_001883",
+    "validation_001884",
+    "validation_001885",
+    "validation_001886",
+    "validation_001887",
+    "validation_001888",
+    "validation_001889",
+    "validation_001890",
+    "validation_001891",
+    "validation_001892",
+    "validation_001893",
+    "validation_001894",
+    "validation_001895",
+    "validation_001896",
+    "validation_001897",
+    "validation_001898",
+    "validation_001899",
+    "validation_001900",
+    "validation_001901",
+    "validation_001902",
+    "validation_001903",
+    "validation_001904",
+    "validation_001905",
+    "validation_001906",
+    "validation_001907",
+    "validation_001908",
+    "validation_001909",
+    "validation_001910",
+    "validation_001911",
+    "validation_001912",
+    "validation_001913",
+    "validation_001914",
+    "validation_001915",
+    "validation_001916",
+    "validation_001917",
+    "validation_001918",
+    "validation_001919",
+    "validation_001920",
+    "validation_001921",
+    "validation_001922",
+    "validation_001923",
+    "validation_001924",
+    "validation_001925",
+    "validation_001926",
+    "validation_001927",
+    "validation_001928",
+    "validation_001929",
+    "validation_001930",
+    "validation_001931",
+    "validation_001932",
+    "validation_001933",
+    "validation_001934",
+    "validation_001935",
+    "validation_001936",
+    "validation_001937",
+    "validation_001938",
+    "validation_001939",
+    "validation_001940",
+    "validation_001941",
+    "validation_001942",
+    "validation_001943",
+    "validation_001944",
+    "validation_001945",
+    "validation_001946",
+    "validation_001947",
+    "validation_001948",
+    "validation_001949",
+    "validation_001950",
+    "validation_001951",
+    "validation_001952",
+    "validation_001953",
+    "validation_001954",
+    "validation_001955",
+    "validation_001956",
+    "validation_001957",
+    "validation_001958",
+    "validation_001959",
+    "validation_001960",
+    "validation_001961",
+    "validation_001962",
+    "validation_001963",
+    "validation_001964",
+    "validation_001965",
+    "validation_001966",
+    "validation_001967",
+    "validation_001968",
+    "validation_001969",
+    "validation_001970",
+    "validation_001971",
+    "validation_001972",
+    "validation_001973",
+    "validation_001974",
+    "validation_001975",
+    "validation_001976",
+    "validation_001977",
+    "validation_001978",
+    "validation_001979",
+    "validation_001980",
+    "validation_001981",
+    "validation_001982",
+    "validation_001983",
+    "validation_001984",
+    "validation_001985",
+    "validation_001986",
+    "validation_001987",
+    "validation_001988",
+    "validation_001989",
+    "validation_001990",
+    "validation_001991",
+    "validation_001992",
+    "validation_001993",
+    "validation_001994",
+    "validation_001995",
+    "validation_001996",
+    "validation_001997",
+    "validation_001998",
+    "validation_001999"
+  ],
+  "selection_manifest_sha256": "914b3cd2d418fb9e6d19915a04791b90395ebfd59a9c8225135371046e7bb9d8",
+  "transform_manifest_sha256": "6a2e308f86d70136adc156b5445896b0037ea23edbb4d62890c4b91bbbed3684",
+  "execution": {
+    "name": "perturbation-minimax_m3",
+    "command": "bash -ic 'MODELS=minimax_m3 GPUS=0 LANES=1 THREADS=8 WORKERS=2 bash scripts/perturbation_matrix.sh /tmp/vtb-delivery/data/imagenet100/validation /tmp/vtb-delivery/data/perturbation /tmp/vtb-delivery/issues/21/features/perturbation /tmp/vtb-delivery/data/imagenet100/validation_labels.json /tmp/vtb-delivery/data/perturbation/transforms.manifest.json /tmp/vtb-delivery/issues/21/measurements/perturbation'",
+    "start_utc": "2026-11-07T21:00:59.542253+00:00",
+    "elapsed_seconds": 503.1586472579984,
+    "exit_code": 0,
+    "source_hashes": {
+      "vtb/probe_run.py": "249689e7fe91fa75ebbfe202e2cc915d9150d5195412124309f0219ad9f03208",
+      "vtb/geometry.py": "0f02e80853f8d2ff0b00357c569e1a0f8096b9dc5dbe4fbde9ebc883f54b3389",
+      "vtb/geometry_bootstrap.py": "60041d2d8947180c360cd144d5232d38adbab7908bec1097aa19eca5aa66155d",
+      "vtb/feature_batch.py": "90beaef65b6875b3daa3a574ccf8f019d78c505cbcf7d8e3f1c61769caebdf10",
+      "vtb/geometry_run.py": "ec692983a29b12a5fa8e2d50c659e86bfce8a9b3fa4bdf49144a6f897226137f",
+      "vtb/cache.py": "278cb03a9cf2285279608f9d020be068c41a8e610854190f96dcdb4ec4e23b8d",
+      "vtb/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "vtb/channel_standardization.py": "e868e32f72f28f39425027269323f23d3833ce539c0cd2aa50ff9ca4200d6b77",
+      "vtb/probe.py": "373af101c0e2cf8cc2375254620c9b10262daa639c58d1d47bb3ebad55348cfd",
+      "vtb/geometry_metrics.py": "478f6c0fafee7832da6d99a7e76c06c742ceadb9413639b58e934cf523ffdd05",
+      "vtb/images.py": "af720b9027ed376c97473fd26c30bccd1a4dfc284b9c64d565a9d77d2f4e1ff5",
+      "vtb/extract.py": "e83efab2909e999deb806a40cc48e68df4ece4d2505dab641489182670c00a2a",
+      "vtb/correspondence.py": "196559d4c9f26c4788bd23823550de43c35de4a606edfa1436d14606e32ee904",
+      "vtb/semantic_bootstrap.py": "98a4cbcabde45fd8105fc362dd609b41950a0d0ca1515fda7fb1e59e89b14056",
+      "vtb/shards.py": "23b2f986a6b0c63737b4e6580c693846d129e08f1a6578f538a220f289924a65",
+      "vtb/adapters/kimi_k26.py": "143f712038a287dc1c34716b9723e1e222a4993b3b2e33698af4ac34be83a0ce",
+      "vtb/adapters/qwen3_5.py": "38dd1f5b2b3f295d20f3cbd65881d4e300b2a182516bf5e5696fc0513c186193",
+      "vtb/adapters/nemotron_omni.py": "58db2241a301e2c67bafc0ffed87e4f6e735f5186cf76f6c1252f6158a877f20",
+      "vtb/adapters/glm5.py": "e0f4573dbd9394e85334e252c75461ec14abdb8bc7409e365d451142bc5a8e67",
+      "vtb/adapters/moonvit_v2.py": "e0ce3ac53ac1cb1024213876c5eb2564f278688ae522248a927b034563aa6f56",
+      "vtb/adapters/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "vtb/adapters/dinov2.py": "1accd793a93557cf489e45f0c9c4fdac8ce5a8ef5497a6424cbaa8d148ede866",
+      "vtb/adapters/nemotron35.py": "b9d9e0d94ecec8a9badad409e025a462f81afae30c27ba50e385863f65e76f37",
+      "vtb/adapters/gemma4.py": "deddf9fd5e36b8c4f8a9541f31e16c9da45c64baab24a3ff77083374602de9a4",
+      "vtb/adapters/mimo26.py": "c887e7f81b20552e5f4f3dad49b56d4c646a615e403799a723d7a1f8fa40c445",
+      "vtb/adapters/dinov3.py": "24914b6bc349f0fca92cb7daa559da7bdd88955ea6b874255c318026ac5f7a3a",
+      "vtb/adapters/siglip2.py": "9cac9688c530429bf1ced0527a1a4729a9fd422fb2ee998c521f80ed1d7433ae",
+      "vtb/adapters/deepseek_v41.py": "097e461a0ca88a43d8cc590e532714cab7e933e8b660f67040341c4e31e12585",
+      "vtb/adapters/minimax_m3.py": "cea6a8d66eb6740152c1e58b2485090dfbbec91136eb73b90541d112138f410c",
+      "vtb/adapters/muse_glimmer.py": "619eae0c8edabf94a1ed89c77bdd23c8f9a45a8f6c90b4a8b4cfe3e46659890f",
+      "vtb/models/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "vtb/models/mimo26.py": "4ae48468491aa21ac0291bc943a7b349625ac2f43e5876c698edfe96bce61751",
+      "scripts/export_qwen3_8_vision.py": "baa9f737431ee28b6b34a939efedd2a6a32370273baeff64dab126eac8b684cf",
+      "scripts/geometry_bootstrap.py": "c20c379691b7ed8bf1a99412b9d16a461668f4e2f338ec4955dc1220a2e403ee",
+      "scripts/perturbation_run.py": "53264df06ec0bcec8b6820650fcdb2a13037c7e7237eb418b9c7a2eee71a7360",
+      "scripts/figures.py": "289e564cf5d00b4116f4c9c61c5d65661a92c5efc706367c424d4c524e35a2fa",
+      "scripts/feature_pca.py": "0f6946606020529c4ade6b08840e02c01e797c5537b382b02995461c8524628b",
+      "scripts/validate_minimax_m3.py": "a4122ac0517c323e476180b84c9ff7ddf5fe0095108fc36db50b4651e1aafd45",
+      "scripts/perturbation_extract.py": "d1a1fceddfc80079d0383b4a071046981b142e5532d09096216b5e04037199ea",
+      "scripts/export_nemotron35_vision.py": "f630b46cb2dead1ddbf991f65693c5d91051a4545c30e96a863103b86c3e728d",
+      "scripts/export_nemotron_omni_vision.py": "0cb4c1cfd5c2124c12d224653031bd7caf9bda9f2074c755d6a7aa129d5fa79d",
+      "scripts/correspondence_run.py": "ae638ac747a1745e2edc5327a7b2388805358d7ddfc584e234e706f5ba7b2e8c",
+      "scripts/export_minimax_m3_vision.py": "49ecbd83fc82f478d8b31dba72647bd18ad439641ae8dd65b4a449a82f704cf2",
+      "scripts/cross_run_bootstrap.py": "298bff0cf5864940c92ba1e9f37f2c69f2fcdb4f7d0108ccb456ac2080a69648",
+      "scripts/export_moonvit_v2.py": "c4a88b8edc3ce364184921f74e75dca518a71b839014cab3e9c90f26cff94222",
+      "scripts/tower_throughput.py": "0a7d36f0579a74fa32b459ac306301f786b71075974e007fc04081819482824b",
+      "scripts/prep_kitti.py": "e7f2467b6b0a7272f28941412a1d66620a0027571094332ed9b17838e22c849d",
+      "scripts/geometry_table.py": "1a00ddb650591f68763912ae9d6a60fdfffc68ba47b59883d8779c29de473bb7",
+      "scripts/prep_diode.py": "5bae055be60c23a3ceb7e837e0fedc3cc02290974741d6eab7e9fe61f713e38a",
+      "scripts/prep_perturbations.py": "6b8affd96be3f349c68663a30adcff9f040bd191312f6d7ff318071524182db8",
+      "scripts/validate_mimo26.py": "edfba8c5a8494a872575fbd270fd36c576ab918c587d984e31f98fa4932fb96f",
+      "scripts/export_mimo26_vision.py": "186a270b10210e3ee99a3bfd7effe09d37e740b7fc3b60898b67fbf47bac63c8",
+      "scripts/semantic_bootstrap.py": "7bee7a718187730d1cc01c00bb217c4a7c94d0dca926c0bd4c09fc5410eea74a",
+      "scripts/export_deepseek_v41_vision.py": "3cbe7ea7dcbaaf57b162d6c790c7fdb206372a29401a9341c09d235070639571",
+      "scripts/export_muse_glimmer_vision.py": "f699ab37747d11ba6aea673c07b9e2f96c29b4f1584fea5fb29443d4c5d92fd2",
+      "scripts/export_moonvit_k26.py": "e30d3750f4627f36e4299f2b8bc50fc47cf7c60cd95eb46b79485fae4643dd40",
+      "scripts/geometry_summary.py": "9ff36b3b47662020a5a71bfe2b559d177207ed4b6ebe11a36cbdb96f2532e93e",
+      "scripts/correspondence_bootstrap.py": "091692ccbff3162ac97e13c9d700b2610c1d156ecb67922460ecef241389a915",
+      "scripts/validate_nemotron35.py": "0dc11557f282f2127600cc49d83a8acb3e9f9a8dd3d0dcbccf66c917084d0aac",
+      "scripts/export_imagenet100.py": "a65b7a6ff7cfe140cd5e901e182ad1a6d1d21848e84cdb4196b6934de9a95a46",
+      "scripts/export_gemma4_vision.py": "6b6c51ab7a75094368ae2a10c48168487d0b1b7b95e7c37790c6295bb04172f5",
+      "scripts/export_glm5_vision.py": "d75c95a3374faaf86be4c20ff095524b6e203b3b74665a22947b5070ad325b4f",
+      "scripts/semantic_table.py": "19f79667752b6f2033e415afa2dc6f2d59d250f68d1a2d3cad8aeaf26fb735f0"
+    },
+    "elapsed_includes_gpu_lock_wait": true,
+    "resources": {
+      "physical_gpu": 0,
+      "logical_device": "cuda:0",
+      "threads": 8,
+      "loader_workers_max": 2,
+      "lock": "/tmp/vtb-delivery/locks/gpu0.lock"
+    }
+  },
+  "conditions": {
+    "identity": {
+      "input_ids_sha256": "6a8b529f5d101da08f7aa762c076c78bf0032a7ee2c92a45c74c4b1e25549324",
+      "slices": {
+        "tower": {
+          "files": [
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/identity/minimax_m3_448_pool4/tower_L32_00000.safetensors",
+              "sha256": "33138790cc818db03ae460be23f637715d6508c889bccbc7c37ced1984585c94",
+              "shape": [
+                512,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/identity/minimax_m3_448_pool4/tower_L32_00001.safetensors",
+              "sha256": "ae7683fe8f3e297dbff563b9edd11d9c520aee8a8abdd0d3bb2a67fffb65ee99",
+              "shape": [
+                512,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/identity/minimax_m3_448_pool4/tower_L32_00002.safetensors",
+              "sha256": "cc58b3177ba185dbfc256437f9c867c17ca1fd4430ab2e7a54bc3411c07c0e15",
+              "shape": [
+                512,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/identity/minimax_m3_448_pool4/tower_L32_00003.safetensors",
+              "sha256": "efeb3fe50c31e26c341b41336af8a9e83530edded4ddfac47567d45f79e296d8",
+              "shape": [
+                464,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            }
+          ],
+          "images": 2000,
+          "ids_reference": "common_image_ids"
+        },
+        "merged": {
+          "files": [
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/identity/minimax_m3_448_pool4/merged_L32_00000.safetensors",
+              "sha256": "32538a76ee6f8ac204c0cc4b3cc4c5dd9aed837a7ba7314914e64ea2375ce97b",
+              "shape": [
+                512,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/identity/minimax_m3_448_pool4/merged_L32_00001.safetensors",
+              "sha256": "dc914518c5b685d2dbc8a7297d13f2f4cf1187a784bc7aa14cc15f3d84510474",
+              "shape": [
+                512,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/identity/minimax_m3_448_pool4/merged_L32_00002.safetensors",
+              "sha256": "28c06dabcdc5a637b1fab3baf77910bc66c8c9625d99de98989a7499d460b46f",
+              "shape": [
+                512,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/identity/minimax_m3_448_pool4/merged_L32_00003.safetensors",
+              "sha256": "ba7c74a7573e9458a3465e599776d4a121ccfa70fa7b0bf3538c0125def432aa",
+              "shape": [
+                464,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            }
+          ],
+          "images": 2000,
+          "ids_reference": "common_image_ids"
+        },
+        "projected": {
+          "files": [
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/identity/minimax_m3_448_pool4/projected_L32_00000.safetensors",
+              "sha256": "638302d841ac9aedd3cf8616b223c3c82c31bba0c4bf186e37ba704142fa7af4",
+              "shape": [
+                512,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/identity/minimax_m3_448_pool4/projected_L32_00001.safetensors",
+              "sha256": "134b39385b983deee82cd69144e1021213a3146f55978cacf5947b090e5ed34f",
+              "shape": [
+                512,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/identity/minimax_m3_448_pool4/projected_L32_00002.safetensors",
+              "sha256": "1651fc7465f343aa7ea7c1843db4ec3597ad8860bc514ccbf07690e01e896901",
+              "shape": [
+                512,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/identity/minimax_m3_448_pool4/projected_L32_00003.safetensors",
+              "sha256": "bf17ed5e8591b7226a37408d851093fd5c38ab6c72fab26dc1e4bc51c34f3859",
+              "shape": [
+                464,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            }
+          ],
+          "images": 2000,
+          "ids_reference": "common_image_ids"
+        }
+      }
+    },
+    "scale_l1": {
+      "input_ids_sha256": "6a8b529f5d101da08f7aa762c076c78bf0032a7ee2c92a45c74c4b1e25549324",
+      "slices": {
+        "tower": {
+          "files": [
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l1/minimax_m3_448_pool4/tower_L32_00000.safetensors",
+              "sha256": "791b11b3595159ac6b6ffc0f90e30e22cc9f1fd2ecc1de007efc7b469dd4f255",
+              "shape": [
+                512,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l1/minimax_m3_448_pool4/tower_L32_00001.safetensors",
+              "sha256": "ac7b727eec2e2a3d5b9081fbd7b8fafe5b8feaa80978dafc400db6033147ef76",
+              "shape": [
+                512,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l1/minimax_m3_448_pool4/tower_L32_00002.safetensors",
+              "sha256": "bc3522db6f46bf425511b1a4486416df575bf4cb8ee635645447a45833ade41d",
+              "shape": [
+                512,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l1/minimax_m3_448_pool4/tower_L32_00003.safetensors",
+              "sha256": "3c16dde95c6bbd065ec9b7c7bfc143c68bd0de4f5c210872630358d47d457156",
+              "shape": [
+                464,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            }
+          ],
+          "images": 2000,
+          "ids_reference": "common_image_ids"
+        },
+        "merged": {
+          "files": [
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l1/minimax_m3_448_pool4/merged_L32_00000.safetensors",
+              "sha256": "3e687b8764a20fea4fc025d5e61b11ba8ab048ae3b61c8daf42db1c8e0f59d06",
+              "shape": [
+                512,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l1/minimax_m3_448_pool4/merged_L32_00001.safetensors",
+              "sha256": "b7bbb3064deb84b46fbe5c38a187d13926e8e59edb70045ec43a782974cb0021",
+              "shape": [
+                512,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l1/minimax_m3_448_pool4/merged_L32_00002.safetensors",
+              "sha256": "276a24b41ff0f680aeadbbfa5e81424a2d7112274c60f5e636cc1800137efd54",
+              "shape": [
+                512,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l1/minimax_m3_448_pool4/merged_L32_00003.safetensors",
+              "sha256": "df73b7767ad3c592f6b7b0c3154bbc908de98edd6f54b4fb880a76e88ae19673",
+              "shape": [
+                464,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            }
+          ],
+          "images": 2000,
+          "ids_reference": "common_image_ids"
+        },
+        "projected": {
+          "files": [
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l1/minimax_m3_448_pool4/projected_L32_00000.safetensors",
+              "sha256": "3603ad7f75d3b509ae873a187255a2afb654676e190b094c9237f310cec977c8",
+              "shape": [
+                512,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l1/minimax_m3_448_pool4/projected_L32_00001.safetensors",
+              "sha256": "8a2ee26109599761fb2a7e6feeecb7e62fcd4236fe5db407161c207c599968a7",
+              "shape": [
+                512,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l1/minimax_m3_448_pool4/projected_L32_00002.safetensors",
+              "sha256": "0f1b2e00a0e463804751b595245cddd2f5974ba002e9f963ca2d983fe0e88988",
+              "shape": [
+                512,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l1/minimax_m3_448_pool4/projected_L32_00003.safetensors",
+              "sha256": "0e054f0fd2d89629607c56e544bc91bd56709d7ffc5c9562b30f5d0c0d88015f",
+              "shape": [
+                464,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            }
+          ],
+          "images": 2000,
+          "ids_reference": "common_image_ids"
+        }
+      }
+    },
+    "scale_l2": {
+      "input_ids_sha256": "6a8b529f5d101da08f7aa762c076c78bf0032a7ee2c92a45c74c4b1e25549324",
+      "slices": {
+        "tower": {
+          "files": [
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l2/minimax_m3_448_pool4/tower_L32_00000.safetensors",
+              "sha256": "cb71e4993a87486cc0e057470c0197618dde42a820cdf5b0fb780af23d173dae",
+              "shape": [
+                512,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l2/minimax_m3_448_pool4/tower_L32_00001.safetensors",
+              "sha256": "cb75b42b9ea097e373808bd147a7c1c81766c5901d53292d98853846ef7260c2",
+              "shape": [
+                512,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l2/minimax_m3_448_pool4/tower_L32_00002.safetensors",
+              "sha256": "e744f0be939fbcefe2b72546452e776ec6fc00261e95662e5f707c350ae80fdf",
+              "shape": [
+                512,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l2/minimax_m3_448_pool4/tower_L32_00003.safetensors",
+              "sha256": "b7acd0fb033d1b10eb7581be50e553cf5bd4b6c5dfa45694ba66baa48d13eae1",
+              "shape": [
+                464,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            }
+          ],
+          "images": 2000,
+          "ids_reference": "common_image_ids"
+        },
+        "merged": {
+          "files": [
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l2/minimax_m3_448_pool4/merged_L32_00000.safetensors",
+              "sha256": "8bad0f8747c7056395b5b65665083d97ccdc23a7b3238e7a9fa1b12a317e5a33",
+              "shape": [
+                512,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l2/minimax_m3_448_pool4/merged_L32_00001.safetensors",
+              "sha256": "ed27b493d565a092709cc1a7a274cb3d966c0e2a007197173fdc93f2b62e7a5b",
+              "shape": [
+                512,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l2/minimax_m3_448_pool4/merged_L32_00002.safetensors",
+              "sha256": "2e8c928467aaf73ef03d909f9128c885f8af11c17facd6e2307ce112e36555b9",
+              "shape": [
+                512,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l2/minimax_m3_448_pool4/merged_L32_00003.safetensors",
+              "sha256": "e7659b059ee3c4e88c7bc534e88a7e626d018dddbbca61711d4805c6f954c969",
+              "shape": [
+                464,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            }
+          ],
+          "images": 2000,
+          "ids_reference": "common_image_ids"
+        },
+        "projected": {
+          "files": [
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l2/minimax_m3_448_pool4/projected_L32_00000.safetensors",
+              "sha256": "b4b4c0bb7294f1833d1ab57146c6b4404386549768a161207aa3b8069380b286",
+              "shape": [
+                512,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l2/minimax_m3_448_pool4/projected_L32_00001.safetensors",
+              "sha256": "f6c8f24a1b44a6b56a2fe31a263f383641b4ae848b9d8087cf79bcd38cfc9c11",
+              "shape": [
+                512,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l2/minimax_m3_448_pool4/projected_L32_00002.safetensors",
+              "sha256": "7be5f8a89784b843be0ce3128a065d18fbbd1733d9fa3c07ca64f5e3950b9b9c",
+              "shape": [
+                512,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l2/minimax_m3_448_pool4/projected_L32_00003.safetensors",
+              "sha256": "72b4bd2650560321ff6cde78448f2d6b7844df04017e2b1a61ab18212493df31",
+              "shape": [
+                464,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            }
+          ],
+          "images": 2000,
+          "ids_reference": "common_image_ids"
+        }
+      }
+    },
+    "scale_l3": {
+      "input_ids_sha256": "6a8b529f5d101da08f7aa762c076c78bf0032a7ee2c92a45c74c4b1e25549324",
+      "slices": {
+        "tower": {
+          "files": [
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l3/minimax_m3_448_pool4/tower_L32_00000.safetensors",
+              "sha256": "a5600ef52196e70faed9499268deb60fcc06925d527babc16d1b06486e0dff11",
+              "shape": [
+                512,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l3/minimax_m3_448_pool4/tower_L32_00001.safetensors",
+              "sha256": "4e8a1d825fbfa81f7143ec60ccddce7d1fd46e3a92f2de5ffa91cdd990948d9c",
+              "shape": [
+                512,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l3/minimax_m3_448_pool4/tower_L32_00002.safetensors",
+              "sha256": "7156676e5a394e7e5074a1de0344826113312fa5a4aed7072aae97423a0d18c0",
+              "shape": [
+                512,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l3/minimax_m3_448_pool4/tower_L32_00003.safetensors",
+              "sha256": "e1e5420a9da6c745f8dfb384dd5ee334c7e701591c7a082fa9823d869e6f95dc",
+              "shape": [
+                464,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            }
+          ],
+          "images": 2000,
+          "ids_reference": "common_image_ids"
+        },
+        "merged": {
+          "files": [
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l3/minimax_m3_448_pool4/merged_L32_00000.safetensors",
+              "sha256": "ec1e634d81089a64351bee9c2d7c3223da86e079bd10ba3be57299599a5eddc5",
+              "shape": [
+                512,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l3/minimax_m3_448_pool4/merged_L32_00001.safetensors",
+              "sha256": "01f5e48b5266fa8c0afe68a4f33c95968dc846bc0d3fbf6c1c510d3c3bd1cf47",
+              "shape": [
+                512,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l3/minimax_m3_448_pool4/merged_L32_00002.safetensors",
+              "sha256": "cf1d33983ada7ecf67f9b3ffa3ad2c729aafd98c6d0b2b4d7dd7900ca8581c4d",
+              "shape": [
+                512,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l3/minimax_m3_448_pool4/merged_L32_00003.safetensors",
+              "sha256": "f38894ba7c29aee178448a815d871bbab290106459c9601b58b577a6db129dfc",
+              "shape": [
+                464,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            }
+          ],
+          "images": 2000,
+          "ids_reference": "common_image_ids"
+        },
+        "projected": {
+          "files": [
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l3/minimax_m3_448_pool4/projected_L32_00000.safetensors",
+              "sha256": "b6163d58575fb5a399041f3c44bd2d9fc729137793bfccd98466dedfc03f03a1",
+              "shape": [
+                512,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l3/minimax_m3_448_pool4/projected_L32_00001.safetensors",
+              "sha256": "d16a8c70c4ee6b992324be890a7139ef2a8758b6b1743fdae8758e1db25d7dee",
+              "shape": [
+                512,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l3/minimax_m3_448_pool4/projected_L32_00002.safetensors",
+              "sha256": "aa12d647c962ca6ad21df5fa3103c6cb94d1fe5805c67db9308cbbfae3cf1397",
+              "shape": [
+                512,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l3/minimax_m3_448_pool4/projected_L32_00003.safetensors",
+              "sha256": "4e3f7d9897b4991525e58dab04df8ac5aa093b7c6a6a569b07a0e3f2047aedd1",
+              "shape": [
+                464,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            }
+          ],
+          "images": 2000,
+          "ids_reference": "common_image_ids"
+        }
+      }
+    },
+    "scale_l4": {
+      "input_ids_sha256": "6a8b529f5d101da08f7aa762c076c78bf0032a7ee2c92a45c74c4b1e25549324",
+      "slices": {
+        "tower": {
+          "files": [
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l4/minimax_m3_448_pool4/tower_L32_00000.safetensors",
+              "sha256": "2f480f6c7ea16f85f7df137062ae0c8ccbd012ef4f7e9997efd49504ab5024c8",
+              "shape": [
+                512,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l4/minimax_m3_448_pool4/tower_L32_00001.safetensors",
+              "sha256": "9f487d22e872836f655de0836eac20e4d61b20f153182669bf7658b3f25e178e",
+              "shape": [
+                512,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l4/minimax_m3_448_pool4/tower_L32_00002.safetensors",
+              "sha256": "311e11fcc58b5e13c329641ba94ebdfb34e2e0a15524d86b4c337c47e0934899",
+              "shape": [
+                512,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l4/minimax_m3_448_pool4/tower_L32_00003.safetensors",
+              "sha256": "c683a192711e0634d3bac2fcfa9109a4c1439593a5d8df0c1e7c8ea59fa8057e",
+              "shape": [
+                464,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            }
+          ],
+          "images": 2000,
+          "ids_reference": "common_image_ids"
+        },
+        "merged": {
+          "files": [
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l4/minimax_m3_448_pool4/merged_L32_00000.safetensors",
+              "sha256": "87c352065dfe9f11b0825842a5cfa8cced9b0a20c995c02bc18e2567cb844bad",
+              "shape": [
+                512,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l4/minimax_m3_448_pool4/merged_L32_00001.safetensors",
+              "sha256": "277f2d6110a55a8ebfe9d1e2e3ead44cbfa93955d4e278d17ecc0eac978105b5",
+              "shape": [
+                512,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l4/minimax_m3_448_pool4/merged_L32_00002.safetensors",
+              "sha256": "6796512b40a7efb583436370a6f6dc84c4455ad3be2d63439b8d0ed2a80b7205",
+              "shape": [
+                512,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l4/minimax_m3_448_pool4/merged_L32_00003.safetensors",
+              "sha256": "a3e73707d86e74552c08f28916a6ebd87eb0a43e97c50c8266a71a4dfc197926",
+              "shape": [
+                464,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            }
+          ],
+          "images": 2000,
+          "ids_reference": "common_image_ids"
+        },
+        "projected": {
+          "files": [
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l4/minimax_m3_448_pool4/projected_L32_00000.safetensors",
+              "sha256": "342ca7860e0d788dc5f0949bbe47af3faa1e2a32beea5e6103040cf679f9d8e9",
+              "shape": [
+                512,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l4/minimax_m3_448_pool4/projected_L32_00001.safetensors",
+              "sha256": "b1f8151f926566a8b3a1f78128dcd9ea3052394530fcf6d336d487d76705d8bb",
+              "shape": [
+                512,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l4/minimax_m3_448_pool4/projected_L32_00002.safetensors",
+              "sha256": "a68e218de990ebbddcb6553262e253a97201c27235d25026226b11755744c10b",
+              "shape": [
+                512,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/scale_l4/minimax_m3_448_pool4/projected_L32_00003.safetensors",
+              "sha256": "6907e87c24aa455355bc8fcc6fdd2d1ddbba53e57c36af77d11ecc5fccef6ad2",
+              "shape": [
+                464,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            }
+          ],
+          "images": 2000,
+          "ids_reference": "common_image_ids"
+        }
+      }
+    },
+    "occlusion_l1": {
+      "input_ids_sha256": "6a8b529f5d101da08f7aa762c076c78bf0032a7ee2c92a45c74c4b1e25549324",
+      "slices": {
+        "tower": {
+          "files": [
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l1/minimax_m3_448_pool4/tower_L32_00000.safetensors",
+              "sha256": "716e499f26f13f9cb53541f935815075d6c55c84204bb9222f893ba1d75121f8",
+              "shape": [
+                512,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l1/minimax_m3_448_pool4/tower_L32_00001.safetensors",
+              "sha256": "7d7a650e0fbcc082fa433e11bf53740503d1574c2990776b3f6526cfb57ba1f3",
+              "shape": [
+                512,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l1/minimax_m3_448_pool4/tower_L32_00002.safetensors",
+              "sha256": "1e59fd9d9a46016842c2c4d2067c1730d3d2e15dd5c1d2ecbc98e13ec42019e1",
+              "shape": [
+                512,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l1/minimax_m3_448_pool4/tower_L32_00003.safetensors",
+              "sha256": "4c46124f7f6675bef5d1b3f782f5f4a4e436eab05e727ece1a2c6e06cc83ecaa",
+              "shape": [
+                464,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            }
+          ],
+          "images": 2000,
+          "ids_reference": "common_image_ids"
+        },
+        "merged": {
+          "files": [
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l1/minimax_m3_448_pool4/merged_L32_00000.safetensors",
+              "sha256": "bedc335f8f6045a163f79b41b9a32ab52a6b71e8f1c6052755c4406af52f2b78",
+              "shape": [
+                512,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l1/minimax_m3_448_pool4/merged_L32_00001.safetensors",
+              "sha256": "93209ee93042c8ee97b60bc394ba7731306a93a9a696ba4d27049215cc409bcc",
+              "shape": [
+                512,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l1/minimax_m3_448_pool4/merged_L32_00002.safetensors",
+              "sha256": "7100f0249b8234d012b027ba26b596008308ff8b10489926a230666071c55935",
+              "shape": [
+                512,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l1/minimax_m3_448_pool4/merged_L32_00003.safetensors",
+              "sha256": "ecfbc64df5223057030361e61947bc72712f2dfdac245c64e6765974e7426117",
+              "shape": [
+                464,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            }
+          ],
+          "images": 2000,
+          "ids_reference": "common_image_ids"
+        },
+        "projected": {
+          "files": [
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l1/minimax_m3_448_pool4/projected_L32_00000.safetensors",
+              "sha256": "fc96d00b898e2fd11a5608ea61d50dfd75b1565e6781e10b61dce22ff3a8cc63",
+              "shape": [
+                512,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l1/minimax_m3_448_pool4/projected_L32_00001.safetensors",
+              "sha256": "e2bd1db19fd66ceda3290cdb0fe92e6f84e86f0170726e417bf7b1df991e346c",
+              "shape": [
+                512,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l1/minimax_m3_448_pool4/projected_L32_00002.safetensors",
+              "sha256": "bdae9ed7182e2833f9d8d2a93e2b4a6a827155e47b121a1c606876e9fe98d883",
+              "shape": [
+                512,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l1/minimax_m3_448_pool4/projected_L32_00003.safetensors",
+              "sha256": "579c5cb6aaba092649168e45fde086d0c456d557e8d6ff3f17041dfdfb476aad",
+              "shape": [
+                464,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            }
+          ],
+          "images": 2000,
+          "ids_reference": "common_image_ids"
+        }
+      }
+    },
+    "occlusion_l2": {
+      "input_ids_sha256": "6a8b529f5d101da08f7aa762c076c78bf0032a7ee2c92a45c74c4b1e25549324",
+      "slices": {
+        "tower": {
+          "files": [
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l2/minimax_m3_448_pool4/tower_L32_00000.safetensors",
+              "sha256": "6dc52860adc8c2aaa919230d38a43fdb8cdbe794caf15a9153bb732ec42fa356",
+              "shape": [
+                512,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l2/minimax_m3_448_pool4/tower_L32_00001.safetensors",
+              "sha256": "d7be3a39f6025eb257a63be7542c6254fde8bb2f5ba7a57f9a2caa6c2b2a8697",
+              "shape": [
+                512,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l2/minimax_m3_448_pool4/tower_L32_00002.safetensors",
+              "sha256": "bf2c4ee117ee69e9696794fe8b1d24edff804b6a038edf9ce51a51acb56adb13",
+              "shape": [
+                512,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l2/minimax_m3_448_pool4/tower_L32_00003.safetensors",
+              "sha256": "517ea488b4ea1d871be01b817ae84d78fec39107865b5b1b8960dfd55fbce4af",
+              "shape": [
+                464,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            }
+          ],
+          "images": 2000,
+          "ids_reference": "common_image_ids"
+        },
+        "merged": {
+          "files": [
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l2/minimax_m3_448_pool4/merged_L32_00000.safetensors",
+              "sha256": "37d5f2befa15f22aeb04084ff2c41945216893caa8e75fe76c69a53b47749d8f",
+              "shape": [
+                512,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l2/minimax_m3_448_pool4/merged_L32_00001.safetensors",
+              "sha256": "19e8dc2b17efb60d7f39ae7429f54a158c9138828ba60f29646e905456f8767a",
+              "shape": [
+                512,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l2/minimax_m3_448_pool4/merged_L32_00002.safetensors",
+              "sha256": "eb2492d08fb4d2e2f9e0f7405b2831e69535e9a996b5ce6687dd625f20dd9095",
+              "shape": [
+                512,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l2/minimax_m3_448_pool4/merged_L32_00003.safetensors",
+              "sha256": "e2792629dcd89d3e6c8f1f14f14e2381f15760cc79825126a26df7340b2e98f4",
+              "shape": [
+                464,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            }
+          ],
+          "images": 2000,
+          "ids_reference": "common_image_ids"
+        },
+        "projected": {
+          "files": [
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l2/minimax_m3_448_pool4/projected_L32_00000.safetensors",
+              "sha256": "cc7fb5788a2cba8b3c19b3a34dc7b039caa1ac95ba8d6947972b0da15e29e7d3",
+              "shape": [
+                512,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l2/minimax_m3_448_pool4/projected_L32_00001.safetensors",
+              "sha256": "35f0c925af84c8ed4e9156fddcc65c8a74225aaa2fc052d72b6b1d8a3c48bc5c",
+              "shape": [
+                512,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l2/minimax_m3_448_pool4/projected_L32_00002.safetensors",
+              "sha256": "aefd933963ce26b3598ba95a5787b091b49878e3494910aaf17e318a7a3f0b3b",
+              "shape": [
+                512,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l2/minimax_m3_448_pool4/projected_L32_00003.safetensors",
+              "sha256": "c6ab0c5f71cb30b97391e89829bca5db8a8eda6ab105be70bcae2dfc6a6a0adf",
+              "shape": [
+                464,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            }
+          ],
+          "images": 2000,
+          "ids_reference": "common_image_ids"
+        }
+      }
+    },
+    "occlusion_l3": {
+      "input_ids_sha256": "6a8b529f5d101da08f7aa762c076c78bf0032a7ee2c92a45c74c4b1e25549324",
+      "slices": {
+        "tower": {
+          "files": [
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l3/minimax_m3_448_pool4/tower_L32_00000.safetensors",
+              "sha256": "fab06262dd54fb55b8eed4551a7fdaa3187a47be88a13f97f6700a912eb7abd3",
+              "shape": [
+                512,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l3/minimax_m3_448_pool4/tower_L32_00001.safetensors",
+              "sha256": "3fb235a7e7d32a7fd14f6689910dd4daf636c1816ae05b0d30a5fbfe5e5c10db",
+              "shape": [
+                512,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l3/minimax_m3_448_pool4/tower_L32_00002.safetensors",
+              "sha256": "291f5b00816a8beb3e1cc07e5115a3dbc6a4f0bbca194785a9426a17fb578a3d",
+              "shape": [
+                512,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l3/minimax_m3_448_pool4/tower_L32_00003.safetensors",
+              "sha256": "904eebb6eb73675d26d7a396b74b7b8db1d454f476c21a7f4d4c524275639d49",
+              "shape": [
+                464,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            }
+          ],
+          "images": 2000,
+          "ids_reference": "common_image_ids"
+        },
+        "merged": {
+          "files": [
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l3/minimax_m3_448_pool4/merged_L32_00000.safetensors",
+              "sha256": "11b428462c2fa801d3d77ea141209fbef55e863474df6a8c3e22232d16881683",
+              "shape": [
+                512,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l3/minimax_m3_448_pool4/merged_L32_00001.safetensors",
+              "sha256": "6f7181ae844e60ea45fa5c9a9b4dacbf9148351baa646b5636295f034efce8cc",
+              "shape": [
+                512,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l3/minimax_m3_448_pool4/merged_L32_00002.safetensors",
+              "sha256": "6f748dddd1872acee5673b7f4f3736b9430fc7f8e013f891d0501a12ddaffd83",
+              "shape": [
+                512,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l3/minimax_m3_448_pool4/merged_L32_00003.safetensors",
+              "sha256": "210ad247dc239fe574f46b0ed993b1674d9f96ddd62a45dedc599eca3d906a65",
+              "shape": [
+                464,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            }
+          ],
+          "images": 2000,
+          "ids_reference": "common_image_ids"
+        },
+        "projected": {
+          "files": [
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l3/minimax_m3_448_pool4/projected_L32_00000.safetensors",
+              "sha256": "8b21392c32d1e2fd040a537b6caf0c769c2776c0f183fdb9a4b4a270565e523a",
+              "shape": [
+                512,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l3/minimax_m3_448_pool4/projected_L32_00001.safetensors",
+              "sha256": "a19845266de4ec6d62f3304ad949a51cde78cd61e4373d93bb3efb1b2195915b",
+              "shape": [
+                512,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l3/minimax_m3_448_pool4/projected_L32_00002.safetensors",
+              "sha256": "bd04f105dd90b95246ea6f453c7150fe264c3eff0f73622ae33f70135f539085",
+              "shape": [
+                512,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l3/minimax_m3_448_pool4/projected_L32_00003.safetensors",
+              "sha256": "68f1772f240288d366ecb47a4964ee3e437b37cfd47046ac85e60781d9a38a71",
+              "shape": [
+                464,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            }
+          ],
+          "images": 2000,
+          "ids_reference": "common_image_ids"
+        }
+      }
+    },
+    "occlusion_l4": {
+      "input_ids_sha256": "6a8b529f5d101da08f7aa762c076c78bf0032a7ee2c92a45c74c4b1e25549324",
+      "slices": {
+        "tower": {
+          "files": [
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l4/minimax_m3_448_pool4/tower_L32_00000.safetensors",
+              "sha256": "01580940f0b667534c7ad490b178c78ee96fd99d08a82809e2d2d315da7aa7f2",
+              "shape": [
+                512,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l4/minimax_m3_448_pool4/tower_L32_00001.safetensors",
+              "sha256": "d42a58033c1782600af52db03666aa7a08eb72a31230d74d4b5ad928a0c9b1e7",
+              "shape": [
+                512,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l4/minimax_m3_448_pool4/tower_L32_00002.safetensors",
+              "sha256": "e12a2c38876ee614ca359958f4c7b684a16314b241935996c589280b2a6c2585",
+              "shape": [
+                512,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l4/minimax_m3_448_pool4/tower_L32_00003.safetensors",
+              "sha256": "f9728716e0192dd60136421becbd197c97fcf58956033d8ddcd3fc055e2c1058",
+              "shape": [
+                464,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            }
+          ],
+          "images": 2000,
+          "ids_reference": "common_image_ids"
+        },
+        "merged": {
+          "files": [
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l4/minimax_m3_448_pool4/merged_L32_00000.safetensors",
+              "sha256": "132be3245c352100a3a3402366741fb5db751320ae6f111e761a85a789632347",
+              "shape": [
+                512,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l4/minimax_m3_448_pool4/merged_L32_00001.safetensors",
+              "sha256": "b298c4a663800e9b3cd05529417cd58d4091ea2c4dae676859e40de0804575c4",
+              "shape": [
+                512,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l4/minimax_m3_448_pool4/merged_L32_00002.safetensors",
+              "sha256": "d23bf8f7823b193200b0b36f8431438d6feccbdbb78bb00a88d8dd38e4193d18",
+              "shape": [
+                512,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l4/minimax_m3_448_pool4/merged_L32_00003.safetensors",
+              "sha256": "13bdec4ef752f039bb528aaff1d7d0e54daa2bd0342c2e577c87b071a8bba5fd",
+              "shape": [
+                464,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            }
+          ],
+          "images": 2000,
+          "ids_reference": "common_image_ids"
+        },
+        "projected": {
+          "files": [
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l4/minimax_m3_448_pool4/projected_L32_00000.safetensors",
+              "sha256": "706d3cf45813172ed44e1b5f94a724dbd4f63867c0eb7a037267da7e5cb470c0",
+              "shape": [
+                512,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l4/minimax_m3_448_pool4/projected_L32_00001.safetensors",
+              "sha256": "7520e3053b840d0616b3b472cea3543efc712ba5fd428712ecddf239f140fc70",
+              "shape": [
+                512,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l4/minimax_m3_448_pool4/projected_L32_00002.safetensors",
+              "sha256": "c00e7dc11d7a6f725b795c722aa12e423d6c07d1b3e301c8164465972ed67def",
+              "shape": [
+                512,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/occlusion_l4/minimax_m3_448_pool4/projected_L32_00003.safetensors",
+              "sha256": "67769e5520958f23a2bb896c3422d6d88c6fb828bc19d6f5f0cd1aadf29a61d4",
+              "shape": [
+                464,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            }
+          ],
+          "images": 2000,
+          "ids_reference": "common_image_ids"
+        }
+      }
+    },
+    "motion_blur_l1": {
+      "input_ids_sha256": "6a8b529f5d101da08f7aa762c076c78bf0032a7ee2c92a45c74c4b1e25549324",
+      "slices": {
+        "tower": {
+          "files": [
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l1/minimax_m3_448_pool4/tower_L32_00000.safetensors",
+              "sha256": "7a10be4b8ece68295509bea09cd8242b05cd53bcbc9fb68394107b4dac085884",
+              "shape": [
+                512,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l1/minimax_m3_448_pool4/tower_L32_00001.safetensors",
+              "sha256": "295f96df4371207c40e7fd7609ba651a73a1367d6496c79fe72d3ef9cb4762d2",
+              "shape": [
+                512,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l1/minimax_m3_448_pool4/tower_L32_00002.safetensors",
+              "sha256": "5940cc65d5c8ade110d7298c452078f8b12e66c873a2496f52d0b0ff8149b988",
+              "shape": [
+                512,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l1/minimax_m3_448_pool4/tower_L32_00003.safetensors",
+              "sha256": "9dd9e335c0c404d459282dec265e977f8f35f734b77fce4d65d987bb1efa6fd4",
+              "shape": [
+                464,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            }
+          ],
+          "images": 2000,
+          "ids_reference": "common_image_ids"
+        },
+        "merged": {
+          "files": [
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l1/minimax_m3_448_pool4/merged_L32_00000.safetensors",
+              "sha256": "793371f58c0d4ed884691c67164409e05fc09d2780fa8f6cbb95dc4000615743",
+              "shape": [
+                512,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l1/minimax_m3_448_pool4/merged_L32_00001.safetensors",
+              "sha256": "a05e626d2a0d1c68f58900416d2a139fbe10002700d7be44a3858242687fad58",
+              "shape": [
+                512,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l1/minimax_m3_448_pool4/merged_L32_00002.safetensors",
+              "sha256": "44b439afe14b77dda11b0c95ea57e36f41b60d5f04887bbe0aaf1cc77cc6ce0b",
+              "shape": [
+                512,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l1/minimax_m3_448_pool4/merged_L32_00003.safetensors",
+              "sha256": "13877e5c5102961526b8b868f81c153c81be67da2844b96a6de7e7567ca196b6",
+              "shape": [
+                464,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            }
+          ],
+          "images": 2000,
+          "ids_reference": "common_image_ids"
+        },
+        "projected": {
+          "files": [
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l1/minimax_m3_448_pool4/projected_L32_00000.safetensors",
+              "sha256": "bcc634e73566d5f091ab28ed51fa24207e76c8d64ffa0fa3c3fc975820c867ef",
+              "shape": [
+                512,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l1/minimax_m3_448_pool4/projected_L32_00001.safetensors",
+              "sha256": "a2d147ed99fa1c10eef93115774c3be614fa1960af8b7f70f92931db146573f1",
+              "shape": [
+                512,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l1/minimax_m3_448_pool4/projected_L32_00002.safetensors",
+              "sha256": "6f0ac1ea8b64d7ac1713f61ebc15af82c7e6e84ab428f493e0277e3766328b1b",
+              "shape": [
+                512,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l1/minimax_m3_448_pool4/projected_L32_00003.safetensors",
+              "sha256": "b47b16ecf4c15d6da5f114d1849d6c9bb958a74baa32a678b66e469092f02d8c",
+              "shape": [
+                464,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            }
+          ],
+          "images": 2000,
+          "ids_reference": "common_image_ids"
+        }
+      }
+    },
+    "motion_blur_l2": {
+      "input_ids_sha256": "6a8b529f5d101da08f7aa762c076c78bf0032a7ee2c92a45c74c4b1e25549324",
+      "slices": {
+        "tower": {
+          "files": [
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l2/minimax_m3_448_pool4/tower_L32_00000.safetensors",
+              "sha256": "7585874b8fc9cbd5147cb52095fde0453be336826c7b89626658939eb4e22719",
+              "shape": [
+                512,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l2/minimax_m3_448_pool4/tower_L32_00001.safetensors",
+              "sha256": "9e9a7d6a871d178a0ccf66be20a97f0d929e08697f061b7358cf035214556ab7",
+              "shape": [
+                512,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l2/minimax_m3_448_pool4/tower_L32_00002.safetensors",
+              "sha256": "e88ef070bbd4374cdc395d223b8ea17ae99cfa94c8117ffd0d147a1638edc995",
+              "shape": [
+                512,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l2/minimax_m3_448_pool4/tower_L32_00003.safetensors",
+              "sha256": "9c7eeaa8714a282e871d5a50e2a5c06c4a80506ac20b11e1a6cb6bd956e2f9ae",
+              "shape": [
+                464,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            }
+          ],
+          "images": 2000,
+          "ids_reference": "common_image_ids"
+        },
+        "merged": {
+          "files": [
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l2/minimax_m3_448_pool4/merged_L32_00000.safetensors",
+              "sha256": "de026ab00b78ac8a16d3878630723af53af3b3e0ed2eed295fde7ddb46ec394c",
+              "shape": [
+                512,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l2/minimax_m3_448_pool4/merged_L32_00001.safetensors",
+              "sha256": "33d8f39f1d12a8990c6dd49ffef6f0a252f5aca93b24e5b0a9a1d7c731a76a46",
+              "shape": [
+                512,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l2/minimax_m3_448_pool4/merged_L32_00002.safetensors",
+              "sha256": "1ee8487c12a24ed3a2502d880ea9171b8ba7705f396081c93a8fffeaf6ffafe7",
+              "shape": [
+                512,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l2/minimax_m3_448_pool4/merged_L32_00003.safetensors",
+              "sha256": "4840f2720862c279b14848c4d3e836489de2ee50678fabbfd60ffb1aea5517d4",
+              "shape": [
+                464,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            }
+          ],
+          "images": 2000,
+          "ids_reference": "common_image_ids"
+        },
+        "projected": {
+          "files": [
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l2/minimax_m3_448_pool4/projected_L32_00000.safetensors",
+              "sha256": "cc53309da2fac0ee9e9996bee79ca84594c6f6cddc3dc07cf42626e28c9a1498",
+              "shape": [
+                512,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l2/minimax_m3_448_pool4/projected_L32_00001.safetensors",
+              "sha256": "08bd073b2d9fa1b3101cdf26f9784fbe1fb56b8100ee739cf519bc6295e7e7be",
+              "shape": [
+                512,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l2/minimax_m3_448_pool4/projected_L32_00002.safetensors",
+              "sha256": "1068e2bf944ada64c783cb45d42644b16622ef6c9f73c50047e3405042328cca",
+              "shape": [
+                512,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l2/minimax_m3_448_pool4/projected_L32_00003.safetensors",
+              "sha256": "c8cff53b59abeecb08e887f02af3496cb1c01bb71648241288d06a11079e6a7a",
+              "shape": [
+                464,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            }
+          ],
+          "images": 2000,
+          "ids_reference": "common_image_ids"
+        }
+      }
+    },
+    "motion_blur_l3": {
+      "input_ids_sha256": "6a8b529f5d101da08f7aa762c076c78bf0032a7ee2c92a45c74c4b1e25549324",
+      "slices": {
+        "tower": {
+          "files": [
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l3/minimax_m3_448_pool4/tower_L32_00000.safetensors",
+              "sha256": "3800de3af1f862bc55409528ac58c014082661cdbf553d2a7616fc27ab8263b7",
+              "shape": [
+                512,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l3/minimax_m3_448_pool4/tower_L32_00001.safetensors",
+              "sha256": "d60907466e5b72b757e063c2d9eeb398cbf9bd9a3bf7562de5af84d3bd40d133",
+              "shape": [
+                512,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l3/minimax_m3_448_pool4/tower_L32_00002.safetensors",
+              "sha256": "d55d95dc071e7b5b0eb924b560e1cd3a19bfdba0a1a9cbc52c54183e72d7feeb",
+              "shape": [
+                512,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l3/minimax_m3_448_pool4/tower_L32_00003.safetensors",
+              "sha256": "c48362ca0f8fd2a5e7ca6b934d7e35fded8c02e63f7df107eece7bcb11884b3a",
+              "shape": [
+                464,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            }
+          ],
+          "images": 2000,
+          "ids_reference": "common_image_ids"
+        },
+        "merged": {
+          "files": [
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l3/minimax_m3_448_pool4/merged_L32_00000.safetensors",
+              "sha256": "2175c9ccf92760f1baa642bed25b4f849888db904ec6a7bf89f9387c6f3697e6",
+              "shape": [
+                512,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l3/minimax_m3_448_pool4/merged_L32_00001.safetensors",
+              "sha256": "5ac5aeda705b1081a375d6bc57516b7a874c8bd598c3230fdcca1e33573e1cda",
+              "shape": [
+                512,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l3/minimax_m3_448_pool4/merged_L32_00002.safetensors",
+              "sha256": "d91ea7a2bdf1c5efcdc0c578bcc9cd79d91dc93e4b07f52242c32f56d74b1c6b",
+              "shape": [
+                512,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l3/minimax_m3_448_pool4/merged_L32_00003.safetensors",
+              "sha256": "c044249af0a1fbc3d6d7ae364b88060cfd4c0ff1702d57500f62424746f5426c",
+              "shape": [
+                464,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            }
+          ],
+          "images": 2000,
+          "ids_reference": "common_image_ids"
+        },
+        "projected": {
+          "files": [
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l3/minimax_m3_448_pool4/projected_L32_00000.safetensors",
+              "sha256": "7d7f706bbe6a657ba8aa865cd2bd049fdb411590b0d30abc7a05731d69ec1c45",
+              "shape": [
+                512,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l3/minimax_m3_448_pool4/projected_L32_00001.safetensors",
+              "sha256": "ce821559c58dca426b840b05226260137cdff94e15fcd62db81afc37b303b1db",
+              "shape": [
+                512,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l3/minimax_m3_448_pool4/projected_L32_00002.safetensors",
+              "sha256": "42a21cfa46247f08f3512fd536b9e3fc5b0e19f2f264e3fa508a6ca6a78673e7",
+              "shape": [
+                512,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l3/minimax_m3_448_pool4/projected_L32_00003.safetensors",
+              "sha256": "848cc5125289e736efad7406d8484c3a391b5ed9c6f494f996f40de0b975e8fb",
+              "shape": [
+                464,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            }
+          ],
+          "images": 2000,
+          "ids_reference": "common_image_ids"
+        }
+      }
+    },
+    "motion_blur_l4": {
+      "input_ids_sha256": "6a8b529f5d101da08f7aa762c076c78bf0032a7ee2c92a45c74c4b1e25549324",
+      "slices": {
+        "tower": {
+          "files": [
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l4/minimax_m3_448_pool4/tower_L32_00000.safetensors",
+              "sha256": "8d0257fc1af810712f7a7ac849ae4ddfe0fd8b68931862dc32073c1f556fd3be",
+              "shape": [
+                512,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l4/minimax_m3_448_pool4/tower_L32_00001.safetensors",
+              "sha256": "30e307620e6194dcf09368aa8eee195be14b4901ac8f6801bac35b87a4dec286",
+              "shape": [
+                512,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l4/minimax_m3_448_pool4/tower_L32_00002.safetensors",
+              "sha256": "967fa1f521740bc4b0f213df6a0cae555d351d5e6cd3b1129931db440b6cb15b",
+              "shape": [
+                512,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l4/minimax_m3_448_pool4/tower_L32_00003.safetensors",
+              "sha256": "1c813acef9e1b7f6a4cb2c79575e330b2ab45d67e4e2aac83053e3d9da6d1e4e",
+              "shape": [
+                464,
+                16,
+                1280
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            }
+          ],
+          "images": 2000,
+          "ids_reference": "common_image_ids"
+        },
+        "merged": {
+          "files": [
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l4/minimax_m3_448_pool4/merged_L32_00000.safetensors",
+              "sha256": "483e25eac08a9ffe563be8d2d9a6e7279471716abbe9b0a62bf4f6f5296c32f4",
+              "shape": [
+                512,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l4/minimax_m3_448_pool4/merged_L32_00001.safetensors",
+              "sha256": "b2bd16506a05a802000143d1744e70139b66c127ef08eb94f336b20878b570a7",
+              "shape": [
+                512,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l4/minimax_m3_448_pool4/merged_L32_00002.safetensors",
+              "sha256": "68e8b0ee98b8a8d0adc04714a27a17997319469f847a664bdf08b54f6702ddb0",
+              "shape": [
+                512,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l4/minimax_m3_448_pool4/merged_L32_00003.safetensors",
+              "sha256": "57fbc90617591f0b1e6fc5140395a16ad6487299eebe83e1a14a7239e687a229",
+              "shape": [
+                464,
+                16,
+                5120
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            }
+          ],
+          "images": 2000,
+          "ids_reference": "common_image_ids"
+        },
+        "projected": {
+          "files": [
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l4/minimax_m3_448_pool4/projected_L32_00000.safetensors",
+              "sha256": "b2f6fafd0f7e33738d71a9382cd01629591ae6aba4debea4aa10382d468d2ed4",
+              "shape": [
+                512,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l4/minimax_m3_448_pool4/projected_L32_00001.safetensors",
+              "sha256": "96ce532b5756af6c033e220db8e6e8726a914bd68fbc3e6ae0941eb34d85f371",
+              "shape": [
+                512,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l4/minimax_m3_448_pool4/projected_L32_00002.safetensors",
+              "sha256": "f82d7f41b902487f5638e622f36c2cf56ecd0d584096c2da8bb317d3fe90478b",
+              "shape": [
+                512,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            },
+            {
+              "path": "/tmp/vtb-delivery/issues/21/features/perturbation/motion_blur_l4/minimax_m3_448_pool4/projected_L32_00003.safetensors",
+              "sha256": "a5045ddb2327f57877dc175079aef824ce38e44c9a875ed9631bc8d1b3fa322e",
+              "shape": [
+                464,
+                16,
+                6144
+              ],
+              "dtype": "torch.bfloat16",
+              "finite": true
+            }
+          ],
+          "images": 2000,
+          "ids_reference": "common_image_ids"
+        }
+      }
+    }
+  },
+  "shards": 156,
+  "complete": true
+}

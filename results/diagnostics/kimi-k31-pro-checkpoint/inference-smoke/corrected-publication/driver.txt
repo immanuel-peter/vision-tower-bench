@@ -1,0 +1,26 @@
+Fetching 20 files:   0%|          | 0/20 [00:00<?, ?it/s]Fetching 20 files:   5%|▌         | 1/20 [00:00<00:03,  4.80it/s]Fetching 20 files:  15%|█▌        | 3/20 [00:00<00:02,  7.07it/s]Fetching 20 files:  25%|██▌       | 5/20 [00:00<00:01,  8.74it/s]Fetching 20 files:  35%|███▌      | 7/20 [00:00<00:01,  9.62it/s]Fetching 20 files:  45%|████▌     | 9/20 [00:00<00:01, 10.04it/s]Fetching 20 files:  55%|█████▌    | 11/20 [00:01<00:00, 10.46it/s]Fetching 20 files:  65%|██████▌   | 13/20 [00:01<00:00,  7.64it/s]Fetching 20 files:  70%|███████   | 14/20 [00:01<00:00,  7.04it/s]Fetching 20 files:  75%|███████▌  | 15/20 [00:01<00:00,  6.67it/s]Fetching 20 files:  80%|████████  | 16/20 [00:05<00:03,  1.19it/s]Fetching 20 files:  85%|████████▌ | 17/20 [00:05<00:02,  1.48it/s]Fetching 20 files:  90%|█████████ | 18/20 [00:05<00:01,  1.84it/s]Fetching 20 files:  95%|█████████▌| 19/20 [00:05<00:00,  2.19it/s]Fetching 20 files: 100%|██████████| 20/20 [00:09<00:00,  1.53s/it]Fetching 20 files: 100%|██████████| 20/20 [00:09<00:00,  2.03it/s]
+{
+  "passed": true,
+  "revision": "d32b4a05dc0f52259334b0c808514b2bb44c3130",
+  "snapshot": "/tmp/vtb-delivery/issues/24/inference-smoke/corrected-publication/smoke/fresh-cache/models--immanuelpeter--MoonViT-K3.1-Pro/snapshots/d32b4a05dc0f52259334b0c808514b2bb44c3130",
+  "physical_gpu": 0,
+  "fresh_download": true,
+  "source_sha256": "72e7412b06eae87e385de467c692c36aef385c3005b33a5bf3e5d8ab6184d693",
+  "runs": {
+    "standalone": {
+      "command": "cd /tmp/vtb-delivery/issues/24/inference-smoke/corrected-publication/smoke/fresh-cache/models--immanuelpeter--MoonViT-K3.1-Pro/snapshots/d32b4a05dc0f52259334b0c808514b2bb44c3130\npython examples/inference.py /tmp/vtb-delivery/data/imagenet100/validation/validation_000000.jpg",
+      "exit_code": 0,
+      "seconds": 8.7846259210055
+    },
+    "numerical": {
+      "command": "cd /home/shadeform/.t3/worktrees/vision-tower-bench/t3-edc83c25\nPYTHONPATH=. python /tmp/vtb-delivery/issues/24/inference-smoke/compare_published_example_adapter.py --snapshot /tmp/vtb-delivery/issues/24/inference-smoke/corrected-publication/smoke/fresh-cache/models--immanuelpeter--MoonViT-K3.1-Pro/snapshots/d32b4a05dc0f52259334b0c808514b2bb44c3130 --revision d32b4a05dc0f52259334b0c808514b2bb44c3130 --physical-gpu 0 --grant /tmp/vtb-delivery/issues/24/inference-smoke/corrected-publication/smoke/gpu0-grant.json --lock-fd 9 --image /tmp/vtb-delivery/data/imagenet100/validation/validation_000000.jpg --out /tmp/vtb-delivery/issues/24/inference-smoke/corrected-publication/smoke/numerical-comparison.json",
+      "exit_code": 0,
+      "seconds": 8.60094607299834
+    }
+  },
+  "timestamp": "2026-11-08T05:30:39.347627+00:00"
+}
+
+thread '<unnamed>' (726495) panicked at /root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.50.0/src/runtime/io/driver.rs:260:27:
+failed to wake I/O driver: Os { code: 9, kind: Uncategorized, message: "Bad file descriptor" }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace

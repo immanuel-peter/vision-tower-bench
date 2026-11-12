@@ -1,0 +1,40 @@
+{
+  "source_repo": "moonshotai/Kimi-K3.1-Pro",
+  "source_revision": "6d0a0202956796543364d666ab19c6ad1a494ee1",
+  "dtype": "bfloat16",
+  "exact_parent_identity": true,
+  "code_repo": "AI4Industry/MoonViT-V2",
+  "code_revision": "c5acb88baf02a94e68ca8a225f7eebee152c1fc6",
+  "forward_parity": "Independent official Pro-supported vision source with official packed rotary and bench masked SDPA math: BF16 bit-exact CPU/CUDA. Official TORCH_SDPA FP32 passes, BF16 disagrees; diagnostic limitation preserved.",
+  "source_shards": [
+    "model-00095-of-000096.safetensors",
+    "model-00096-of-000096.safetensors"
+  ],
+  "tower_tensors": 165,
+  "projector_tensors": 3,
+  "tensor_dtypes": {
+    "BF16": 168
+  },
+  "files_sha256": {
+    "LICENSE": "da05c356f773d22a0e1c6de390f280304d7cee6eb56fa161aa789d30dedba63b",
+    "LICENSE-CODE": "20c797ce19af0c17de52c6afb144644768a591c521655f5ebf5712c9850f2887",
+    "NOTICE": "8c2b34afcb612ef327f65af6ee6ec474446cca5fce6500b8ac187e41994b062d",
+    "README.md": "884dd8f2e89e40d6c79811de777e362c75f610e82a974389fb16fda07216a63f",
+    "config.json": "9b4d33179e87d891d4fffdff777a1e6e975a2b63c955bacdbb49e19b093760ec",
+    "configuration_moonvit_v2.py": "3ee22e0dc88380045372b97a85c32195c73b2e77a755fd633355ab6aa45ac584",
+    "examples/inference.py": "91a4f2faca713e6985f86fb0989d72d8b6ea4e8cd75669c74fbe99225392d340",
+    "image_processing_moonvit_v2.py": "3859900c14196208fcf2ccc5289f744ecf87d1c2d084224f8fec622b24a598ad",
+    "modeling_moonvit_v2.py": "58544dd49e95f974d118d2b37e65e3857907f96d7aecd3feb42c94cb6e075d2f",
+    "preprocessor_config.json": "4d28a3ed770d6891c27f277d63df8be995a39c0384197da58ea58e8db2e34d84",
+    "projector.py": "c1752b6c26868602b5acc7e796794d12e6447569853ca2a1ce3c3636c301d460",
+    "projector_config.json": "aba5368694d6cdf01dc4b576767ef06944884bfd889736c01950d17d315f7450",
+    "model.safetensors": "51b3bbf85175c6a05daa25a1622634b68712afe299ef913f716e70336e3686f0",
+    "projector.safetensors": "fd39b9b3a468140a938f4367724dba245c9c9d9b17a468bccc12cc360c281278"
+  },
+  "hash_excludes": [
+    "export_manifest.json"
+  ],
+  "hub_only_metadata": [
+    ".gitattributes"
+  ]
+}

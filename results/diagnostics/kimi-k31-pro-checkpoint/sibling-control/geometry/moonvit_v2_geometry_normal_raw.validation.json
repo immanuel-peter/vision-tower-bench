@@ -1,0 +1,28 @@
+{
+  "passed": true,
+  "images": 771,
+  "cells": 10,
+  "learning_rates": 6,
+  "feature_device": "cpu",
+  "search_seed": 0,
+  "retraining_seeds": [
+    0,
+    1,
+    2
+  ],
+  "ordered_ids_sha256": "6ea19ef6dd1d1b2f2af287a41598087f70e485457f608c61af95c29fef32cea4",
+  "command": ".venv/bin/python -m vtb.geometry_run --run /tmp/vtb-delivery/issues/24/features/cpu4-bf16-bs1/geometry/moonvit_v2_448_full --targets /tmp/vtb-delivery/data/diode/val_targets.npz --task normal --out /tmp/vtb-delivery/issues/24/measurements/geometry/moonvit_v2_geometry_normal_raw.json --device cuda:0",
+  "elapsed_seconds": 2187.914325505997,
+  "resumed": false,
+  "actual_device": "cuda:0",
+  "physical_gpu": 1,
+  "gpu_identity": "GPU-9ee56309-e48e-253b-05e1-a7fc201aa4aa, NVIDIA RTX PRO 6000 Blackwell Server Edition",
+  "threads": 8,
+  "validated_at": "2026-11-08T03:50:34.972056+00:00",
+  "payload_sha256": "b0e80ce3fc03b6c612841d6d5b091c590ffb77750b733b8d362465c20112d6ab",
+  "driver_sha256": "603b76324e824fbaff99fcbd9d51358ebb03b4b5f8ae5912f9a3a073bef02559",
+  "api_sha256": "5144475013c2fe6ac3fbdc33cacfd362b9024d3885f46a270d465feb8b9e00c4",
+  "assignment_plan_sha256": "5319306dcad3eeb70238610291b504ff32626cf84f01e26accf44977810c37ea",
+  "job_id": "005",
+  "source_snapshot_sha256": "5c8855fdaec5e3d30b2b15b4f8fd00f4bd671dfad684ef4de7749510e13e66d8"
+}

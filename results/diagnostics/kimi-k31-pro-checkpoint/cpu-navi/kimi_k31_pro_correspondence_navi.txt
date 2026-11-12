@@ -1,0 +1,108 @@
+bash: cannot set terminal process group (1): Inappropriate ioctl for device
+bash: no job control in this shell
+Loading weights:   0%|          | 0/165 [00:00<?, ?it/s]Loading weights: 100%|██████████| 165/165 [00:00<00:00, 4047.94it/s]
+10/555 pairs  0.22 pair/s
+20/555 pairs  0.23 pair/s
+30/555 pairs  0.22 pair/s
+40/555 pairs  0.22 pair/s
+50/555 pairs  0.23 pair/s
+60/555 pairs  0.23 pair/s
+70/555 pairs  0.23 pair/s
+80/555 pairs  0.23 pair/s
+90/555 pairs  0.23 pair/s
+100/555 pairs  0.23 pair/s
+110/555 pairs  0.23 pair/s
+120/555 pairs  0.23 pair/s
+130/555 pairs  0.23 pair/s
+140/555 pairs  0.24 pair/s
+150/555 pairs  0.24 pair/s
+160/555 pairs  0.24 pair/s
+170/555 pairs  0.23 pair/s
+180/555 pairs  0.23 pair/s
+190/555 pairs  0.23 pair/s
+200/555 pairs  0.23 pair/s
+210/555 pairs  0.23 pair/s
+220/555 pairs  0.23 pair/s
+230/555 pairs  0.23 pair/s
+240/555 pairs  0.23 pair/s
+250/555 pairs  0.23 pair/s
+260/555 pairs  0.23 pair/s
+270/555 pairs  0.23 pair/s
+280/555 pairs  0.23 pair/s
+290/555 pairs  0.23 pair/s
+300/555 pairs  0.23 pair/s
+310/555 pairs  0.23 pair/s
+320/555 pairs  0.23 pair/s
+330/555 pairs  0.23 pair/s
+340/555 pairs  0.23 pair/s
+350/555 pairs  0.23 pair/s
+360/555 pairs  0.23 pair/s
+370/555 pairs  0.23 pair/s
+380/555 pairs  0.23 pair/s
+390/555 pairs  0.23 pair/s
+400/555 pairs  0.23 pair/s
+410/555 pairs  0.23 pair/s
+420/555 pairs  0.23 pair/s
+430/555 pairs  0.24 pair/s
+440/555 pairs  0.24 pair/s
+450/555 pairs  0.24 pair/s
+460/555 pairs  0.24 pair/s
+470/555 pairs  0.23 pair/s
+480/555 pairs  0.23 pair/s
+490/555 pairs  0.23 pair/s
+500/555 pairs  0.23 pair/s
+510/555 pairs  0.23 pair/s
+520/555 pairs  0.23 pair/s
+530/555 pairs  0.23 pair/s
+540/555 pairs  0.24 pair/s
+550/555 pairs  0.24 pair/s
+555/555 pairs  0.24 pair/s
+{
+  "dataset": "navi",
+  "model": "kimi_k31_pro",
+  "model_id": "immanuelpeter/MoonViT-K3.1-Pro",
+  "resolution": 448,
+  "evaluation_side": 64,
+  "num_correspondences": 1000,
+  "pairs": 555,
+  "seconds": 2358.3,
+  "cells": [
+    {
+      "stage": "tower",
+      "layer_index": 27,
+      "recall_1cm": 0.17467419803142548,
+      "recall_2cm": 0.3455081880092621,
+      "recall_5cm": 0.7020701169967651,
+      "recall_5px": 0.01573203131556511,
+      "recall_10px": 0.045013993978500366,
+      "recall_20px": 0.1228388175368309,
+      "recall_25px": 0.16238771378993988,
+      "recall_50px": 0.3298454284667969
+    },
+    {
+      "stage": "merged",
+      "layer_index": 27,
+      "recall_1cm": 0.21539919078350067,
+      "recall_2cm": 0.39627915620803833,
+      "recall_5cm": 0.7402084469795227,
+      "recall_5px": 0.019924277439713478,
+      "recall_10px": 0.05968102067708969,
+      "recall_20px": 0.159518763422966,
+      "recall_25px": 0.20647841691970825,
+      "recall_50px": 0.38572970032691956
+    },
+    {
+      "stage": "projected",
+      "layer_index": 27,
+      "recall_1cm": 0.2194836288690567,
+      "recall_2cm": 0.40149831771850586,
+      "recall_5cm": 0.7443621158599854,
+      "recall_5px": 0.020342865958809853,
+      "recall_10px": 0.06097731739282608,
+      "recall_20px": 0.16272194683551788,
+      "recall_25px": 0.21065707504749298,
+      "recall_50px": 0.3910047709941864
+    }
+  ]
+}
+wrote /tmp/vtb-delivery/issues/24/measurements/correspondence/kimi_k31_pro_correspondence_navi.json

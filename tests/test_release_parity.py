@@ -18,7 +18,8 @@ from scripts.export_qwen3_8_vision import SOURCE_REVISION as QWEN_REVISION
 from scripts.export_qwen3_8_vision import load_source_tower as load_qwen_source
 from scripts.validate_mimo26 import assert_parity as assert_mimo26_parity, validate as validate_mimo26
 from scripts.validate_nemotron35 import assert_parity, validate as validate_nemotron35
-from vtb.adapters import kimi_k26, mimo26, muse_glimmer, nemotron35, qwen3_5
+from scripts.validate_mistral_large4 import validate as validate_mistral_large4
+from vtb.adapters import kimi_k26, mimo26, mistral_large4, muse_glimmer, nemotron35, qwen3_5
 from vtb.shards import load_prefixed
 
 ROOT = Path(__file__).parents[1]
@@ -52,15 +53,25 @@ def load_projector_module(bundle: Path):
     return module.load_projector(bundle)
 
 
-def test_qwen_release_weights_match_the_pinned_parent():
-    source = load_prefixed(
-        qwen3_5.SOURCE_REPO,
-        [qwen3_5.VISION_SHARD],
-        qwen3_5.VISION_PREFIX,
-        revision=QWEN_REVISION,
-    )
+@pytest.mark.parametrize("checkpoint", qwen3_5.CHECKPOINTS.values(), ids=qwen3_5.CHECKPOINTS)
+def test_qwen_release_weights_match_the_pinned_parent(checkpoint):
+    source = qwen3_5.source_weights(checkpoint)
     assert len(source) == 333
-    assert_bit_exact(load_file(QWEN_BUNDLE / "model.safetensors"), source)
+    actual = load_file(checkpoint.bundle / "model.safetensors")
+    assert_bit_exact(actual, source)
+    assert all(tensor.dtype == source[name].dtype == torch.bfloat16 for name, tensor in actual.items())
+    assert all(torch.equal(tensor.view(torch.uint8), source[name].view(torch.uint8))
+               for name, tensor in actual.items())
+    assert actual["merger.linear_fc2.weight"].shape == (checkpoint.out_hidden_size, 4608)
+
+
+def test_qwen_siblings_do_not_share_the_exported_weights():
+    first = load_file(qwen3_5.QWEN27B.bundle / "model.safetensors")
+    second = load_file(qwen3_5.FLASH_NEXT.bundle / "model.safetensors")
+    assert set(first) == set(second)
+    shared = [name for name in first if first[name].shape == second[name].shape]
+    assert len(shared) == 331
+    assert all(not torch.equal(first[name], second[name]) for name in shared)
 
 
 def test_muse_release_weights_match_the_pinned_parent():
@@ -110,10 +121,11 @@ def test_kimi_release_weights_match_the_pinned_parent():
         assert_bit_exact(load_file(KIMI_BUNDLE / filename), source)
 
 
-def test_qwen_release_forward_matches_the_parent():
-    source = load_qwen_source(DTYPE).to(DEVICE)
+@pytest.mark.parametrize("checkpoint", qwen3_5.CHECKPOINTS.values(), ids=qwen3_5.CHECKPOINTS)
+def test_qwen_release_forward_matches_the_parent(checkpoint):
+    source = load_qwen_source(DTYPE, checkpoint).to(DEVICE)
     released = AutoModel.from_pretrained(
-        QWEN_BUNDLE,
+        checkpoint.bundle,
         dtype=DTYPE,
         local_files_only=True,
     ).to(DEVICE)
@@ -201,3 +213,24 @@ def test_mimo26_release_matches_the_zero_completed_parent(name):
     assert report["zero_completed_biases"] == ["merger.ln_q.bias", "merger.mlp.0.bias", "merger.mlp.2.bias"]
     assert [len(case["features"]) for case in report["cases"]] == [10, 10]
     assert_mimo26_parity(report, DTYPE)
+
+
+def test_mistral_large4_release_matches_the_independent_mistral_forward(tmp_path):
+    if DEVICE.type != "cuda":
+        pytest.skip("the 1540 px FP32 reference needs VTB_RELEASE_DEVICE=cuda")
+    report = validate_mistral_large4(
+        tmp_path / "report.json", tmp_path / "reference", bundle=mistral_large4.RELEASE_DIR,
+        resolutions=[448, 1540], device=str(DEVICE),
+    )
+    release = report["identity"]["release"]
+    assert report["identity"]["shard_sha256"] == report["identity"]["shard_lfs_sha256"]
+    assert release["bit_exact_after_inverse_permutation"] and release["manifest_sha256_all_match"]
+    assert release["tensors"] == 276
+    assert {case["resolution"] for case in report["cases"]} == {448, 1540}
+    assert len(report["cases"]) == 80
+    assert all(case["adapter_fp32"]["relative"] <= 1e-4 for case in report["cases"])
+    # The release reproduces the reference BF16 forward exactly. The BF16-vs-FP32
+    # gate is not asserted: the parent's own BF16 forward misses it at deep Stages.
+    assert report["all_direct_bf16_bit_exact"]
+    assert report["release_equals_adapter_all"]
+    assert report["all_controls_detected"]

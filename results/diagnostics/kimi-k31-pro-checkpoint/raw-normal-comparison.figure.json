@@ -1,0 +1,14 @@
+{
+  "inputs_sha256": {
+    "results/geometry/kimi_k31_pro_geometry_normal_raw.json": "64067e479f93ae1a2c0c2378d4119dea7594dd4431e62c10e95d4461692f2c8e",
+    "results/diagnostics/kimi-k31-pro-checkpoint/sibling-control/geometry/moonvit_v2_geometry_normal_raw.json": "b0e80ce3fc03b6c612841d6d5b091c590ffb77750b733b8d362465c20112d6ab"
+  },
+  "script_sha256": "9a60e54b3cc9deb1d24a2ec69d0b43a1459725097e85368a45143681ebb1b3c7",
+  "intervals": "none; actual full matrix point estimates only",
+  "task": "normal",
+  "arm": "raw",
+  "geometry_feature_producer": "CPU BF16 batch1 full native grids",
+  "fit_device": "GPU0 for both depth models; GPU1 for both normal models",
+  "fit_threads": 8,
+  "production_official_sdpa_bf16_agreement": false
+}

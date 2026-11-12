@@ -1,5 +1,6 @@
 from collections.abc import Iterator
 from dataclasses import dataclass, field
+from pathlib import Path
 
 import torch
 from huggingface_hub import hf_hub_download
@@ -22,6 +23,22 @@ PROJECTOR_SHARD = "model-00095-of-000096.safetensors"
 PROJECTOR_PREFIX = "mm_projector."
 TOWER_SHARD = "model-00096-of-000096.safetensors"
 TOWER_PREFIX = "vision_tower."
+
+
+@dataclass(frozen=True)
+class Checkpoint:
+    repo: str
+    revision: str
+    model_id: str
+    bundle: str
+    bundle_revision: str | None = None
+
+
+K3 = Checkpoint(SOURCE_REPO, "f831ab66814297da540d832a5235f8e904f29d06", MODEL_ID, "MoonViT-V2")
+K31_PRO = Checkpoint("moonshotai/Kimi-K3.1-Pro", "6d0a0202956796543364d666ab19c6ad1a494ee1",
+                     "immanuelpeter/MoonViT-K3.1-Pro", "MoonViT-K3.1-Pro",
+                     "6ab95e2daf86e8100be2e712a7a71c0fba26dac4")
+CHECKPOINTS = {"moonvit_v2": K3, "kimi_k31_pro": K31_PRO}
 
 
 @dataclass(frozen=True)
@@ -56,9 +73,11 @@ def collate(samples: list[torch.Tensor]) -> dict[str, torch.Tensor]:
     }
 
 
-def load_projector(dtype: torch.dtype) -> nn.Module:
+def load_projector(dtype: torch.dtype, model_id: str = MODEL_ID, revision: str | None = None) -> nn.Module:
     """Build Kimi K3's patch merger from its published weights."""
-    weights = load_file(hf_hub_download(MODEL_ID, PROJECTOR_FILE))
+    local = Path(model_id) / PROJECTOR_FILE
+    options = {"revision": revision} if revision else {}
+    weights = load_file(local if local.is_file() else hf_hub_download(model_id, PROJECTOR_FILE, **options))
     width, merged_width = weights["proj.2.weight"].shape
 
     projector = nn.Module()
@@ -75,13 +94,15 @@ def load_projector(dtype: torch.dtype) -> nn.Module:
 class MoonViTV2Adapter:
     """Kimi K3 adapter; use batch size 1 without flash attention, as measured."""
 
+    checkpoint = K3
     model_id = MODEL_ID
     stages = ("tower", "merged", "projected")
     collate = staticmethod(collate)
 
     def __init__(self, resolution: int = 448, dtype=torch.bfloat16, device: str = "mps"):
+        options = {"revision": self.checkpoint.bundle_revision} if self.checkpoint.bundle_revision else {}
         self.model = (
-            AutoModel.from_pretrained(self.model_id, dtype=dtype, trust_remote_code=True)
+            AutoModel.from_pretrained(self.model_id, dtype=dtype, trust_remote_code=True, **options)
             .to(device)
             .eval()
         )
@@ -89,7 +110,7 @@ class MoonViTV2Adapter:
         self.device = device
         self.dtype = dtype
         self.num_layers = self.model.config.num_hidden_layers
-        self.projector = load_projector(dtype).to(device)
+        self.projector = load_projector(dtype, self.model_id, self.checkpoint.bundle_revision).to(device)
 
     def preprocess(self) -> Preprocess:
         return Preprocess(self.resolution)
@@ -99,6 +120,8 @@ class MoonViTV2Adapter:
 
     @torch.inference_mode()
     def extract(self, inputs: dict[str, torch.Tensor], image_ids: list[str]) -> Iterator[FeatureBatch]:
+        if len(image_ids) != 1:
+            raise ValueError("Kimi extraction requires batch size 1 for reproducible attention")
         points = self.depth_points()
         captured: dict[int, torch.Tensor] = {}
         handles = []
@@ -142,3 +165,8 @@ class MoonViTV2Adapter:
             num_layers=self.num_layers,
             resolution=self.resolution,
         )
+
+
+class KimiK31ProAdapter(MoonViTV2Adapter):
+    checkpoint = K31_PRO
+    model_id = K31_PRO.model_id

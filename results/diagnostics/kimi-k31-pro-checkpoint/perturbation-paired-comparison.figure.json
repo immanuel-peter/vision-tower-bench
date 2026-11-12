@@ -1,0 +1,533 @@
+{
+  "inputs": {
+    "results/diagnostics/kimi-k31-pro-checkpoint/cpu-perturbation/transform-manifest.json": "6a2e308f86d70136adc156b5445896b0037ea23edbb4d62890c4b91bbbed3684",
+    "results/bootstrap/perturbation-kimi_k31_pro-vs-moonvit_v2-tower.json": "e55c51c44d8ce6327c6f8be15bbe8dbe49f4a6865fe84442e624c9ef84acd8fe",
+    "results/bootstrap/perturbation-kimi_k31_pro-vs-moonvit_v2-merged.json": "21142f4afbceb0f652dde51bd4ac8cf885d027adaf2cd2616413d86ee9c4eff4",
+    "results/bootstrap/perturbation-kimi_k31_pro-vs-moonvit_v2-projected.json": "866eaaab0ebae6ae89ad54f19ddf8a3942780f29475f27460224cf10bc0d4d3d",
+    "results/bootstrap/perturbation-kimi_k31_pro-projected-vs-tower-all-conditions.json": "47ae3c6dfa0a7fdcae466abfcb9c3f34c864c2089b141363cc5415c579faf6a2"
+  },
+  "records": [
+    {
+      "comparison": "Tower: Pro \u2212 K3",
+      "condition": "identity",
+      "point_estimate": 0.03999999910593033,
+      "confidence": 0.95,
+      "lower": 0.01222221925854683,
+      "upper": 0.06888888031244278,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Tower: Pro \u2212 K3",
+      "condition": "scale_l1",
+      "point_estimate": 0.03777777776122093,
+      "confidence": 0.95,
+      "lower": 0.00888888817280531,
+      "upper": 0.06666666269302368,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Tower: Pro \u2212 K3",
+      "condition": "scale_l2",
+      "point_estimate": 0.0288888867944479,
+      "confidence": 0.95,
+      "lower": 0.0022222206462174654,
+      "upper": 0.05666666105389595,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Tower: Pro \u2212 K3",
+      "condition": "scale_l3",
+      "point_estimate": 0.047777771949768066,
+      "confidence": 0.95,
+      "lower": 0.01777777634561062,
+      "upper": 0.07777777314186096,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Tower: Pro \u2212 K3",
+      "condition": "scale_l4",
+      "point_estimate": 0.05000000074505806,
+      "confidence": 0.95,
+      "lower": 0.02333333157002926,
+      "upper": 0.07666666805744171,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Tower: Pro \u2212 K3",
+      "condition": "occlusion_l1",
+      "point_estimate": 0.06222222000360489,
+      "confidence": 0.95,
+      "lower": 0.03444444388151169,
+      "upper": 0.09111110866069794,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Tower: Pro \u2212 K3",
+      "condition": "occlusion_l2",
+      "point_estimate": 0.04111110791563988,
+      "confidence": 0.95,
+      "lower": 0.013333331793546677,
+      "upper": 0.06888889521360397,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Tower: Pro \u2212 K3",
+      "condition": "occlusion_l3",
+      "point_estimate": 0.07333333790302277,
+      "confidence": 0.95,
+      "lower": 0.04555555433034897,
+      "upper": 0.10222221165895462,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Tower: Pro \u2212 K3",
+      "condition": "occlusion_l4",
+      "point_estimate": 0.03888888657093048,
+      "confidence": 0.95,
+      "lower": 0.015555555000901222,
+      "upper": 0.062222227454185486,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Tower: Pro \u2212 K3",
+      "condition": "motion_blur_l1",
+      "point_estimate": 0.05000000074505806,
+      "confidence": 0.95,
+      "lower": 0.024444445967674255,
+      "upper": 0.07558377087116241,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Tower: Pro \u2212 K3",
+      "condition": "motion_blur_l2",
+      "point_estimate": 0.07222221046686172,
+      "confidence": 0.95,
+      "lower": 0.03999999910593033,
+      "upper": 0.10555554926395416,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Tower: Pro \u2212 K3",
+      "condition": "motion_blur_l3",
+      "point_estimate": 0.053333330899477005,
+      "confidence": 0.95,
+      "lower": 0.024444444105029106,
+      "upper": 0.0833333358168602,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Tower: Pro \u2212 K3",
+      "condition": "motion_blur_l4",
+      "point_estimate": 0.042222220450639725,
+      "confidence": 0.95,
+      "lower": 0.018888887017965317,
+      "upper": 0.06666667014360428,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Merged: Pro \u2212 K3",
+      "condition": "identity",
+      "point_estimate": 0.0277777761220932,
+      "confidence": 0.95,
+      "lower": 0.0011111102066934109,
+      "upper": 0.0555555485188961,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Merged: Pro \u2212 K3",
+      "condition": "scale_l1",
+      "point_estimate": 0.036666665226221085,
+      "confidence": 0.95,
+      "lower": 0.009999999776482582,
+      "upper": 0.06444443762302399,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Merged: Pro \u2212 K3",
+      "condition": "scale_l2",
+      "point_estimate": 0.04555555060505867,
+      "confidence": 0.95,
+      "lower": 0.01777777634561062,
+      "upper": 0.07333333045244217,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Merged: Pro \u2212 K3",
+      "condition": "scale_l3",
+      "point_estimate": 0.04555555433034897,
+      "confidence": 0.95,
+      "lower": 0.01666666567325592,
+      "upper": 0.07444444298744202,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Merged: Pro \u2212 K3",
+      "condition": "scale_l4",
+      "point_estimate": 0.01666666381061077,
+      "confidence": 0.95,
+      "lower": -0.013333333656191826,
+      "upper": 0.04666666314005852,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Merged: Pro \u2212 K3",
+      "condition": "occlusion_l1",
+      "point_estimate": 0.03999999910593033,
+      "confidence": 0.95,
+      "lower": 0.012222221121191978,
+      "upper": 0.06888888776302338,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Merged: Pro \u2212 K3",
+      "condition": "occlusion_l2",
+      "point_estimate": 0.01666666567325592,
+      "confidence": 0.95,
+      "lower": -0.014444445259869099,
+      "upper": 0.047777771949768066,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Merged: Pro \u2212 K3",
+      "condition": "occlusion_l3",
+      "point_estimate": 0.0277777761220932,
+      "confidence": 0.95,
+      "lower": -0.006666666828095913,
+      "upper": 0.06111111491918564,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Merged: Pro \u2212 K3",
+      "condition": "occlusion_l4",
+      "point_estimate": 0.04222222417593002,
+      "confidence": 0.95,
+      "lower": 0.018888890743255615,
+      "upper": 0.06555555015802383,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Merged: Pro \u2212 K3",
+      "condition": "motion_blur_l1",
+      "point_estimate": 0.019999997690320015,
+      "confidence": 0.95,
+      "lower": -0.0077777765691280365,
+      "upper": 0.046666666865348816,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Merged: Pro \u2212 K3",
+      "condition": "motion_blur_l2",
+      "point_estimate": 0.04555555433034897,
+      "confidence": 0.95,
+      "lower": 0.014444445259869099,
+      "upper": 0.07777777314186096,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Merged: Pro \u2212 K3",
+      "condition": "motion_blur_l3",
+      "point_estimate": 0.04666666314005852,
+      "confidence": 0.95,
+      "lower": 0.01666666567325592,
+      "upper": 0.07666666060686111,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Merged: Pro \u2212 K3",
+      "condition": "motion_blur_l4",
+      "point_estimate": 0.047777775675058365,
+      "confidence": 0.95,
+      "lower": 0.01666666753590107,
+      "upper": 0.07999999821186066,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Projected: Pro \u2212 K3",
+      "condition": "identity",
+      "point_estimate": -0.014444440603256226,
+      "confidence": 0.95,
+      "lower": -0.03999999910593033,
+      "upper": 0.012222222052514553,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Projected: Pro \u2212 K3",
+      "condition": "scale_l1",
+      "point_estimate": -0.009999998845160007,
+      "confidence": 0.95,
+      "lower": -0.036666665226221085,
+      "upper": 0.01666666753590107,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Projected: Pro \u2212 K3",
+      "condition": "scale_l2",
+      "point_estimate": -0.00555555522441864,
+      "confidence": 0.95,
+      "lower": -0.03333333134651184,
+      "upper": 0.02222222276031971,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Projected: Pro \u2212 K3",
+      "condition": "scale_l3",
+      "point_estimate": 0.01333333645015955,
+      "confidence": 0.95,
+      "lower": -0.01666666381061077,
+      "upper": 0.04333333298563957,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Projected: Pro \u2212 K3",
+      "condition": "scale_l4",
+      "point_estimate": -0.0011111119529232383,
+      "confidence": 0.95,
+      "lower": -0.02666666731238365,
+      "upper": 0.025555552914738655,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Projected: Pro \u2212 K3",
+      "condition": "occlusion_l1",
+      "point_estimate": -0.03333333507180214,
+      "confidence": 0.95,
+      "lower": -0.06222222000360489,
+      "upper": -0.004444442223757505,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Projected: Pro \u2212 K3",
+      "condition": "occlusion_l2",
+      "point_estimate": -0.02333332970738411,
+      "confidence": 0.95,
+      "lower": -0.05336110666394234,
+      "upper": 0.006666668225079775,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Projected: Pro \u2212 K3",
+      "condition": "occlusion_l3",
+      "point_estimate": -0.03888889029622078,
+      "confidence": 0.95,
+      "lower": -0.07000000029802322,
+      "upper": -0.007777778897434473,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Projected: Pro \u2212 K3",
+      "condition": "occlusion_l4",
+      "point_estimate": -0.036666665226221085,
+      "confidence": 0.95,
+      "lower": -0.06333332508802414,
+      "upper": -0.012222222983837128,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Projected: Pro \u2212 K3",
+      "condition": "motion_blur_l1",
+      "point_estimate": -0.021111110225319862,
+      "confidence": 0.95,
+      "lower": -0.04999999701976776,
+      "upper": 0.006666668225079775,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Projected: Pro \u2212 K3",
+      "condition": "motion_blur_l2",
+      "point_estimate": -0.01777777634561062,
+      "confidence": 0.95,
+      "lower": -0.047777771949768066,
+      "upper": 0.012222222983837128,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Projected: Pro \u2212 K3",
+      "condition": "motion_blur_l3",
+      "point_estimate": -0.03777778148651123,
+      "confidence": 0.95,
+      "lower": -0.06777777522802353,
+      "upper": -0.0077777765691280365,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Projected: Pro \u2212 K3",
+      "condition": "motion_blur_l4",
+      "point_estimate": -0.01777777634561062,
+      "confidence": 0.95,
+      "lower": -0.04333333298563957,
+      "upper": 0.0066666672937572,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Pro: Projected \u2212 Tower",
+      "condition": "identity",
+      "point_estimate": -0.023333333432674408,
+      "confidence": 0.95,
+      "lower": -0.04888888821005821,
+      "upper": 0.0033333348110318184,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Pro: Projected \u2212 Tower",
+      "condition": "scale_l1",
+      "point_estimate": -0.025555556640028954,
+      "confidence": 0.95,
+      "lower": -0.05000000074505806,
+      "upper": -0.001111110090278089,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Pro: Projected \u2212 Tower",
+      "condition": "scale_l2",
+      "point_estimate": -0.006666664965450764,
+      "confidence": 0.95,
+      "lower": -0.03333333134651184,
+      "upper": 0.018888888880610466,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Pro: Projected \u2212 Tower",
+      "condition": "scale_l3",
+      "point_estimate": -0.0022222213447093964,
+      "confidence": 0.95,
+      "lower": -0.025555552914738655,
+      "upper": 0.02222222089767456,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Pro: Projected \u2212 Tower",
+      "condition": "scale_l4",
+      "point_estimate": -0.018888890743255615,
+      "confidence": 0.95,
+      "lower": -0.04555555433034897,
+      "upper": 0.0077777765691280365,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Pro: Projected \u2212 Tower",
+      "condition": "occlusion_l1",
+      "point_estimate": -0.03888888657093048,
+      "confidence": 0.95,
+      "lower": -0.06333332508802414,
+      "upper": -0.01444444339722395,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Pro: Projected \u2212 Tower",
+      "condition": "occlusion_l2",
+      "point_estimate": -0.02777777425944805,
+      "confidence": 0.95,
+      "lower": -0.05666666850447655,
+      "upper": 0.0011111099738627672,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Pro: Projected \u2212 Tower",
+      "condition": "occlusion_l3",
+      "point_estimate": -0.04555555433034897,
+      "confidence": 0.95,
+      "lower": -0.07222221046686172,
+      "upper": -0.019999999552965164,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Pro: Projected \u2212 Tower",
+      "condition": "occlusion_l4",
+      "point_estimate": -0.012222222052514553,
+      "confidence": 0.95,
+      "lower": -0.03333333507180214,
+      "upper": 0.008888887241482735,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Pro: Projected \u2212 Tower",
+      "condition": "motion_blur_l1",
+      "point_estimate": -0.01666666753590107,
+      "confidence": 0.95,
+      "lower": -0.041111111640930176,
+      "upper": 0.006666666828095913,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Pro: Projected \u2212 Tower",
+      "condition": "motion_blur_l2",
+      "point_estimate": -0.047777775675058365,
+      "confidence": 0.95,
+      "lower": -0.07555555552244186,
+      "upper": -0.021111110225319862,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Pro: Projected \u2212 Tower",
+      "condition": "motion_blur_l3",
+      "point_estimate": -0.04444444552063942,
+      "confidence": 0.95,
+      "lower": -0.07111110538244247,
+      "upper": -0.018888888880610466,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "comparison": "Pro: Projected \u2212 Tower",
+      "condition": "motion_blur_l4",
+      "point_estimate": -0.02222222276031971,
+      "confidence": 0.95,
+      "lower": -0.04888888821005821,
+      "upper": 0.0033333341125398874,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    }
+  ],
+  "script_sha256": "7985a64a28f2d9702bb56120652f0917fb4db9ef9d18b5ee1276ebe3338f3104",
+  "limitation": "Per-cell intervals; fixed readout experiment, without causal training attribution or intrinsic robustness isolation."
+}

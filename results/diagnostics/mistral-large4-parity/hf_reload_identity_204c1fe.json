@@ -1,0 +1,1990 @@
+{
+  "environment": {
+    "python": "3.12.16",
+    "torch": "2.13.0+cu129",
+    "transformers": "5.17.0",
+    "device": "cpu"
+  },
+  "tolerances": {
+    "fp32_relative": 0.0001,
+    "bf16_floor_factor": 1.5,
+    "bf16_floor_slack": 0.005,
+    "bf16_cosine_slack_below_reference_floor": 0.002,
+    "bf16_fixed_cosine_reported_not_gating": 0.999,
+    "control_min_relative": 0.05,
+    "tf32": false
+  },
+  "identity": {
+    "source_repo": "mistralai/Mistral-Large-4-1T-A52B",
+    "source_revision": "f12dabdc0c1e99e7f7924461a6f308859b05af4d",
+    "resolved_commit": "f12dabdc0c1e99e7f7924461a6f308859b05af4d",
+    "shard": "consolidated-00053-of-00054.safetensors",
+    "shard_sha256": "d3289cad598653fec78adfd49f939504f92c4c0e9d8b9e66c8750b2e917dde90",
+    "shard_lfs_sha256": "d3289cad598653fec78adfd49f939504f92c4c0e9d8b9e66c8750b2e917dde90",
+    "vision_tensors": 276,
+    "tower_tensors": 272,
+    "projector_tensors": 4,
+    "parameters": 1704218624,
+    "tower_parameters": 1637107712,
+    "projector_parameters": 67110912,
+    "dtypes": [
+      "torch.bfloat16"
+    ],
+    "range_fetch_bit_exact": true,
+    "range_fetch_names_equal": true,
+    "release": {
+      "bundle": "hf-cache/immanuelpeter/PixtralViT-Large-4/snapshots/204c1fe3f84c6f017ca12c22732bbde26e6cb182",
+      "tensors": 276,
+      "names_cover_source_once": true,
+      "bit_exact_after_inverse_permutation": true,
+      "manifest_sha256_all_match": true,
+      "max_relative_l2": 0.0,
+      "min_cosine": 0.9999999999999998,
+      "per_tensor": {
+        "patch_merger.merging_layer.weight": {
+          "release_name": "multi_modal_projector.patch_merger.merging_layer.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000626,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "pre_mm_projector_norm.weight": {
+          "release_name": "multi_modal_projector.norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.ln_pre.weight": {
+          "release_name": "vision_tower.ln_pre.weight",
+          "bit_exact": true,
+          "cosine": 0.9999999999999998,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.patch_conv.weight": {
+          "release_name": "vision_tower.patch_conv.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000053,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.0.attention.wk.weight": {
+          "release_name": "vision_tower.transformer.layers.0.attention.k_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000002305,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.0.attention.wo.weight": {
+          "release_name": "vision_tower.transformer.layers.0.attention.o_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.000000000000007,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.0.attention.wq.weight": {
+          "release_name": "vision_tower.transformer.layers.0.attention.q_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000002196,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.0.attention.wv.weight": {
+          "release_name": "vision_tower.transformer.layers.0.attention.v_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000195,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.0.attention_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.0.attention_norm.weight",
+          "bit_exact": true,
+          "cosine": 0.9999999999999999,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.0.feed_forward.w1.weight": {
+          "release_name": "vision_tower.transformer.layers.0.feed_forward.gate_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000333,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.0.feed_forward.w2.weight": {
+          "release_name": "vision_tower.transformer.layers.0.feed_forward.down_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000473,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.0.feed_forward.w3.weight": {
+          "release_name": "vision_tower.transformer.layers.0.feed_forward.up_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000364,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.0.ffn_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.0.ffn_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000002,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.1.attention.wk.weight": {
+          "release_name": "vision_tower.transformer.layers.1.attention.k_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000728,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.1.attention.wo.weight": {
+          "release_name": "vision_tower.transformer.layers.1.attention.o_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000078,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.1.attention.wq.weight": {
+          "release_name": "vision_tower.transformer.layers.1.attention.q_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000218,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.1.attention.wv.weight": {
+          "release_name": "vision_tower.transformer.layers.1.attention.v_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000069,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.1.attention_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.1.attention_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000002,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.1.feed_forward.w1.weight": {
+          "release_name": "vision_tower.transformer.layers.1.feed_forward.gate_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000008442,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.1.feed_forward.w2.weight": {
+          "release_name": "vision_tower.transformer.layers.1.feed_forward.down_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000868,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.1.feed_forward.w3.weight": {
+          "release_name": "vision_tower.transformer.layers.1.feed_forward.up_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.000000000000266,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.1.ffn_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.1.ffn_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.10.attention.wk.weight": {
+          "release_name": "vision_tower.transformer.layers.10.attention.k_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000078,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.10.attention.wo.weight": {
+          "release_name": "vision_tower.transformer.layers.10.attention.o_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000107,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.10.attention.wq.weight": {
+          "release_name": "vision_tower.transformer.layers.10.attention.q_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000073,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.10.attention.wv.weight": {
+          "release_name": "vision_tower.transformer.layers.10.attention.v_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.000000000000009,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.10.attention_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.10.attention_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.10.feed_forward.w1.weight": {
+          "release_name": "vision_tower.transformer.layers.10.feed_forward.gate_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000555,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.10.feed_forward.w2.weight": {
+          "release_name": "vision_tower.transformer.layers.10.feed_forward.down_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000566,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.10.feed_forward.w3.weight": {
+          "release_name": "vision_tower.transformer.layers.10.feed_forward.up_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000575,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.10.ffn_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.10.ffn_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.11.attention.wk.weight": {
+          "release_name": "vision_tower.transformer.layers.11.attention.k_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000069,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.11.attention.wo.weight": {
+          "release_name": "vision_tower.transformer.layers.11.attention.o_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000095,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.11.attention.wq.weight": {
+          "release_name": "vision_tower.transformer.layers.11.attention.q_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000062,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.11.attention.wv.weight": {
+          "release_name": "vision_tower.transformer.layers.11.attention.v_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000095,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.11.attention_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.11.attention_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.11.feed_forward.w1.weight": {
+          "release_name": "vision_tower.transformer.layers.11.feed_forward.gate_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000544,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.11.feed_forward.w2.weight": {
+          "release_name": "vision_tower.transformer.layers.11.feed_forward.down_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000546,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.11.feed_forward.w3.weight": {
+          "release_name": "vision_tower.transformer.layers.11.feed_forward.up_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.000000000000054,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.11.ffn_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.11.ffn_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.12.attention.wk.weight": {
+          "release_name": "vision_tower.transformer.layers.12.attention.k_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000067,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.12.attention.wo.weight": {
+          "release_name": "vision_tower.transformer.layers.12.attention.o_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000098,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.12.attention.wq.weight": {
+          "release_name": "vision_tower.transformer.layers.12.attention.q_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000075,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.12.attention.wv.weight": {
+          "release_name": "vision_tower.transformer.layers.12.attention.v_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000089,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.12.attention_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.12.attention_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.12.feed_forward.w1.weight": {
+          "release_name": "vision_tower.transformer.layers.12.feed_forward.gate_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000526,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.12.feed_forward.w2.weight": {
+          "release_name": "vision_tower.transformer.layers.12.feed_forward.down_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000564,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.12.feed_forward.w3.weight": {
+          "release_name": "vision_tower.transformer.layers.12.feed_forward.up_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000544,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.12.ffn_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.12.ffn_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.13.attention.wk.weight": {
+          "release_name": "vision_tower.transformer.layers.13.attention.k_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000062,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.13.attention.wo.weight": {
+          "release_name": "vision_tower.transformer.layers.13.attention.o_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000102,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.13.attention.wq.weight": {
+          "release_name": "vision_tower.transformer.layers.13.attention.q_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000056,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.13.attention.wv.weight": {
+          "release_name": "vision_tower.transformer.layers.13.attention.v_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000078,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.13.attention_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.13.attention_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000002,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.13.feed_forward.w1.weight": {
+          "release_name": "vision_tower.transformer.layers.13.feed_forward.gate_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000533,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.13.feed_forward.w2.weight": {
+          "release_name": "vision_tower.transformer.layers.13.feed_forward.down_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.000000000000052,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.13.feed_forward.w3.weight": {
+          "release_name": "vision_tower.transformer.layers.13.feed_forward.up_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000502,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.13.ffn_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.13.ffn_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.14.attention.wk.weight": {
+          "release_name": "vision_tower.transformer.layers.14.attention.k_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000067,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.14.attention.wo.weight": {
+          "release_name": "vision_tower.transformer.layers.14.attention.o_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000107,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.14.attention.wq.weight": {
+          "release_name": "vision_tower.transformer.layers.14.attention.q_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000067,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.14.attention.wv.weight": {
+          "release_name": "vision_tower.transformer.layers.14.attention.v_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.000000000000009,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.14.attention_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.14.attention_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.14.feed_forward.w1.weight": {
+          "release_name": "vision_tower.transformer.layers.14.feed_forward.gate_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000508,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.14.feed_forward.w2.weight": {
+          "release_name": "vision_tower.transformer.layers.14.feed_forward.down_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000526,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.14.feed_forward.w3.weight": {
+          "release_name": "vision_tower.transformer.layers.14.feed_forward.up_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000517,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.14.ffn_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.14.ffn_norm.weight",
+          "bit_exact": true,
+          "cosine": 0.9999999999999998,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.15.attention.wk.weight": {
+          "release_name": "vision_tower.transformer.layers.15.attention.k_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.000000000000007,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.15.attention.wo.weight": {
+          "release_name": "vision_tower.transformer.layers.15.attention.o_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000093,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.15.attention.wq.weight": {
+          "release_name": "vision_tower.transformer.layers.15.attention.q_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000075,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.15.attention.wv.weight": {
+          "release_name": "vision_tower.transformer.layers.15.attention.v_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000093,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.15.attention_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.15.attention_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.15.feed_forward.w1.weight": {
+          "release_name": "vision_tower.transformer.layers.15.feed_forward.gate_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000488,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.15.feed_forward.w2.weight": {
+          "release_name": "vision_tower.transformer.layers.15.feed_forward.down_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000528,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.15.feed_forward.w3.weight": {
+          "release_name": "vision_tower.transformer.layers.15.feed_forward.up_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000522,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.15.ffn_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.15.ffn_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.16.attention.wk.weight": {
+          "release_name": "vision_tower.transformer.layers.16.attention.k_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000062,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.16.attention.wo.weight": {
+          "release_name": "vision_tower.transformer.layers.16.attention.o_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000087,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.16.attention.wq.weight": {
+          "release_name": "vision_tower.transformer.layers.16.attention.q_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000067,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.16.attention.wv.weight": {
+          "release_name": "vision_tower.transformer.layers.16.attention.v_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.000000000000008,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.16.attention_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.16.attention_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.16.feed_forward.w1.weight": {
+          "release_name": "vision_tower.transformer.layers.16.feed_forward.gate_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.00000000000005,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.16.feed_forward.w2.weight": {
+          "release_name": "vision_tower.transformer.layers.16.feed_forward.down_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000517,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.16.feed_forward.w3.weight": {
+          "release_name": "vision_tower.transformer.layers.16.feed_forward.up_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.00000000000005,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.16.ffn_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.16.ffn_norm.weight",
+          "bit_exact": true,
+          "cosine": 0.9999999999999998,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.17.attention.wk.weight": {
+          "release_name": "vision_tower.transformer.layers.17.attention.k_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000075,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.17.attention.wo.weight": {
+          "release_name": "vision_tower.transformer.layers.17.attention.o_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000087,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.17.attention.wq.weight": {
+          "release_name": "vision_tower.transformer.layers.17.attention.q_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.000000000000008,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.17.attention.wv.weight": {
+          "release_name": "vision_tower.transformer.layers.17.attention.v_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000078,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.17.attention_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.17.attention_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.17.feed_forward.w1.weight": {
+          "release_name": "vision_tower.transformer.layers.17.feed_forward.gate_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.000000000000049,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.17.feed_forward.w2.weight": {
+          "release_name": "vision_tower.transformer.layers.17.feed_forward.down_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000508,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.17.feed_forward.w3.weight": {
+          "release_name": "vision_tower.transformer.layers.17.feed_forward.up_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000515,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.17.ffn_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.17.ffn_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.18.attention.wk.weight": {
+          "release_name": "vision_tower.transformer.layers.18.attention.k_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000067,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.18.attention.wo.weight": {
+          "release_name": "vision_tower.transformer.layers.18.attention.o_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.000000000000008,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.18.attention.wq.weight": {
+          "release_name": "vision_tower.transformer.layers.18.attention.q_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000067,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.18.attention.wv.weight": {
+          "release_name": "vision_tower.transformer.layers.18.attention.v_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000064,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.18.attention_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.18.attention_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.18.feed_forward.w1.weight": {
+          "release_name": "vision_tower.transformer.layers.18.feed_forward.gate_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000484,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.18.feed_forward.w2.weight": {
+          "release_name": "vision_tower.transformer.layers.18.feed_forward.down_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000513,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.18.feed_forward.w3.weight": {
+          "release_name": "vision_tower.transformer.layers.18.feed_forward.up_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000488,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.18.ffn_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.18.ffn_norm.weight",
+          "bit_exact": true,
+          "cosine": 0.9999999999999999,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.19.attention.wk.weight": {
+          "release_name": "vision_tower.transformer.layers.19.attention.k_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000082,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.19.attention.wo.weight": {
+          "release_name": "vision_tower.transformer.layers.19.attention.o_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000089,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.19.attention.wq.weight": {
+          "release_name": "vision_tower.transformer.layers.19.attention.q_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000069,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.19.attention.wv.weight": {
+          "release_name": "vision_tower.transformer.layers.19.attention.v_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000069,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.19.attention_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.19.attention_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.19.feed_forward.w1.weight": {
+          "release_name": "vision_tower.transformer.layers.19.feed_forward.gate_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000488,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.19.feed_forward.w2.weight": {
+          "release_name": "vision_tower.transformer.layers.19.feed_forward.down_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.000000000000048,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.19.feed_forward.w3.weight": {
+          "release_name": "vision_tower.transformer.layers.19.feed_forward.up_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000488,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.19.ffn_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.19.ffn_norm.weight",
+          "bit_exact": true,
+          "cosine": 0.9999999999999999,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.2.attention.wk.weight": {
+          "release_name": "vision_tower.transformer.layers.2.attention.k_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000093,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.2.attention.wo.weight": {
+          "release_name": "vision_tower.transformer.layers.2.attention.o_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000089,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.2.attention.wq.weight": {
+          "release_name": "vision_tower.transformer.layers.2.attention.q_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.000000000000013,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.2.attention.wv.weight": {
+          "release_name": "vision_tower.transformer.layers.2.attention.v_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000142,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.2.attention_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.2.attention_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.2.feed_forward.w1.weight": {
+          "release_name": "vision_tower.transformer.layers.2.feed_forward.gate_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000001612,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.2.feed_forward.w2.weight": {
+          "release_name": "vision_tower.transformer.layers.2.feed_forward.down_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000373,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.2.feed_forward.w3.weight": {
+          "release_name": "vision_tower.transformer.layers.2.feed_forward.up_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000486,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.2.ffn_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.2.ffn_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.20.attention.wk.weight": {
+          "release_name": "vision_tower.transformer.layers.20.attention.k_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000084,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.20.attention.wo.weight": {
+          "release_name": "vision_tower.transformer.layers.20.attention.o_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000069,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.20.attention.wq.weight": {
+          "release_name": "vision_tower.transformer.layers.20.attention.q_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000078,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.20.attention.wv.weight": {
+          "release_name": "vision_tower.transformer.layers.20.attention.v_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000053,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.20.attention_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.20.attention_norm.weight",
+          "bit_exact": true,
+          "cosine": 0.9999999999999999,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.20.feed_forward.w1.weight": {
+          "release_name": "vision_tower.transformer.layers.20.feed_forward.gate_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.000000000000047,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.20.feed_forward.w2.weight": {
+          "release_name": "vision_tower.transformer.layers.20.feed_forward.down_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000495,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.20.feed_forward.w3.weight": {
+          "release_name": "vision_tower.transformer.layers.20.feed_forward.up_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000486,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.20.ffn_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.20.ffn_norm.weight",
+          "bit_exact": true,
+          "cosine": 0.9999999999999998,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.21.attention.wk.weight": {
+          "release_name": "vision_tower.transformer.layers.21.attention.k_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000089,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.21.attention.wo.weight": {
+          "release_name": "vision_tower.transformer.layers.21.attention.o_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000064,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.21.attention.wq.weight": {
+          "release_name": "vision_tower.transformer.layers.21.attention.q_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000078,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.21.attention.wv.weight": {
+          "release_name": "vision_tower.transformer.layers.21.attention.v_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000056,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.21.attention_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.21.attention_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000002,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.21.feed_forward.w1.weight": {
+          "release_name": "vision_tower.transformer.layers.21.feed_forward.gate_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000466,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.21.feed_forward.w2.weight": {
+          "release_name": "vision_tower.transformer.layers.21.feed_forward.down_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000464,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.21.feed_forward.w3.weight": {
+          "release_name": "vision_tower.transformer.layers.21.feed_forward.up_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000462,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.21.ffn_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.21.ffn_norm.weight",
+          "bit_exact": true,
+          "cosine": 0.9999999999999999,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.22.attention.wk.weight": {
+          "release_name": "vision_tower.transformer.layers.22.attention.k_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000084,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.22.attention.wo.weight": {
+          "release_name": "vision_tower.transformer.layers.22.attention.o_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.000000000000006,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.22.attention.wq.weight": {
+          "release_name": "vision_tower.transformer.layers.22.attention.q_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000075,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.22.attention.wv.weight": {
+          "release_name": "vision_tower.transformer.layers.22.attention.v_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000053,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.22.attention_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.22.attention_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000002,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.22.feed_forward.w1.weight": {
+          "release_name": "vision_tower.transformer.layers.22.feed_forward.gate_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000457,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.22.feed_forward.w2.weight": {
+          "release_name": "vision_tower.transformer.layers.22.feed_forward.down_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.000000000000049,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.22.feed_forward.w3.weight": {
+          "release_name": "vision_tower.transformer.layers.22.feed_forward.up_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000464,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.22.ffn_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.22.ffn_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000002,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.23.attention.wk.weight": {
+          "release_name": "vision_tower.transformer.layers.23.attention.k_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.000000000000006,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.23.attention.wo.weight": {
+          "release_name": "vision_tower.transformer.layers.23.attention.o_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000073,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.23.attention.wq.weight": {
+          "release_name": "vision_tower.transformer.layers.23.attention.q_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000075,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.23.attention.wv.weight": {
+          "release_name": "vision_tower.transformer.layers.23.attention.v_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000058,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.23.attention_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.23.attention_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.23.feed_forward.w1.weight": {
+          "release_name": "vision_tower.transformer.layers.23.feed_forward.gate_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000453,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.23.feed_forward.w2.weight": {
+          "release_name": "vision_tower.transformer.layers.23.feed_forward.down_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000484,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.23.feed_forward.w3.weight": {
+          "release_name": "vision_tower.transformer.layers.23.feed_forward.up_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.000000000000043,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.23.ffn_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.23.ffn_norm.weight",
+          "bit_exact": true,
+          "cosine": 0.9999999999999999,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.24.attention.wk.weight": {
+          "release_name": "vision_tower.transformer.layers.24.attention.k_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000084,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.24.attention.wo.weight": {
+          "release_name": "vision_tower.transformer.layers.24.attention.o_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000062,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.24.attention.wq.weight": {
+          "release_name": "vision_tower.transformer.layers.24.attention.q_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000084,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.24.attention.wv.weight": {
+          "release_name": "vision_tower.transformer.layers.24.attention.v_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.000000000000005,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.24.attention_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.24.attention_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000002,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.24.feed_forward.w1.weight": {
+          "release_name": "vision_tower.transformer.layers.24.feed_forward.gate_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.000000000000045,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.24.feed_forward.w2.weight": {
+          "release_name": "vision_tower.transformer.layers.24.feed_forward.down_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000435,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.24.feed_forward.w3.weight": {
+          "release_name": "vision_tower.transformer.layers.24.feed_forward.up_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.000000000000043,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.24.ffn_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.24.ffn_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.25.attention.wk.weight": {
+          "release_name": "vision_tower.transformer.layers.25.attention.k_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.000000000000008,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.25.attention.wo.weight": {
+          "release_name": "vision_tower.transformer.layers.25.attention.o_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.000000000000005,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.25.attention.wq.weight": {
+          "release_name": "vision_tower.transformer.layers.25.attention.q_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000075,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.25.attention.wv.weight": {
+          "release_name": "vision_tower.transformer.layers.25.attention.v_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000064,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.25.attention_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.25.attention_norm.weight",
+          "bit_exact": true,
+          "cosine": 0.9999999999999999,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.25.feed_forward.w1.weight": {
+          "release_name": "vision_tower.transformer.layers.25.feed_forward.gate_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000455,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.25.feed_forward.w2.weight": {
+          "release_name": "vision_tower.transformer.layers.25.feed_forward.down_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000444,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.25.feed_forward.w3.weight": {
+          "release_name": "vision_tower.transformer.layers.25.feed_forward.up_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000417,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.25.ffn_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.25.ffn_norm.weight",
+          "bit_exact": true,
+          "cosine": 0.9999999999999999,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.26.attention.wk.weight": {
+          "release_name": "vision_tower.transformer.layers.26.attention.k_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.000000000000007,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.26.attention.wo.weight": {
+          "release_name": "vision_tower.transformer.layers.26.attention.o_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000053,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.26.attention.wq.weight": {
+          "release_name": "vision_tower.transformer.layers.26.attention.q_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.000000000000007,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.26.attention.wv.weight": {
+          "release_name": "vision_tower.transformer.layers.26.attention.v_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000075,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.26.attention_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.26.attention_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.26.feed_forward.w1.weight": {
+          "release_name": "vision_tower.transformer.layers.26.feed_forward.gate_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000424,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.26.feed_forward.w2.weight": {
+          "release_name": "vision_tower.transformer.layers.26.feed_forward.down_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000409,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.26.feed_forward.w3.weight": {
+          "release_name": "vision_tower.transformer.layers.26.feed_forward.up_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000369,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.26.ffn_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.26.ffn_norm.weight",
+          "bit_exact": true,
+          "cosine": 0.9999999999999999,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.27.attention.wk.weight": {
+          "release_name": "vision_tower.transformer.layers.27.attention.k_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000069,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.27.attention.wo.weight": {
+          "release_name": "vision_tower.transformer.layers.27.attention.o_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000084,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.27.attention.wq.weight": {
+          "release_name": "vision_tower.transformer.layers.27.attention.q_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000064,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.27.attention.wv.weight": {
+          "release_name": "vision_tower.transformer.layers.27.attention.v_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000095,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.27.attention_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.27.attention_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.27.feed_forward.w1.weight": {
+          "release_name": "vision_tower.transformer.layers.27.feed_forward.gate_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000457,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.27.feed_forward.w2.weight": {
+          "release_name": "vision_tower.transformer.layers.27.feed_forward.down_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.000000000000039,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.27.feed_forward.w3.weight": {
+          "release_name": "vision_tower.transformer.layers.27.feed_forward.up_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000355,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.27.ffn_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.27.ffn_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.28.attention.wk.weight": {
+          "release_name": "vision_tower.transformer.layers.28.attention.k_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000089,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.28.attention.wo.weight": {
+          "release_name": "vision_tower.transformer.layers.28.attention.o_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000115,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.28.attention.wq.weight": {
+          "release_name": "vision_tower.transformer.layers.28.attention.q_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000095,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.28.attention.wv.weight": {
+          "release_name": "vision_tower.transformer.layers.28.attention.v_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000113,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.28.attention_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.28.attention_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.28.feed_forward.w1.weight": {
+          "release_name": "vision_tower.transformer.layers.28.feed_forward.gate_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000417,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.28.feed_forward.w2.weight": {
+          "release_name": "vision_tower.transformer.layers.28.feed_forward.down_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000393,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.28.feed_forward.w3.weight": {
+          "release_name": "vision_tower.transformer.layers.28.feed_forward.up_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000373,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.28.ffn_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.28.ffn_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.29.attention.wk.weight": {
+          "release_name": "vision_tower.transformer.layers.29.attention.k_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000084,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.29.attention.wo.weight": {
+          "release_name": "vision_tower.transformer.layers.29.attention.o_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000104,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.29.attention.wq.weight": {
+          "release_name": "vision_tower.transformer.layers.29.attention.q_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000084,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.29.attention.wv.weight": {
+          "release_name": "vision_tower.transformer.layers.29.attention.v_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000082,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.29.attention_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.29.attention_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.29.feed_forward.w1.weight": {
+          "release_name": "vision_tower.transformer.layers.29.feed_forward.gate_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000444,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.29.feed_forward.w2.weight": {
+          "release_name": "vision_tower.transformer.layers.29.feed_forward.down_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000364,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.29.feed_forward.w3.weight": {
+          "release_name": "vision_tower.transformer.layers.29.feed_forward.up_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000377,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.29.ffn_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.29.ffn_norm.weight",
+          "bit_exact": true,
+          "cosine": 0.9999999999999998,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.3.attention.wk.weight": {
+          "release_name": "vision_tower.transformer.layers.3.attention.k_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000093,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.3.attention.wo.weight": {
+          "release_name": "vision_tower.transformer.layers.3.attention.o_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000104,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.3.attention.wq.weight": {
+          "release_name": "vision_tower.transformer.layers.3.attention.q_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000102,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.3.attention.wv.weight": {
+          "release_name": "vision_tower.transformer.layers.3.attention.v_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000104,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.3.attention_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.3.attention_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.3.feed_forward.w1.weight": {
+          "release_name": "vision_tower.transformer.layers.3.feed_forward.gate_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000944,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.3.feed_forward.w2.weight": {
+          "release_name": "vision_tower.transformer.layers.3.feed_forward.down_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000626,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.3.feed_forward.w3.weight": {
+          "release_name": "vision_tower.transformer.layers.3.feed_forward.up_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000722,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.3.ffn_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.3.ffn_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.4.attention.wk.weight": {
+          "release_name": "vision_tower.transformer.layers.4.attention.k_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000124,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.4.attention.wo.weight": {
+          "release_name": "vision_tower.transformer.layers.4.attention.o_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.000000000000012,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.4.attention.wq.weight": {
+          "release_name": "vision_tower.transformer.layers.4.attention.q_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000127,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.4.attention.wv.weight": {
+          "release_name": "vision_tower.transformer.layers.4.attention.v_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.000000000000012,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.4.attention_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.4.attention_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.4.feed_forward.w1.weight": {
+          "release_name": "vision_tower.transformer.layers.4.feed_forward.gate_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000537,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.4.feed_forward.w2.weight": {
+          "release_name": "vision_tower.transformer.layers.4.feed_forward.down_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000608,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.4.feed_forward.w3.weight": {
+          "release_name": "vision_tower.transformer.layers.4.feed_forward.up_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000626,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.4.ffn_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.4.ffn_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.5.attention.wk.weight": {
+          "release_name": "vision_tower.transformer.layers.5.attention.k_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000104,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.5.attention.wo.weight": {
+          "release_name": "vision_tower.transformer.layers.5.attention.o_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.000000000000011,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.5.attention.wq.weight": {
+          "release_name": "vision_tower.transformer.layers.5.attention.q_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000095,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.5.attention.wv.weight": {
+          "release_name": "vision_tower.transformer.layers.5.attention.v_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000127,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.5.attention_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.5.attention_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.5.feed_forward.w1.weight": {
+          "release_name": "vision_tower.transformer.layers.5.feed_forward.gate_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000564,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.5.feed_forward.w2.weight": {
+          "release_name": "vision_tower.transformer.layers.5.feed_forward.down_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.000000000000059,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.5.feed_forward.w3.weight": {
+          "release_name": "vision_tower.transformer.layers.5.feed_forward.up_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000595,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.5.ffn_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.5.ffn_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000002,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.6.attention.wk.weight": {
+          "release_name": "vision_tower.transformer.layers.6.attention.k_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000082,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.6.attention.wo.weight": {
+          "release_name": "vision_tower.transformer.layers.6.attention.o_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000115,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.6.attention.wq.weight": {
+          "release_name": "vision_tower.transformer.layers.6.attention.q_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000082,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.6.attention.wv.weight": {
+          "release_name": "vision_tower.transformer.layers.6.attention.v_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000107,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.6.attention_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.6.attention_norm.weight",
+          "bit_exact": true,
+          "cosine": 0.9999999999999999,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.6.feed_forward.w1.weight": {
+          "release_name": "vision_tower.transformer.layers.6.feed_forward.gate_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.000000000000059,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.6.feed_forward.w2.weight": {
+          "release_name": "vision_tower.transformer.layers.6.feed_forward.down_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000588,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.6.feed_forward.w3.weight": {
+          "release_name": "vision_tower.transformer.layers.6.feed_forward.up_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000573,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.6.ffn_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.6.ffn_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.7.attention.wk.weight": {
+          "release_name": "vision_tower.transformer.layers.7.attention.k_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.000000000000007,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.7.attention.wo.weight": {
+          "release_name": "vision_tower.transformer.layers.7.attention.o_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000118,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.7.attention.wq.weight": {
+          "release_name": "vision_tower.transformer.layers.7.attention.q_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000084,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.7.attention.wv.weight": {
+          "release_name": "vision_tower.transformer.layers.7.attention.v_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000109,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.7.attention_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.7.attention_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.7.feed_forward.w1.weight": {
+          "release_name": "vision_tower.transformer.layers.7.feed_forward.gate_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000595,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.7.feed_forward.w2.weight": {
+          "release_name": "vision_tower.transformer.layers.7.feed_forward.down_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000582,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.7.feed_forward.w3.weight": {
+          "release_name": "vision_tower.transformer.layers.7.feed_forward.up_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.000000000000056,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.7.ffn_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.7.ffn_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.8.attention.wk.weight": {
+          "release_name": "vision_tower.transformer.layers.8.attention.k_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.000000000000007,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.8.attention.wo.weight": {
+          "release_name": "vision_tower.transformer.layers.8.attention.o_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000115,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.8.attention.wq.weight": {
+          "release_name": "vision_tower.transformer.layers.8.attention.q_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000075,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.8.attention.wv.weight": {
+          "release_name": "vision_tower.transformer.layers.8.attention.v_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.00000000000001,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.8.attention_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.8.attention_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.8.feed_forward.w1.weight": {
+          "release_name": "vision_tower.transformer.layers.8.feed_forward.gate_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000573,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.8.feed_forward.w2.weight": {
+          "release_name": "vision_tower.transformer.layers.8.feed_forward.down_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.000000000000057,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.8.feed_forward.w3.weight": {
+          "release_name": "vision_tower.transformer.layers.8.feed_forward.up_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.000000000000055,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.8.ffn_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.8.ffn_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.9.attention.wk.weight": {
+          "release_name": "vision_tower.transformer.layers.9.attention.k_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.000000000000008,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.9.attention.wo.weight": {
+          "release_name": "vision_tower.transformer.layers.9.attention.o_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.000000000000011,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.9.attention.wq.weight": {
+          "release_name": "vision_tower.transformer.layers.9.attention.q_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000087,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.9.attention.wv.weight": {
+          "release_name": "vision_tower.transformer.layers.9.attention.v_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000104,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.9.attention_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.9.attention_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000002,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.9.feed_forward.w1.weight": {
+          "release_name": "vision_tower.transformer.layers.9.feed_forward.gate_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000577,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.9.feed_forward.w2.weight": {
+          "release_name": "vision_tower.transformer.layers.9.feed_forward.down_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000573,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.9.feed_forward.w3.weight": {
+          "release_name": "vision_tower.transformer.layers.9.feed_forward.up_proj.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000557,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_encoder.transformer.layers.9.ffn_norm.weight": {
+          "release_name": "vision_tower.transformer.layers.9.ffn_norm.weight",
+          "bit_exact": true,
+          "cosine": 1.0,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_language_adapter.w_in.weight": {
+          "release_name": "multi_modal_projector.linear_1.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000000397,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        },
+        "vision_language_adapter.w_out.weight": {
+          "release_name": "multi_modal_projector.linear_2.weight",
+          "bit_exact": true,
+          "cosine": 1.0000000000002678,
+          "relative_l2": 0.0,
+          "sha256_matches_manifest": true
+        }
+      }
+    },
+    "rope_permutation": {
+      "tensors": 60,
+      "round_trip_bit_exact": true,
+      "min_relative_l2_permuted_vs_native": 1.39171991619138
+    },
+    "converted_tensors": {
+      "tower": 272,
+      "projector": 4
+    },
+    "seconds": 30.2
+  },
+  "seconds": 30.4
+}

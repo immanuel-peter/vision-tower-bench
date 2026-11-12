@@ -1,0 +1,27 @@
+{
+  "architectures": [
+    "PixtralLarge4VisionModel"
+  ],
+  "attention_dropout": 0.0,
+  "auto_map": {
+    "AutoConfig": "modeling_pixtral_large4.PixtralLarge4VisionConfig",
+    "AutoModel": "modeling_pixtral_large4.PixtralLarge4VisionModel"
+  },
+  "dtype": "bfloat16",
+  "head_dim": 128,
+  "hidden_act": "silu",
+  "hidden_size": 2048,
+  "image_size": 1540,
+  "initializer_range": 0.02,
+  "intermediate_size": 6144,
+  "model_type": "pixtral_large4_vision",
+  "num_attention_heads": 16,
+  "num_channels": 3,
+  "num_hidden_layers": 30,
+  "patch_size": 14,
+  "rope_parameters": {
+    "rope_theta": 10000.0,
+    "rope_type": "axial"
+  },
+  "transformers_version": "5.17.0"
+}

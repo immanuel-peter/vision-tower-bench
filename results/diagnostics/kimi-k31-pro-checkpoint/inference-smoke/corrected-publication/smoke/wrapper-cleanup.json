@@ -1,0 +1,13 @@
+{
+  "standalone_exit": 0,
+  "numerical_exit": 0,
+  "gpu0_released": true,
+  "wrapper_shutdown_error": "After both successful child checks and GPU release, fixed fd9 collided with an HF download I/O runtime descriptor, causing a shutdown panic/hang. Only the idle parent CPU wrapper was terminated.",
+  "parent_wrapper_pids_terminated": [
+    726495
+  ],
+  "numeric_outputs_unchanged": true,
+  "gpu1_benchmarks_untouched": true,
+  "executed_driver_sha256": "6a452ae1ae2864b2e076ae8f2060517fce93255bc38dbdf87dea80e69c86bf49",
+  "future_driver_fix": "Inherit the actual lock descriptor without dup2; compiled, no CUDA rerun needed."
+}

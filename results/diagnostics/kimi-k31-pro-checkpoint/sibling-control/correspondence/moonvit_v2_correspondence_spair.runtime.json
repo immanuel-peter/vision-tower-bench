@@ -1,0 +1,29 @@
+{
+  "target": "scripts.correspondence_run",
+  "adapters": [
+    {
+      "checkpoint": {
+        "repo": "moonshotai/Kimi-K3",
+        "revision": "f831ab66814297da540d832a5235f8e904f29d06",
+        "model_id": "immanuelpeter/MoonViT-V2",
+        "bundle": "MoonViT-V2",
+        "bundle_revision": "bcaedfccd1f07d23ab20de8a0a168668c27cacb3"
+      },
+      "identity_tensors": 168,
+      "exact_immutable_identity": true,
+      "device": "cuda:0",
+      "dtype": "torch.bfloat16",
+      "cuda_visible_devices": "1",
+      "threads": 8,
+      "validated_image_forwards": 7200,
+      "native_integrity": {
+        "all_ten_slices": true,
+        "finite_bf16": true,
+        "exact_shapes": true,
+        "raster_merge_equal": true
+      },
+      "wrapper_sha256": "0859c037d277933f02dc4261c0d8719daaf7b68e777489fb26631fd4229f3b6b"
+    }
+  ],
+  "backend_limitation": "Production official TORCH_SDPA BF16 parity remains failed; independent mathematical-reference conversion accepted."
+}

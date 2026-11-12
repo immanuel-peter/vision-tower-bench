@@ -1,0 +1,61 @@
+{
+  "gate": "fresh clean HF download; card commands verbatim; CUDA BF16; batch 1",
+  "revision_tested": "0605fc91b1851a0474cd55d543c6d671fffaa0eb",
+  "hub_head_before": "0605fc91b1851a0474cd55d543c6d671fffaa0eb",
+  "hub_head_after": "0605fc91b1851a0474cd55d543c6d671fffaa0eb",
+  "loaded_commit_inline_call": "0605fc91b1851a0474cd55d543c6d671fffaa0eb",
+  "loaded_commit_usage_snippet": "0605fc91b1851a0474cd55d543c6d671fffaa0eb",
+  "command": "cd <snapshot> && python examples/inference.py imagenet100/validation/validation_000000.jpg",
+  "image": {
+    "file": "imagenet100/validation/validation_000000.jpg",
+    "size": [
+      500,
+      334
+    ],
+    "sha256": "dc4d456ce66cf18cc246831b3fe8b54133b507de981490a29f1623d86ddbeae3",
+    "processed": [
+      448,
+      448
+    ]
+  },
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition (physical GPU 1, 0 MiB and no compute processes before)",
+  "dtype": "bfloat16",
+  "batch": 1,
+  "shapes": {
+    "tower": [
+      1024,
+      2048
+    ],
+    "merged": [
+      256,
+      2048
+    ],
+    "projected": [
+      256,
+      6144
+    ]
+  },
+  "card_shapes_match": true,
+  "exit_codes": {
+    "inline_call": 0,
+    "usage_snippet": 0,
+    "example": 0,
+    "gate": 0
+  },
+  "seconds": {
+    "inline_call": 4.09542708,
+    "usage_snippet": 3.961411157,
+    "example": 5.020552727
+  },
+  "software": "cuda dtype torch.bfloat16 image_sizes [[448, 448]]",
+  "manifest": {
+    "files": 13,
+    "covers_all_files": true,
+    "hash_mismatches": [],
+    "equals_bench_manifest": true,
+    "weights_sha256": {
+      "model.safetensors": "9566fa8271162b3b663b499bc395a4a69ff65aaec0d35b29a641762b82f0c357",
+      "projector.safetensors": "45a4e78038b4c4158bb29de58425f48ee5e68422ef07471d32e47158d8da2efb"
+    }
+  }
+}

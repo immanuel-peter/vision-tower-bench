@@ -484,3 +484,54 @@ def test_shard_cache_key_tracks_the_revision_it_read(tmp_path, monkeypatch):
     assert first != shards.cache_path("org/model", "vision.", [("a.safetensors", "etag2")])
     assert first != shards.cache_path("org/model", "text.", [("a.safetensors", "etag1")])
     assert first != shards.cache_path("other/model", "vision.", [("a.safetensors", "etag1")])
+
+
+def test_standardized_reducer_ignores_the_scale_of_any_one_channel():
+    # The recovered patch's own test, applied to the opt-in diagnostic reducer.
+    torch.manual_seed(0)
+    tokens = torch.randn(32, 4, 6) @ torch.randn(6, 6)
+    massive = tokens * torch.tensor([1.0, 1.0, 1e4, 1.0, 1.0, 1.0])
+
+    def gram(x):
+        reduced = probe.StandardizedReducer.fit(x, 3)(x).flatten(0, 1)
+        return reduced @ reduced.T
+
+    torch.testing.assert_close(gram(massive), gram(tokens), rtol=1e-3, atol=1e-3)
+
+
+def test_standardized_reducer_matches_the_recovered_patch_formula():
+    torch.manual_seed(1)
+    tokens = torch.randn(20, 3, 10) * torch.linspace(0.1, 50, 10)
+    torch.manual_seed(5)
+    reducer = probe.StandardizedReducer.fit(tokens, 4)
+    flat = tokens.reshape(-1, 10).float()
+    mean = flat.mean(dim=0, keepdim=True)
+    scale = flat.std(dim=0, keepdim=True).clamp_min(1e-6)
+    torch.manual_seed(5)
+    _, _, v = torch.svd_lowrank((flat - mean) / scale, q=min(4 + 16, min(flat.shape)))
+    assert torch.equal(reducer.mean, mean) and torch.equal(reducer.scale, scale)
+    assert torch.equal(reducer.basis, v[:, :4].contiguous())
+    assert torch.equal(reducer(tokens), ((tokens - mean) / scale) @ v[:, :4])
+
+
+def test_primary_reducer_and_flags_stay_unstandardized():
+    args = probe_run.build_parser().parse_args(["--run", "x", "--labels", "y"])
+    assert args.standardize_channels is False
+    torch.manual_seed(0)
+    features = torch.randn(40, 4, 12) * torch.linspace(1, 100, 12)
+    split = probe_run.split_indices(40)
+    primary = probe_run.fit_reducer(features, split, 4)
+    assert type(primary) is probe.Reducer
+    reference = probe_run.fit_reducer(features, split, 4, standardize_channels=False)
+    assert torch.equal(primary.basis, reference.basis)
+    standardized = probe_run.fit_reducer(features, split, 4, standardize_channels=True)
+    assert type(standardized) is probe.StandardizedReducer
+
+
+def test_perturbation_runner_keeps_the_primary_reducer_by_default():
+    from scripts.perturbation_run import parser
+
+    base = ["--clean-run", "a", "--features-root", "b", "--model-dir", "c", "--labels", "d",
+            "--transform-manifest", "e", "--out", "f"]
+    assert parser().parse_args(base).standardize_channels is False
+    assert parser().parse_args(base + ["--standardize-channels"]).standardize_channels is True

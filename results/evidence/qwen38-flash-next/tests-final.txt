@@ -1,0 +1,48 @@
+ssssssssssssssssssssss................................sss.....F......... [ 35%]
+.....................................ssssssssss......................... [ 70%]
+................................ssssssssssssss..............             [100%]
+=================================== FAILURES ===================================
+____ test_geometry_figures_separate_corrected_stages_from_historical_sweeps ____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x77025e17ef30>
+tmp_path = PosixPath('/tmp/pytest-of-shadeform/pytest-46/test_geometry_figures_separate0')
+
+    def test_geometry_figures_separate_corrected_stages_from_historical_sweeps(monkeypatch, tmp_path):
+        figures = []
+        subplots = FIGURE_SCRIPT.plt.subplots
+    
+        def capture(*args, **kwargs):
+            figure, axes = subplots(*args, **kwargs)
+            figures.append(figure)
+            return figure, axes
+    
+        monkeypatch.setattr(FIGURE_SCRIPT.plt, "subplots", capture)
+        FIGURE_SCRIPT.stage_levels(tmp_path / "stages.png")
+        FIGURE_SCRIPT.peaks(tmp_path / "peaks.png")
+    
+        corrected = {"muse_glimmer", "kimi_k26", "qwen3_5", "moonvit_v2"}
+        stages = ("tower", "merged", "projected")
+        stage_lines = figures[0].axes[0].lines
+        assert len(stage_lines) == len(FIGURE_SCRIPT.PROJECTORS)
+        for model, line in zip(FIGURE_SCRIPT.PROJECTORS, stage_lines, strict=True):
+            directory = "geometry/deterministic" if model in corrected else "geometry"
+            path = ROOT / "results" / directory / f"{model}_geometry_depth_matched.json"
+            cells = json.loads(path.read_text())["cells"]
+            deepest = {cell["stage"]: cell["d1"] for cell in cells if cell["relative_depth"] == 1.0}
+            assert list(line.get_xdata()) == [stages.index(stage) for stage in stages if stage in deepest]
+            assert list(line.get_ydata()) == pytest.approx([deepest[stage] for stage in stages if stage in deepest])
+    
+>       sweep_lines = {line.get_label(): line for line in figures[1].axes[1].lines}
+                                                          ^^^^^^^^^^^^^^^^^^
+E       IndexError: list index out of range
+
+tests/test_figures.py:115: IndexError
+=============================== warnings summary ===============================
+tests/test_moonvit_v2_forward_parity.py: 14 warnings
+  /home/shadeform/.t3/worktrees/vision-tower-bench/t3-b75c6e2e/.venv/lib/python3.12/site-packages/torch/jit/_script.py:365: DeprecationWarning: `torch.jit.script_method` is deprecated. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_figures.py::test_geometry_figures_separate_corrected_stages_from_historical_sweeps
+1 failed, 154 passed, 50 skipped, 14 warnings in 62.09s (0:01:02)

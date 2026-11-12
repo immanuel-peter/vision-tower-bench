@@ -1,0 +1,1409 @@
+{
+  "task": "depth",
+  "images": 771,
+  "train_images": 541,
+  "capacity_matched": true,
+  "head": "multiscale",
+  "epochs": 10,
+  "seeds": 3,
+  "learning_rates": [
+    0.0001,
+    0.0003,
+    0.001,
+    0.003,
+    0.01,
+    0.03
+  ],
+  "cells": [
+    {
+      "d1": 0.5384,
+      "d1_std": 0.0049,
+      "d2": 0.8021,
+      "d2_std": 0.0008,
+      "d3": 0.905,
+      "d3_std": 0.0024,
+      "rmse": 4.7442,
+      "rmse_std": 0.0229,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.5446,
+          "d1_std": 0.0075,
+          "d2": 0.8286,
+          "d2_std": 0.0084,
+          "d3": 0.9415,
+          "d3_std": 0.0026,
+          "rmse": 0.9723,
+          "rmse_std": 0.0035,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.5335,
+          "d1_std": 0.0052,
+          "d2": 0.781,
+          "d2_std": 0.0054,
+          "d3": 0.876,
+          "d3_std": 0.0025,
+          "rmse": 7.7498,
+          "rmse_std": 0.0401,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.5362,
+      "learning_rate_search": {
+        "0.0001": 0.2439,
+        "0.0003": 0.4175,
+        "0.001": 0.519,
+        "0.003": 0.5347,
+        "0.01": 0.5362,
+        "0.03": 0.4676
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.538,
+          "d2": 0.801,
+          "d3": 0.9068,
+          "rmse": 4.7313,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5382,
+              "d2": 0.8191,
+              "d3": 0.9423,
+              "rmse": 0.9756,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5378,
+              "d2": 0.7865,
+              "d3": 0.8786,
+              "rmse": 7.724,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5326,
+          "d2": 0.8028,
+          "d3": 0.9016,
+          "rmse": 4.7764,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5406,
+              "d2": 0.8395,
+              "d3": 0.938,
+              "rmse": 0.9739,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5262,
+              "d2": 0.7736,
+              "d3": 0.8726,
+              "rmse": 7.8065,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5447,
+          "d2": 0.8026,
+          "d3": 0.9066,
+          "rmse": 4.7248,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5551,
+              "d2": 0.8273,
+              "d3": 0.9441,
+              "rmse": 0.9674,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5365,
+              "d2": 0.7828,
+              "d3": 0.8768,
+              "rmse": 7.7189,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/MiniMax-M3.1-Flash-Vision",
+      "stage": "merged",
+      "layer_index": 32,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "grid": 16,
+      "trainable_parameters": 1444608,
+      "seconds": 93.0
+    },
+    {
+      "d1": 0.5045,
+      "d1_std": 0.0046,
+      "d2": 0.7649,
+      "d2_std": 0.0034,
+      "d3": 0.8734,
+      "d3_std": 0.0023,
+      "rmse": 4.9112,
+      "rmse_std": 0.0381,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.5035,
+          "d1_std": 0.0024,
+          "d2": 0.7766,
+          "d2_std": 0.0034,
+          "d3": 0.8857,
+          "d3_std": 0.0044,
+          "rmse": 1.1975,
+          "rmse_std": 0.018,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.5052,
+          "d1_std": 0.0088,
+          "d2": 0.7556,
+          "d2_std": 0.0041,
+          "d3": 0.8636,
+          "d3_std": 0.0018,
+          "rmse": 7.8705,
+          "rmse_std": 0.057,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.003,
+      "val_metric": "d1",
+      "val_score": 0.4593,
+      "learning_rate_search": {
+        "0.0001": 0.2463,
+        "0.0003": 0.3933,
+        "0.001": 0.4554,
+        "0.003": 0.4593,
+        "0.01": 0.3664,
+        "0.03": 0.1244
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.4983,
+          "d2": 0.7601,
+          "d3": 0.8703,
+          "rmse": 4.9644,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5028,
+              "d2": 0.7721,
+              "d3": 0.8797,
+              "rmse": 1.2207,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.4946,
+              "d2": 0.7506,
+              "d3": 0.8627,
+              "rmse": 7.9476,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5057,
+          "d2": 0.7666,
+          "d3": 0.8744,
+          "rmse": 4.8917,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5068,
+              "d2": 0.7804,
+              "d3": 0.89,
+              "rmse": 1.1769,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5048,
+              "d2": 0.7556,
+              "d3": 0.862,
+              "rmse": 7.852,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5094,
+          "d2": 0.768,
+          "d3": 0.8756,
+          "rmse": 4.8774,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.501,
+              "d2": 0.7774,
+              "d3": 0.8875,
+              "rmse": 1.195,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5162,
+              "d2": 0.7606,
+              "d3": 0.8661,
+              "rmse": 7.8118,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/MiniMax-M3.1-Flash-Vision",
+      "stage": "projected",
+      "layer_index": 32,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "grid": 16,
+      "trainable_parameters": 1444608,
+      "seconds": 91.8
+    },
+    {
+      "d1": 0.4191,
+      "d1_std": 0.0069,
+      "d2": 0.7049,
+      "d2_std": 0.0052,
+      "d3": 0.851,
+      "d3_std": 0.0023,
+      "rmse": 5.3606,
+      "rmse_std": 0.0493,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.4318,
+          "d1_std": 0.0059,
+          "d2": 0.7599,
+          "d2_std": 0.0064,
+          "d3": 0.9084,
+          "d3_std": 0.0028,
+          "rmse": 1.2315,
+          "rmse_std": 0.0141,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.4089,
+          "d1_std": 0.0077,
+          "d2": 0.661,
+          "d2_std": 0.0094,
+          "d3": 0.8053,
+          "d3_std": 0.0063,
+          "rmse": 8.6511,
+          "rmse_std": 0.0905,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.4448,
+      "learning_rate_search": {
+        "0.0001": 0.1669,
+        "0.0003": 0.2591,
+        "0.001": 0.4086,
+        "0.003": 0.4278,
+        "0.01": 0.4448,
+        "0.03": 0.3046
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.4185,
+          "d2": 0.7092,
+          "d3": 0.8521,
+          "rmse": 5.3247,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.4304,
+              "d2": 0.7685,
+              "d3": 0.9081,
+              "rmse": 1.2497,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.4089,
+              "d2": 0.6618,
+              "d3": 0.8074,
+              "rmse": 8.572,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.411,
+          "d2": 0.6975,
+          "d3": 0.8478,
+          "rmse": 5.4303,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.4254,
+              "d2": 0.7583,
+              "d3": 0.912,
+              "rmse": 1.2296,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.3995,
+              "d2": 0.6491,
+              "d3": 0.7967,
+              "rmse": 8.7778,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.4278,
+          "d2": 0.7079,
+          "d3": 0.8532,
+          "rmse": 5.3269,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.4396,
+              "d2": 0.753,
+              "d3": 0.9052,
+              "rmse": 1.2152,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.4184,
+              "d2": 0.672,
+              "d3": 0.8118,
+              "rmse": 8.6034,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/MiniMax-M3.1-Flash-Vision",
+      "stage": "tower",
+      "layer_index": 4,
+      "relative_depth": 0.125,
+      "token_width": 512,
+      "grid": 32,
+      "trainable_parameters": 1444608,
+      "seconds": 256.6
+    },
+    {
+      "d1": 0.5396,
+      "d1_std": 0.0016,
+      "d2": 0.7878,
+      "d2_std": 0.0043,
+      "d3": 0.892,
+      "d3_std": 0.0019,
+      "rmse": 4.7852,
+      "rmse_std": 0.0238,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.5452,
+          "d1_std": 0.0108,
+          "d2": 0.8068,
+          "d2_std": 0.012,
+          "d3": 0.9197,
+          "d3_std": 0.0056,
+          "rmse": 1.0624,
+          "rmse_std": 0.0281,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.535,
+          "d1_std": 0.0065,
+          "d2": 0.7726,
+          "d2_std": 0.0036,
+          "d3": 0.87,
+          "d3_std": 0.0018,
+          "rmse": 7.7519,
+          "rmse_std": 0.026,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.5401,
+      "learning_rate_search": {
+        "0.0001": 0.2048,
+        "0.0003": 0.3566,
+        "0.001": 0.4684,
+        "0.003": 0.4995,
+        "0.01": 0.5401,
+        "0.03": 0.1244
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.5415,
+          "d2": 0.7929,
+          "d3": 0.8937,
+          "rmse": 4.8122,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5523,
+              "d2": 0.8167,
+              "d3": 0.9217,
+              "rmse": 1.0779,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5328,
+              "d2": 0.7739,
+              "d3": 0.8714,
+              "rmse": 7.788,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5395,
+          "d2": 0.7882,
+          "d3": 0.8931,
+          "rmse": 4.7543,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5534,
+              "d2": 0.8139,
+              "d3": 0.9253,
+              "rmse": 1.0229,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5284,
+              "d2": 0.7677,
+              "d3": 0.8675,
+              "rmse": 7.7278,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5377,
+          "d2": 0.7823,
+          "d3": 0.8893,
+          "rmse": 4.7892,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5299,
+              "d2": 0.7899,
+              "d3": 0.9121,
+              "rmse": 1.0863,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5439,
+              "d2": 0.7762,
+              "d3": 0.8711,
+              "rmse": 7.74,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/MiniMax-M3.1-Flash-Vision",
+      "stage": "tower",
+      "layer_index": 8,
+      "relative_depth": 0.25,
+      "token_width": 512,
+      "grid": 32,
+      "trainable_parameters": 1444608,
+      "seconds": 254.6
+    },
+    {
+      "d1": 0.5574,
+      "d1_std": 0.0154,
+      "d2": 0.7995,
+      "d2_std": 0.0095,
+      "d3": 0.9001,
+      "d3_std": 0.0036,
+      "rmse": 4.5249,
+      "rmse_std": 0.0312,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.5655,
+          "d1_std": 0.0236,
+          "d2": 0.8216,
+          "d2_std": 0.0165,
+          "d3": 0.9304,
+          "d3_std": 0.0055,
+          "rmse": 1.0031,
+          "rmse_std": 0.0421,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.5509,
+          "d1_std": 0.0109,
+          "d2": 0.7818,
+          "d2_std": 0.0041,
+          "d3": 0.876,
+          "d3_std": 0.0024,
+          "rmse": 7.3313,
+          "rmse_std": 0.0327,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.5392,
+      "learning_rate_search": {
+        "0.0001": 0.2174,
+        "0.0003": 0.3766,
+        "0.001": 0.4932,
+        "0.003": 0.524,
+        "0.01": 0.5392,
+        "0.03": 0.4537
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.5392,
+          "d2": 0.7883,
+          "d3": 0.8953,
+          "rmse": 4.5636,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5336,
+              "d2": 0.8014,
+              "d3": 0.9227,
+              "rmse": 1.0625,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5437,
+              "d2": 0.7778,
+              "d3": 0.8735,
+              "rmse": 7.3535,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5561,
+          "d2": 0.7986,
+          "d3": 0.9012,
+          "rmse": 4.4873,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5728,
+              "d2": 0.8217,
+              "d3": 0.9338,
+              "rmse": 0.9762,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5427,
+              "d2": 0.7802,
+              "d3": 0.8752,
+              "rmse": 7.2851,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5769,
+          "d2": 0.8115,
+          "d3": 0.9039,
+          "rmse": 4.5239,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5901,
+              "d2": 0.8417,
+              "d3": 0.9348,
+              "rmse": 0.9706,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5664,
+              "d2": 0.7874,
+              "d3": 0.8793,
+              "rmse": 7.3554,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/MiniMax-M3.1-Flash-Vision",
+      "stage": "tower",
+      "layer_index": 12,
+      "relative_depth": 0.375,
+      "token_width": 512,
+      "grid": 32,
+      "trainable_parameters": 1444608,
+      "seconds": 257.5
+    },
+    {
+      "d1": 0.5829,
+      "d1_std": 0.0041,
+      "d2": 0.8231,
+      "d2_std": 0.0041,
+      "d3": 0.9118,
+      "d3_std": 0.0027,
+      "rmse": 4.4794,
+      "rmse_std": 0.0254,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.5959,
+          "d1_std": 0.0126,
+          "d2": 0.8538,
+          "d2_std": 0.0075,
+          "d3": 0.946,
+          "d3_std": 0.0047,
+          "rmse": 0.9668,
+          "rmse_std": 0.0276,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.5726,
+          "d1_std": 0.0064,
+          "d2": 0.7986,
+          "d2_std": 0.0021,
+          "d3": 0.8847,
+          "d3_std": 0.0014,
+          "rmse": 7.2785,
+          "rmse_std": 0.0442,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.5579,
+      "learning_rate_search": {
+        "0.0001": 0.2198,
+        "0.0003": 0.3785,
+        "0.001": 0.5121,
+        "0.003": 0.5361,
+        "0.01": 0.5579,
+        "0.03": 0.1244
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.579,
+          "d2": 0.8204,
+          "d3": 0.9105,
+          "rmse": 4.5118,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5947,
+              "d2": 0.8512,
+              "d3": 0.9448,
+              "rmse": 0.9616,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5665,
+              "d2": 0.7959,
+              "d3": 0.8832,
+              "rmse": 7.3409,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5886,
+          "d2": 0.8289,
+          "d3": 0.9156,
+          "rmse": 4.4498,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6119,
+              "d2": 0.8639,
+              "d3": 0.9522,
+              "rmse": 0.9359,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.57,
+              "d2": 0.801,
+              "d3": 0.8865,
+              "rmse": 7.2499,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5812,
+          "d2": 0.8199,
+          "d3": 0.9094,
+          "rmse": 4.4766,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5811,
+              "d2": 0.8462,
+              "d3": 0.9409,
+              "rmse": 1.003,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5814,
+              "d2": 0.799,
+              "d3": 0.8844,
+              "rmse": 7.2446,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/MiniMax-M3.1-Flash-Vision",
+      "stage": "tower",
+      "layer_index": 16,
+      "relative_depth": 0.5,
+      "token_width": 512,
+      "grid": 32,
+      "trainable_parameters": 1444608,
+      "seconds": 255.1
+    },
+    {
+      "d1": 0.5831,
+      "d1_std": 0.0073,
+      "d2": 0.824,
+      "d2_std": 0.0047,
+      "d3": 0.9138,
+      "d3_std": 0.0014,
+      "rmse": 4.3618,
+      "rmse_std": 0.0236,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.5618,
+          "d1_std": 0.0166,
+          "d2": 0.8381,
+          "d2_std": 0.0115,
+          "d3": 0.9389,
+          "d3_std": 0.0034,
+          "rmse": 0.965,
+          "rmse_std": 0.017,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.6002,
+          "d1_std": 0.0051,
+          "d2": 0.8129,
+          "d2_std": 0.0017,
+          "d3": 0.8939,
+          "d3_std": 0.0012,
+          "rmse": 7.0686,
+          "rmse_std": 0.0497,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.5812,
+      "learning_rate_search": {
+        "0.0001": 0.2289,
+        "0.0003": 0.3932,
+        "0.001": 0.5215,
+        "0.003": 0.5481,
+        "0.01": 0.5812,
+        "0.03": 0.4317
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.5917,
+          "d2": 0.8236,
+          "d3": 0.9148,
+          "rmse": 4.3376,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5746,
+              "d2": 0.8342,
+              "d3": 0.9389,
+              "rmse": 0.9574,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6052,
+              "d2": 0.8152,
+              "d3": 0.8955,
+              "rmse": 7.0311,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5839,
+          "d2": 0.83,
+          "d3": 0.9149,
+          "rmse": 4.3938,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5724,
+              "d2": 0.8537,
+              "d3": 0.943,
+              "rmse": 0.949,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5931,
+              "d2": 0.8112,
+              "d3": 0.8925,
+              "rmse": 7.1389,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5738,
+          "d2": 0.8184,
+          "d3": 0.9118,
+          "rmse": 4.354,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5383,
+              "d2": 0.8263,
+              "d3": 0.9347,
+              "rmse": 0.9886,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6022,
+              "d2": 0.8122,
+              "d3": 0.8936,
+              "rmse": 7.0358,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/MiniMax-M3.1-Flash-Vision",
+      "stage": "tower",
+      "layer_index": 20,
+      "relative_depth": 0.625,
+      "token_width": 512,
+      "grid": 32,
+      "trainable_parameters": 1444608,
+      "seconds": 255.5
+    },
+    {
+      "d1": 0.5849,
+      "d1_std": 0.0072,
+      "d2": 0.8355,
+      "d2_std": 0.0046,
+      "d3": 0.9239,
+      "d3_std": 0.0017,
+      "rmse": 4.364,
+      "rmse_std": 0.023,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.5842,
+          "d1_std": 0.0118,
+          "d2": 0.8674,
+          "d2_std": 0.0079,
+          "d3": 0.9614,
+          "d3_std": 0.002,
+          "rmse": 0.897,
+          "rmse_std": 0.0147,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.5855,
+          "d1_std": 0.0043,
+          "d2": 0.8101,
+          "d2_std": 0.0023,
+          "d3": 0.8941,
+          "d3_std": 0.0015,
+          "rmse": 7.1267,
+          "rmse_std": 0.0387,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.5963,
+      "learning_rate_search": {
+        "0.0001": 0.2328,
+        "0.0003": 0.4572,
+        "0.001": 0.5521,
+        "0.003": 0.5565,
+        "0.01": 0.5963,
+        "0.03": 0.5225
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.5921,
+          "d2": 0.84,
+          "d3": 0.9255,
+          "rmse": 4.3382,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.593,
+              "d2": 0.8738,
+              "d3": 0.9637,
+              "rmse": 0.903,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5913,
+              "d2": 0.8131,
+              "d3": 0.895,
+              "rmse": 7.0756,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5876,
+          "d2": 0.8374,
+          "d3": 0.9247,
+          "rmse": 4.3598,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5921,
+              "d2": 0.8722,
+              "d3": 0.9616,
+              "rmse": 0.8767,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.584,
+              "d2": 0.8097,
+              "d3": 0.8953,
+              "rmse": 7.1354,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5751,
+          "d2": 0.8291,
+          "d3": 0.9216,
+          "rmse": 4.394,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5675,
+              "d2": 0.8562,
+              "d3": 0.9588,
+              "rmse": 0.9113,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5812,
+              "d2": 0.8075,
+              "d3": 0.8919,
+              "rmse": 7.1692,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/MiniMax-M3.1-Flash-Vision",
+      "stage": "tower",
+      "layer_index": 24,
+      "relative_depth": 0.75,
+      "token_width": 512,
+      "grid": 32,
+      "trainable_parameters": 1444608,
+      "seconds": 255.8
+    },
+    {
+      "d1": 0.5716,
+      "d1_std": 0.0062,
+      "d2": 0.8224,
+      "d2_std": 0.0053,
+      "d3": 0.9154,
+      "d3_std": 0.0029,
+      "rmse": 4.4975,
+      "rmse_std": 0.0395,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.5794,
+          "d1_std": 0.0038,
+          "d2": 0.8556,
+          "d2_std": 0.0106,
+          "d3": 0.954,
+          "d3_std": 0.0055,
+          "rmse": 0.8792,
+          "rmse_std": 0.0135,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.5654,
+          "d1_std": 0.0081,
+          "d2": 0.796,
+          "d2_std": 0.0035,
+          "d3": 0.8846,
+          "d3_std": 0.0018,
+          "rmse": 7.3809,
+          "rmse_std": 0.0758,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.5716,
+      "learning_rate_search": {
+        "0.0001": 0.2283,
+        "0.0003": 0.431,
+        "0.001": 0.5367,
+        "0.003": 0.5501,
+        "0.01": 0.5716,
+        "0.03": 0.5205
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.5743,
+          "d2": 0.817,
+          "d3": 0.9127,
+          "rmse": 4.4633,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5813,
+              "d2": 0.8418,
+              "d3": 0.9473,
+              "rmse": 0.8977,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5687,
+              "d2": 0.7972,
+              "d3": 0.885,
+              "rmse": 7.3047,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5631,
+          "d2": 0.8206,
+          "d3": 0.9141,
+          "rmse": 4.5529,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5741,
+              "d2": 0.8575,
+              "d3": 0.954,
+              "rmse": 0.8744,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5543,
+              "d2": 0.7912,
+              "d3": 0.8823,
+              "rmse": 7.4843,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5775,
+          "d2": 0.8297,
+          "d3": 0.9195,
+          "rmse": 4.4763,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5829,
+              "d2": 0.8675,
+              "d3": 0.9608,
+              "rmse": 0.8656,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5733,
+              "d2": 0.7995,
+              "d3": 0.8866,
+              "rmse": 7.3536,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/MiniMax-M3.1-Flash-Vision",
+      "stage": "tower",
+      "layer_index": 28,
+      "relative_depth": 0.875,
+      "token_width": 512,
+      "grid": 32,
+      "trainable_parameters": 1444608,
+      "seconds": 255.4
+    },
+    {
+      "d1": 0.5798,
+      "d1_std": 0.0065,
+      "d2": 0.8243,
+      "d2_std": 0.0013,
+      "d3": 0.9164,
+      "d3_std": 0.0006,
+      "rmse": 4.5053,
+      "rmse_std": 0.0198,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.5944,
+          "d1_std": 0.0044,
+          "d2": 0.8561,
+          "d2_std": 0.0027,
+          "d3": 0.9536,
+          "d3_std": 0.0005,
+          "rmse": 0.8934,
+          "rmse_std": 0.0099,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.5682,
+          "d1_std": 0.0082,
+          "d2": 0.799,
+          "d2_std": 0.0039,
+          "d3": 0.8867,
+          "d3_std": 0.0011,
+          "rmse": 7.3835,
+          "rmse_std": 0.0279,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.5534,
+      "learning_rate_search": {
+        "0.0001": 0.2346,
+        "0.0003": 0.4243,
+        "0.001": 0.5134,
+        "0.003": 0.5296,
+        "0.01": 0.5534,
+        "0.03": 0.1244
+      },
+      "seeds": 3,
+      "per_seed": [
+        {
+          "d1": 0.5886,
+          "d2": 0.8258,
+          "d3": 0.9168,
+          "rmse": 4.4796,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6005,
+              "d2": 0.8528,
+              "d3": 0.953,
+              "rmse": 0.8795,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5791,
+              "d2": 0.8044,
+              "d3": 0.8879,
+              "rmse": 7.3485,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.573,
+          "d2": 0.8226,
+          "d3": 0.9168,
+          "rmse": 4.5278,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5901,
+              "d2": 0.8562,
+              "d3": 0.9543,
+              "rmse": 0.9021,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5593,
+              "d2": 0.7959,
+              "d3": 0.8869,
+              "rmse": 7.4169,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5779,
+          "d2": 0.8244,
+          "d3": 0.9156,
+          "rmse": 4.5084,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5925,
+              "d2": 0.8594,
+              "d3": 0.9536,
+              "rmse": 0.8987,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5662,
+              "d2": 0.7966,
+              "d3": 0.8852,
+              "rmse": 7.385,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/MiniMax-M3.1-Flash-Vision",
+      "stage": "tower",
+      "layer_index": 32,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "grid": 32,
+      "trainable_parameters": 1444608,
+      "seconds": 256.1
+    }
+  ]
+}

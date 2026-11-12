@@ -1,6 +1,7 @@
 """Train dense readouts on a cached run and report one geometry column."""
 
 import argparse
+import hashlib
 import json
 import time
 from pathlib import Path
@@ -16,7 +17,7 @@ from vtb.geometry_metrics import (
     evaluate_surface_normal,
     normal_loss,
 )
-from vtb.probe_run import fit_reducer, split_indices
+from vtb.probe_run import feature_provenance, fit_reducer, split_indices
 
 TASKS = ("depth", "normal")
 
@@ -201,7 +202,15 @@ def run_cell(features, targets, valid, split, task, coverage, image_ids, scenes,
         model = train_cell(features, targets, valid, split, task, args, best_rate, seed)
         metrics = score(model, features, targets, valid, split.test, task, args)
         per_seed.append(summarise(metrics, coverage, image_ids, split.test, scenes))
-    return aggregate(per_seed) | selection | {"seeds": args.seeds, "per_seed": per_seed}
+    return aggregate(per_seed) | selection | {
+        "seeds": args.seeds, "seed_ids": list(range(args.seeds)),
+        "learning_rate_search_seed": 0, "per_seed": per_seed,
+        "sample_ids_sha256": hashlib.sha256(json.dumps(image_ids).encode()).hexdigest(),
+        "split_ids_sha256": {
+            name: hashlib.sha256(json.dumps([image_ids[i] for i in getattr(split, name).tolist()]).encode()).hexdigest()
+            for name in ("train", "val", "test")
+        },
+    }
 
 
 def main() -> None:
@@ -312,6 +321,8 @@ def main() -> None:
     out.write_text(
         json.dumps(
             {"task": args.task, "images": len(order), "train_images": len(split.train),
+             "feature_provenance": feature_provenance(args.run), "device": args.device,
+             "batch_size": args.batch_size,
              "capacity_matched": args.match_capacity, "head": args.head,
              "epochs": args.epochs, "seeds": args.seeds,
              "learning_rates": args.learning_rates, "cells": cells},

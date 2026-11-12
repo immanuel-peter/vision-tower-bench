@@ -1,0 +1,38 @@
+{
+  "images": 13000,
+  "label_fraction": 0.2,
+  "train_images": 1820,
+  "full_train_images": 9100,
+  "cells": [
+    {
+      "learning_rate": 0.0003,
+      "learning_rate_search": {
+        "1e-05": 0.04,
+        "3e-05": 0.1615,
+        "0.0001": 0.3005,
+        "0.0003": 0.3795,
+        "0.001": 0.3738,
+        "0.003": 0.3621,
+        "0.01": 0.2933,
+        "0.03": 0.2497,
+        "0.1": 0.1379,
+        "0.3": 0.0092,
+        "1": 0.0092
+      },
+      "val_accuracy": 0.3795,
+      "test_accuracy": 0.407,
+      "test_std": 0.0035,
+      "seeds": 3,
+      "model_id": "immanuelpeter/MiniMax-M3.1-Flash-Vision",
+      "stage": "tower",
+      "layer_index": 32,
+      "relative_depth": 1.0,
+      "token_width": 1280,
+      "trainable_parameters": 1627748,
+      "label_fraction": 0.2,
+      "train_images": 1820,
+      "full_train_images": 9100,
+      "reducer_diagnostic": "channel_standardization_sample_std_correction1"
+    }
+  ]
+}

@@ -40,8 +40,11 @@ def test_correction_scope_preserves_full_sweeps_and_cohort_membership():
 
     sources = INDEX["figure_sources"]
     v3_projectors = {"nemotron35_super", "nemotron35_bolt", "mimo26_pro", "mimo26_flash"}
-    assert set(sources["geometry_stage_levels"]) == v1 | additions | v3_projectors
-    for model in v1 | additions:
+    v4_projectors = {"mistral_large4"}
+    checkpoint = {"kimi_k31_pro"}
+    assert set(INDEX["cohorts"]["kimi_k31_pro_checkpoint"]["models"]) == checkpoint
+    assert set(sources["geometry_stage_levels"]) == v1 | additions | v3_projectors | v4_projectors | {"qwen38_flash_next", "minimax_m31_flash"} | checkpoint
+    for model in v1 | additions | checkpoint:
         sweep = RESULTS / sources["geometry_layer_sweep"].format(model=model)
         cells = json.loads(sweep.read_text())["cells"]
         assert len({cell["relative_depth"] for cell in cells if cell["stage"] == "tower"}) == 8
@@ -49,6 +52,8 @@ def test_correction_scope_preserves_full_sweeps_and_cohort_membership():
         expected = RESULTS / "geometry"
         if model in v1:
             expected /= "deterministic"
+        if model == "minimax_m3":
+            expected = RESULTS / "diagnostics/minimax-m31-flash/m3-image-isolation/geometry"
         assert stage_path == expected / f"{model}_geometry_depth_matched.json"
         assert stage_path.is_file()
 
@@ -80,6 +85,32 @@ def test_v3_cohort_uses_the_standard_layout():
     assert not (RESULTS / "v3").exists()
 
 
+def test_flash_next_geometry_contains_every_slice_with_native_grids_and_recorded_splits():
+    evidence = json.loads((RESULTS / "evidence/qwen38-flash-next/splits.json").read_text())
+    split = evidence["datasets"]["diode"]
+    slices = {("tower", layer) for layer in [3, 7, 10, 14, 17, 20, 24, 27]}
+    slices |= {("merged", 27), ("projected", 27)}
+    widths = {"tower": 1152, "merged": 4608, "projected": 2560}
+    for task in ["depth", "normal"]:
+        for arm in ["raw", "matched"]:
+            path = RESULTS / "geometry" / f"qwen38_flash_next_geometry_{task}_{arm}.json"
+            payload = json.loads(path.read_text())
+            json.dumps(payload, allow_nan=False)
+            assert payload["images"] == len(split["all_ids"])
+            assert payload["train_images"] == len(split["train_ids"])
+            assert payload["epochs"] == 10 and payload["seeds"] == 3
+            assert set(payload["learning_rates"]) == {1e-4, 3e-4, 1e-3, 3e-3, 1e-2, 3e-2}
+            assert len(payload["cells"]) == 10
+            assert {(c["stage"], c["layer_index"]) for c in payload["cells"]} == slices
+            for cell in payload["cells"]:
+                assert cell["model_id"] == "immanuelpeter/Qwen3.8-Flash-Next-Vision"
+                assert cell["grid"] == (28 if cell["stage"] == "tower" else 14)
+                assert cell["token_width"] == (512 if arm == "matched" else widths[cell["stage"]])
+                assert cell["images"] == len(split["test_ids"])
+                assert len(cell["per_seed"]) == 3
+                assert all(row["images"] == len(split["test_ids"]) for row in cell["per_seed"])
+
+
 def test_dinov3_intervals_point_at_committed_sources():
     paths = sorted(RESULTS.glob("bootstrap/*-dinov3-vs-dinov2.json"))
     assert len(paths) == 7
@@ -96,3 +127,27 @@ def test_mimo26_intervals_point_at_committed_sources():
     for path in paths:
         for source, digest in json.loads(path.read_text()).get("sources", {}).items():
             assert hashlib.sha256((RESULTS.parent / source).read_bytes()).hexdigest() == digest, (path.name, source)
+
+
+def test_v4_cohort_uses_the_standard_layout():
+    models = INDEX["cohorts"]["v4"]["models"]
+    assert models == ["mistral_large4"]
+    model = models[0]
+    assert INDEX["figure_sources"]["geometry_stage_levels"][model] == f"geometry/{model}_geometry_depth_matched.json"
+    paths = [f"perturbation/{model}_perturbation.json", f"kitti/{model}_geometry_depth_matched.json",
+             f"label-budget/throughput-{model}.json"]
+    paths += [f"recognition/{model}_probe_{r}_{a}.json" for r in ("attention", "mean") for a in ("raw", "matched")]
+    paths += [f"geometry/{model}_geometry_{t}_{a}.json" for t in ("depth", "normal") for a in ("raw", "matched")]
+    paths += [f"correspondence/{model}_correspondence_{d}.json" for d in ("navi", "scannet", "spair")]
+    paths += [
+        f"label-budget/{model}_probe_{r}_matched_{f}.json"
+        for r in ("attention", "mean") for f in ("f001", "f005", "f020", "f10")
+    ]
+    for path in paths:
+        assert (RESULTS / path).is_file(), path
+    for path in sorted(RESULTS.glob(f"bootstrap/*-{model}-projected-*.json")):
+        for source, digest in json.loads(path.read_text()).get("sources", {}).items():
+            assert hashlib.sha256((RESULTS.parent / source).read_bytes()).hexdigest() == digest, (path.name, source)
+    assert len(list(RESULTS.glob(f"bootstrap/*-{model}-projected-*.json"))) == 11
+    standardized = json.loads((RESULTS / INDEX["figure_sources"]["label_budget"]).read_text())["runs"]
+    assert {f"{model}_probe_attention_matched_{f}" for f in ("f001", "f005", "f020", "f10")} <= set(standardized)

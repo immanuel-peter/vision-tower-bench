@@ -1,0 +1,25 @@
+{
+  "passed": true,
+  "scope": "CPU BF16 Projector-only correction on one verified real-image merged cache; not a fresh published CUDA smoke",
+  "threads": 2,
+  "device": "cpu",
+  "source": "/tmp/vtb-delivery/issues/24/features/cpu4-bf16-bs1/geometry/kimi_k31_pro_448_full/merged_L27_00000.safetensors",
+  "source_sha256": "348a4816cf8d0ae707ef3f27b6e909eae52b1ffe6e977b326fb2a91659e89286",
+  "shape": [
+    1,
+    256,
+    4096
+  ],
+  "fixed_exact_adapter": true,
+  "old_tanh_exact_adapter": false,
+  "old_tanh_max_abs": 0.0009765625,
+  "old_tanh_relative_l2": 0.0002586177724879235,
+  "official_projector_gelu": "transformers.activations.GELUActivation() default exact; pinned kimi_k25_vit.py line909",
+  "bench_fixed_sha256": "72e7412b06eae87e385de467c692c36aef385c3005b33a5bf3e5d8ab6184d693",
+  "published_old_script_sha256": "77516f1aac538c1af428a64ca1f330386d7c26ee7ecfcbec438c47f6f655e2e2",
+  "published_functional_smoke_remains_historical_pass": true,
+  "published_numerical_correction_smoke": "pending owner example-only update and explicit free-GPU reservation",
+  "no_hf_upload": true,
+  "benchmark_adapter_unchanged": true,
+  "measured_at": "2026-11-08T02:34:21.730532+00:00"
+}
