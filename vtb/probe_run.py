@@ -292,7 +292,8 @@ def main() -> None:
             flush=True,
         )
 
-    out = args.out or args.run / f"probe_{args.readout}_{'matched' if args.match_capacity else 'raw'}.json"
+    arm = "matched_standardized" if args.standardize_channels else "matched" if args.match_capacity else "raw"
+    out = args.out or args.run / f"probe_{args.readout}_{arm}.json"
     out.write_text(json.dumps({
         "method": reducer_method(standardize_channels=args.standardize_channels, matched=args.match_capacity),
         "images": image_count,

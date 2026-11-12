@@ -1,4 +1,3 @@
-from vtb.methods import require_same
 #!/usr/bin/env python3
 """Pair two runs' correspondence or perturbation results and bootstrap the difference.
 
@@ -15,6 +14,7 @@ import torch
 
 from scripts.correspondence_bootstrap import PRIMARY
 from vtb.correspondence import paired_bootstrap
+from vtb.methods import require_same
 from vtb.semantic_bootstrap import paired_image_bootstrap
 
 
