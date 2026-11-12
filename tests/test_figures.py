@@ -40,6 +40,7 @@ def test_roster_covers_the_registered_tower_suite():
         "deepseek_v41",
         "gemma4",
         "moonvit_v2",
+        "kimi_k31_pro",
         "minimax_m3",
         "minimax_m31_flash",
         "nemotron35_super",
@@ -84,12 +85,28 @@ def test_projector_matrix_covers_every_projector_and_panel():
         assert {row[0] for row in panels[panel]} == rows
 
     states = []
+    legacy_states = []
+    pro_states = {}
     for panel in ("depth-matched", "depth-raw", "normal-matched", "normal-raw"):
         for model, _, low, high in panels[panel]:
             if model in ("minimax_m31_flash", "minimax_m3", "qwen38_flash_next"):
                 continue
-            states.append("projector" if low > 0 else "tower" if high < 0 else "unresolved")
-    assert states.count("projector") == 33
+            state = "projector" if low > 0 else "tower" if high < 0 else "unresolved"
+            states.append(state)
+            if model == "kimi_k31_pro":
+                pro_states[panel] = state
+            else:
+                legacy_states.append(state)
+    assert len(legacy_states) == 48
+    assert legacy_states.count("projector") == 33
+    assert legacy_states.count("tower") == 10
+    assert legacy_states.count("unresolved") == 5
+    assert pro_states == {
+        "depth-matched": "projector", "depth-raw": "projector",
+        "normal-matched": "projector", "normal-raw": "projector",
+    }
+    assert len(states) == 52
+    assert states.count("projector") == 37
     assert states.count("tower") == 10
     assert states.count("unresolved") == 5
 
@@ -131,6 +148,7 @@ def test_geometry_figures_separate_corrected_stages_from_historical_sweeps(monke
         assert list(line.get_xdata()) == [stages.index(stage) for stage in stages if stage in deepest]
         assert list(line.get_ydata()) == pytest.approx([deepest[stage] for stage in stages if stage in deepest])
 
+    assert len(figures[1].axes) == 1
     sweep_lines = {line.get_label(): line for line in figures[1].axes[0].lines}
     for model in FIGURE_SCRIPT.TOWER_STAGE:
         path = FIGURE_SCRIPT.measurement_path("geometry_layer_sweep", model)
@@ -139,7 +157,9 @@ def test_geometry_figures_separate_corrected_stages_from_historical_sweeps(monke
             key=lambda cell: cell["relative_depth"],
         )
         assert len(cells) == 8
-        assert list(sweep_lines[FIGURE_SCRIPT.DISPLAY[model]].get_ydata()) == pytest.approx([cell["d1"] for cell in cells])
+        line = sweep_lines[FIGURE_SCRIPT.DISPLAY[model]]
+        assert list(line.get_xdata()) == pytest.approx([cell["relative_depth"] for cell in cells])
+        assert list(line.get_ydata()) == pytest.approx([cell["d1"] for cell in cells])
 
 
 def test_semantic_forest_includes_the_v3_comparisons(tmp_path):
@@ -151,6 +171,19 @@ def test_semantic_forest_includes_the_v3_comparisons(tmp_path):
     assert "dinov3 - dinov2" in labels
     for stage in ("tower", "merged", "projected"):
         assert f"attention, matched, {stage}" in labels
+
+
+def test_semantic_forest_includes_all_kimi_sibling_stages(tmp_path):
+    paths = FIGURE_SCRIPT.SOURCES["semantic_checkpoint_comparisons"]
+    payloads = [json.loads((ROOT / "results" / path).read_text()) for path in paths]
+    assert len(payloads) == 3
+    assert {payload["first"]["stage"] for payload in payloads} == {"tower", "merged", "projected"}
+    assert all(payload["first"]["name"] == "kimi_k31_pro" and payload["second"]["name"] == "moonvit_v2"
+               and payload["first"]["stage"] == payload["second"]["stage"]
+               and payload["protocol"]["test_images"] == 1950 for payload in payloads)
+    path = tmp_path / "kimi-semantic.svg"
+    FIGURE_SCRIPT.semantic_forest(path)
+    assert path.read_text().count("kimi_k31_pro - moonvit_v2") == 3
 
 
 def test_label_budget_reads_the_standardized_runs_for_every_tower():

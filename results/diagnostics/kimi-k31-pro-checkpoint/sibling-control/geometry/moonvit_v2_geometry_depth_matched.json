@@ -1,0 +1,1555 @@
+{
+  "task": "depth",
+  "images": 771,
+  "train_images": 541,
+  "feature_provenance": {
+    "cache_run": "/tmp/vtb-delivery/issues/24/features/cpu4-bf16-bs1/geometry/moonvit_v2_448_full",
+    "metadata_file": "provenance.json",
+    "metadata_sha256": "7d34e7db7a1415002075c1562331195d9b59d8a2f80628d6daf11748057d8af0",
+    "details": {
+      "model_id": "immanuelpeter/MoonViT-V2",
+      "release_revision": "bcaedfccd1f07d23ab20de8a0a168668c27cacb3",
+      "parent_repo": "moonshotai/Kimi-K3",
+      "parent_revision": "f831ab66814297da540d832a5235f8e904f29d06",
+      "device": "cpu",
+      "dtype": "bfloat16",
+      "batch_size": 1,
+      "threads": 4,
+      "workers": 0,
+      "resolution": 448,
+      "pooled_to": null,
+      "torch_version": "2.13.0+cu129",
+      "python": "3.12.16",
+      "images_per_shard": 8,
+      "adapter_sha256": "eb576b9b1a66d78b264fd7daa05b3dba2b6c27551f5caf1fe731ec1b4f3dcfe9",
+      "runner_sha256": "b36afca8ff1c0d5ed5aa6ddce630057e9ff11dfa4303d46fbabab303a9aebe8c",
+      "ordered_ids_sha256": "6ea19ef6dd1d1b2f2af287a41598087f70e485457f608c61af95c29fef32cea4"
+    }
+  },
+  "device": "cuda:0",
+  "batch_size": 8,
+  "capacity_matched": true,
+  "head": "multiscale",
+  "epochs": 10,
+  "seeds": 3,
+  "learning_rates": [
+    0.0001,
+    0.0003,
+    0.001,
+    0.003,
+    0.01,
+    0.03
+  ],
+  "cells": [
+    {
+      "d1": 0.6151,
+      "d1_std": 0.0047,
+      "d2": 0.8401,
+      "d2_std": 0.0007,
+      "d3": 0.9223,
+      "d3_std": 0.0004,
+      "rmse": 4.2189,
+      "rmse_std": 0.0023,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.6563,
+          "d1_std": 0.0075,
+          "d2": 0.8813,
+          "d2_std": 0.0014,
+          "d3": 0.9564,
+          "d3_std": 0.0008,
+          "rmse": 0.8243,
+          "rmse_std": 0.0041,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.5822,
+          "d1_std": 0.0024,
+          "d2": 0.8073,
+          "d2_std": 0.0003,
+          "d3": 0.8952,
+          "d3_std": 0.0003,
+          "rmse": 6.924,
+          "rmse_std": 0.007,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.603,
+      "learning_rate_search": {
+        "0.0001": 0.2074,
+        "0.0003": 0.3882,
+        "0.001": 0.5443,
+        "0.003": 0.5747,
+        "0.01": 0.603,
+        "0.03": 0.5641
+      },
+      "seeds": 3,
+      "seed_ids": [
+        0,
+        1,
+        2
+      ],
+      "learning_rate_search_seed": 0,
+      "per_seed": [
+        {
+          "d1": 0.6135,
+          "d2": 0.8396,
+          "d3": 0.9227,
+          "rmse": 4.2157,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6533,
+              "d2": 0.8801,
+              "d3": 0.9567,
+              "rmse": 0.8284,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5817,
+              "d2": 0.8075,
+              "d3": 0.8956,
+              "rmse": 6.9149,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6103,
+          "d2": 0.8396,
+          "d3": 0.9217,
+          "rmse": 4.2203,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6489,
+              "d2": 0.8805,
+              "d3": 0.9553,
+              "rmse": 0.8258,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5796,
+              "d2": 0.8069,
+              "d3": 0.8949,
+              "rmse": 6.9252,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6214,
+          "d2": 0.8411,
+          "d3": 0.9226,
+          "rmse": 4.2208,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6666,
+              "d2": 0.8833,
+              "d3": 0.9572,
+              "rmse": 0.8188,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5854,
+              "d2": 0.8074,
+              "d3": 0.895,
+              "rmse": 6.9318,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "sample_ids_sha256": "6ea19ef6dd1d1b2f2af287a41598087f70e485457f608c61af95c29fef32cea4",
+      "split_ids_sha256": {
+        "train": "c00f076ce752c1707189b2843c88cbadb7401c7b13f6cfd4ddd97ce300491915",
+        "val": "e080ec8652f0f9c6f9eb2a7f4f1b02c49e565c903b4c112afb11c67f2cc49b11",
+        "test": "7a61b2d136164943fc5b57ce76c5375cef5f94d92007104f3c15650393d7d1cc"
+      },
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/MoonViT-V2",
+      "stage": "merged",
+      "layer_index": 27,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "grid": 16,
+      "trainable_parameters": 1444608,
+      "seconds": 89.7
+    },
+    {
+      "d1": 0.6128,
+      "d1_std": 0.002,
+      "d2": 0.8388,
+      "d2_std": 0.0013,
+      "d3": 0.9215,
+      "d3_std": 0.0016,
+      "rmse": 4.2325,
+      "rmse_std": 0.0252,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.6528,
+          "d1_std": 0.0033,
+          "d2": 0.8766,
+          "d2_std": 0.0022,
+          "d3": 0.9551,
+          "d3_std": 0.0015,
+          "rmse": 0.8197,
+          "rmse_std": 0.0076,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.5809,
+          "d1_std": 0.0019,
+          "d2": 0.8088,
+          "d2_std": 0.0018,
+          "d3": 0.8946,
+          "d3_std": 0.0017,
+          "rmse": 6.952,
+          "rmse_std": 0.051,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.6041,
+      "learning_rate_search": {
+        "0.0001": 0.2076,
+        "0.0003": 0.3834,
+        "0.001": 0.5412,
+        "0.003": 0.5754,
+        "0.01": 0.6041,
+        "0.03": 0.5943
+      },
+      "seeds": 3,
+      "seed_ids": [
+        0,
+        1,
+        2
+      ],
+      "learning_rate_search_seed": 0,
+      "per_seed": [
+        {
+          "d1": 0.6101,
+          "d2": 0.8396,
+          "d3": 0.9214,
+          "rmse": 4.2558,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6498,
+              "d2": 0.8796,
+              "d3": 0.9556,
+              "rmse": 0.8159,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5784,
+              "d2": 0.8078,
+              "d3": 0.8941,
+              "rmse": 6.9969,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6133,
+          "d2": 0.8399,
+          "d3": 0.9234,
+          "rmse": 4.1975,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6512,
+              "d2": 0.8757,
+              "d3": 0.9567,
+              "rmse": 0.8304,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5831,
+              "d2": 0.8113,
+              "d3": 0.8969,
+              "rmse": 6.8807,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.615,
+          "d2": 0.837,
+          "d3": 0.9196,
+          "rmse": 4.2441,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6573,
+              "d2": 0.8744,
+              "d3": 0.9531,
+              "rmse": 0.8129,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5813,
+              "d2": 0.8072,
+              "d3": 0.8929,
+              "rmse": 6.9784,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "sample_ids_sha256": "6ea19ef6dd1d1b2f2af287a41598087f70e485457f608c61af95c29fef32cea4",
+      "split_ids_sha256": {
+        "train": "c00f076ce752c1707189b2843c88cbadb7401c7b13f6cfd4ddd97ce300491915",
+        "val": "e080ec8652f0f9c6f9eb2a7f4f1b02c49e565c903b4c112afb11c67f2cc49b11",
+        "test": "7a61b2d136164943fc5b57ce76c5375cef5f94d92007104f3c15650393d7d1cc"
+      },
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/MoonViT-V2",
+      "stage": "projected",
+      "layer_index": 27,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "grid": 16,
+      "trainable_parameters": 1444608,
+      "seconds": 93.0
+    },
+    {
+      "d1": 0.4156,
+      "d1_std": 0.0035,
+      "d2": 0.7005,
+      "d2_std": 0.0046,
+      "d3": 0.8531,
+      "d3_std": 0.0026,
+      "rmse": 5.2972,
+      "rmse_std": 0.034,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.4012,
+          "d1_std": 0.0084,
+          "d2": 0.717,
+          "d2_std": 0.0109,
+          "d3": 0.8889,
+          "d3_std": 0.0041,
+          "rmse": 1.4057,
+          "rmse_std": 0.0162,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.4272,
+          "d1_std": 0.0033,
+          "d2": 0.6873,
+          "d2_std": 0.0039,
+          "d3": 0.8247,
+          "d3_std": 0.0026,
+          "rmse": 8.3982,
+          "rmse_std": 0.0484,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.4362,
+      "learning_rate_search": {
+        "0.0001": 0.1857,
+        "0.0003": 0.2758,
+        "0.001": 0.39,
+        "0.003": 0.432,
+        "0.01": 0.4362,
+        "0.03": 0.3967
+      },
+      "seeds": 3,
+      "seed_ids": [
+        0,
+        1,
+        2
+      ],
+      "learning_rate_search_seed": 0,
+      "per_seed": [
+        {
+          "d1": 0.4175,
+          "d2": 0.7055,
+          "d3": 0.8561,
+          "rmse": 5.252,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.4106,
+              "d2": 0.732,
+              "d3": 0.8947,
+              "rmse": 1.3857,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.4231,
+              "d2": 0.6844,
+              "d3": 0.8254,
+              "rmse": 8.333,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.4107,
+          "d2": 0.6944,
+          "d3": 0.8498,
+          "rmse": 5.3341,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.3901,
+              "d2": 0.7067,
+              "d3": 0.8858,
+              "rmse": 1.4254,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.4271,
+              "d2": 0.6847,
+              "d3": 0.8212,
+              "rmse": 8.4488,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.4186,
+          "d2": 0.7015,
+          "d3": 0.8534,
+          "rmse": 5.3055,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.4028,
+              "d2": 0.7123,
+              "d3": 0.8861,
+              "rmse": 1.406,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.4313,
+              "d2": 0.6929,
+              "d3": 0.8274,
+              "rmse": 8.4129,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "sample_ids_sha256": "6ea19ef6dd1d1b2f2af287a41598087f70e485457f608c61af95c29fef32cea4",
+      "split_ids_sha256": {
+        "train": "c00f076ce752c1707189b2843c88cbadb7401c7b13f6cfd4ddd97ce300491915",
+        "val": "e080ec8652f0f9c6f9eb2a7f4f1b02c49e565c903b4c112afb11c67f2cc49b11",
+        "test": "7a61b2d136164943fc5b57ce76c5375cef5f94d92007104f3c15650393d7d1cc"
+      },
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/MoonViT-V2",
+      "stage": "tower",
+      "layer_index": 3,
+      "relative_depth": 0.1111111111111111,
+      "token_width": 512,
+      "grid": 32,
+      "trainable_parameters": 1444608,
+      "seconds": 254.3
+    },
+    {
+      "d1": 0.5256,
+      "d1_std": 0.0028,
+      "d2": 0.7915,
+      "d2_std": 0.002,
+      "d3": 0.8983,
+      "d3_std": 0.0015,
+      "rmse": 4.5046,
+      "rmse_std": 0.0094,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.5222,
+          "d1_std": 0.0103,
+          "d2": 0.8089,
+          "d2_std": 0.0033,
+          "d3": 0.9223,
+          "d3_std": 0.0017,
+          "rmse": 1.0984,
+          "rmse_std": 0.0145,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.5284,
+          "d1_std": 0.0033,
+          "d2": 0.7776,
+          "d2_std": 0.002,
+          "d3": 0.8792,
+          "d3_std": 0.0016,
+          "rmse": 7.2188,
+          "rmse_std": 0.0254,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.5166,
+      "learning_rate_search": {
+        "0.0001": 0.209,
+        "0.0003": 0.3332,
+        "0.001": 0.4644,
+        "0.003": 0.5003,
+        "0.01": 0.5166,
+        "0.03": 0.4718
+      },
+      "seeds": 3,
+      "seed_ids": [
+        0,
+        1,
+        2
+      ],
+      "learning_rate_search_seed": 0,
+      "per_seed": [
+        {
+          "d1": 0.5287,
+          "d2": 0.7927,
+          "d3": 0.8989,
+          "rmse": 4.5174,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5323,
+              "d2": 0.813,
+              "d3": 0.924,
+              "rmse": 1.0828,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5258,
+              "d2": 0.7766,
+              "d3": 0.8789,
+              "rmse": 7.2544,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5263,
+          "d2": 0.793,
+          "d3": 0.8998,
+          "rmse": 4.4953,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5261,
+              "d2": 0.8089,
+              "d3": 0.9229,
+              "rmse": 1.0947,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5264,
+              "d2": 0.7804,
+              "d3": 0.8814,
+              "rmse": 7.2051,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5219,
+          "d2": 0.7887,
+          "d3": 0.8963,
+          "rmse": 4.501,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5081,
+              "d2": 0.8048,
+              "d3": 0.9199,
+              "rmse": 1.1177,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.533,
+              "d2": 0.7759,
+              "d3": 0.8774,
+              "rmse": 7.197,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "sample_ids_sha256": "6ea19ef6dd1d1b2f2af287a41598087f70e485457f608c61af95c29fef32cea4",
+      "split_ids_sha256": {
+        "train": "c00f076ce752c1707189b2843c88cbadb7401c7b13f6cfd4ddd97ce300491915",
+        "val": "e080ec8652f0f9c6f9eb2a7f4f1b02c49e565c903b4c112afb11c67f2cc49b11",
+        "test": "7a61b2d136164943fc5b57ce76c5375cef5f94d92007104f3c15650393d7d1cc"
+      },
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/MoonViT-V2",
+      "stage": "tower",
+      "layer_index": 7,
+      "relative_depth": 0.25925925925925924,
+      "token_width": 512,
+      "grid": 32,
+      "trainable_parameters": 1444608,
+      "seconds": 254.2
+    },
+    {
+      "d1": 0.5675,
+      "d1_std": 0.0024,
+      "d2": 0.8125,
+      "d2_std": 0.0049,
+      "d3": 0.91,
+      "d3_std": 0.0025,
+      "rmse": 4.2512,
+      "rmse_std": 0.0069,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.5594,
+          "d1_std": 0.0035,
+          "d2": 0.8172,
+          "d2_std": 0.0106,
+          "d3": 0.9268,
+          "d3_std": 0.0053,
+          "rmse": 1.0313,
+          "rmse_std": 0.0054,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.574,
+          "d1_std": 0.0016,
+          "d2": 0.8088,
+          "d2_std": 0.0012,
+          "d3": 0.8966,
+          "d3_std": 0.0008,
+          "rmse": 6.8171,
+          "rmse_std": 0.0091,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.5477,
+      "learning_rate_search": {
+        "0.0001": 0.2106,
+        "0.0003": 0.3219,
+        "0.001": 0.4629,
+        "0.003": 0.5105,
+        "0.01": 0.5477,
+        "0.03": 0.4831
+      },
+      "seeds": 3,
+      "seed_ids": [
+        0,
+        1,
+        2
+      ],
+      "learning_rate_search_seed": 0,
+      "per_seed": [
+        {
+          "d1": 0.5709,
+          "d2": 0.8065,
+          "d3": 0.9074,
+          "rmse": 4.2433,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5643,
+              "d2": 0.8032,
+              "d3": 0.9206,
+              "rmse": 1.0286,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5762,
+              "d2": 0.8091,
+              "d3": 0.8969,
+              "rmse": 6.8051,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5654,
+          "d2": 0.8127,
+          "d3": 0.9092,
+          "rmse": 4.2601,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5564,
+              "d2": 0.8196,
+              "d3": 0.9264,
+              "rmse": 1.0388,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5726,
+              "d2": 0.8072,
+              "d3": 0.8954,
+              "rmse": 6.8272,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5662,
+          "d2": 0.8184,
+          "d3": 0.9134,
+          "rmse": 4.2502,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5575,
+              "d2": 0.8289,
+              "d3": 0.9335,
+              "rmse": 1.0265,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5731,
+              "d2": 0.8101,
+              "d3": 0.8974,
+              "rmse": 6.8191,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "sample_ids_sha256": "6ea19ef6dd1d1b2f2af287a41598087f70e485457f608c61af95c29fef32cea4",
+      "split_ids_sha256": {
+        "train": "c00f076ce752c1707189b2843c88cbadb7401c7b13f6cfd4ddd97ce300491915",
+        "val": "e080ec8652f0f9c6f9eb2a7f4f1b02c49e565c903b4c112afb11c67f2cc49b11",
+        "test": "7a61b2d136164943fc5b57ce76c5375cef5f94d92007104f3c15650393d7d1cc"
+      },
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/MoonViT-V2",
+      "stage": "tower",
+      "layer_index": 10,
+      "relative_depth": 0.37037037037037035,
+      "token_width": 512,
+      "grid": 32,
+      "trainable_parameters": 1444608,
+      "seconds": 253.4
+    },
+    {
+      "d1": 0.6179,
+      "d1_std": 0.0096,
+      "d2": 0.8419,
+      "d2_std": 0.0041,
+      "d3": 0.929,
+      "d3_std": 0.0022,
+      "rmse": 3.9825,
+      "rmse_std": 0.0316,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.6324,
+          "d1_std": 0.0099,
+          "d2": 0.8573,
+          "d2_std": 0.0069,
+          "d3": 0.9559,
+          "d3_std": 0.0043,
+          "rmse": 0.8439,
+          "rmse_std": 0.0275,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.6064,
+          "d1_std": 0.0093,
+          "d2": 0.8296,
+          "d2_std": 0.002,
+          "d3": 0.9076,
+          "d3_std": 0.0007,
+          "rmse": 6.4835,
+          "rmse_std": 0.0367,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.5907,
+      "learning_rate_search": {
+        "0.0001": 0.2226,
+        "0.0003": 0.3424,
+        "0.001": 0.5114,
+        "0.003": 0.5584,
+        "0.01": 0.5907,
+        "0.03": 0.5441
+      },
+      "seeds": 3,
+      "seed_ids": [
+        0,
+        1,
+        2
+      ],
+      "learning_rate_search_seed": 0,
+      "per_seed": [
+        {
+          "d1": 0.6311,
+          "d2": 0.8475,
+          "d3": 0.9319,
+          "rmse": 3.9484,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6461,
+              "d2": 0.8668,
+              "d3": 0.9618,
+              "rmse": 0.8078,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6191,
+              "d2": 0.8322,
+              "d3": 0.9081,
+              "rmse": 6.451,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6084,
+          "d2": 0.8377,
+          "d3": 0.9267,
+          "rmse": 4.0246,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6227,
+              "d2": 0.8506,
+              "d3": 0.9519,
+              "rmse": 0.8745,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.597,
+              "d2": 0.8273,
+              "d3": 0.9066,
+              "rmse": 6.5348,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6143,
+          "d2": 0.8404,
+          "d3": 0.9284,
+          "rmse": 3.9745,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6285,
+              "d2": 0.8545,
+              "d3": 0.9539,
+              "rmse": 0.8494,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.603,
+              "d2": 0.8292,
+              "d3": 0.9081,
+              "rmse": 6.4648,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "sample_ids_sha256": "6ea19ef6dd1d1b2f2af287a41598087f70e485457f608c61af95c29fef32cea4",
+      "split_ids_sha256": {
+        "train": "c00f076ce752c1707189b2843c88cbadb7401c7b13f6cfd4ddd97ce300491915",
+        "val": "e080ec8652f0f9c6f9eb2a7f4f1b02c49e565c903b4c112afb11c67f2cc49b11",
+        "test": "7a61b2d136164943fc5b57ce76c5375cef5f94d92007104f3c15650393d7d1cc"
+      },
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/MoonViT-V2",
+      "stage": "tower",
+      "layer_index": 14,
+      "relative_depth": 0.5185185185185185,
+      "token_width": 512,
+      "grid": 32,
+      "trainable_parameters": 1444608,
+      "seconds": 251.6
+    },
+    {
+      "d1": 0.6547,
+      "d1_std": 0.0046,
+      "d2": 0.8586,
+      "d2_std": 0.0014,
+      "d3": 0.9378,
+      "d3_std": 0.0008,
+      "rmse": 3.7727,
+      "rmse_std": 0.0273,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.6686,
+          "d1_std": 0.0039,
+          "d2": 0.8779,
+          "d2_std": 0.0007,
+          "d3": 0.9678,
+          "d3_std": 0.0008,
+          "rmse": 0.7539,
+          "rmse_std": 0.0028,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.6435,
+          "d1_std": 0.0051,
+          "d2": 0.8432,
+          "d2_std": 0.002,
+          "d3": 0.914,
+          "d3_std": 0.001,
+          "rmse": 6.1783,
+          "rmse_std": 0.0472,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.6348,
+      "learning_rate_search": {
+        "0.0001": 0.2629,
+        "0.0003": 0.4319,
+        "0.001": 0.571,
+        "0.003": 0.606,
+        "0.01": 0.6348,
+        "0.03": 0.5984
+      },
+      "seeds": 3,
+      "seed_ids": [
+        0,
+        1,
+        2
+      ],
+      "learning_rate_search_seed": 0,
+      "per_seed": [
+        {
+          "d1": 0.6539,
+          "d2": 0.8584,
+          "d3": 0.9374,
+          "rmse": 3.7714,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6684,
+              "d2": 0.8778,
+              "d3": 0.9668,
+              "rmse": 0.7557,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6423,
+              "d2": 0.8429,
+              "d3": 0.9141,
+              "rmse": 6.1746,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6495,
+          "d2": 0.857,
+          "d3": 0.9371,
+          "rmse": 3.8068,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.664,
+              "d2": 0.8771,
+              "d3": 0.9678,
+              "rmse": 0.756,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6379,
+              "d2": 0.841,
+              "d3": 0.9127,
+              "rmse": 6.2379,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6606,
+          "d2": 0.8605,
+          "d3": 0.9389,
+          "rmse": 3.7399,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6735,
+              "d2": 0.8789,
+              "d3": 0.9688,
+              "rmse": 0.7499,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6503,
+              "d2": 0.8458,
+              "d3": 0.9151,
+              "rmse": 6.1225,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "sample_ids_sha256": "6ea19ef6dd1d1b2f2af287a41598087f70e485457f608c61af95c29fef32cea4",
+      "split_ids_sha256": {
+        "train": "c00f076ce752c1707189b2843c88cbadb7401c7b13f6cfd4ddd97ce300491915",
+        "val": "e080ec8652f0f9c6f9eb2a7f4f1b02c49e565c903b4c112afb11c67f2cc49b11",
+        "test": "7a61b2d136164943fc5b57ce76c5375cef5f94d92007104f3c15650393d7d1cc"
+      },
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/MoonViT-V2",
+      "stage": "tower",
+      "layer_index": 17,
+      "relative_depth": 0.6296296296296297,
+      "token_width": 512,
+      "grid": 32,
+      "trainable_parameters": 1444608,
+      "seconds": 253.7
+    },
+    {
+      "d1": 0.6368,
+      "d1_std": 0.0021,
+      "d2": 0.8586,
+      "d2_std": 0.0009,
+      "d3": 0.937,
+      "d3_std": 0.0003,
+      "rmse": 3.8007,
+      "rmse_std": 0.0105,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.6448,
+          "d1_std": 0.0031,
+          "d2": 0.8773,
+          "d2_std": 0.0027,
+          "d3": 0.9638,
+          "d3_std": 0.0013,
+          "rmse": 0.7785,
+          "rmse_std": 0.0052,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.6305,
+          "d1_std": 0.002,
+          "d2": 0.8437,
+          "d2_std": 0.0013,
+          "d3": 0.9158,
+          "d3_std": 0.0005,
+          "rmse": 6.2091,
+          "rmse_std": 0.016,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.6212,
+      "learning_rate_search": {
+        "0.0001": 0.2527,
+        "0.0003": 0.4252,
+        "0.001": 0.5708,
+        "0.003": 0.6059,
+        "0.01": 0.6212,
+        "0.03": 0.5979
+      },
+      "seeds": 3,
+      "seed_ids": [
+        0,
+        1,
+        2
+      ],
+      "learning_rate_search_seed": 0,
+      "per_seed": [
+        {
+          "d1": 0.6389,
+          "d2": 0.8575,
+          "d3": 0.9368,
+          "rmse": 3.7925,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.649,
+              "d2": 0.8736,
+              "d3": 0.9627,
+              "rmse": 0.7714,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6308,
+              "d2": 0.8446,
+              "d3": 0.9163,
+              "rmse": 6.2,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.634,
+          "d2": 0.8587,
+          "d3": 0.9375,
+          "rmse": 3.8156,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6417,
+              "d2": 0.8799,
+              "d3": 0.9656,
+              "rmse": 0.7837,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6279,
+              "d2": 0.8418,
+              "d3": 0.9151,
+              "rmse": 6.2316,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6376,
+          "d2": 0.8597,
+          "d3": 0.9368,
+          "rmse": 3.7941,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6436,
+              "d2": 0.8785,
+              "d3": 0.963,
+              "rmse": 0.7803,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.6329,
+              "d2": 0.8447,
+              "d3": 0.9159,
+              "rmse": 6.1958,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "sample_ids_sha256": "6ea19ef6dd1d1b2f2af287a41598087f70e485457f608c61af95c29fef32cea4",
+      "split_ids_sha256": {
+        "train": "c00f076ce752c1707189b2843c88cbadb7401c7b13f6cfd4ddd97ce300491915",
+        "val": "e080ec8652f0f9c6f9eb2a7f4f1b02c49e565c903b4c112afb11c67f2cc49b11",
+        "test": "7a61b2d136164943fc5b57ce76c5375cef5f94d92007104f3c15650393d7d1cc"
+      },
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/MoonViT-V2",
+      "stage": "tower",
+      "layer_index": 20,
+      "relative_depth": 0.7407407407407407,
+      "token_width": 512,
+      "grid": 32,
+      "trainable_parameters": 1444608,
+      "seconds": 254.3
+    },
+    {
+      "d1": 0.5995,
+      "d1_std": 0.006,
+      "d2": 0.8346,
+      "d2_std": 0.0028,
+      "d3": 0.9274,
+      "d3_std": 0.0009,
+      "rmse": 3.9525,
+      "rmse_std": 0.0181,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.61,
+          "d1_std": 0.0057,
+          "d2": 0.8459,
+          "d2_std": 0.003,
+          "d3": 0.9507,
+          "d3_std": 0.0011,
+          "rmse": 0.867,
+          "rmse_std": 0.0107,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.5912,
+          "d1_std": 0.0062,
+          "d2": 0.8257,
+          "d2_std": 0.003,
+          "d3": 0.9089,
+          "d3_std": 0.0009,
+          "rmse": 6.4113,
+          "rmse_std": 0.0269,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.01,
+      "val_metric": "d1",
+      "val_score": 0.5793,
+      "learning_rate_search": {
+        "0.0001": 0.2193,
+        "0.0003": 0.3784,
+        "0.001": 0.5276,
+        "0.003": 0.5662,
+        "0.01": 0.5793,
+        "0.03": 0.5615
+      },
+      "seeds": 3,
+      "seed_ids": [
+        0,
+        1,
+        2
+      ],
+      "learning_rate_search_seed": 0,
+      "per_seed": [
+        {
+          "d1": 0.5993,
+          "d2": 0.8336,
+          "d3": 0.9277,
+          "rmse": 3.9398,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6107,
+              "d2": 0.8431,
+              "d3": 0.9506,
+              "rmse": 0.8706,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5903,
+              "d2": 0.8261,
+              "d3": 0.9095,
+              "rmse": 6.3856,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5923,
+          "d2": 0.8319,
+          "d3": 0.9262,
+          "rmse": 3.9781,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6027,
+              "d2": 0.8446,
+              "d3": 0.9495,
+              "rmse": 0.878,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.584,
+              "d2": 0.8219,
+              "d3": 0.9077,
+              "rmse": 6.4485,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.6069,
+          "d2": 0.8384,
+          "d3": 0.9284,
+          "rmse": 3.9396,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.6166,
+              "d2": 0.85,
+              "d3": 0.9521,
+              "rmse": 0.8525,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5992,
+              "d2": 0.8291,
+              "d3": 0.9096,
+              "rmse": 6.3997,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "sample_ids_sha256": "6ea19ef6dd1d1b2f2af287a41598087f70e485457f608c61af95c29fef32cea4",
+      "split_ids_sha256": {
+        "train": "c00f076ce752c1707189b2843c88cbadb7401c7b13f6cfd4ddd97ce300491915",
+        "val": "e080ec8652f0f9c6f9eb2a7f4f1b02c49e565c903b4c112afb11c67f2cc49b11",
+        "test": "7a61b2d136164943fc5b57ce76c5375cef5f94d92007104f3c15650393d7d1cc"
+      },
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/MoonViT-V2",
+      "stage": "tower",
+      "layer_index": 24,
+      "relative_depth": 0.8888888888888888,
+      "token_width": 512,
+      "grid": 32,
+      "trainable_parameters": 1444608,
+      "seconds": 254.5
+    },
+    {
+      "d1": 0.5365,
+      "d1_std": 0.0029,
+      "d2": 0.7903,
+      "d2_std": 0.0017,
+      "d3": 0.8947,
+      "d3_std": 0.0011,
+      "rmse": 4.3823,
+      "rmse_std": 0.0041,
+      "images": 115,
+      "coverage": 0.8711,
+      "by_scene": {
+        "indoors": {
+          "d1": 0.5402,
+          "d1_std": 0.0075,
+          "d2": 0.7973,
+          "d2_std": 0.0041,
+          "d3": 0.9037,
+          "d3_std": 0.0024,
+          "rmse": 1.0196,
+          "rmse_std": 0.0089,
+          "images": 51,
+          "coverage": 0.989
+        },
+        "outdoor": {
+          "d1": 0.5335,
+          "d1_std": 0.0014,
+          "d2": 0.7848,
+          "d2_std": 0.0005,
+          "d3": 0.8874,
+          "d3_std": 0.0002,
+          "rmse": 7.0618,
+          "rmse_std": 0.0094,
+          "images": 64,
+          "coverage": 0.7771
+        }
+      },
+      "learning_rate": 0.003,
+      "val_metric": "d1",
+      "val_score": 0.5332,
+      "learning_rate_search": {
+        "0.0001": 0.1851,
+        "0.0003": 0.2706,
+        "0.001": 0.4832,
+        "0.003": 0.5332,
+        "0.01": 0.4571,
+        "0.03": 0.5298
+      },
+      "seeds": 3,
+      "seed_ids": [
+        0,
+        1,
+        2
+      ],
+      "learning_rate_search_seed": 0,
+      "per_seed": [
+        {
+          "d1": 0.5346,
+          "d2": 0.7892,
+          "d3": 0.8938,
+          "rmse": 4.3804,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5334,
+              "d2": 0.7939,
+              "d3": 0.9015,
+              "rmse": 1.0308,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5355,
+              "d2": 0.7855,
+              "d3": 0.8876,
+              "rmse": 7.0496,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5343,
+          "d2": 0.789,
+          "d3": 0.894,
+          "rmse": 4.3879,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5366,
+              "d2": 0.7949,
+              "d3": 0.9026,
+              "rmse": 1.019,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5326,
+              "d2": 0.7843,
+              "d3": 0.8872,
+              "rmse": 7.0725,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        },
+        {
+          "d1": 0.5406,
+          "d2": 0.7928,
+          "d3": 0.8962,
+          "rmse": 4.3785,
+          "images": 115,
+          "coverage": 0.8711,
+          "by_scene": {
+            "indoors": {
+              "d1": 0.5507,
+              "d2": 0.8031,
+              "d3": 0.9071,
+              "rmse": 1.0091,
+              "images": 51,
+              "coverage": 0.989
+            },
+            "outdoor": {
+              "d1": 0.5325,
+              "d2": 0.7846,
+              "d3": 0.8875,
+              "rmse": 7.0634,
+              "images": 64,
+              "coverage": 0.7771
+            }
+          }
+        }
+      ],
+      "sample_ids_sha256": "6ea19ef6dd1d1b2f2af287a41598087f70e485457f608c61af95c29fef32cea4",
+      "split_ids_sha256": {
+        "train": "c00f076ce752c1707189b2843c88cbadb7401c7b13f6cfd4ddd97ce300491915",
+        "val": "e080ec8652f0f9c6f9eb2a7f4f1b02c49e565c903b4c112afb11c67f2cc49b11",
+        "test": "7a61b2d136164943fc5b57ce76c5375cef5f94d92007104f3c15650393d7d1cc"
+      },
+      "max_depth": 299.83,
+      "model_id": "immanuelpeter/MoonViT-V2",
+      "stage": "tower",
+      "layer_index": 27,
+      "relative_depth": 1.0,
+      "token_width": 512,
+      "grid": 32,
+      "trainable_parameters": 1444608,
+      "seconds": 253.6
+    }
+  ]
+}

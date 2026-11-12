@@ -1,0 +1,102 @@
+bash: cannot set terminal process group (647516): Inappropriate ioctl for device
+bash: no job control in this shell
+{
+  "protocol": {
+    "task": "normal",
+    "metric": "mean_deg",
+    "higher_is_better": false,
+    "arm": "matched",
+    "head": "multiscale",
+    "epochs": 10,
+    "seeds": 3,
+    "learning_rates": [
+      0.0001,
+      0.0003,
+      0.001,
+      0.003,
+      0.01,
+      0.03
+    ],
+    "test_images": 115,
+    "pairing": "seed-mean metric, paired over test images"
+  },
+  "first": {
+    "name": "kimi_k31_pro",
+    "model_id": "immanuelpeter/MoonViT-K3.1-Pro",
+    "stage": "tower",
+    "layer_index": 17,
+    "relative_depth": 0.6296296296296297,
+    "learning_rate": 0.001,
+    "learning_rate_search": {
+      "0.0001": 29.2807,
+      "0.0003": 27.0571,
+      "0.001": 25.5746,
+      "0.003": 32.0882,
+      "0.01": 32.3233,
+      "0.03": 32.8668
+    },
+    "validation_score": 25.5746,
+    "seed_metrics": [
+      25.08612632751465,
+      25.168201446533203,
+      31.2452449798584
+    ],
+    "mean_metric": 27.16652488708496
+  },
+  "second": {
+    "name": "moonvit_v2",
+    "model_id": "immanuelpeter/MoonViT-V2",
+    "stage": "tower",
+    "layer_index": 17,
+    "relative_depth": 0.6296296296296297,
+    "learning_rate": 0.001,
+    "learning_rate_search": {
+      "0.0001": 29.4676,
+      "0.0003": 27.0109,
+      "0.001": 25.5261,
+      "0.003": 31.9225,
+      "0.01": 32.8563,
+      "0.03": 33.4354
+    },
+    "validation_score": 25.5261,
+    "seed_metrics": [
+      25.129545211791992,
+      25.364187240600586,
+      27.52794647216797
+    ],
+    "mean_metric": 26.007226943969727
+  },
+  "first_advantage": {
+    "point_estimate": -1.1592975854873657,
+    "confidence": 0.95,
+    "lower": -1.4624217748641968,
+    "upper": -0.8604390621185303,
+    "resamples": 10000,
+    "bootstrap_seed": 0,
+    "difference": "second_minus_first"
+  },
+  "by_scene": {
+    "indoors": {
+      "point_estimate": -1.488135576248169,
+      "confidence": 0.95,
+      "lower": -2.057062864303589,
+      "upper": -0.9220597743988037,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "second_minus_first",
+      "test_images": 51
+    },
+    "outdoor": {
+      "point_estimate": -0.897255003452301,
+      "confidence": 0.95,
+      "lower": -1.1927255392074585,
+      "upper": -0.6172981858253479,
+      "resamples": 10000,
+      "bootstrap_seed": 0,
+      "difference": "second_minus_first",
+      "test_images": 64
+    }
+  }
+}
+
+wrote /tmp/vtb-delivery/issues/24/measurements/bootstrap/026-normal-kimi_k31_pro-minus-moonvit_v2-tower-L17.json

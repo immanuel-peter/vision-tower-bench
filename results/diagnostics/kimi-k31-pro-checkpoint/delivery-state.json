@@ -1,0 +1,101 @@
+{
+  "pr_url": "https://github.com/immanuel-peter/vision-tower-bench/pull/29",
+  "progress": {
+    "primary": 266,
+    "required_primary": 286,
+    "paired": 80,
+    "required_paired": 102,
+    "complete_delivery": false,
+    "recorded_at": "2026-11-08T04:26:35.473342+00:00",
+    "staged_unregistered_scannet_comparisons": 4
+  },
+  "resource": {
+    "status": "active_after_verified_process_boundary",
+    "plan": "scheduler/plan.json",
+    "job_assignment_counts": {
+      "0": 30,
+      "1": 13
+    },
+    "admission_test": "scheduler/admission-test-report.json",
+    "numeric_implementation_unchanged": true,
+    "planned_handoff_exit": 75,
+    "signals_or_fit_restarts": false,
+    "ledger_and_source_snapshot_required_before_launch": true,
+    "atomic_registry_concurrency_test_passed": true,
+    "registry_test": "scheduler/registry-test-report.json",
+    "driver_sha256": "603b76324e824fbaff99fcbd9d51358ebb03b4b5f8ae5912f9a3a073bef02559",
+    "coordinator_log": "scheduler/coordinator.log",
+    "guard_installed_at": "2026-11-08T02:03:46.079539+00:00",
+    "actual_worktree_admission_test_passed": true,
+    "coordinator_session": 67745,
+    "activated_at": "2026-11-08T02:37:13.358509+00:00",
+    "legacy_complete_jobs": 4,
+    "legacy_handoff_exit75_preserved": true,
+    "root_hook_removed": true,
+    "gpu0": "throughput and ScanNet then geometry paired fits",
+    "gpu1": "normal matrices then SPair/KITTI and assigned within-checkpoint paired fits"
+  },
+  "current_gpu_jobs": {
+    "gpu0": "paired normal fits",
+    "gpu1": "fresh K3 matched-normal all10 matrix",
+    "active_cuda_jobs": 2,
+    "threads_each": 8,
+    "extra_cpu_training": false
+  },
+  "example_correction": {
+    "passed": true,
+    "scope": "CPU BF16 Projector-only correction on one verified real-image merged cache; not a fresh published CUDA smoke",
+    "threads": 2,
+    "device": "cpu",
+    "source": "/tmp/vtb-delivery/issues/24/features/cpu4-bf16-bs1/geometry/kimi_k31_pro_448_full/merged_L27_00000.safetensors",
+    "source_sha256": "348a4816cf8d0ae707ef3f27b6e909eae52b1ffe6e977b326fb2a91659e89286",
+    "shape": [
+      1,
+      256,
+      4096
+    ],
+    "fixed_exact_adapter": true,
+    "old_tanh_exact_adapter": false,
+    "old_tanh_max_abs": 0.0009765625,
+    "old_tanh_relative_l2": 0.0002586177724879235,
+    "official_projector_gelu": "transformers.activations.GELUActivation() default exact; pinned kimi_k25_vit.py line909",
+    "bench_fixed_sha256": "72e7412b06eae87e385de467c692c36aef385c3005b33a5bf3e5d8ab6184d693",
+    "published_old_script_sha256": "77516f1aac538c1af428a64ca1f330386d7c26ee7ecfcbec438c47f6f655e2e2",
+    "published_functional_smoke_remains_historical_pass": true,
+    "published_numerical_correction_smoke": "pending owner example-only update and explicit free-GPU reservation",
+    "no_hf_upload": true,
+    "benchmark_adapter_unchanged": true,
+    "measured_at": "2026-11-08T02:34:21.730532+00:00",
+    "needed_owner_change": "examples/inference.py: nn.GELU(approximate=tanh) -> nn.GELU()",
+    "bench_source": "examples/kimi_k31_pro_inference.py",
+    "owner_patch": "inference-smoke/example-gelu-owner.patch",
+    "unit_tests": "12 passed",
+    "published_corrected_cuda_gate": "pending; no extra CUDA launched or HF upload",
+    "benchmark_cells_affected": 0,
+    "prepared_comparison_driver": {
+      "path": "inference-smoke/compare_published_example_adapter.py",
+      "sha256": "9129b81dde210f7f7241d75d78c3d5c8cd8c3d724fcc7d8752fcbb70b4c4b1be",
+      "status": "compiled only; no CUDA",
+      "requires": "new explicit corrected-published-example-smoke grant, fresh owner immutable revision and inherited exclusive GPU lock",
+      "scope": "all three Stages bit-exact to fresh-snapshot bench adapter, plus separate exact published command functional run"
+    },
+    "cpu_preprocess_equivalence": {
+      "passed": true,
+      "fp32_bit_exact": true,
+      "bf16_bit_exact": true,
+      "source": "inference-smoke/example-preprocess-equivalence.json",
+      "no_cuda": true
+    },
+    "latest_read_only_hub_observation": {
+      "scope": "read-only Hub metadata and example bytes, not a fresh-weight or CUDA inference proof",
+      "repository": "immanuelpeter/MoonViT-K3.1-Pro",
+      "observed_immutable_revision": "81454a8cbd34425485f16204c4f96019c747fceb",
+      "example_sha256": "77516f1aac538c1af428a64ca1f330386d7c26ee7ecfcbec438c47f6f655e2e2",
+      "bench_candidate_sha256": "72e7412b06eae87e385de467c692c36aef385c3005b33a5bf3e5d8ab6184d693",
+      "exact_gelu_candidate_published": false,
+      "no_upload": true,
+      "no_cuda": true,
+      "observed_at": "2026-11-08T04:08:53.239865+00:00"
+    }
+  }
+}

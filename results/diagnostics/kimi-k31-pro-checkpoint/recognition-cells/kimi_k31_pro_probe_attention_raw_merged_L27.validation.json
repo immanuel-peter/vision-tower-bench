@@ -1,0 +1,27 @@
+{
+  "passed": true,
+  "images": 13000,
+  "cells": 1,
+  "learning_rates": 11,
+  "feature_device": "cuda:0",
+  "search_seed": 0,
+  "retraining_seeds": [
+    0,
+    1,
+    2
+  ],
+  "ordered_ids_sha256": "dafe080741b398e323b400d2377c85df6587d6f4689c5b8f53c72ee1ec6463be",
+  "model": "kimi_k31_pro",
+  "stage": "merged",
+  "layer": 27,
+  "arm": "raw",
+  "fit_threads": 8,
+  "fit_device": "cuda:0",
+  "physical_gpu": 0,
+  "gpu_identity": "GPU-8a509feb-b09c-a6ee-fd1a-b69e8ce10484, NVIDIA RTX PRO 6000 Blackwell Server Edition",
+  "scope": "complete full-data single cell; not a full matrix",
+  "source_sha256": "c76789708f551e3c695a26939c2560f9727ddc328203f5e85ff9a2e4c4c39641",
+  "seconds": 182.30921384799876,
+  "resumed": false,
+  "command": ".venv/bin/python -m vtb.probe_run --run /tmp/vtb-delivery/issues/24/features/gpu1-bf16-bs1/semantic/kimi_k31_pro_448_pool4 --labels /tmp/vtb-delivery/data/imagenet100/validation_labels.json --out /tmp/vtb-delivery/issues/24/measurements/recognition-cells/kimi_k31_pro_probe_attention_raw_merged_L27.json --readout attention --stages merged --depth-points 27 --device cuda:0 --save-predictions"
+}

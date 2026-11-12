@@ -1,0 +1,76 @@
+{
+  "passed": true,
+  "comparisons": 4,
+  "results": [
+    {
+      "passed": true,
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/correspondence-kimi_k31_pro-vs-moonvit_v2-scannet-tower.json",
+      "sha256": "d5a91bec69ec6bb7a38f8bc439e1dcafd75e8c69ee6c25c8b8881d71cbb2f182",
+      "finite_pairs": 1500,
+      "point_from_actual_rows": 0.0018240000806593647,
+      "exact_bootstrap_replay": true,
+      "threads": 8,
+      "device": "cpu",
+      "feature_and_match_physical_gpu": 0,
+      "source_sha256": {
+        "/tmp/vtb-delivery/issues/24/measurements/correspondence/kimi_k31_pro_correspondence_scannet.json": "aac61674ac54e07e09423b24adec426bf2e279a4bd40592aa7152bbae2f88e52",
+        "/tmp/vtb-delivery/issues/24/measurements/correspondence/moonvit_v2_correspondence_scannet.json": "efb761aaf22af9431a6f5bb82385737d539bf55ff12848db691bc1e0ae11becd"
+      },
+      "no_model_training": true,
+      "inventory_registration": "deferred to existing post-GPU CPU continuation; output will be reused"
+    },
+    {
+      "passed": true,
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/correspondence-kimi_k31_pro-vs-moonvit_v2-scannet-merged.json",
+      "sha256": "c0b0a4eb955227ef1c141d8767b349664b1f53ff6ffac8565d7eeb537de8a209",
+      "finite_pairs": 1500,
+      "point_from_actual_rows": 0.002070000058816125,
+      "exact_bootstrap_replay": true,
+      "threads": 8,
+      "device": "cpu",
+      "feature_and_match_physical_gpu": 0,
+      "source_sha256": {
+        "/tmp/vtb-delivery/issues/24/measurements/correspondence/kimi_k31_pro_correspondence_scannet.json": "aac61674ac54e07e09423b24adec426bf2e279a4bd40592aa7152bbae2f88e52",
+        "/tmp/vtb-delivery/issues/24/measurements/correspondence/moonvit_v2_correspondence_scannet.json": "efb761aaf22af9431a6f5bb82385737d539bf55ff12848db691bc1e0ae11becd"
+      },
+      "no_model_training": true,
+      "inventory_registration": "deferred to existing post-GPU CPU continuation; output will be reused"
+    },
+    {
+      "passed": true,
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/correspondence-kimi_k31_pro-vs-moonvit_v2-scannet-projected.json",
+      "sha256": "9a077fabc4755b5127aad0c9c9583cbb15c09e981fa56fc2b75abb86afb5c4c7",
+      "finite_pairs": 1500,
+      "point_from_actual_rows": 0.0022600000392800816,
+      "exact_bootstrap_replay": true,
+      "threads": 8,
+      "device": "cpu",
+      "feature_and_match_physical_gpu": 0,
+      "source_sha256": {
+        "/tmp/vtb-delivery/issues/24/measurements/correspondence/kimi_k31_pro_correspondence_scannet.json": "aac61674ac54e07e09423b24adec426bf2e279a4bd40592aa7152bbae2f88e52",
+        "/tmp/vtb-delivery/issues/24/measurements/correspondence/moonvit_v2_correspondence_scannet.json": "efb761aaf22af9431a6f5bb82385737d539bf55ff12848db691bc1e0ae11becd"
+      },
+      "no_model_training": true,
+      "inventory_registration": "deferred to existing post-GPU CPU continuation; output will be reused"
+    },
+    {
+      "passed": true,
+      "source": "/tmp/vtb-delivery/issues/24/measurements/bootstrap/correspondence-scannet-kimi_k31_pro-projected-vs-tower.json",
+      "sha256": "b39788f3438893b20179eb50c8231f23c4c21671c7ce2a20fd5947caf16f50e6",
+      "finite_pairs": 1500,
+      "point_from_actual_rows": 0.021875334359162175,
+      "exact_bootstrap_replay": true,
+      "threads": 8,
+      "device": "cpu",
+      "feature_and_match_physical_gpu": 0,
+      "source_sha256": {
+        "/tmp/vtb-delivery/issues/24/measurements/correspondence/kimi_k31_pro_correspondence_scannet.json": "aac61674ac54e07e09423b24adec426bf2e279a4bd40592aa7152bbae2f88e52"
+      },
+      "no_model_training": true,
+      "inventory_registration": "deferred to existing post-GPU CPU continuation; output will be reused"
+    }
+  ],
+  "no_inventory_mutation": true,
+  "no_cuda": true,
+  "no_training": true
+}

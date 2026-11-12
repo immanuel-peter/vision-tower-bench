@@ -1,0 +1,69 @@
+{
+  "passed": true,
+  "cuda_initialized": false,
+  "compute_launched": false,
+  "prepared_jobs": 43,
+  "primary_cells_covered": 98,
+  "primary_task_counts": {
+    "depth": 40,
+    "normal": 40,
+    "throughput": 2,
+    "scannet": 6,
+    "spair": 6,
+    "kitti": 4
+  },
+  "paired_dense_cells_covered": 27,
+  "cpu_correspondence_comparisons_afterward": [
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "first_stage": "tower",
+      "second_stage": "tower",
+      "task": "spair"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "first_stage": "merged",
+      "second_stage": "merged",
+      "task": "scannet"
+    },
+    {
+      "comparison": "kimi_k31_pro-projected-minus-tower",
+      "first_stage": "projected",
+      "second_stage": "tower",
+      "task": "scannet"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "first_stage": "tower",
+      "second_stage": "tower",
+      "task": "scannet"
+    },
+    {
+      "comparison": "kimi_k31_pro-projected-minus-tower",
+      "first_stage": "projected",
+      "second_stage": "tower",
+      "task": "spair"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "first_stage": "merged",
+      "second_stage": "merged",
+      "task": "spair"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "first_stage": "projected",
+      "second_stage": "projected",
+      "task": "spair"
+    },
+    {
+      "comparison": "kimi_k31_pro-minus-moonvit_v2",
+      "first_stage": "projected",
+      "second_stage": "projected",
+      "task": "scannet"
+    }
+  ],
+  "raw_recognition_cpu_phase_separate": true,
+  "driver_sha256": "0051a407b98c537ad2e5e25e3192c56d1aa05fa8c1f73d739f0d55b0484bbdcc",
+  "expected_inventory_sha256": "8b5174db8020c06a81374b961cede3e07ccd1e331981768f22bc8a2ce4616f7a"
+}

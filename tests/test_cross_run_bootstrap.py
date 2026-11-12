@@ -114,3 +114,15 @@ def test_perturbation_can_pair_two_stages_of_one_run():
     assert result["clean"]["difference"]["point_estimate"] == 1
     default = args()
     assert (default.first_stage, default.second_stage, default.stage) == (None, None, "tower")
+
+
+def test_perturbation_compares_projected_and_tower_in_the_same_measured_run():
+    payload = {"images": 2000, "protocol": {"seeds": 3, "method": __import__("vtb.methods", fromlist=["descriptor"]).descriptor()}, "cells": [
+        {"stage": stage, "layer_index": 27, "measurements": {"scale_l1": [
+            {"image_id": identity, "clean": [score] * 3, "perturbed": [score] * 3}
+            for identity in ("a", "b")
+        ]}} for stage, score in (("tower", 0.0), ("projected", 1.0))
+    ]}
+    result = perturbation(payload, payload, NAMES, args("--stage", "projected", "--second-stage", "tower"))
+    assert result["clean"]["difference"]["point_estimate"] == 1.0
+    assert result["conditions"]["scale_l1"]["difference"]["point_estimate"] == 1.0

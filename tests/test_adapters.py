@@ -17,7 +17,7 @@ from vtb.adapters.kimi_k26 import KimiK26Adapter
 from vtb.adapters.mimo26 import MiMo26FlashAdapter, MiMo26ProAdapter
 from vtb.adapters.minimax_m3 import MiniMaxM3Adapter
 from vtb.adapters.mistral_large4 import MistralLarge4Adapter
-from vtb.adapters.moonvit_v2 import MoonViTV2Adapter
+from vtb.adapters.moonvit_v2 import KimiK31ProAdapter, MoonViTV2Adapter
 from vtb.adapters.nemotron_omni import NemotronOmniAdapter
 from vtb.adapters.nemotron35 import Nemotron35BoltAdapter, Nemotron35SuperAdapter
 from vtb.adapters.muse_glimmer import MuseGlimmerAdapter
@@ -33,6 +33,7 @@ EXPECTED = {
     DINOv3Adapter: (28, None, 1024, None, None),
     SigLIP2Adapter: (32, None, 1152, None, None),
     MoonViTV2Adapter: (32, 16, 1024, 4096, 7168),
+    KimiK31ProAdapter: (32, 16, 1024, 4096, 7168),
     KimiK26Adapter: (32, 16, 1152, 4608, 7168),
     Qwen3_5Adapter: (28, 14, 1152, 4608, 5120),
     MuseGlimmerAdapter: (32, 16, 1536, 6144, 6656),

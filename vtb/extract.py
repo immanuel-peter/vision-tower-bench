@@ -1,6 +1,7 @@
 import argparse
 import json
 import time
+import torch
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
@@ -17,7 +18,7 @@ from vtb.adapters.kimi_k26 import KimiK26Adapter
 from vtb.adapters.mimo26 import MiMo26FlashAdapter, MiMo26ProAdapter
 from vtb.adapters.minimax_m3 import MiniMaxM3Adapter, MiniMaxM31FlashAdapter
 from vtb.adapters.mistral_large4 import MistralLarge4Adapter
-from vtb.adapters.moonvit_v2 import MoonViTV2Adapter
+from vtb.adapters.moonvit_v2 import KimiK31ProAdapter, MoonViTV2Adapter
 from vtb.adapters.muse_glimmer import MuseGlimmerAdapter
 from vtb.adapters.nemotron_omni import NemotronOmniAdapter
 from vtb.adapters.nemotron35 import Nemotron35BoltAdapter, Nemotron35SuperAdapter
@@ -38,6 +39,7 @@ ADAPTERS = {
     "minimax_m31_flash": MiniMaxM31FlashAdapter,
     "mistral_large4": MistralLarge4Adapter,
     "moonvit_v2": MoonViTV2Adapter,
+    "kimi_k31_pro": KimiK31ProAdapter,
     "muse_glimmer": MuseGlimmerAdapter,
     "nemotron_omni": NemotronOmniAdapter,
     "nemotron35_super": Nemotron35SuperAdapter,
@@ -55,7 +57,10 @@ def main() -> None:
     parser.add_argument("--images", type=Path, required=True)
     parser.add_argument("--out", type=Path, default=Path("cache"))
     parser.add_argument("--limit", type=int, default=None, help="default is every image under --images")
-    parser.add_argument("--batch-size", type=int, default=16)
+    parser.add_argument(
+        "--batch-size", type=int, default=None,
+        help="defaults to 1 for Kimi K3 and K3.1 Pro, 16 for other models",
+    )
     parser.add_argument("--resolution", type=int, default=448)
     parser.add_argument("--device", default="mps")
     parser.add_argument(
@@ -95,6 +100,11 @@ def main() -> None:
         help="write only the named Stages at the final Tower layer",
     )
     args = parser.parse_args()
+    batch_one = args.model in {"moonvit_v2", "kimi_k31_pro"}
+    if args.batch_size is None:
+        args.batch_size = 1 if batch_one else 16
+    if batch_one and args.batch_size != 1:
+        parser.error(f"{args.model} requires --batch-size 1")
 
     options = {"stages": args.stages} if args.stages else {}
     adapter = ADAPTERS[args.model](resolution=args.resolution, device=args.device, **options)
@@ -148,6 +158,7 @@ def main() -> None:
         written_bytes,
         time.perf_counter() - start,
         args.final_stages or list(adapter.stages),
+        batch_size=args.batch_size, workers=args.workers, device=args.device, dtype=str(batch.tokens.dtype),
     )
 
 
@@ -161,12 +172,17 @@ class Collate:
         return self.batch(list(values)), list(image_ids)
 
 
-def report(run_dir, adapter, pool, tokens, slice_count, images, written_bytes, elapsed, stages) -> None:
+def report(run_dir, adapter, pool, tokens, slice_count, images, written_bytes, elapsed, stages,
+           *, batch_size=None, workers=None, device=None, dtype=None) -> None:
     per_image = written_bytes / images
     on_disk = sum(p.stat().st_size for p in run_dir.glob("*.safetensors"))
 
     summary = {
         "model_id": adapter.model_id,
+        "device": device or str(getattr(adapter, "device", "unknown")),
+        "dtype": dtype or str(getattr(adapter, "dtype", "unknown")),
+        "batch_size": batch_size, "workers": workers, "torch_threads": torch.get_num_threads(),
+        "model_revision": getattr(getattr(getattr(adapter, "model", None), "config", None), "_commit_hash", None),
         "resolution": adapter.resolution,
         "pooled_to": pool,
         "tokens_per_image": tokens,

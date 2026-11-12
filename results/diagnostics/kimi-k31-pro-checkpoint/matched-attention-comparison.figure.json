@@ -1,0 +1,119 @@
+{
+  "inputs": {
+    "results/recognition/kimi_k31_pro_probe_attention_matched.json": "4dafb7343a20b19c1a0886f0b38b65c38e3de4dc412d6bd7fc84b6c88233bba6",
+    "results/diagnostics/kimi-k31-pro-checkpoint/sibling-control/recognition/moonvit_v2_probe_attention_matched.json": "3454d10a8ea4e8c4b1b5e42607cda535097f2b587f0279fcada42e56c29f0e0b",
+    "results/bootstrap/007-recognition-kimi_k31_pro-minus-moonvit_v2-tower-L27.json": "c091a5e32b6ed1a82d5b5d1b3d9b6544383583e46a18f5599e89083f1c28cd81",
+    "results/bootstrap/009-recognition-kimi_k31_pro-minus-moonvit_v2-projected-L27.json": "b628f486245cc435aa2c2146b17c14e12ac5601c5db5f78cc5f32e94845bcd3b",
+    "results/bootstrap/008-recognition-kimi_k31_pro-minus-moonvit_v2-merged-L27.json": "4095adaf607281f296f070f0e19a75d35f141d0a4768ac55d96c4ffea8897ac7",
+    "results/bootstrap/006-recognition-kimi_k31_pro-minus-moonvit_v2-tower-L24.json": "1cf9e2775da8bc76426268cf19f07b461895e588ec82242cbab1b5de1cc60f52",
+    "results/bootstrap/005-recognition-kimi_k31_pro-minus-moonvit_v2-tower-L20.json": "b831da6de591af160db48a24eb3dc5db84165e83901c471087e430313e060bd7",
+    "results/bootstrap/004-recognition-kimi_k31_pro-minus-moonvit_v2-tower-L17.json": "3ebf436176087232d7714b85e4088e28fcea3a19dc25449ff45e9aa9d790de5a",
+    "results/bootstrap/003-recognition-kimi_k31_pro-minus-moonvit_v2-tower-L14.json": "5add564432969f3d0d7789b3cab54ac39ba6a9edacb539d1f8d9075dec290789",
+    "results/bootstrap/002-recognition-kimi_k31_pro-minus-moonvit_v2-tower-L10.json": "c7adbafb53a5a398d1d135127ded28b400ebda3190cdff6652f4c67e55a14ee8",
+    "results/bootstrap/001-recognition-kimi_k31_pro-minus-moonvit_v2-tower-L7.json": "15a0d51fec090c81c885e1d337f66578ce26195beda23440c5a52f969966898b",
+    "results/bootstrap/000-recognition-kimi_k31_pro-minus-moonvit_v2-tower-L3.json": "fec87e7b5edf4c5df65af9d6a0bd65a2f96d28e4683b614ac8c71bfc97bed7e6"
+  },
+  "intervals": [
+    {
+      "stage": "tower",
+      "layer": 27,
+      "point_estimate": 0.0018803420243784785,
+      "confidence": 0.95,
+      "lower": -0.005299145355820656,
+      "upper": 0.009059828706085682,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "stage": "projected",
+      "layer": 27,
+      "point_estimate": 0.0051282052882015705,
+      "confidence": 0.95,
+      "lower": -0.0017094019567593932,
+      "upper": 0.012136750854551792,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "stage": "merged",
+      "layer": 27,
+      "point_estimate": 0.015213673934340477,
+      "confidence": 0.95,
+      "lower": 0.006495726760476828,
+      "upper": 0.02410256303846836,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "stage": "tower",
+      "layer": 24,
+      "point_estimate": 0.002905983943492174,
+      "confidence": 0.95,
+      "lower": -0.004957264754921198,
+      "upper": 0.010940169915556908,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "stage": "tower",
+      "layer": 20,
+      "point_estimate": 0.005299145821481943,
+      "confidence": 0.95,
+      "lower": -0.0025641026441007853,
+      "upper": 0.013162392191588879,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "stage": "tower",
+      "layer": 17,
+      "point_estimate": 0.00615384615957737,
+      "confidence": 0.95,
+      "lower": -0.0015384616563096642,
+      "upper": 0.01384615246206522,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "stage": "tower",
+      "layer": 14,
+      "point_estimate": 0.007692308165132999,
+      "confidence": 0.95,
+      "lower": -0.0008547010365873575,
+      "upper": 0.01658119633793831,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "stage": "tower",
+      "layer": 10,
+      "point_estimate": -0.004102563485503197,
+      "confidence": 0.95,
+      "lower": -0.012991453520953655,
+      "upper": 0.004615384619683027,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "stage": "tower",
+      "layer": 7,
+      "point_estimate": -0.005299145821481943,
+      "confidence": 0.95,
+      "lower": -0.014700853265821934,
+      "upper": 0.004273504018783569,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    },
+    {
+      "stage": "tower",
+      "layer": 3,
+      "point_estimate": -0.003076923545449972,
+      "confidence": 0.95,
+      "lower": -0.011965812183916569,
+      "upper": 0.005641024559736252,
+      "resamples": 10000,
+      "bootstrap_seed": 0
+    }
+  ],
+  "script_sha256": "e122812df2585808cbc21acbb20b37bd5bd949cd0b538c5ffcf9e409c927106c"
+}

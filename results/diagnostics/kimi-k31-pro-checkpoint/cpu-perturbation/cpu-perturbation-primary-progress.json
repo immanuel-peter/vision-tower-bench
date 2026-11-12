@@ -1,0 +1,54 @@
+{
+  "complete": true,
+  "results": [
+    {
+      "passed": true,
+      "images": 2000,
+      "stages": 3,
+      "conditions": 13,
+      "cells": 39,
+      "test_images": 300,
+      "learning_rates": 11,
+      "search_seed": 0,
+      "retraining_seeds": [
+        0,
+        1,
+        2
+      ],
+      "fit_device": "cpu",
+      "fit_threads": 4,
+      "feature_device": "cuda:0",
+      "feature_physical_gpu": 1,
+      "model": "kimi_k31_pro",
+      "seconds": 451.4238431490012,
+      "resumed": false,
+      "command": ".venv/bin/python -m scripts.perturbation_run --clean-run /tmp/vtb-delivery/issues/24/features/gpu1-bf16-bs1/perturbation/identity/kimi_k31_pro_448_pool4 --features-root /tmp/vtb-delivery/issues/24/features/gpu1-bf16-bs1/perturbation --model-dir kimi_k31_pro_448_pool4 --labels /tmp/vtb-delivery/data/imagenet100/validation_labels.json --transform-manifest /tmp/vtb-delivery/data/perturbation/transforms.manifest.json --out /tmp/vtb-delivery/issues/24/measurements/perturbation/kimi_k31_pro_perturbation.json --device cpu",
+      "payload_sha256": "5dc2c5ca925232a74705556440d694010a8e17b50c5aeb04dcb974a3cbd79659"
+    },
+    {
+      "passed": true,
+      "images": 2000,
+      "stages": 3,
+      "conditions": 13,
+      "cells": 39,
+      "test_images": 300,
+      "learning_rates": 11,
+      "search_seed": 0,
+      "retraining_seeds": [
+        0,
+        1,
+        2
+      ],
+      "fit_device": "cpu",
+      "fit_threads": 4,
+      "feature_device": "cuda:0",
+      "feature_physical_gpu": 1,
+      "model": "moonvit_v2",
+      "seconds": 458.3044624319991,
+      "resumed": false,
+      "command": ".venv/bin/python -m scripts.perturbation_run --clean-run /tmp/vtb-delivery/issues/24/features/gpu1-bf16-bs1/perturbation/identity/moonvit_v2_448_pool4 --features-root /tmp/vtb-delivery/issues/24/features/gpu1-bf16-bs1/perturbation --model-dir moonvit_v2_448_pool4 --labels /tmp/vtb-delivery/data/imagenet100/validation_labels.json --transform-manifest /tmp/vtb-delivery/data/perturbation/transforms.manifest.json --out /tmp/vtb-delivery/issues/24/measurements/perturbation/moonvit_v2_perturbation.json --device cpu",
+      "payload_sha256": "08194e75e6e9d6803f473c3f1b4059dc6bbf756ac5862df338c9fc74e8607556"
+    }
+  ],
+  "cells": 78
+}

@@ -28,6 +28,7 @@ TOWERS: tuple[str, ...] = (
     "deepseek_v41",
     "gemma4",
     "moonvit_v2",
+    "kimi_k31_pro",
     "minimax_m3",
     "minimax_m31_flash",
     "nemotron35_super",
@@ -51,7 +52,7 @@ OUTLIER_NOTE = (
 )
 PALETTE: tuple[str, ...] = (
     "#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b",
-    "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#393b79", "#9e9ac8",
+    "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#31a354", "#393b79", "#9e9ac8",
     "#637939", "#b5cf6b", "#6baed6", "#843c39", "#d6616b", "#a55194", "#7b4173",
 )
 COLOUR: dict[str, str] = dict(zip(TOWERS, PALETTE, strict=True))
@@ -69,6 +70,7 @@ DISPLAY: dict[str, str] = {
     "deepseek_v41": "DeepSeek V4.1",
     "gemma4": "Gemma 4",
     "moonvit_v2": "Kimi K3",
+    "kimi_k31_pro": "Kimi K3.1 Pro",
     "minimax_m3": "MiniMax M3",
     "minimax_m31_flash": "MiniMax M3.1 Flash",
     "nemotron35_super": "Nemotron 3.5 Super",
@@ -430,10 +432,16 @@ def tower_vs_projector(out: Path) -> None:
 
 def semantic_forest(out: Path) -> None:
     rows = []
-    for path in sorted(RESULTS.glob("bootstrap/semantic-*-vs-*.json")):
+    paths = set(RESULTS.glob("bootstrap/semantic-*-vs-*.json"))
+    paths.update(RESULTS / path for path in SOURCES.get("semantic_checkpoint_comparisons", []))
+    for path in sorted(paths):
         payload = json.loads(path.read_text())
         protocol, difference = payload["protocol"], payload["difference"]
-        stage = f", {protocol['stage']}" if "stage" in protocol else ""
+        stage_name = protocol.get("stage")
+        if stage_name is None and "stage" in payload["first"] and "stage" in payload["second"]:
+            first, second = payload["first"]["stage"], payload["second"]["stage"]
+            stage_name = first if first == second else f"{first} vs {second}"
+        stage = f", {stage_name}" if stage_name else ""
         label = (
             f"{payload['first']['name']} - {payload['second']['name']}\n"
             f"{protocol['readout']}, {protocol['arm']}{stage}"
