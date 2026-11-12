@@ -47,6 +47,26 @@ class Reducer:
         return cls(basis=v[:, :width].contiguous(), mean=mean)
 
 
+@dataclass(frozen=True)
+class StandardizedReducer:
+    """Diagnostic from the archived reducer-channel-standardization patch."""
+
+    basis: torch.Tensor
+    mean: torch.Tensor
+    scale: torch.Tensor
+
+    def __call__(self, tokens: torch.Tensor) -> torch.Tensor:
+        return ((tokens - self.mean) / self.scale) @ self.basis
+
+    @classmethod
+    def fit(cls, tokens: torch.Tensor, width: int, oversample: int = 16) -> "StandardizedReducer":
+        flat = tokens.reshape(-1, tokens.shape[-1]).float()
+        mean = flat.mean(dim=0, keepdim=True)
+        scale = flat.std(dim=0, keepdim=True, correction=1).clamp_min(1e-6)
+        _, _, v = torch.svd_lowrank((flat - mean) / scale, q=min(width + oversample, min(flat.shape)))
+        return cls(basis=v[:, :width].contiguous(), mean=mean, scale=scale)
+
+
 def build(kind: str, dim: int, num_classes: int, width: int = 512) -> nn.Module:
     if kind == "attention":
         return AttentionPool(dim, num_classes, width)

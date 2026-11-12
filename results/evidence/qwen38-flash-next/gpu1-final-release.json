@@ -1,0 +1,25 @@
+{
+  "released_at": "2026-11-07T19:59:24.471028+00:00",
+  "phase": "final9CUDA",
+  "validated_new_jobs": 9,
+  "validated_reuses": 2,
+  "worker_seconds": 1115.3968517170033,
+  "metric_processes": 9,
+  "numeric_reruns": 0,
+  "lock": "/tmp/vtb-delivery/locks/gpu1.lock",
+  "gpu": {
+    "command": "CUDA_VISIBLE_DEVICES=1 nvidia-smi --id=1 --query-gpu=name,uuid,driver_version,memory.total,memory.used --format=csv,noheader",
+    "returncode": 0,
+    "stdout": "NVIDIA RTX PRO 6000 Blackwell Server Edition, GPU-9ee56309-e48e-253b-05e1-a7fc201aa4aa, 580.126.09, 97887 MiB, 0 MiB\n",
+    "stderr": "bash: cannot set terminal process group (422379): Inappropriate ioctl for device\nbash: no job control in this shell\n"
+  },
+  "processes": {
+    "command": "CUDA_VISIBLE_DEVICES=1 nvidia-smi --id=1 --query-compute-apps=pid,process_name,used_gpu_memory --format=csv,noheader",
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "bash: cannot set terminal process group (422379): Inappropriate ioctl for device\nbash: no job control in this shell\n"
+  },
+  "lock_released": true,
+  "phase_start": "2026-11-07T19:40:15.428562+00:00",
+  "phase_wall_seconds": 1149.042466
+}

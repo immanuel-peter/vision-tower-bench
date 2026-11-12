@@ -34,6 +34,7 @@ TOWERS: tuple[str, ...] = (
     "dinov3",
     "mimo26_pro",
     "mimo26_flash",
+    "qwen38_flash_next",
 )
 PROJECTORS: tuple[str, ...] = tuple(
     model for model in TOWERS if model not in ("dinov2", "siglip2", "dinov3")
@@ -49,7 +50,7 @@ OUTLIER_NOTE = (
 PALETTE: tuple[str, ...] = (
     "#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b",
     "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#393b79",
-    "#637939", "#b5cf6b", "#6baed6", "#843c39", "#d6616b",
+    "#637939", "#b5cf6b", "#6baed6", "#843c39", "#d6616b", "#a55194",
 )
 COLOUR: dict[str, str] = dict(zip(TOWERS, PALETTE, strict=True))
 
@@ -62,6 +63,7 @@ DISPLAY: dict[str, str] = {
     "nemotron_omni": "Nemotron 3 Omni",
     "kimi_k26": "Kimi K2.6",
     "qwen3_5": "Qwen3.8",
+    "qwen38_flash_next": "Qwen3.8 Flash-Next",
     "deepseek_v41": "DeepSeek V4.1",
     "gemma4": "Gemma 4",
     "moonvit_v2": "Kimi K3",
@@ -245,8 +247,8 @@ def relative_depth(out: Path, readout: str = "attention", arm: str = "matched") 
     plt.close(figure)
 
 
-# The MiMo Tower readout fails before any perturbation, so its occlusion curve measures nothing.
-OCCLUSION: tuple[str, ...] = tuple(model for model in TOWER_STAGE if model not in OUTLIER_CHANNEL)
+NO_ROBUSTNESS_CLAIM = OUTLIER_CHANNEL | {"qwen38_flash_next"}
+OCCLUSION: tuple[str, ...] = tuple(model for model in TOWER_STAGE if model not in NO_ROBUSTNESS_CLAIM)
 
 
 def occlusion(out: Path) -> None:
@@ -266,7 +268,7 @@ def occlusion(out: Path) -> None:
     axis.set_ylabel("top-1 accuracy")
     axis.set_title(
         "Recognition under occlusion\n"
-        "MiMo V2.6 is omitted: its clean Tower accuracy is at chance", fontsize=10,
+        "MiMo V2.6 and Flash-Next Tower readouts are omitted after clean-readout failures", fontsize=10,
     )
     axis.grid(alpha=0.25)
     axis.legend(fontsize=7, ncol=2)
@@ -314,7 +316,7 @@ def capability_profile(out: Path) -> None:
     axis.set_ylabel("rank (1 is best)")
     axis.set_title(
         "Capability Profile ranks\n"
-        "Semantic axes standardize channels; MiMo V2.6 has no occlusion rank", fontsize=10,
+        "Semantic axes standardize channels; failed clean readouts have no occlusion rank", fontsize=10,
     )
     axis.grid(alpha=0.25)
     axis.legend(fontsize=7, loc="upper left", bbox_to_anchor=(1.01, 1.0), frameon=False)
@@ -417,7 +419,7 @@ def semantic_forest(out: Path) -> None:
     axis.set_ylim(-0.6, len(rows) - 0.4)
     axis.set_xlabel("top-1 difference, first minus second")
     axis.set_title(
-        "Cross-model semantic comparisons\n"
+        "Paired semantic comparisons\n"
         "hollow markers cross zero, so the ranking does not resolve",
         fontsize=10,
     )
@@ -519,7 +521,83 @@ def protocol(out: Path) -> None:
     plt.close(figure)
 
 
+def qwen_weight_drift(out: Path) -> None:
+    tensors = json.loads((RESULTS / "evidence/qwen38-flash-next/drift.json").read_text())["tensors"]
+    groups = [
+        [row for name, row in tensors.items() if name.startswith(f"blocks.{layer}.")]
+        for layer in range(27)
+    ]
+    layers = np.arange(1, 28)
+    figure, axes = plt.subplots(1, 2, figsize=(9, 3.3))
+    axes[0].plot(layers, [min(row["cosine"] for row in group) for group in groups], color=COLOUR["qwen38_flash_next"])
+    axes[0].set_ylabel("minimum tensor cosine")
+    axes[1].plot(layers, [np.mean([row["relative_l2"] for row in group]) for group in groups], color=COLOUR["qwen38_flash_next"])
+    axes[1].set_ylabel("mean tensor relative L2")
+    for axis in axes:
+        axis.set_xlabel("Tower block")
+        axis.set_xticks([1, 7, 14, 21, 27])
+        axis.grid(alpha=0.25)
+    figure.suptitle("Qwen3.8 Flash-Next weight drift against pinned 27B")
+    figure.tight_layout()
+    figure.savefig(out, bbox_inches="tight")
+    plt.close(figure)
+
+
+def qwen_sibling_intervals(out: Path) -> None:
+    model = "qwen38_flash_next"
+    panels = [
+        ("Recognition, attention matched", f"semantic-{model}-vs-qwen3_5-{{stage}}", "difference", 100,
+         "Flash-Next − 27B top-1 (pp)"),
+        ("DIODE depth, matched", f"depth-{model}-sibling-{{stage}}", "first_advantage", 100,
+         "Flash-Next − 27B d1 (pp)"),
+        ("DIODE normals, matched", f"normal-{model}-sibling-{{stage}}", "first_advantage", 1,
+         "27B − Flash-Next mean angle (°)"),
+        ("KITTI depth, matched", f"kitti-{model}-sibling-{{stage}}", "first_advantage", 100,
+         "Flash-Next − 27B d1 (pp)"),
+        ("NAVI", "correspondence-navi-flash-next-vs-27b-{stage}", "difference", 100,
+         "Flash-Next − 27B recall at 2 cm (pp)"),
+        ("ScanNet", "correspondence-scannet-flash-next-vs-27b-{stage}", "difference", 100,
+         "Flash-Next − 27B recall at 10 px (pp)"),
+        ("SPair", "correspondence-spair-flash-next-vs-27b-{stage}", "class_macro_difference", 100,
+         "Flash-Next − 27B macro PCK at 0.1 (pp)"),
+    ]
+    stages = ["tower", "merged", "projected"]
+    figure, axes = plt.subplots(4, 2, figsize=(11, 10.8), layout="constrained")
+    for axis, (title, pattern, key, scale, xlabel) in zip(axes.flat, panels):
+        for position, stage in enumerate(stages):
+            if title.startswith("KITTI") and stage == "merged":
+                continue
+            payload = json.loads((RESULTS / "bootstrap" / (pattern.format(stage=stage) + ".json")).read_text())
+            interval = payload[key]
+            assert interval["confidence"] == .95 and interval["resamples"] == 10000
+            low, high, point = [scale * interval[k] for k in ["lower", "upper", "point_estimate"]]
+            colour = COLOUR[model]
+            resolved = low > 0 or high < 0
+            axis.plot([low, high], [position, position], color=colour, linewidth=2)
+            axis.plot(point, position, "o", color=colour, markersize=6,
+                      markerfacecolor=colour if resolved else "white")
+        axis.axvline(0, color=".4", linestyle="--", linewidth=.8)
+        axis.set(yticks=range(3), yticklabels=[stage.capitalize() for stage in stages],
+                 ylim=(2.5, -.5), title=title, xlabel=xlabel)
+        axis.grid(axis="x", alpha=.2)
+    axes.flat[-1].axis("off")
+    axes.flat[-1].text(0, .9,
+        "Positive values favor Flash-Next.\n"
+        "Hollow markers include zero.\n\n"
+        "Each interval uses its own paired rerun.\n"
+        "KITTI covers Tower and projected.\n"
+        "SPair retains declared zero-keypoint exclusions.\n\n"
+        "Primary Tower/merged perturbation scores\n"
+        "do not support intrinsic robustness claims.",
+        va="top", fontsize=10, linespacing=1.5)
+    figure.suptitle("Qwen3.8 Flash-Next versus 27B: paired 95% intervals", fontsize=14)
+    figure.savefig(out, bbox_inches="tight")
+    plt.close(figure)
+
+
 FIGURES = {
+    "qwen-weight-drift": qwen_weight_drift,
+    "qwen-sibling-intervals": qwen_sibling_intervals,
     "protocol": protocol,
     "projector-matrix": projector_matrix,
     "semantic-forest": semantic_forest,

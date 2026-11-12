@@ -1,0 +1,38 @@
+{
+  "source_job": "labels-attention-f10",
+  "target_job": "qwen38_flash_next_attention_matched_tower_L27",
+  "identical_resolved_configuration": {
+    "run": "/tmp/vtb-delivery/issues/22/features/recognition/qwen38_flash_next_448_pool4",
+    "labels": "/tmp/vtb-delivery/data/imagenet100/validation_labels.json",
+    "readout": "attention",
+    "width": 512,
+    "match_capacity": true,
+    "epochs": 20,
+    "batch_size": 256,
+    "seeds": 3,
+    "device": "cpu",
+    "label_fraction": 1.0,
+    "learning_rates": [
+      1e-05,
+      3e-05,
+      0.0001,
+      0.0003,
+      0.001,
+      0.003,
+      0.01,
+      0.03,
+      0.1,
+      0.3,
+      1.0
+    ],
+    "depth_points": [
+      27
+    ],
+    "stages": [
+      "tower"
+    ]
+  },
+  "source_sha256": "b186f46b2e810f957ab4fbbe1fa11b367de895bb2c1c7bbe222b7b5d56b22d17",
+  "target_sha256": "b186f46b2e810f957ab4fbbe1fa11b367de895bb2c1c7bbe222b7b5d56b22d17",
+  "reason": "100% label budget is the same prescribed final-Tower matched-attention recognition cell; CPU primary hardware authorized, no repeated training."
+}

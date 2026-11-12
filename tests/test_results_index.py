@@ -40,7 +40,7 @@ def test_correction_scope_preserves_full_sweeps_and_cohort_membership():
 
     sources = INDEX["figure_sources"]
     v3_projectors = {"nemotron35_super", "nemotron35_bolt", "mimo26_pro", "mimo26_flash"}
-    assert set(sources["geometry_stage_levels"]) == v1 | additions | v3_projectors
+    assert set(sources["geometry_stage_levels"]) == v1 | additions | v3_projectors | {"qwen38_flash_next"}
     for model in v1 | additions:
         sweep = RESULTS / sources["geometry_layer_sweep"].format(model=model)
         cells = json.loads(sweep.read_text())["cells"]
@@ -78,6 +78,32 @@ def test_v3_cohort_uses_the_standard_layout():
         for path in paths:
             assert (RESULTS / path).is_file(), path
     assert not (RESULTS / "v3").exists()
+
+
+def test_flash_next_geometry_contains_every_slice_with_native_grids_and_recorded_splits():
+    evidence = json.loads((RESULTS / "evidence/qwen38-flash-next/splits.json").read_text())
+    split = evidence["datasets"]["diode"]
+    slices = {("tower", layer) for layer in [3, 7, 10, 14, 17, 20, 24, 27]}
+    slices |= {("merged", 27), ("projected", 27)}
+    widths = {"tower": 1152, "merged": 4608, "projected": 2560}
+    for task in ["depth", "normal"]:
+        for arm in ["raw", "matched"]:
+            path = RESULTS / "geometry" / f"qwen38_flash_next_geometry_{task}_{arm}.json"
+            payload = json.loads(path.read_text())
+            json.dumps(payload, allow_nan=False)
+            assert payload["images"] == len(split["all_ids"])
+            assert payload["train_images"] == len(split["train_ids"])
+            assert payload["epochs"] == 10 and payload["seeds"] == 3
+            assert set(payload["learning_rates"]) == {1e-4, 3e-4, 1e-3, 3e-3, 1e-2, 3e-2}
+            assert len(payload["cells"]) == 10
+            assert {(c["stage"], c["layer_index"]) for c in payload["cells"]} == slices
+            for cell in payload["cells"]:
+                assert cell["model_id"] == "immanuelpeter/Qwen3.8-Flash-Next-Vision"
+                assert cell["grid"] == (28 if cell["stage"] == "tower" else 14)
+                assert cell["token_width"] == (512 if arm == "matched" else widths[cell["stage"]])
+                assert cell["images"] == len(split["test_ids"])
+                assert len(cell["per_seed"]) == 3
+                assert all(row["images"] == len(split["test_ids"]) for row in cell["per_seed"])
 
 
 def test_dinov3_intervals_point_at_committed_sources():

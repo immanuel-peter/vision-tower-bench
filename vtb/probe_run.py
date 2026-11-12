@@ -1,4 +1,6 @@
+from vtb.methods import descriptor as reducer_method
 import argparse
+import hashlib
 import json
 from dataclasses import dataclass
 from pathlib import Path
@@ -98,35 +100,59 @@ def accuracy(model, features, labels, index, device, batch_size=512) -> float:
     return correct / len(index)
 
 
+@torch.inference_mode()
+def predictions(model, features, index, device, batch_size=512):
+    model.eval()
+    return torch.cat([
+        model(features[index[start:start + batch_size]].to(device)).argmax(dim=-1).cpu()
+        for start in range(0, len(index), batch_size)
+    ])
+
+
 def run_cell(features, labels, split, num_classes, args) -> dict:
     best_lr, best_val = None, -1.0
     # Record each validation score to distinguish edge selections from plateaus.
     searched: dict[str, float] = {}
+    unrounded = {}
     for lr in args.learning_rates:
         _, val, _ = train_once(
             features, labels, split, num_classes, args.readout, lr, 0,
             args.device, args.epochs, args.batch_size,
         )
         searched[f"{lr:g}"] = round(val, 4)
+        unrounded[f"{lr:g}"] = val
         if val > best_val:
             best_lr, best_val = lr, val
 
-    tests = []
+    tests, saved_predictions = [], []
     for seed in range(args.seeds):
-        _, _, test = train_once(
+        model, _, test = train_once(
             features, labels, split, num_classes, args.readout, best_lr, seed,
             args.device, args.epochs, args.batch_size,
         )
         tests.append(test)
+        if getattr(args, "save_predictions", False):
+            saved_predictions.append(predictions(model, features, split.test, args.device).tolist())
+        del model
     scores = torch.tensor(tests)
-    return {
+    result = {
         "learning_rate": best_lr,
         "learning_rate_search": searched,
         "val_accuracy": round(best_val, 4),
         "test_accuracy": round(scores.mean().item(), 4),
         "test_std": round(scores.std(unbiased=False).item(), 4),
         "seeds": args.seeds,
+        "seed_ids": list(range(args.seeds)),
+        "learning_rate_search_seed": 0,
+        "test_accuracy_by_seed": tests,
     }
+    if getattr(args, "save_predictions", False):
+        result.update(test_predictions_by_seed=saved_predictions,
+                      test_labels=labels[split.test].tolist(),
+                      learning_rate_search_unrounded=unrounded,
+                      validation_accuracy_unrounded=best_val,
+                      fit_device=args.device, fit_threads=torch.get_num_threads())
+    return result
 
 
 def selected_slices(
@@ -144,12 +170,23 @@ def selected_slices(
     ]
 
 
-def fit_reducer(features: torch.Tensor, split: Split, width: int) -> probe.Reducer:
-    # torch.svd_lowrank is randomized. Seed it per cell without changing the RNG state
-    # used by the readout, so a --depth-points invocation matches a matrix invocation.
+def fit_reducer(
+    features: torch.Tensor, split: Split, width: int, *, standardize_channels: bool = False
+) -> probe.Reducer | probe.StandardizedReducer:
     with torch.random.fork_rng(devices=[]):
         torch.random.default_generator.manual_seed(0)
-        return probe.Reducer.fit(features[split.train], width)
+        reducer = probe.StandardizedReducer if standardize_channels else probe.Reducer
+        return reducer.fit(features[split.train], width)
+
+
+def feature_provenance(run: Path) -> dict:
+    for name in ("provenance.json", "summary.json"):
+        path = run / name
+        if path.is_file():
+            return {"cache_run": str(run), "metadata_file": name,
+                    "metadata_sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+                    "details": json.loads(path.read_text())}
+    return {"cache_run": str(run), "metadata_file": None}
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -165,9 +202,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="fit a frozen PCA reduction to --width first, so every cell trains the same "
         "number of parameters regardless of token width",
     )
+    parser.add_argument("--standardize-channels", action="store_true", help="diagnostic: standardize training channels before matched PCA")
     parser.add_argument("--epochs", type=int, default=20)
     parser.add_argument("--batch-size", type=int, default=256)
     parser.add_argument("--seeds", type=int, default=3)
+    parser.add_argument("--save-predictions", action="store_true", help="retain selected-fit per-image class predictions for audited paired reuse")
     parser.add_argument("--device", default="mps")
     parser.add_argument(
         "--label-fraction",
@@ -202,6 +241,9 @@ def build_parser() -> argparse.ArgumentParser:
 def main() -> None:
     args = build_parser().parse_args()
 
+    if args.standardize_channels and not args.match_capacity:
+        raise ValueError("--standardize-channels requires --match-capacity")
+
     label_map = json.loads(args.labels.read_text())["labels"]
     num_classes = len(set(label_map.values()))
 
@@ -216,11 +258,14 @@ def main() -> None:
 
         features = tokens.float()
         if args.match_capacity:
-            reducer = fit_reducer(features, split, args.width)
+            reducer = fit_reducer(features, split, args.width, standardize_channels=args.standardize_channels)
             features = reducer(features)
 
         result = run_cell(features, labels, split, num_classes, args)
+        if args.save_predictions:
+            result["test_image_ids"] = [image_ids[index] for index in split.test.tolist()]
         result |= {
+            "method": reducer_method(standardize_channels=args.standardize_channels, matched=args.match_capacity),
             "model_id": meta["model_id"],
             "stage": stage,
             "layer_index": layer,
@@ -230,8 +275,14 @@ def main() -> None:
                 probe.build(args.readout, features.shape[-1], num_classes)
             ),
             "label_fraction": args.label_fraction,
+            "standardize_channels": args.standardize_channels,
             "train_images": len(split.train),
             "full_train_images": len(full_split.train),
+            "sample_ids_sha256": hashlib.sha256(json.dumps(image_ids).encode()).hexdigest(),
+            "split_ids_sha256": {
+                name: hashlib.sha256(json.dumps([image_ids[i] for i in getattr(split, name).tolist()]).encode()).hexdigest()
+                for name in ("train", "val", "test")
+            },
         }
         cells.append(result)
         print(
@@ -243,8 +294,16 @@ def main() -> None:
 
     out = args.out or args.run / f"probe_{args.readout}_{'matched' if args.match_capacity else 'raw'}.json"
     out.write_text(json.dumps({
+        "method": reducer_method(standardize_channels=args.standardize_channels, matched=args.match_capacity),
         "images": image_count,
+        "feature_provenance": feature_provenance(args.run),
+        "protocol": {"readout": args.readout, "capacity_matched": args.match_capacity,
+                     "width": args.width, "classes": num_classes, "epochs": args.epochs,
+                     "batch_size": args.batch_size, "device": args.device,
+                     "learning_rates": args.learning_rates, "learning_rate_search_seed": 0,
+                     "retraining_seeds": list(range(args.seeds))},
         "label_fraction": args.label_fraction,
+        "standardize_channels": args.standardize_channels,
         "train_images": cells[0]["train_images"] if cells else 0,
         "full_train_images": cells[0]["full_train_images"] if cells else 0,
         "cells": cells,

@@ -1,7 +1,7 @@
 # Results
 
 Start with the [published report](https://ipeter.dev/blog/vision-tower-bench).
-This directory contains the v2 and v3 measurements,
+This directory contains the v2, v3 and v4 measurements,
 the original six-Tower v1 records, supporting evidence, corrections, and failed controls.
 [index.json](index.json) records each cohort, experiment protocols, and the
 source files used for deepest-stage geometry figures. Paths in that index are
@@ -28,8 +28,8 @@ historical filename slugs `qwen3_5` and `moonvit_v2` mean Qwen3.8 and Kimi K3.
 
 The v1 cohort is DINOv2, SigLIP2, Muse Glimmer, Kimi K2.6, Qwen3.8, and
 Kimi K3. The published v2 report adds GLM 5.3 Flash, Nemotron Omni, DeepSeek V4.1,
-Gemma 4, and MiniMax M3. The default figure command draws the v2 cohort and
-the v3 cohort below. The six-Tower grouping identifies the scope of older runs and
+Gemma 4, and MiniMax M3. The default figure command draws the v2, v3 and v4 cohorts.
+The six-Tower grouping identifies the scope of older runs and
 corrections, not the limits of the current publication.
 
 The v3 cohort adds Nemotron Super (`nemotron35_super`), Nemotron Bolt
@@ -39,11 +39,17 @@ default figures. Every v3 Tower has label-budget records, with Bolt at merged
 L32. Super and the MiMo pair have KITTI cells and projected-versus-Tower
 intervals. The default label-budget figure reads the channel-standardized runs in
 the [outlier-channel diagnostic](diagnostics/mimo26-tower-outlier-channel/README.md)
-for all sixteen Towers. Super has every
+for all twenty Towers. Super has every
 Stage. Super's Tower cells precede its final LayerNorm, which runs before the
 merge. Bolt has no such LayerNorm and only `merged` and `projected` cells; its
 single final Tower cell is the
 [Bolt Tower check](diagnostics/nemotron35-bolt-tower/README.md).
+
+The v4 cohort adds MiniMax M3.1 Flash (`minimax_m31_flash`), Qwen3.8
+Flash-Next (`qwen38_flash_next`), Mistral Large 4 (`mistral_large4`) and Kimi
+K3.1 Pro (`kimi_k31_pro`). Each follows the v2 task protocols at 448 pixels;
+model-specific validation, diagnostics and paired comparisons are recorded
+under `diagnostics/` and `evidence/` and are selected through `index.json`.
 
 DINOv3 is Meta's ViT-L/16, a second self-supervised control beside DINOv2
 (issue #4). The adapter loads `facebook/dinov3-vitl16-pretrain-lvd1689m` at

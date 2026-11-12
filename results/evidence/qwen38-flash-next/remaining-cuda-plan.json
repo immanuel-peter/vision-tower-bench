@@ -1,0 +1,358 @@
+[
+  {
+    "name": "correspondence-qwen38_flash_next-spair",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "scripts.correspondence_run",
+      "--model",
+      "qwen38_flash_next",
+      "--dataset",
+      "spair",
+      "--root",
+      "/tmp/vtb-delivery/data/correspondence/spair/SPair-71k",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/correspondence/qwen38_flash_next_correspondence_spair.json",
+      "--device",
+      "cuda:0",
+      "--resolution",
+      "448"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/correspondence/qwen38_flash_next_correspondence_spair.json",
+    "kind": "correspondence",
+    "needs": [
+      "/tmp/vtb-delivery/data/correspondence.READY"
+    ],
+    "expect": {
+      "model": "qwen38_flash_next",
+      "dataset": "spair",
+      "cells": 3
+    }
+  },
+  {
+    "name": "correspondence-qwen38_flash_next-scannet",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "scripts.correspondence_run",
+      "--model",
+      "qwen38_flash_next",
+      "--dataset",
+      "scannet",
+      "--root",
+      "/tmp/vtb-delivery/data/correspondence/scannet/scannet_test_1500",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/correspondence/qwen38_flash_next_correspondence_scannet.json",
+      "--device",
+      "cuda:0",
+      "--resolution",
+      "448"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/correspondence/qwen38_flash_next_correspondence_scannet.json",
+    "kind": "correspondence",
+    "needs": [
+      "/tmp/vtb-delivery/data/correspondence.READY"
+    ],
+    "expect": {
+      "model": "qwen38_flash_next",
+      "dataset": "scannet",
+      "cells": 3
+    }
+  },
+  {
+    "name": "correspondence-qwen38_flash_next-navi",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "scripts.correspondence_run",
+      "--model",
+      "qwen38_flash_next",
+      "--dataset",
+      "navi",
+      "--root",
+      "/tmp/vtb-delivery/data/correspondence/navi/navi_v1",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/correspondence/qwen38_flash_next_correspondence_navi.json",
+      "--device",
+      "cuda:0",
+      "--resolution",
+      "448"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/correspondence/qwen38_flash_next_correspondence_navi.json",
+    "kind": "correspondence",
+    "needs": [
+      "/tmp/vtb-delivery/data/correspondence.READY"
+    ],
+    "expect": {
+      "model": "qwen38_flash_next",
+      "dataset": "navi",
+      "cells": 3
+    }
+  },
+  {
+    "name": "correspondence-qwen3_5-spair",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "scripts.correspondence_run",
+      "--model",
+      "qwen3_5",
+      "--dataset",
+      "spair",
+      "--root",
+      "/tmp/vtb-delivery/data/correspondence/spair/SPair-71k",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/correspondence/qwen3_5_correspondence_spair.json",
+      "--device",
+      "cuda:0",
+      "--resolution",
+      "448"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/correspondence/qwen3_5_correspondence_spair.json",
+    "kind": "correspondence",
+    "needs": [
+      "/tmp/vtb-delivery/data/correspondence.READY"
+    ],
+    "expect": {
+      "model": "qwen3_5",
+      "dataset": "spair",
+      "cells": 3
+    }
+  },
+  {
+    "name": "correspondence-qwen3_5-scannet",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "scripts.correspondence_run",
+      "--model",
+      "qwen3_5",
+      "--dataset",
+      "scannet",
+      "--root",
+      "/tmp/vtb-delivery/data/correspondence/scannet/scannet_test_1500",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/correspondence/qwen3_5_correspondence_scannet.json",
+      "--device",
+      "cuda:0",
+      "--resolution",
+      "448"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/correspondence/qwen3_5_correspondence_scannet.json",
+    "kind": "correspondence",
+    "needs": [
+      "/tmp/vtb-delivery/data/correspondence.READY"
+    ],
+    "expect": {
+      "model": "qwen3_5",
+      "dataset": "scannet",
+      "cells": 3
+    }
+  },
+  {
+    "name": "correspondence-qwen3_5-navi",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "scripts.correspondence_run",
+      "--model",
+      "qwen3_5",
+      "--dataset",
+      "navi",
+      "--root",
+      "/tmp/vtb-delivery/data/correspondence/navi/navi_v1",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/correspondence/qwen3_5_correspondence_navi.json",
+      "--device",
+      "cuda:0",
+      "--resolution",
+      "448"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/correspondence/qwen3_5_correspondence_navi.json",
+    "kind": "correspondence",
+    "needs": [
+      "/tmp/vtb-delivery/data/correspondence.READY"
+    ],
+    "expect": {
+      "model": "qwen3_5",
+      "dataset": "navi",
+      "cells": 3
+    }
+  },
+  {
+    "name": "throughput",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "scripts.tower_throughput",
+      "--model",
+      "qwen38_flash_next",
+      "--images",
+      "/tmp/vtb-delivery/data/imagenet100/validation",
+      "--resolution",
+      "448",
+      "--batch-size",
+      "8",
+      "--workers",
+      "2",
+      "--device",
+      "cuda:0",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/label-budget/qwen38_flash_next_throughput.json"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/label-budget/qwen38_flash_next_throughput.json",
+    "kind": "throughput",
+    "needs": [
+      "/tmp/vtb-delivery/data/imagenet100.READY"
+    ],
+    "expect": {}
+  },
+  {
+    "name": "bootstrap-projector-recognition-projected",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "scripts.semantic_bootstrap",
+      "--first-run",
+      "/tmp/vtb-delivery/issues/22/features/recognition/qwen38_flash_next_448_pool4",
+      "--first-name",
+      "qwen38_flash_next-projected",
+      "--first-stage",
+      "projected",
+      "--first-layer",
+      "27",
+      "--second-run",
+      "/tmp/vtb-delivery/issues/22/features/recognition/qwen38_flash_next_448_pool4",
+      "--second-name",
+      "tower",
+      "--second-stage",
+      "tower",
+      "--second-layer",
+      "27",
+      "--device",
+      "cuda:0",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/bootstrap/recognition-qwen38_flash_next-projector-projected.json",
+      "--labels",
+      "/tmp/vtb-delivery/data/imagenet100/validation_labels.json"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/bootstrap/recognition-qwen38_flash_next-projector-projected.json",
+    "kind": "json",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/recognition/qwen38_flash_next_448_pool4",
+      "/tmp/vtb-delivery/issues/22/features/recognition/qwen38_flash_next_448_pool4"
+    ],
+    "expect": {}
+  },
+  {
+    "name": "bootstrap-sibling-recognition-tower",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "scripts.semantic_bootstrap",
+      "--first-run",
+      "/tmp/vtb-delivery/issues/22/features/recognition/qwen38_flash_next_448_pool4",
+      "--first-name",
+      "qwen38_flash_next-tower",
+      "--first-stage",
+      "tower",
+      "--first-layer",
+      "27",
+      "--second-run",
+      "/tmp/vtb-delivery/issues/22/features/recognition/qwen3_5_448_pool4",
+      "--second-name",
+      "qwen3_5-tower",
+      "--second-stage",
+      "tower",
+      "--second-layer",
+      "27",
+      "--device",
+      "cuda:0",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/bootstrap/recognition-qwen38_flash_next-sibling-tower.json",
+      "--labels",
+      "/tmp/vtb-delivery/data/imagenet100/validation_labels.json"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/bootstrap/recognition-qwen38_flash_next-sibling-tower.json",
+    "kind": "json",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/recognition/qwen38_flash_next_448_pool4",
+      "/tmp/vtb-delivery/issues/22/features/recognition/qwen3_5_448_pool4"
+    ],
+    "expect": {}
+  },
+  {
+    "name": "bootstrap-sibling-recognition-merged",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "scripts.semantic_bootstrap",
+      "--first-run",
+      "/tmp/vtb-delivery/issues/22/features/recognition/qwen38_flash_next_448_pool4",
+      "--first-name",
+      "qwen38_flash_next-merged",
+      "--first-stage",
+      "merged",
+      "--first-layer",
+      "27",
+      "--second-run",
+      "/tmp/vtb-delivery/issues/22/features/recognition/qwen3_5_448_pool4",
+      "--second-name",
+      "qwen3_5-merged",
+      "--second-stage",
+      "merged",
+      "--second-layer",
+      "27",
+      "--device",
+      "cuda:0",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/bootstrap/recognition-qwen38_flash_next-sibling-merged.json",
+      "--labels",
+      "/tmp/vtb-delivery/data/imagenet100/validation_labels.json"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/bootstrap/recognition-qwen38_flash_next-sibling-merged.json",
+    "kind": "json",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/recognition/qwen38_flash_next_448_pool4",
+      "/tmp/vtb-delivery/issues/22/features/recognition/qwen3_5_448_pool4"
+    ],
+    "expect": {}
+  },
+  {
+    "name": "bootstrap-sibling-recognition-projected",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "scripts.semantic_bootstrap",
+      "--first-run",
+      "/tmp/vtb-delivery/issues/22/features/recognition/qwen38_flash_next_448_pool4",
+      "--first-name",
+      "qwen38_flash_next-projected",
+      "--first-stage",
+      "projected",
+      "--first-layer",
+      "27",
+      "--second-run",
+      "/tmp/vtb-delivery/issues/22/features/recognition/qwen3_5_448_pool4",
+      "--second-name",
+      "qwen3_5-projected",
+      "--second-stage",
+      "projected",
+      "--second-layer",
+      "27",
+      "--device",
+      "cuda:0",
+      "--out",
+      "/tmp/vtb-delivery/issues/22/measurements/bootstrap/recognition-qwen38_flash_next-sibling-projected.json",
+      "--labels",
+      "/tmp/vtb-delivery/data/imagenet100/validation_labels.json"
+    ],
+    "output": "/tmp/vtb-delivery/issues/22/measurements/bootstrap/recognition-qwen38_flash_next-sibling-projected.json",
+    "kind": "json",
+    "needs": [
+      "/tmp/vtb-delivery/issues/22/features/recognition/qwen38_flash_next_448_pool4",
+      "/tmp/vtb-delivery/issues/22/features/recognition/qwen3_5_448_pool4"
+    ],
+    "expect": {}
+  }
+]

@@ -1,0 +1,108 @@
+{
+  "phase": "final9CUDA",
+  "validated_new_jobs": 9,
+  "validated_reuses": [
+    {
+      "job": "bootstrap-projector-recognition-projected",
+      "output_hashes": {
+        "/tmp/vtb-delivery/issues/22/measurements/bootstrap/recognition-qwen38_flash_next-projector-projected.json": "83843d84d0bed9396c41e666abfc8e4d1be38d51389e495e29cfa9406e74b370"
+      },
+      "original_device": "",
+      "original_threads": "6"
+    },
+    {
+      "job": "bootstrap-sibling-recognition-tower",
+      "output_hashes": {
+        "/tmp/vtb-delivery/issues/22/measurements/bootstrap/recognition-qwen38_flash_next-sibling-tower.json": "91a41062a1ba903205b0ae82aad85487a827cdf4e36592b8aad544b95828d18b"
+      },
+      "original_device": "",
+      "original_threads": "6"
+    }
+  ],
+  "validated": [
+    {
+      "job": "correspondence-qwen38_flash_next-spair",
+      "elapsed_seconds": 119.14972943400062,
+      "output_hashes": {
+        "/tmp/vtb-delivery/issues/22/measurements/correspondence/qwen38_flash_next_correspondence_spair.json": "15a69b12eaf4959052950cb861534bd7541bb8f970281c8e6fff0bd213b1fdc5"
+      },
+      "started_at": "2026-11-07T19:40:15.881833+00:00",
+      "ended_at": "2026-11-07T19:42:15.031565+00:00"
+    },
+    {
+      "job": "correspondence-qwen38_flash_next-scannet",
+      "elapsed_seconds": 121.51727007900263,
+      "output_hashes": {
+        "/tmp/vtb-delivery/issues/22/measurements/correspondence/qwen38_flash_next_correspondence_scannet.json": "61797a09d1a82ba8f4f2acc8c7d0c065482c8bc478e063a1a37a5a0f854ccce9"
+      },
+      "started_at": "2026-11-07T19:42:15.052025+00:00",
+      "ended_at": "2026-11-07T19:44:16.569300+00:00"
+    },
+    {
+      "job": "correspondence-qwen38_flash_next-navi",
+      "elapsed_seconds": 227.43614605100083,
+      "output_hashes": {
+        "/tmp/vtb-delivery/issues/22/measurements/correspondence/qwen38_flash_next_correspondence_navi.json": "a01ad98b24cf6d75642677274ce806ae962de947311a7a9249d19152c3ed6a7e"
+      },
+      "started_at": "2026-11-07T19:44:16.591961+00:00",
+      "ended_at": "2026-11-07T19:48:04.028109+00:00"
+    },
+    {
+      "job": "correspondence-qwen3_5-spair",
+      "elapsed_seconds": 127.78081003799889,
+      "output_hashes": {
+        "/tmp/vtb-delivery/issues/22/measurements/correspondence/qwen3_5_correspondence_spair.json": "1a1278834b2cb50097d330a1e6b25a9e0b8fc4d9af0bbfe8d64edda591568e65"
+      },
+      "started_at": "2026-11-07T19:48:04.039510+00:00",
+      "ended_at": "2026-11-07T19:50:11.820322+00:00"
+    },
+    {
+      "job": "correspondence-qwen3_5-scannet",
+      "elapsed_seconds": 129.16953556099907,
+      "output_hashes": {
+        "/tmp/vtb-delivery/issues/22/measurements/correspondence/qwen3_5_correspondence_scannet.json": "ee92ea07058b2449662a0a974c0e93ac424267482f75af22b55758eb8e6d5482"
+      },
+      "started_at": "2026-11-07T19:50:11.839860+00:00",
+      "ended_at": "2026-11-07T19:52:21.009398+00:00"
+    },
+    {
+      "job": "correspondence-qwen3_5-navi",
+      "elapsed_seconds": 252.85429961200134,
+      "output_hashes": {
+        "/tmp/vtb-delivery/issues/22/measurements/correspondence/qwen3_5_correspondence_navi.json": "1a15060f12e5541e0c9756f28ebc832ce6708b2035c267086d0e85540c67c77d"
+      },
+      "started_at": "2026-11-07T19:52:21.031668+00:00",
+      "ended_at": "2026-11-07T19:56:33.885970+00:00"
+    },
+    {
+      "job": "throughput",
+      "elapsed_seconds": 11.466845255999942,
+      "output_hashes": {
+        "/tmp/vtb-delivery/issues/22/measurements/label-budget/qwen38_flash_next_throughput.json": "2eb2f515dad5b0af976984cbd665453156f536cf6b63eabcff989127c24d09df"
+      },
+      "started_at": "2026-11-07T19:56:33.897293+00:00",
+      "ended_at": "2026-11-07T19:56:45.364142+00:00"
+    },
+    {
+      "job": "bootstrap-sibling-recognition-merged",
+      "elapsed_seconds": 66.144293010002,
+      "output_hashes": {
+        "/tmp/vtb-delivery/issues/22/measurements/bootstrap/recognition-qwen38_flash_next-sibling-merged.json": "400a2c6c40db76ef6924dac705ac92880854a1c356992b6ea60288e528fbe4fa"
+      },
+      "started_at": "2026-11-07T19:56:45.383933+00:00",
+      "ended_at": "2026-11-07T19:57:51.528229+00:00"
+    },
+    {
+      "job": "bootstrap-sibling-recognition-projected",
+      "elapsed_seconds": 59.87792267599798,
+      "output_hashes": {
+        "/tmp/vtb-delivery/issues/22/measurements/bootstrap/recognition-qwen38_flash_next-sibling-projected.json": "456516a88016769554dd121343f0f401d7c8342c8d8e832d7947edaa98a3e7e2"
+      },
+      "started_at": "2026-11-07T19:57:51.538250+00:00",
+      "ended_at": "2026-11-07T19:58:51.416177+00:00"
+    }
+  ],
+  "failures": {},
+  "worker_seconds": 1115.3968517170033,
+  "validated_at": "2026-11-07T19:59:24.110811+00:00"
+}

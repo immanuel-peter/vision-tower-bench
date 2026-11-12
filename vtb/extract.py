@@ -20,7 +20,7 @@ from vtb.adapters.moonvit_v2 import MoonViTV2Adapter
 from vtb.adapters.muse_glimmer import MuseGlimmerAdapter
 from vtb.adapters.nemotron_omni import NemotronOmniAdapter
 from vtb.adapters.nemotron35 import Nemotron35BoltAdapter, Nemotron35SuperAdapter
-from vtb.adapters.qwen3_5 import Qwen3_5Adapter
+from vtb.adapters.qwen3_5 import Qwen3_5Adapter, Qwen38FlashNextAdapter
 from vtb.adapters.siglip2 import SigLIP2Adapter
 from vtb.images import ImageFolder
 
@@ -40,6 +40,7 @@ ADAPTERS = {
     "nemotron35_super": Nemotron35SuperAdapter,
     "nemotron35_bolt": Nemotron35BoltAdapter,
     "qwen3_5": Qwen3_5Adapter,
+    "qwen38_flash_next": Qwen38FlashNextAdapter,
     "siglip2": SigLIP2Adapter,
 }
 IMAGENET_100 = 130_000

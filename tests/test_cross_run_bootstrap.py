@@ -5,6 +5,24 @@ from scripts.cross_run_bootstrap import correspondence, pair_rows, parser, pertu
 NAMES = ("first", "second")
 
 
+def test_perturbation_can_pair_projected_against_tower_in_one_run():
+    payload = {"images": 2000, "protocol": {"seeds": 3, "method": __import__("vtb.methods", fromlist=["descriptor"]).descriptor()}, "cells": [
+        {"stage": stage, "layer_index": 27, "measurements": {"occlusion_l1": [
+            {"image_id": "fixed", "clean": [value] * 3, "perturbed": [value] * 3}
+        ]}} for stage, value in [("tower", 0.0), ("projected", 1.0)]
+    ]}
+    result = perturbation(payload, payload, NAMES, args("--stage", "projected", "--second-stage", "tower"))
+    assert result["clean"]["difference"]["point_estimate"] == 1.0
+    assert result["conditions"]["occlusion_l1"]["difference"]["point_estimate"] == 1.0
+
+
+def test_primary_and_standardized_diagnostic_cannot_be_paired_as_one_protocol():
+    primary = {"images": 2000, "protocol": {"seeds": 3, "method": __import__("vtb.methods", fromlist=["descriptor"]).descriptor()}, "cells": []}
+    diagnostic = primary | {"protocol": {"seeds": 3, "reducer": "training-only sample-standardized PCA"}}
+    with pytest.raises(ValueError, match="unknown|methods differ|probing protocol differs"):
+        perturbation(primary, diagnostic, NAMES, args())
+
+
 def args(*extra):
     return parser().parse_args(["correspondence", "--first", "a", "--first-name", "first",
                                 "--second", "b", "--second-name", "second", "--out", "o", *extra])
@@ -45,7 +63,7 @@ def test_correspondence_rejects_different_scoring():
 
 def test_perturbation_interval_uses_seed_mean_correctness_on_paired_test_images():
     def payload(correct, order):
-        return {"images": 2000, "protocol": {"seeds": 3}, "cells": [{
+        return {"images": 2000, "protocol": {"seeds": 3, "method": __import__("vtb.methods", fromlist=["descriptor"]).descriptor()}, "cells": [{
             "stage": "tower", "layer_index": 24, "measurements": {"occlusion_l1": [
                 {"image_id": key, "clean": [1.0] * 3, "perturbed": [correct] * 3} for key in order
             ]}}]}
@@ -76,7 +94,7 @@ def test_spair_macro_interval_weights_each_class_equally():
 
 def test_perturbation_also_pairs_clean_correctness_once():
     def payload(clean):
-        return {"images": 2000, "protocol": {"seeds": 3}, "cells": [{
+        return {"images": 2000, "protocol": {"seeds": 3, "method": __import__("vtb.methods", fromlist=["descriptor"]).descriptor()}, "cells": [{
             "stage": "tower", "layer_index": 24, "measurements": {condition: [
                 {"image_id": key, "clean": [clean] * 3, "perturbed": [0.0] * 3} for key in ("a", "b")
             ] for condition in ("occlusion_l1", "scale_l1")}}]}
