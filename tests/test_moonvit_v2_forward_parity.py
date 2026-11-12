@@ -1,5 +1,8 @@
 """Forward parity: standalone MoonViT-V2 matches the Tower inside Kimi K3."""
 
+import os
+
+import pytest
 import torch
 from PIL import Image
 from torch import nn
@@ -17,6 +20,7 @@ from vtb.adapters.moonvit_v2 import (
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 DTYPE = torch.bfloat16 if DEVICE.type == "cuda" else torch.float32
+pytestmark = pytest.mark.skipif(os.environ.get("VTB_SKIP_WEIGHTS") == "1", reason="VTB_SKIP_WEIGHTS=1")
 
 
 def _build_projector(weights: dict[str, torch.Tensor], dtype: torch.dtype) -> nn.Module:

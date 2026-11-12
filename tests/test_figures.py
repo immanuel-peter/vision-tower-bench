@@ -15,6 +15,19 @@ FIGURE_SCRIPT = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(FIGURE_SCRIPT)
 
 
+@pytest.mark.parametrize("model", ["minimax_m3", "minimax_m31_flash"])
+@pytest.mark.parametrize("suffix", ["", "_448_pool4"])
+def test_tower_name_distinguishes_minimax_siblings(model, suffix):
+    assert FIGURE_SCRIPT.tower_name(model + suffix) == model
+
+
+def test_m3_image_isolation_override_preserves_other_models_and_historical_files():
+    path = FIGURE_SCRIPT.measurement_path("recognition", "minimax_m3", readout="attention", arm="matched")
+    assert path == ROOT / "results/diagnostics/minimax-m31-flash/m3-image-isolation/recognition/minimax_m3_probe_attention_matched.json"
+    assert (ROOT / "results/recognition/minimax_m3_probe_attention_matched.json").is_file()
+    assert FIGURE_SCRIPT.measurement_path("recognition", "dinov2", readout="attention", arm="matched") == ROOT / "results/recognition/dinov2_probe_attention_matched.json"
+
+
 def test_roster_covers_the_registered_tower_suite():
     assert FIGURE_SCRIPT.TOWERS == (
         "dinov2",
@@ -28,6 +41,7 @@ def test_roster_covers_the_registered_tower_suite():
         "gemma4",
         "moonvit_v2",
         "minimax_m3",
+        "minimax_m31_flash",
         "nemotron35_super",
         "nemotron35_bolt",
         "dinov3",
@@ -70,11 +84,11 @@ def test_projector_matrix_covers_every_projector_and_panel():
     states = []
     for panel in ("depth-matched", "depth-raw", "normal-matched", "normal-raw"):
         for model, _, low, high in panels[panel]:
-            if model == "qwen38_flash_next":
+            if model in ("minimax_m31_flash", "minimax_m3", "qwen38_flash_next"):
                 continue
             states.append("projector" if low > 0 else "tower" if high < 0 else "unresolved")
-    assert states.count("projector") == 30
-    assert states.count("tower") == 13
+    assert states.count("projector") == 29
+    assert states.count("tower") == 10
     assert states.count("unresolved") == 5
 
 
@@ -108,6 +122,8 @@ def test_geometry_figures_separate_corrected_stages_from_historical_sweeps(monke
     for model, line in zip(FIGURE_SCRIPT.PROJECTORS, stage_lines, strict=True):
         directory = "geometry/deterministic" if model in corrected else "geometry"
         path = ROOT / "results" / directory / f"{model}_geometry_depth_matched.json"
+        if model == "minimax_m3":
+            path = FIGURE_SCRIPT.measurement_path("geometry", model, task="depth", arm="matched")
         cells = json.loads(path.read_text())["cells"]
         deepest = {cell["stage"]: cell["d1"] for cell in cells if cell["relative_depth"] == 1.0}
         assert list(line.get_xdata()) == [stages.index(stage) for stage in stages if stage in deepest]
@@ -115,15 +131,13 @@ def test_geometry_figures_separate_corrected_stages_from_historical_sweeps(monke
 
     sweep_lines = {line.get_label(): line for line in figures[1].axes[0].lines}
     for model in FIGURE_SCRIPT.TOWER_STAGE:
-        path = ROOT / "results/geometry" / f"{model}_geometry_depth_matched.json"
+        path = FIGURE_SCRIPT.measurement_path("geometry_layer_sweep", model)
         cells = sorted(
             (cell for cell in json.loads(path.read_text())["cells"] if cell["stage"] == "tower"),
             key=lambda cell: cell["relative_depth"],
         )
         assert len(cells) == 8
-        assert list(sweep_lines[FIGURE_SCRIPT.DISPLAY[model]].get_ydata()) == pytest.approx(
-            [cell["d1"] for cell in cells]
-        )
+        assert list(sweep_lines[FIGURE_SCRIPT.DISPLAY[model]].get_ydata()) == pytest.approx([cell["d1"] for cell in cells])
 
 
 def test_semantic_forest_includes_the_v3_comparisons(tmp_path):

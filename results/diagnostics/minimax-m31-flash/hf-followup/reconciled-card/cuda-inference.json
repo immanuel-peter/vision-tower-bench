@@ -1,0 +1,55 @@
+{
+  "repo": "immanuelpeter/MiniMax-M3.1-Flash-Vision",
+  "revision": "08e4e21e2ba7823b63db201cbb458ffde6be3ab0",
+  "parent": "7a729a3eae1fbdeac68ccc7ad850288cc49cb7db",
+  "uploaded": [
+    "README.md",
+    "export_manifest.json"
+  ],
+  "weights_uploaded": false,
+  "card_lines": 67,
+  "card_words": 364,
+  "timestamp": "2026-11-08T00:34:20.350474+00:00",
+  "command": "python examples/inference.py test-image.jpg",
+  "cwd": "/tmp/vtb-delivery/hf-followup/21/reconciled/fresh-cache/models--immanuelpeter--MiniMax-M3.1-Flash-Vision/snapshots/08e4e21e2ba7823b63db201cbb458ffde6be3ab0",
+  "device": "cuda:0",
+  "physical_gpu": 1,
+  "dtype": "bfloat16",
+  "batch_size": 1,
+  "image": "/tmp/vtb-delivery/data/imagenet100/validation/validation_000000.jpg",
+  "image_sha256": "dc4d456ce66cf18cc246831b3fe8b54133b507de981490a29f1623d86ddbeae3",
+  "original_size": [
+    500,
+    334
+  ],
+  "processed_size": [
+    448,
+    448
+  ],
+  "shapes": {
+    "tower": [
+      1,
+      1024,
+      1280
+    ],
+    "merged": [
+      1,
+      256,
+      5120
+    ],
+    "projected": [
+      1,
+      256,
+      6144
+    ]
+  },
+  "returncode": 0,
+  "passed": true,
+  "seconds": 5.596212986994942,
+  "fresh_download_hashes_pass": true,
+  "contents_inventory_pass": true,
+  "gpu_memory_before_mib": 0,
+  "gpu_memory_after_mib": 0,
+  "inline_python_snippets": "none; the verbatim shell command and its AutoModel/processor example were executed",
+  "completed_utc": "2026-11-08T00:35:33.673315+00:00"
+}

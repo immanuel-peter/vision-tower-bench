@@ -3,7 +3,9 @@
 
 import argparse
 import gc
+import hashlib
 import json
+import os
 from pathlib import Path
 
 import torch
@@ -34,6 +36,8 @@ def parser() -> argparse.ArgumentParser:
     ap.add_argument("--scale-invariant", action="store_true")
     ap.add_argument("--max-depth", type=float, default=None)
     ap.add_argument("--device", default="cuda")
+    ap.add_argument("--cell-cache", type=Path, default=os.environ.get("VTB_GEOMETRY_PAIRED_CACHE"),
+                    help="optional cache of verified paired-rerun cells; primary training protocol is unchanged")
     ap.add_argument(
         "--learning-rates", type=float, nargs="+", default=list(geometry_run.LEARNING_RATES)
     )
@@ -90,6 +94,45 @@ def train_cell(run: Path, stage: str, layer: int, args) -> dict:
     return result
 
 
+def cached_train_cell(run: Path, stage: str, layer: int, args) -> dict:
+    if args.cell_cache is None:
+        return train_cell(run, stage, layer, args)
+    protocol = {key: getattr(args, key) for key in (
+        "task", "arm", "head", "width", "epochs", "batch_size", "seeds",
+        "scale_invariant", "max_depth", "learning_rates", "device",
+    )}
+    paths = [args.targets, Path(__file__)] + list(cache.shards(run, stage, layer))
+    manifest = args.targets.with_name(args.targets.name.replace("_targets.npz", "_manifest.json"))
+    if manifest.is_file():
+        paths.append(manifest)
+    paths += sorted((Path(__file__).resolve().parents[1] / "vtb").rglob("*.py"))
+    hashes = {str(path.resolve()): hashlib.sha256(path.read_bytes()).hexdigest() for path in paths}
+    identity = {"stage": stage, "layer": layer, "protocol": protocol,
+                "files": hashes, "torch": str(torch.__version__),
+                "threads": torch.get_num_threads(),
+                "float32_matmul_precision": torch.get_float32_matmul_precision(),
+                "cudnn_allow_tf32": torch.backends.cudnn.allow_tf32,
+                "matmul_allow_tf32": torch.backends.cuda.matmul.allow_tf32}
+    key = hashlib.sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()
+    args.cell_cache.mkdir(parents=True, exist_ok=True)
+    path = args.cell_cache / f"{key}.pt"
+    if path.is_file():
+        stored = torch.load(path, map_location="cpu", weights_only=True)
+        assert stored["identity"] == identity
+        result = stored["result"]
+        assert result["values"].shape == (args.seeds, len(result["image_ids"]))
+        assert torch.isfinite(result["values"]).all()
+        print(f"reuse verified paired cell {stage}:{layer} {key}", flush=True)
+        return result
+    result = train_cell(run, stage, layer, args)
+    assert torch.isfinite(result["values"]).all()
+    result["paired_cache_key"] = key
+    scratch = path.with_suffix(f".{os.getpid()}.partial")
+    torch.save({"identity": identity, "result": result}, scratch)
+    scratch.replace(path)
+    return result
+
+
 def interval(first: dict, second: dict, positions: torch.Tensor, args) -> dict:
     return paired_metric_bootstrap(
         first["values"][:, positions],
@@ -114,14 +157,14 @@ def cell_summary(cell: dict, name: str) -> dict:
         "validation_score": cell["validation_score"],
         "seed_metrics": seed_metrics.tolist(),
         "mean_metric": seed_metrics.mean().item(),
-    }
+    } | ({"paired_cache_key": cell["paired_cache_key"]} if "paired_cache_key" in cell else {})
 
 
 def main() -> None:
     args = parser().parse_args()
     args.max_depth = geometry_run.depth_range(args.targets, args.max_depth)
-    first = train_cell(args.first_run, args.first_stage, args.first_layer, args)
-    second = train_cell(args.second_run, args.second_stage, args.second_layer, args)
+    first = cached_train_cell(args.first_run, args.first_stage, args.first_layer, args)
+    second = cached_train_cell(args.second_run, args.second_stage, args.second_layer, args)
 
     if first["image_ids"] != second["image_ids"]:
         raise ValueError("the two cells do not have the same paired test images")

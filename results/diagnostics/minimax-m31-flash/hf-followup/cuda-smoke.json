@@ -1,0 +1,50 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "repo": "immanuelpeter/MiniMax-M3.1-Flash-Vision",
+  "tested_revision": "b161cf1d04676db7a695762ac6208713fa352861",
+  "snapshot": "/tmp/vtb-delivery/issues/21/hf-followup/fresh-b161cf1d04676db7a695762ac6208713fa352861/models--immanuelpeter--MiniMax-M3.1-Flash-Vision/snapshots/b161cf1d04676db7a695762ac6208713fa352861",
+  "snapshot_symlink_script": true,
+  "command": "python examples/inference.py /tmp/vtb-delivery/data/imagenet100/validation/validation_000000.jpg",
+  "card_command_template": "python examples/inference.py /path/to/image.jpg",
+  "inline_python_snippets": [],
+  "device": "cuda:0",
+  "physical_gpu": 0,
+  "CUDA_VISIBLE_DEVICES": "0",
+  "dtype": "torch.bfloat16",
+  "batch_size": 1,
+  "cpu_threads": 2,
+  "image": "/tmp/vtb-delivery/data/imagenet100/validation/validation_000000.jpg",
+  "image_sha256": "dc4d456ce66cf18cc246831b3fe8b54133b507de981490a29f1623d86ddbeae3",
+  "original_image_size": [
+    500,
+    334
+  ],
+  "crop_size": [
+    448,
+    448
+  ],
+  "shapes": {
+    "tower": [
+      1,
+      1024,
+      1280
+    ],
+    "merged": [
+      1,
+      256,
+      5120
+    ],
+    "projected": [
+      1,
+      256,
+      6144
+    ]
+  },
+  "started_utc": "2026-11-07T23:22:30.898164+00:00",
+  "elapsed_seconds": 5.543741952998971,
+  "driver_idle_verified_before_torch_import": true,
+  "driver_memory_mib_after": 0,
+  "active_compute_processes_after": [],
+  "lock": "/tmp/vtb-delivery/locks/gpu0.lock"
+}

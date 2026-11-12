@@ -40,7 +40,7 @@ def test_correction_scope_preserves_full_sweeps_and_cohort_membership():
 
     sources = INDEX["figure_sources"]
     v3_projectors = {"nemotron35_super", "nemotron35_bolt", "mimo26_pro", "mimo26_flash"}
-    assert set(sources["geometry_stage_levels"]) == v1 | additions | v3_projectors | {"qwen38_flash_next"}
+    assert set(sources["geometry_stage_levels"]) == v1 | additions | v3_projectors | {"qwen38_flash_next", "minimax_m31_flash"}
     for model in v1 | additions:
         sweep = RESULTS / sources["geometry_layer_sweep"].format(model=model)
         cells = json.loads(sweep.read_text())["cells"]
@@ -49,6 +49,8 @@ def test_correction_scope_preserves_full_sweeps_and_cohort_membership():
         expected = RESULTS / "geometry"
         if model in v1:
             expected /= "deterministic"
+        if model == "minimax_m3":
+            expected = RESULTS / "diagnostics/minimax-m31-flash/m3-image-isolation/geometry"
         assert stage_path == expected / f"{model}_geometry_depth_matched.json"
         assert stage_path.is_file()
 

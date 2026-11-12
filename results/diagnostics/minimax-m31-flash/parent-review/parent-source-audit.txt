@@ -1,0 +1,39 @@
+Verified source shard MiniMaxAI/MiniMax-M3 model-00026-of-00059.safetensors
+Verified source shard MiniMaxAI/MiniMax-M3 model-00059-of-00059.safetensors
+Verified source shard MiniMaxAI/MiniMax-M3.1-Flash model-00013-of-00048.safetensors
+Verified source shard MiniMaxAI/MiniMax-M3.1-Flash model-00048-of-00048.safetensors
+{
+  "models": {
+    "minimax_m3": {
+      "counts": {
+        "tower": 515,
+        "projector": 8
+      },
+      "all_bytes_and_dtypes_exact": true,
+      "all_recorded_tensor_hashes_match": true
+    },
+    "minimax_m31_flash": {
+      "counts": {
+        "tower": 515,
+        "projector": 8
+      },
+      "all_bytes_and_dtypes_exact": true,
+      "all_recorded_tensor_hashes_match": true
+    }
+  },
+  "drift": {
+    "tower": {
+      "tensors": 515,
+      "unequal": 509,
+      "all_recorded_cosines_relative_l2_match": true
+    },
+    "projector": {
+      "tensors": 8,
+      "unequal": 8,
+      "all_recorded_cosines_relative_l2_match": true
+    }
+  },
+  "method": "Complete pinned vision-containing source shards, LFS SHA256, direct safe_open source tensors with independent key mapping; no vtb source loader or range cache.",
+  "seconds": 11.85769592699944,
+  "passed": true
+}
