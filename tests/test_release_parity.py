@@ -18,7 +18,8 @@ from scripts.export_qwen3_8_vision import SOURCE_REVISION as QWEN_REVISION
 from scripts.export_qwen3_8_vision import load_source_tower as load_qwen_source
 from scripts.validate_mimo26 import assert_parity as assert_mimo26_parity, validate as validate_mimo26
 from scripts.validate_nemotron35 import assert_parity, validate as validate_nemotron35
-from vtb.adapters import kimi_k26, mimo26, muse_glimmer, nemotron35, qwen3_5
+from scripts.validate_mistral_large4 import validate as validate_mistral_large4
+from vtb.adapters import kimi_k26, mimo26, mistral_large4, muse_glimmer, nemotron35, qwen3_5
 from vtb.shards import load_prefixed
 
 ROOT = Path(__file__).parents[1]
@@ -212,3 +213,24 @@ def test_mimo26_release_matches_the_zero_completed_parent(name):
     assert report["zero_completed_biases"] == ["merger.ln_q.bias", "merger.mlp.0.bias", "merger.mlp.2.bias"]
     assert [len(case["features"]) for case in report["cases"]] == [10, 10]
     assert_mimo26_parity(report, DTYPE)
+
+
+def test_mistral_large4_release_matches_the_independent_mistral_forward(tmp_path):
+    if DEVICE.type != "cuda":
+        pytest.skip("the 1540 px FP32 reference needs VTB_RELEASE_DEVICE=cuda")
+    report = validate_mistral_large4(
+        tmp_path / "report.json", tmp_path / "reference", bundle=mistral_large4.RELEASE_DIR,
+        resolutions=[448, 1540], device=str(DEVICE),
+    )
+    release = report["identity"]["release"]
+    assert report["identity"]["shard_sha256"] == report["identity"]["shard_lfs_sha256"]
+    assert release["bit_exact_after_inverse_permutation"] and release["manifest_sha256_all_match"]
+    assert release["tensors"] == 276
+    assert {case["resolution"] for case in report["cases"]} == {448, 1540}
+    assert len(report["cases"]) == 80
+    assert all(case["adapter_fp32"]["relative"] <= 1e-4 for case in report["cases"])
+    # The release reproduces the reference BF16 forward exactly. The BF16-vs-FP32
+    # gate is not asserted: the parent's own BF16 forward misses it at deep Stages.
+    assert report["all_direct_bf16_bit_exact"]
+    assert report["release_equals_adapter_all"]
+    assert report["all_controls_detected"]

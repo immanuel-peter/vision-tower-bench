@@ -16,6 +16,7 @@ from vtb.adapters.glm5 import GLM5Adapter
 from vtb.adapters.kimi_k26 import KimiK26Adapter
 from vtb.adapters.mimo26 import MiMo26FlashAdapter, MiMo26ProAdapter
 from vtb.adapters.minimax_m3 import MiniMaxM3Adapter, MiniMaxM31FlashAdapter
+from vtb.adapters.mistral_large4 import MistralLarge4Adapter
 from vtb.adapters.moonvit_v2 import MoonViTV2Adapter
 from vtb.adapters.muse_glimmer import MuseGlimmerAdapter
 from vtb.adapters.nemotron_omni import NemotronOmniAdapter
@@ -35,6 +36,7 @@ ADAPTERS = {
     "mimo26_flash": MiMo26FlashAdapter,
     "minimax_m3": MiniMaxM3Adapter,
     "minimax_m31_flash": MiniMaxM31FlashAdapter,
+    "mistral_large4": MistralLarge4Adapter,
     "moonvit_v2": MoonViTV2Adapter,
     "muse_glimmer": MuseGlimmerAdapter,
     "nemotron_omni": NemotronOmniAdapter,

@@ -101,3 +101,16 @@ def test_perturbation_also_pairs_clean_correctness_once():
     result = perturbation(payload(1.0), payload(0.0), NAMES, args())
     assert result["clean"]["difference"]["point_estimate"] == 1
     assert result["clean"]["test_images"] == 2
+
+
+def test_perturbation_can_pair_two_stages_of_one_run():
+    def cell(stage, correct):
+        return {"stage": stage, "layer_index": 30, "measurements": {"occlusion_l1": [
+            {"image_id": key, "clean": [correct] * 3, "perturbed": [correct] * 3} for key in ("a", "b")]}}
+    payload = {"images": 2000, "protocol": {"seeds": 3, "method": __import__("vtb.methods", fromlist=["descriptor"]).descriptor()},
+               "cells": [cell("tower", 0.0), cell("projected", 1.0)]}
+    result = perturbation(payload, payload, NAMES, args("--first-stage", "projected", "--second-stage", "tower"))
+    assert result["conditions"]["occlusion_l1"]["difference"]["point_estimate"] == 1
+    assert result["clean"]["difference"]["point_estimate"] == 1
+    default = args()
+    assert (default.first_stage, default.second_stage, default.stage) == (None, None, "tower")

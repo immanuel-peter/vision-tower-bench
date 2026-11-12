@@ -40,7 +40,8 @@ def test_correction_scope_preserves_full_sweeps_and_cohort_membership():
 
     sources = INDEX["figure_sources"]
     v3_projectors = {"nemotron35_super", "nemotron35_bolt", "mimo26_pro", "mimo26_flash"}
-    assert set(sources["geometry_stage_levels"]) == v1 | additions | v3_projectors | {"qwen38_flash_next", "minimax_m31_flash"}
+    v4_projectors = {"mistral_large4"}
+    assert set(sources["geometry_stage_levels"]) == v1 | additions | v3_projectors | v4_projectors | {"qwen38_flash_next", "minimax_m31_flash"}
     for model in v1 | additions:
         sweep = RESULTS / sources["geometry_layer_sweep"].format(model=model)
         cells = json.loads(sweep.read_text())["cells"]
@@ -124,3 +125,27 @@ def test_mimo26_intervals_point_at_committed_sources():
     for path in paths:
         for source, digest in json.loads(path.read_text()).get("sources", {}).items():
             assert hashlib.sha256((RESULTS.parent / source).read_bytes()).hexdigest() == digest, (path.name, source)
+
+
+def test_v4_cohort_uses_the_standard_layout():
+    models = INDEX["cohorts"]["v4"]["models"]
+    assert models == ["mistral_large4"]
+    model = models[0]
+    assert INDEX["figure_sources"]["geometry_stage_levels"][model] == f"geometry/{model}_geometry_depth_matched.json"
+    paths = [f"perturbation/{model}_perturbation.json", f"kitti/{model}_geometry_depth_matched.json",
+             f"label-budget/throughput-{model}.json"]
+    paths += [f"recognition/{model}_probe_{r}_{a}.json" for r in ("attention", "mean") for a in ("raw", "matched")]
+    paths += [f"geometry/{model}_geometry_{t}_{a}.json" for t in ("depth", "normal") for a in ("raw", "matched")]
+    paths += [f"correspondence/{model}_correspondence_{d}.json" for d in ("navi", "scannet", "spair")]
+    paths += [
+        f"label-budget/{model}_probe_{r}_matched_{f}.json"
+        for r in ("attention", "mean") for f in ("f001", "f005", "f020", "f10")
+    ]
+    for path in paths:
+        assert (RESULTS / path).is_file(), path
+    for path in sorted(RESULTS.glob(f"bootstrap/*-{model}-projected-*.json")):
+        for source, digest in json.loads(path.read_text()).get("sources", {}).items():
+            assert hashlib.sha256((RESULTS.parent / source).read_bytes()).hexdigest() == digest, (path.name, source)
+    assert len(list(RESULTS.glob(f"bootstrap/*-{model}-projected-*.json"))) == 11
+    standardized = json.loads((RESULTS / INDEX["figure_sources"]["label_budget"]).read_text())["runs"]
+    assert {f"{model}_probe_attention_matched_{f}" for f in ("f001", "f005", "f020", "f10")} <= set(standardized)

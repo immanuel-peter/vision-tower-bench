@@ -1,0 +1,59 @@
+{
+  "ln_pre_2d_vs_3d": {
+    "exact_fraction": 1.0,
+    "bit_exact": true,
+    "relative": 0.0
+  },
+  "strides": {
+    "ref_2d": [
+      1,
+      1024
+    ],
+    "adapter_3d": [
+      2097152,
+      1,
+      1024
+    ]
+  },
+  "block0_whole": {
+    "exact_fraction": 1.0,
+    "bit_exact": true,
+    "relative": 0.0
+  },
+  "block0_whole_contiguous_input": {
+    "exact_fraction": 1.0,
+    "bit_exact": true,
+    "relative": 0.0
+  },
+  "ref_block0_contiguous_vs_strided": {
+    "exact_fraction": 1.0,
+    "bit_exact": true,
+    "relative": 0.0
+  },
+  "attention_norm_3d": {
+    "exact_fraction": 1.0,
+    "bit_exact": true,
+    "relative": 0.0
+  },
+  "q_proj_3d_input_rows_permuted_back": {
+    "exact_fraction": 1.0,
+    "bit_exact": true,
+    "relative": 0.0
+  },
+  "q_proj_2d_input": {
+    "exact_fraction": 1.0,
+    "bit_exact": true,
+    "relative": 0.0
+  },
+  "attention_halves_layout_vs_ref_layout": {
+    "exact_fraction": 0.999732494354248,
+    "bit_exact": false,
+    "relative": 7.558897714286256e-05
+  },
+  "attention_interleaved_layout_vs_ref": {
+    "exact_fraction": 1.0,
+    "bit_exact": true,
+    "relative": 0.0
+  },
+  "note": "attention halves vs interleaved reorders the q/k dot-product summation"
+}

@@ -36,6 +36,7 @@ TOWERS: tuple[str, ...] = (
     "mimo26_pro",
     "mimo26_flash",
     "qwen38_flash_next",
+    "mistral_large4",
 )
 PROJECTORS: tuple[str, ...] = tuple(
     model for model in TOWERS if model not in ("dinov2", "siglip2", "dinov3")
@@ -43,15 +44,15 @@ PROJECTORS: tuple[str, ...] = tuple(
 # Bolt is released without its Tower Stage, so it appears only where merged or projected cells count.
 NO_TOWER_STAGE = frozenset({"nemotron35_bolt"})
 TOWER_STAGE: tuple[str, ...] = tuple(model for model in TOWERS if model not in NO_TOWER_STAGE)
-OUTLIER_CHANNEL = frozenset({"mimo26_pro", "mimo26_flash"})
+OUTLIER_CHANNEL = frozenset({"mimo26_pro", "mimo26_flash", "mistral_large4"})
 OUTLIER_NOTE = (
-    "\u2020 one outlier channel dominates the final Tower layer; "
-    "see results/diagnostics/mimo26-tower-outlier-channel"
+    "\u2020 outlier channels dominate the final Tower layer; "
+    "see results/diagnostics/mimo26-tower-outlier-channel and mistral-large4-outlier-channels"
 )
 PALETTE: tuple[str, ...] = (
     "#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b",
     "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#393b79", "#9e9ac8",
-    "#637939", "#b5cf6b", "#6baed6", "#843c39", "#d6616b", "#a55194",
+    "#637939", "#b5cf6b", "#6baed6", "#843c39", "#d6616b", "#a55194", "#7b4173",
 )
 COLOUR: dict[str, str] = dict(zip(TOWERS, PALETTE, strict=True))
 
@@ -75,6 +76,7 @@ DISPLAY: dict[str, str] = {
     "dinov3": "DINOv3",
     "mimo26_pro": "MiMo V2.6 Pro",
     "mimo26_flash": "MiMo V2.6 Flash",
+    "mistral_large4": "Mistral Large 4",
 }
 
 
