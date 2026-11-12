@@ -1,0 +1,26 @@
+\section{Limitations}
+\label{sec:limitations}
+The attention recognition results depend on $4\times4$ pooling whose full-token control
+is inconclusive. This affects both cross-tower comparisons and layer-curve shape;
+sharing a pooling operation does not guarantee it distorts all layers equally.
+Mean-readout agreement was established on two towers, not the entire roster.
+Geometry always uses full patch tokens.
+
+DIODE and KITTI have only 115 and 150 test images, and DIODE readouts train on just
+541 images. Equal training-set size does not imply equal underfitting across models.
+Bootstrap intervals resample images or pairs, not independent scenes, objects, or new
+training runs; correlations among units may make them overconfident. The selected
+headline comparisons are not a family-wide significance test. Layer peaks selected
+from test scores are descriptive and require separate validation before operational use.
+
+PCA controls head width but can affect representations differently, and the full matched
+geometry matrix has not been rerun with deterministic PCA. Qwen3.8's $28\times28$
+native grid differs from the other towers' $32\times32$ grids. A common-grid sensitivity
+experiment remains missing; neither PCA nor resizing correspondence maps establishes
+identical original spatial information. Kimi K3 also lacks parent forward-output and
+projector-weight parity checks, weakening confidence in its extracted pipeline.
+
+Only rectangular occlusion was measured. The results do not establish robustness to blur,
+scale, lighting, or other distribution shifts. Finally, frozen probing evaluates access
+under our readouts. No language model is evaluated or adapted, and we do not test
+whether the observed stage orderings survive multimodal training.

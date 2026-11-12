@@ -1,0 +1,22 @@
+\section{Related work}
+Prismatic VLMs and Cambrian-1 compare visual encoders through multimodal training and
+complete VLM evaluations \citep{karamcheti2024prismatic,tong2024cambrian}.
+Our study complements that approach by stopping at frozen visual features.
+Probe3D provides the closest methodological foundation: frozen-feature probes for depth
+and normals, and feature matching for correspondence \citep{elbanani2024probe3d}.
+We adapt its dense readout to one extraction layer at a time and use DIODE for geometry.
+These changes support layer comparisons but prevent interpreting our scores as a
+reproduction of its published benchmark.
+
+Intermediate features can outperform final features. Perception Encoder demonstrates
+this across downstream tasks and introduces alignment methods to expose those features
+at the output \citep{bolya2025perception}. We compare recognition and geometry along
+normalized layer depth and follow the deepest features through native connectors.
+Work beyond the encoder also motivates this stage analysis. Fu et al.
+\citep{fu2025hidden} find visual information accessible inside VLMs that nevertheless
+perform poorly on vision-centric tasks. Wu et al.\ \citep{wu2026dropoff} find a drop in
+segmentation decodability at the adapter, followed by recovery in the language model.
+These studies use different tasks and readouts; they do not establish a universal
+preservation or loss rule. Our contribution is a joint comparison of towers, layers,
+and connector stages under a shared protocol, with the limitations of probing made
+explicit \citep{belinkov2022probing}.

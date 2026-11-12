@@ -1,0 +1,47 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,graphicx,booktabs,microtype,xcolor}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{caption,float}
+\usepackage[hidelinks]{hyperref}
+\captionsetup{font=small,labelfont=bf}
+\hypersetup{pdftitle={Choosing a Vision Tower for a Text-Only LLM},pdfauthor={Immanuel Peter}}
+\setlength{\emergencystretch}{1em}
+\title{Choosing a Vision Tower for a Text-Only LLM\\
+\large A frozen-representation study of six vision towers}
+\author{Immanuel Peter\\University of Chicago\\\texttt{ipeter@uchicago.edu}}
+\date{September 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+Vision encoders with similar recognition accuracy can support different spatial tasks.
+We compare six frozen vision towers across recognition, depth, surface normals,
+correspondence, and occlusion, and examine internal layers and native multimodal
+connectors. Three patterns emerge. Capability profiles differ across towers and label
+budgets; the two highest full-label recognition estimates are statistically unresolved.
+Geometry peaks before the final layer in 23 of 24 task--tower--capacity combinations,
+while recognition peaks at the final layer in 19 of 24 tower--readout--capacity combinations. Finally, projected
+features improve probe performance over final tower features in all 16 DIODE geometry
+comparisons, with 15 paired intervals excluding zero. This pattern does not extend to
+KITTI, where two comparisons reverse and two are unresolved, or uniformly across
+correspondence datasets. These are measurements of recoverability under specified
+readouts, not information content or downstream language-model performance. A lossless
+merge changes correspondence scores substantially, illustrating that distinction.
+We document the unresolved recognition-pooling control, native-grid confound, and
+protocol corrections alongside the results.
+\end{abstract}
+\input{sections/intro}
+\input{sections/related}
+\input{sections/design}
+\input{sections/results}
+\input{sections/discussion}
+\input{sections/limitations}
+\input{sections/conclusion}
+\label{page:main-end}
+\clearpage
+\bibliographystyle{plainnat}
+\bibliography{references}
+\clearpage
+\appendix
+\input{sections/appendix}
+\end{document}

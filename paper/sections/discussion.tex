@@ -1,0 +1,14 @@
+\section{Implications for tower selection}
+The practical use of these results is to narrow candidates and extraction points for a
+specified task. SigLIP2 has the highest low-label recognition point estimate; DINOv2
+has the highest geometry and NAVI estimates, often at intermediate layers for geometry.
+These descriptive patterns suggest candidates for validation, not an inferential ranking.
+At full labels, the Muse Glimmer--SigLIP2 recognition difference is unresolved, and the
+native-grid difference limits the interpretation of DINOv2 versus Qwen3.8 depth.
+
+Tower and layer should be evaluated together. Their optima differ by task, and an
+intermediate feature may be poorly matched to a projector trained on final-layer output.
+We have not tested reconnecting those layers to a language model. Nor do DIODE gains
+justify selecting a connector for another domain: KITTI and correspondence show that
+its measured effect can change sign. A deployment decision still requires the intended
+readout, data distribution, and downstream training recipe.

@@ -1,0 +1,107 @@
+\section{Benchmark design}
+\label{sec:design}
+\subsection{Towers and extraction points}
+Table~\ref{tab:roster} lists the six towers. Each receives an image resized and
+center-cropped to $448\times448$, with its native normalization and input packing.
+At layer $i$ of a tower with $L$ blocks, relative depth is $i/L$. We sample
+$i=\operatorname{round}(Lk/8)$ for $k=1,\ldots,8$; actual fractions vary slightly with $L$.
+The deepest extraction includes final tower normalization where present; Qwen3.8
+is read at the last block output, before normalization on the merger path.
+
+\begin{table}[t]
+\centering\small
+\caption{Tower architectures. Tokens are measured before merging at $448\times448$.
+The last column is the projector's output width. DINOv2 and SigLIP2 have no native
+connector in this study.}
+\label{tab:roster}
+\begin{tabular}{lrrrrr}
+\toprule
+Tower & Layers & Width & Patch & Tokens & Projected width\\
+\midrule
+DINOv2-L & 24 & 1024 & 14 & 1024 & ---\\
+SigLIP2-so400m & 27 & 1152 & 14 & 1024 & ---\\
+Kimi K2.6 & 27 & 1152 & 14 & 1024 & 7168\\
+Kimi K3 & 27 & 1024 & 14 & 1024 & 7168\\
+Muse Glimmer & 50 & 1536 & 14 & 1024 & 6656\\
+Qwen3.8 & 27 & 1152 & 16 & 784 & 5120\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+For each multimodal tower, we also extract \texttt{merged}, which concatenates each
+$2\times2$ group of patch tokens, and \texttt{projected}, the learned map into the
+parent language model's embedding width. These stages exist only after the final tower
+layer. We do not apply projectors to intermediate layers or exchange them between towers.
+Thus the experiment separates extraction points within native pipelines, rather than
+independently crossing every tower, layer, and projector.
+
+\subsection{Tasks and readouts}
+Recognition uses the 13,000-image validation export of \texttt{ilee0022/ImageNet100},
+a 100-class ImageNet subset \citep{deng2009imagenet,ilee0022imagenet100}, split by us into
+9,100 training, 1,950 validation, and 1,950 test images. A linear classifier reads either
+the mean feature or a learned attention pool. Both operate on a cached $4\times4$ pooled
+grid. We report top-1 accuracy after 20 training epochs. Label-budget runs keep validation
+and test fixed and train on 100, 455, 1,820, or 9,100 images. The nominal 1\% condition
+uses one image per class, hence 1.10\% of the training split.
+
+Geometry uses DIODE depth and normals \citep{vasiljevic2019diode}, with 541 training,
+115 validation, and 115 test images drawn from its validation release. The test split
+contains 51 indoor and 64 outdoor images. A Probe3D-style multiscale decoder reads the
+full patch grid from one layer and trains for 10 epochs. Depth is summarized by
+$\delta_1$, the mean per-image fraction of valid pixels satisfying
+$\max(\hat d/d,d/\hat d)<1.25$, for prediction $\hat d$ and target $d$; higher is better. Normals use mean angular error in
+degrees; lower is better. Targets cover the same crop as the input image.
+
+Correspondence uses cosine feature matching on NAVI, ScanNet, and SPair-71k
+\citep{jampani2023navi,dai2017scannet,min2019spair}. NAVI measures recall within 2\,cm
+across views of an object; ScanNet measures recall within 10 pixels across indoor views;
+SPair measures keypoint accuracy within 10\% of the target bounding-box scale across
+object instances. NAVI and ScanNet match on a $64\times64$ feature grid; SPair matches
+annotated keypoints against each stage's own grid. These metrics are not averaged together. Occlusion measures top-1 accuracy after masking
+0, 10, 20, 35, or 50\% of image area, with readouts trained once on clean images.
+
+KITTI provides a separate depth experiment with 700 training, 150 validation, and
+150 test images \citep{geiger2012kitti,uhrig2017sparsity}. We retrain the depth readout
+on KITTI to test whether the DIODE stage ordering recurs. This is not zero-shot transfer
+of a DIODE-trained readout. Dataset preparation and evaluation details appear in
+Appendix~\ref{app:protocol}.
+
+\subsection{Capacity, selection, and uncertainty}
+\label{sec:selection}
+The core recognition and DIODE sweeps run at native feature width (\emph{raw}) and after
+training-split PCA to 512 dimensions (\emph{matched}). PCA is frozen before readout training. Matching
+holds head parameter count constant within a readout type; it does not equate spatial
+sampling or the information retained by the reduction. We retain both arms as a
+sensitivity analysis.
+
+A cell specifies tower, extraction point, task/readout, and capacity arm. The core sweeps
+contain 224 recognition and 224 geometry cells. Each selects its learning rate on
+validation from a shared task-specific grid, then trains with three seeds. Headline
+intervals use 10,000 paired bootstrap resamples at 95\% confidence. For trained readouts,
+we first average each image's score over seeds, then resample images; correspondence
+resamples image pairs. These intervals condition on the fitted runs and do not include
+all training uncertainty. We report seed standard deviations separately. Intervals are
+pointwise, without a multiple-comparison correction. An interval crossing zero is
+unresolved, not evidence of equivalence; an untested pair has no inferential ranking.
+
+\subsection{Controls and corrections}
+\label{sec:controls}
+Extraction tests compare weights with parent checkpoints and restore spatial token order
+before dense evaluation. Kimi K3 has tower-weight equality but lacks the forward-output
+and projector-weight checks available for the other extracted models. Lossless merging
+is verified against cached tensors for the two Kimi towers and inferred from architecture
+for Muse Glimmer and Qwen3.8.
+
+The pooled recognition cache has an incomplete control. On SigLIP2 and Muse Glimmer,
+mean-readout results agree with full-token features, but six of sixteen full-token
+attention cells collapse during optimization. Follow-up runs do not establish stable
+agreement. Attention-based recognition levels and layer curves therefore remain
+conditional on pooled features.
+
+Two corrections changed the recorded results: expanding the recognition learning-rate
+grid and seeding randomized PCA. Initially, 107 of 224 cells selected the lower rate
+limit. In the corrected run none selects the lower limit and three select the upper
+limit. All matched recognition cells and headline geometry comparisons were rerun. Together these corrections changed an apparent Muse
+Glimmer merge-to-projector loss from $-0.0075$ to $+0.0042$ top-1. The full matched geometry sweep retains its original
+randomized reductions. Its curves and selected peaks are descriptive; geometry intervals
+refer to deterministic reruns. Appendix~\ref{app:corrections} records the corrections.

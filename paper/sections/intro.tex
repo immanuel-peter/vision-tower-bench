@@ -1,0 +1,24 @@
+\section{Introduction}
+Adding vision to a language model requires choosing an encoder, an extraction layer,
+and a connector. A full vision-language model (VLM) evaluation measures their combined
+behavior after training. Frozen-feature probes answer a narrower question: what can a
+specified readout recover at each point in the visual pipeline? This can identify
+candidate representations before multimodal training, although their usefulness to a
+language model must still be tested downstream.
+
+We study DINOv2 \citep{oquab2024dinov2} and SigLIP2 \citep{tschannen2025siglip2} as
+standalone references, alongside towers extracted from Kimi K2.6 \citep{moonshot2026kimik26},
+Kimi K3 \citep{moonshot2026kimik3}, Muse Glimmer \citep{meta2026museglimmer}, and
+Qwen3.8 \citep{qwen2026qwen38}. Recognition asks which category an image
+contains. Geometry asks how far surfaces are from the camera and which direction they
+face. Correspondence asks whether features match the same point across views or related
+parts across objects. Occlusion tests recognition as visible image content is removed.
+These capabilities need not favor the same representation.
+
+The benchmark resolves internal layers and, for multimodal towers, the native merge and
+projector stages. Towers and connectors remain frozen; recognition and geometry use
+trained readouts, while correspondence uses direct feature matching. The study contributes
+capability profiles for six towers, layer sweeps under two readout-capacity settings, and
+paired evidence that connector effects change across evaluation datasets. The accompanying
+code and result records expose the measurements and the controls behind these claims.
+We report effects under this protocol rather than proposing an overall tower ranking.
