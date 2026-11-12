@@ -304,7 +304,7 @@ def occlusion(out: Path) -> None:
     axis.set_ylabel("top-1 accuracy")
     axis.set_title(
         "Recognition under occlusion\n"
-        "MiMo V2.6 and Flash-Next Tower readouts are omitted after clean-readout failures", fontsize=10,
+        "MiMo V2.6, Mistral Large 4 and Flash-Next Tower readouts are omitted after clean-readout failures", fontsize=10,
     )
     axis.grid(alpha=0.25)
     axis.legend(fontsize=7, ncol=2)
