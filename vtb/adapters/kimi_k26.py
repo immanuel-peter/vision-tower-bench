@@ -14,6 +14,7 @@ from vtb.feature_batch import FeatureBatch
 from vtb.images import square_crop
 
 MODEL_ID = "immanuelpeter/MoonViT-K2.6"
+REVISION = "84ec70ac59184bfa74fca77af9e1cdeccb32b5d6"
 PROJECTOR_FILE = "projector.safetensors"
 PROJECTOR_CONFIG = "projector_config.json"
 
@@ -59,7 +60,7 @@ def collate(samples: list[torch.Tensor]) -> dict[str, torch.Tensor]:
 
 def load_projector(dtype: torch.dtype) -> nn.Module:
     """Build Kimi K2.6's patch merger from its published weights."""
-    settings = loads(Path(hf_hub_download(MODEL_ID, PROJECTOR_CONFIG)).read_text())
+    settings = loads(Path(hf_hub_download(MODEL_ID, PROJECTOR_CONFIG, revision=REVISION)).read_text())
     projector = nn.Module()
     projector.pre_norm = nn.LayerNorm(settings["input_size"], eps=settings["norm_eps"])
     projector.proj = nn.Sequential(
@@ -67,13 +68,13 @@ def load_projector(dtype: torch.dtype) -> nn.Module:
         nn.GELU(),
         nn.Linear(settings["hidden_size"], settings["output_size"]),
     )
-    projector.load_state_dict(load_file(hf_hub_download(MODEL_ID, PROJECTOR_FILE)))
+    projector.load_state_dict(load_file(hf_hub_download(MODEL_ID, PROJECTOR_FILE, revision=REVISION)))
     return projector.to(dtype).eval()
 
 
 def load_parts(dtype: torch.dtype, attention: str = "eager"):
     tower = AutoModel.from_pretrained(
-        MODEL_ID, dtype=dtype, trust_remote_code=True, attn_implementation=attention
+        MODEL_ID, revision=REVISION, dtype=dtype, trust_remote_code=True, attn_implementation=attention
     ).eval()
     return tower, load_projector(dtype)
 
