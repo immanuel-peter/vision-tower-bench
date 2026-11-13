@@ -46,7 +46,7 @@ The multimodal Towers are standalone extracts of their parents. The model cards 
 
 The [results index](results/README.md) links each experiment, its evidence, and
 its correction status. Recognition and geometry matrices are grouped by task;
-diagnostics and historical run notes are separate. All measurements remain in Git.
+diagnostics and historical run notes are separate. The measurement payloads live on the Hugging Face Dataset [immanuelpeter/vision-tower-bench-results](https://huggingface.co/datasets/immanuelpeter/vision-tower-bench-results); `results/index.json` pins its revision with a SHA256 per file, and `uv run python scripts/fetch_results.py` downloads them into `results/`.
 
 The [machine-readable index](results/index.json) records the v1 six-Tower,
 v2 eleven-Tower, v3 five-Tower and v4 four-Tower cohorts. It selects

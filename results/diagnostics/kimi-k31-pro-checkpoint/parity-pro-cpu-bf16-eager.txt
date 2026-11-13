@@ -1,17 +1,0 @@
-bash: cannot set terminal process group (1): Inappropriate ioctl for device
-bash: no job control in this shell
-Loading weights:   0%|          | 0/165 [00:00<?, ?it/s]Loading weights: 100%|██████████| 165/165 [00:00<00:00, 9759.97it/s]
-Traceback (most recent call last):
-  File "<frozen runpy>", line 198, in _run_module_as_main
-  File "<frozen runpy>", line 88, in _run_code
-  File "/home/shadeform/.t3/worktrees/vision-tower-bench/t3-edc83c25/scripts/validate_kimi_vllm.py", line 83, in <module>
-    main()
-  File "/home/shadeform/.t3/worktrees/vision-tower-bench/t3-edc83c25/scripts/validate_kimi_vllm.py", line 75, in main
-    torch.testing.assert_close(actual.tokens, target, atol=atol, rtol=rtol)
-  File "/home/shadeform/.t3/worktrees/vision-tower-bench/t3-edc83c25/.venv/lib/python3.12/site-packages/torch/testing/_comparison.py", line 1631, in assert_close
-    raise error_metas[0].to_error(msg)
-AssertionError: Tensor-likes are not close!
-
-Mismatched elements: 1318 / 1048576 (0.1%)
-Greatest absolute difference: 5.75 at index (0, 861, 98) (up to 0.125 allowed)
-Greatest relative difference: inf at index (0, 861, 93) (up to 0.03 allowed)

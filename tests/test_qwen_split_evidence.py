@@ -3,9 +3,13 @@ from pathlib import Path
 
 import pytest
 
+from scripts.fetch_results import absent
 from vtb.probe_run import split_indices
 
+SPLITS = "results/evidence/qwen38-flash-next/splits.json"
 
+
+@pytest.mark.skipif(bool(absent([SPLITS])), reason="payloads not fetched: uv run python scripts/fetch_results.py")
 @pytest.mark.parametrize("dataset,counts", [
     ("diode", (541, 115, 115)),
     ("kitti", (700, 150, 150)),
@@ -13,7 +17,7 @@ from vtb.probe_run import split_indices
     ("perturbation", (1400, 300, 300)),
 ])
 def test_prescribed_splits_match_recorded_counts_and_every_image_id(dataset, counts):
-    path = Path(__file__).parents[1] / "results/evidence/qwen38-flash-next/splits.json"
+    path = Path(__file__).parents[1] / SPLITS
     evidence = json.loads(path.read_text())
     recorded = evidence["datasets"][dataset]
     ids = recorded["all_ids"]
