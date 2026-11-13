@@ -32,6 +32,7 @@ from vtb.adapters.nemotron_omni import (
     collate,
     pixel_shuffle,
 )
+from vtb.provenance import open_release
 from vtb.shards import load_prefixed
 
 # AutoConfig's cross-repository auto_map otherwise follows the code repo's main.
@@ -50,15 +51,23 @@ class Checkpoint:
     repo: str
     revision: str
     final_layernorm: bool
+    release_revision: str
 
     @property
     def release_dir(self) -> Path:
         return ROOT / "hf" / self.model_id.split("/")[-1]
 
     @property
-    def bundle(self) -> Path:
+    def override(self) -> Path | None:
         override = os.environ.get(f"VTB_{self.name.upper()}_BUNDLE")
-        return Path(override) if override else self.release_dir
+        return Path(override) if override else None
+
+    def open(self, bundle: Path | None = None) -> Path:
+        return open_release(self.model_id, self.release_revision, self.repo, self.revision, bundle=bundle or self.override, required=True)
+
+    @property
+    def bundle(self) -> Path:
+        return self.open()
 
 
 SUPER = Checkpoint(
@@ -67,6 +76,7 @@ SUPER = Checkpoint(
     "nvidia/NVIDIA-Nemotron-3.5-Super-VL-120B-A12B-BF16",
     "97e009758ae21747ee3752d2e43b005fb1e23a61",
     True,
+    "d023f42c7e0284ac0f3c007f9d22fb5253de7b82",
 )
 BOLT = Checkpoint(
     "nemotron35_bolt",
@@ -74,6 +84,7 @@ BOLT = Checkpoint(
     "nvidia/NVIDIA-Nemotron-3.5-Bolt-74B-A9B-BF16",
     "a6a1e5030819a130a1ea08aadb1fe42f4cc86777",
     False,
+    "212a8064f23b70e1cc03990855398a66ab1d32d5",
 )
 CHECKPOINTS = {item.name: item for item in (SUPER, BOLT)}
 
@@ -146,17 +157,11 @@ def build_parts(checkpoint: Checkpoint, weights: dict, dtype: torch.dtype):
 
 def load_parts(checkpoint: Checkpoint, dtype: torch.dtype):
     bundle = checkpoint.bundle
-    if (bundle / "model.safetensors").exists():
-        provenance = json.loads((bundle / "config.json").read_text())
-        if provenance["source"] != checkpoint.repo or provenance["revision"] != checkpoint.revision:
-            raise ValueError(f"bundle provenance does not match {checkpoint.name}")
-        weights = {
-            "tower": load_file(bundle / "model.safetensors"),
-            "projector": load_file(bundle / "projector.safetensors"),
-            "final_norm": load_file(bundle / "final_norm.safetensors") if checkpoint.final_layernorm else {},
-        }
-    else:
-        weights = source_weights(checkpoint)
+    weights = {
+        "tower": load_file(bundle / "model.safetensors"),
+        "projector": load_file(bundle / "projector.safetensors"),
+        "final_norm": load_file(bundle / "final_norm.safetensors") if checkpoint.final_layernorm else {},
+    }
     return build_parts(checkpoint, weights, dtype)
 
 

@@ -14,6 +14,7 @@ from vtb.shards import load_prefixed
 
 from vtb.feature_batch import FeatureBatch
 from vtb.images import square_crop
+from vtb.provenance import check_provenance, log_loaded
 
 ROOT = Path(__file__).resolve().parents[2]
 VISION_PREFIX = "model.visual."
@@ -127,13 +128,11 @@ def raster(tokens: torch.Tensor, rows: int) -> torch.Tensor:
 
 def load_tower(dtype: torch.dtype, checkpoint: Checkpoint = QWEN27B) -> Qwen3_5VisionModel:
     if (checkpoint.bundle / "model.safetensors").is_file():
-        manifest = checkpoint.bundle / "export_manifest.json"
-        if manifest.is_file():
-            provenance = json.loads(manifest.read_text())
-            if (provenance["source_repo"], provenance["source_revision"]) != (checkpoint.repo, checkpoint.revision):
-                raise ValueError(f"bundle provenance does not match {checkpoint.name}")
+        check_provenance(checkpoint.bundle, checkpoint.repo, checkpoint.revision)
+        log_loaded(checkpoint.model_id, str(checkpoint.bundle))
         model = AutoModel.from_pretrained(checkpoint.bundle, dtype=dtype, local_files_only=True).eval()
     else:
+        log_loaded(checkpoint.model_id, f"{checkpoint.model_id}@{checkpoint.release_revision}")
         model = AutoModel.from_pretrained(
             checkpoint.model_id, revision=checkpoint.release_revision, dtype=dtype,
         ).eval()

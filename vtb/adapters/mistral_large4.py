@@ -31,6 +31,7 @@ from vtb.models.pixtral_large4 import (  # noqa: F401  re-exported for tests and
     rotary_table,
     rotate,
 )
+from vtb.provenance import check_provenance, log_loaded
 from vtb.shards import load_prefixed
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -197,9 +198,7 @@ def bundle_dir() -> Path:
 
 
 def load_bundle_parts(bundle: Path, dtype: torch.dtype) -> tuple[PixtralVisionModel, Mistral3MultiModalProjector]:
-    manifest = json.loads((bundle / "export_manifest.json").read_text())
-    if (manifest["source_repo"], manifest["source_revision"]) != (SOURCE_REPO, SOURCE_REVISION):
-        raise ValueError("bundle provenance does not match the pinned Mistral Large 4 revision")
+    check_provenance(bundle, SOURCE_REPO, SOURCE_REVISION, required=True)
     tower_config = PixtralLarge4VisionConfig.from_pretrained(bundle, local_files_only=True)
     mm_config = Mistral3Config(**json.loads((bundle / "projector_config.json").read_text()))
     return build_parts(
@@ -220,7 +219,9 @@ def load_bundle_projector(bundle: Path, dtype: torch.dtype) -> Mistral3MultiModa
 def load_parts(dtype: torch.dtype) -> tuple[PixtralVisionModel, Mistral3MultiModalProjector]:
     bundle = bundle_dir()
     if (bundle / "model.safetensors").is_file():
+        log_loaded(MODEL_ID, str(bundle))
         return load_bundle_parts(bundle, dtype)
+    log_loaded(MODEL_ID, f"parent checkpoint {SOURCE_REPO}@{SOURCE_REVISION}")
     return load_source_parts(dtype)
 
 
