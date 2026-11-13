@@ -3,7 +3,7 @@ import pytest
 from PIL import Image
 from pathlib import Path
 
-from scripts.prep_kitti import DEPTH_DIVISOR, paired_samples, read_depth, sample_key
+from vtb.kitti import DEPTH_DIVISOR, paired_samples, read_depth, sample_key
 
 
 def test_kitti_sample_keys_pair_image_and_ground_truth_names():

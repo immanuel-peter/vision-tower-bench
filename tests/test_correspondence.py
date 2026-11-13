@@ -97,7 +97,7 @@ def test_paired_correspondence_bootstrap_is_reproducible():
 
 
 def test_correspondence_runner_keeps_full_patch_grid_defaults():
-    from scripts.correspondence_run import parser
+    from vtb.correspondence_run import parser
 
     args = parser().parse_args([
         "--model", "dinov2", "--dataset", "scannet", "--root", "data", "--out", "out.json"
@@ -109,7 +109,7 @@ def test_correspondence_runner_keeps_full_patch_grid_defaults():
 
 
 def test_scannet_rgb_is_aligned_to_the_depth_and_intrinsics_frame():
-    from scripts.correspondence_run import align_rgb_to_depth
+    from vtb.correspondence_run import align_rgb_to_depth
 
     image = Image.new("RGB", (1296, 968))
     depth = torch.ones(480, 640)
@@ -120,7 +120,7 @@ def test_scannet_rgb_is_aligned_to_the_depth_and_intrinsics_frame():
 
 
 def test_correspondence_bootstrap_defaults_to_projected_against_tower():
-    from scripts.correspondence_bootstrap import parser
+    from vtb.correspondence_bootstrap import parser
 
     args = parser().parse_args(["--run", "run.json", "--out", "out.json"])
 

@@ -1,5 +1,5 @@
 import torch
-from scripts.qwen_conditioning import PRIMARY_TRAIN, train_with_loss_log
+from vtb.qwen_conditioning import PRIMARY_TRAIN, train_with_loss_log
 from vtb.probe_run import split_indices
 
 

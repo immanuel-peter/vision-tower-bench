@@ -1,6 +1,6 @@
 import torch
 
-from scripts.standardized_label_budget import StandardizedReducer, fit_reducer
+from vtb.standardized_label_budget import StandardizedReducer, fit_reducer
 from vtb.probe_run import split_indices
 
 

@@ -1,6 +1,6 @@
 import pytest
 
-from scripts.cross_run_bootstrap import correspondence, pair_rows, parser, perturbation
+from vtb.cross_run_bootstrap import correspondence, pair_rows, parser, perturbation
 
 NAMES = ("first", "second")
 

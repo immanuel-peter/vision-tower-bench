@@ -5,7 +5,7 @@ from vtb.geometry_bootstrap import paired_metric_bootstrap
 
 
 def test_geometry_bootstrap_runner_defaults_to_matched_protocol():
-    from scripts.geometry_bootstrap import parser
+    from vtb.geometry_bootstrap_run import parser
 
     args = parser().parse_args(
         [

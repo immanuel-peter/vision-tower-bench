@@ -4,7 +4,7 @@ from types import SimpleNamespace
 import pytest
 import torch
 
-from scripts import export_moonvit_v2_vision as export
+from vtb import export_moonvit_v2_vision as export
 from vtb import probe
 from vtb.adapters.moonvit_v2 import CHECKPOINTS, K3, K31_PRO, KimiK31ProAdapter, MoonViTV2Adapter
 from vtb.probe_run import Split, fit_reducer

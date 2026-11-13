@@ -2,7 +2,7 @@ from types import SimpleNamespace
 
 import torch
 
-from scripts import geometry_bootstrap
+from vtb import geometry_bootstrap_run
 
 
 def test_paired_cell_cache_reuses_exact_measurements_and_invalidates_changed_inputs(tmp_path, monkeypatch):
@@ -21,21 +21,21 @@ def test_paired_cell_cache_reuses_exact_measurements_and_invalidates_changed_inp
     def train(*unused):
         calls.append(1)
         return {"values": torch.tensor([[1.], [2.], [3.]]), "image_ids": ["test_0"]}
-    monkeypatch.setattr(geometry_bootstrap, "train_cell", train)
-    first = geometry_bootstrap.cached_train_cell(run, "tower", 32, args)
-    second = geometry_bootstrap.cached_train_cell(run, "tower", 32, args)
+    monkeypatch.setattr(geometry_bootstrap_run, "train_cell", train)
+    first = geometry_bootstrap_run.cached_train_cell(run, "tower", 32, args)
+    second = geometry_bootstrap_run.cached_train_cell(run, "tower", 32, args)
     assert len(calls) == 1
     assert torch.equal(first["values"], second["values"])
     assert first["image_ids"] == second["image_ids"]
     targets.write_bytes(b"changed target identity")
-    geometry_bootstrap.cached_train_cell(run, "tower", 32, args)
+    geometry_bootstrap_run.cached_train_cell(run, "tower", 32, args)
     assert len(calls) == 2
     shard.write_bytes(b"changed feature identity")
-    geometry_bootstrap.cached_train_cell(run, "tower", 32, args)
+    geometry_bootstrap_run.cached_train_cell(run, "tower", 32, args)
     assert len(calls) == 3
     args.learning_rates = [1e-3]
-    geometry_bootstrap.cached_train_cell(run, "tower", 32, args)
+    geometry_bootstrap_run.cached_train_cell(run, "tower", 32, args)
     assert len(calls) == 4
     args.cell_cache = None
-    geometry_bootstrap.cached_train_cell(run, "tower", 32, args)
+    geometry_bootstrap_run.cached_train_cell(run, "tower", 32, args)
     assert len(calls) == 5
