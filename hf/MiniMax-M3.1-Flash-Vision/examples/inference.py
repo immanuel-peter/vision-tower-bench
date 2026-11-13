@@ -1,7 +1,7 @@
 """Extract independent-image MiniMax features from this downloaded bundle."""
 import argparse
 from pathlib import Path
-import sys
+import runpy
 
 from PIL import Image
 import torch
@@ -9,8 +9,6 @@ from torchvision import transforms
 from transformers import MiniMaxM3VLVisionModel
 
 BUNDLE = Path(__file__).absolute().parents[1]
-sys.path.insert(0, str(BUNDLE))
-from projector import load_projector
 
 
 def preprocess(image: Image.Image) -> torch.Tensor:
@@ -40,6 +38,7 @@ def main() -> None:
     model = MiniMaxM3VLVisionModel.from_pretrained(
         BUNDLE, dtype=dtype, local_files_only=True,
     ).to(device).eval()
+    load_projector = runpy.run_path(str(BUNDLE / "projector.py"))["load_projector"]
     projector = load_projector(BUNDLE).to(device=device, dtype=dtype).eval()
     with torch.inference_mode():
         packed = model(pixels, torch.tensor([[1, 32, 32]], device=device)).last_hidden_state

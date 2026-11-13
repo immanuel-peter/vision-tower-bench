@@ -1,13 +1,14 @@
 import argparse
 from pathlib import Path
-import sys
+import runpy
 
 from PIL import Image
 import torch
 from transformers import AutoImageProcessor, AutoModel
 
-sys.path.insert(0, str(Path(__file__).absolute().parents[1]))
-from projector import load_projector, merged_and_projected
+BUNDLE = Path(__file__).absolute().parents[1]
+module = runpy.run_path(str(BUNDLE / "projector.py"))
+load_projector, merged_and_projected = module["load_projector"], module["merged_and_projected"]
 
 
 MODEL_ID = "immanuelpeter/PixtralViT-Large-4"
