@@ -4,11 +4,25 @@ import hashlib
 import json
 from pathlib import Path
 
+import pytest
+
+from scripts.fetch_results import absent
 
 RESULTS = Path(__file__).parents[1] / "results"
 INDEX = json.loads((RESULTS / "index.json").read_text())
+requires_payloads = pytest.mark.skipif(bool(absent(["results/"])), reason="payloads not fetched: uv run python scripts/fetch_results.py")
 
 
+def test_payloads_are_pinned_to_one_dataset_revision():
+    payloads = INDEX["payloads"]
+    prefix = f"https://huggingface.co/datasets/{payloads['dataset']}/resolve/{payloads['revision']}/"
+    assert len(payloads["revision"]) == 40
+    for path, entry in payloads["files"].items():
+        remote = path.removeprefix("docs/")
+        assert entry["url"] == prefix + remote and len(entry["sha256"]) == 64
+
+
+@requires_payloads
 def test_index_links_and_original_completion_records():
     for experiment in INDEX["experiments"].values():
         assert (RESULTS / experiment["path"]).is_dir()
@@ -23,6 +37,7 @@ def test_index_links_and_original_completion_records():
             assert len(payload["cells"]) == int(expected), name
 
 
+@requires_payloads
 def test_correction_scope_preserves_full_sweeps_and_cohort_membership():
     v1 = {"dinov2", "siglip2", "muse_glimmer", "kimi_k26", "qwen3_5", "moonvit_v2"}
     additions = {"glm5", "nemotron_omni", "deepseek_v41", "gemma4", "minimax_m3"}
@@ -64,6 +79,7 @@ def test_correction_scope_preserves_full_sweeps_and_cohort_membership():
                 )).is_file()
 
 
+@requires_payloads
 def test_v3_cohort_uses_the_standard_layout():
     models = INDEX["cohorts"]["v3"]["models"]
     assert set(models) == {"nemotron35_super", "nemotron35_bolt", "dinov3", "mimo26_pro", "mimo26_flash"}
@@ -85,6 +101,7 @@ def test_v3_cohort_uses_the_standard_layout():
     assert not (RESULTS / "v3").exists()
 
 
+@requires_payloads
 def test_flash_next_geometry_contains_every_slice_with_native_grids_and_recorded_splits():
     evidence = json.loads((RESULTS / "evidence/qwen38-flash-next/splits.json").read_text())
     split = evidence["datasets"]["diode"]
@@ -111,6 +128,7 @@ def test_flash_next_geometry_contains_every_slice_with_native_grids_and_recorded
                 assert all(row["images"] == len(split["test_ids"]) for row in cell["per_seed"])
 
 
+@requires_payloads
 def test_dinov3_intervals_point_at_committed_sources():
     paths = sorted(RESULTS.glob("bootstrap/*-dinov3-vs-dinov2.json"))
     assert len(paths) == 7
@@ -121,6 +139,7 @@ def test_dinov3_intervals_point_at_committed_sources():
                 assert (RESULTS.parent / protocol[key]).is_file(), (path.name, key)
 
 
+@requires_payloads
 def test_mimo26_intervals_point_at_committed_sources():
     paths = sorted(RESULTS.glob("bootstrap/*-mimo26-pro-vs-flash*.json"))
     assert len(paths) == 13
@@ -129,6 +148,7 @@ def test_mimo26_intervals_point_at_committed_sources():
             assert hashlib.sha256((RESULTS.parent / source).read_bytes()).hexdigest() == digest, (path.name, source)
 
 
+@requires_payloads
 def test_v4_cohort_uses_the_standard_layout():
     models = INDEX["cohorts"]["v4"]["models"]
     assert models == ["mistral_large4"]
