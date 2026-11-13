@@ -1,13 +1,13 @@
 import argparse
 from pathlib import Path
-import sys
+import runpy
 
 from PIL import Image
 import torch
 from transformers import MiniMaxM3VLImageProcessor, MiniMaxM3VLVisionModel
 
-sys.path.insert(0, str(Path(__file__).absolute().parents[1]))
-from projector import load_projector
+BUNDLE = Path(__file__).absolute().parents[1]
+load_projector = runpy.run_path(str(BUNDLE / "projector.py"))["load_projector"]
 
 
 MODEL_ID = "immanuelpeter/MiniMax-M3-Vision"

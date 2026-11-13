@@ -1,7 +1,7 @@
 import argparse
 import json
 from pathlib import Path
-import sys
+import runpy
 
 from PIL import Image
 import torch
@@ -10,8 +10,8 @@ from safetensors.torch import load_file
 from torchvision import transforms
 from transformers import AutoConfig, AutoModel
 
-sys.path.insert(0, str(Path(__file__).absolute().parents[1]))
-from projector import load_projector
+BUNDLE = Path(__file__).absolute().parents[1]
+load_projector = runpy.run_path(str(BUNDLE / "projector.py"))["load_projector"]
 
 
 MODEL_ID = "immanuelpeter/C-RADIOv4-H-3-Omni"
