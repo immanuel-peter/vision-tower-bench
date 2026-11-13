@@ -2,17 +2,17 @@
 
 import argparse
 import json
-import shutil
 from pathlib import Path
 from types import SimpleNamespace
 
 import torch
 from huggingface_hub import hf_hub_download
-from safetensors.torch import load_file, save_file
+from safetensors.torch import load_file
 from transformers.dynamic_module_utils import get_class_from_dynamic_module
 from transformers.utils import import_utils
 
 from vtb.adapters.kimi_k26 import PROJECTOR_PREFIX, SOURCE_REPO, TOWER_PREFIX
+from vtb.bundle import ROOT, expect_tensors, print_sizes, write_bundle
 
 SOURCE_MODULE = "modeling_kimi_k25"
 SOURCE_REVISION = "7eb5002f6aadc958aed6a9177b7ed26bb94011bb"
@@ -213,16 +213,9 @@ def projector_config(projector: dict[str, torch.Tensor]) -> dict:
 
 
 def export(out: Path) -> None:
-    weights = load_file(
-        hf_hub_download(WEIGHT_REPO, WEIGHT_FILE, revision=WEIGHT_REVISION)
-    )
-    tower = split(weights, TOWER_PREFIX)
-    projector = split(weights, PROJECTOR_PREFIX)
-    if len(tower) != TOWER_TENSORS or len(projector) != PROJECTOR_TENSORS:
-        raise SystemExit(
-            f"expected {TOWER_TENSORS} and {PROJECTOR_TENSORS} tensors, "
-            f"read {len(tower)} and {len(projector)}"
-        )
+    weights = load_file(hf_hub_download(WEIGHT_REPO, WEIGHT_FILE, revision=WEIGHT_REVISION))
+    tower = expect_tensors(split(weights, TOWER_PREFIX), TOWER_TENSORS, "Tower")
+    projector = expect_tensors(split(weights, PROJECTOR_PREFIX), PROJECTOR_TENSORS, "Projector")
 
     source_files = {
         name: Path(hf_hub_download(SOURCE_REPO, name, revision=SOURCE_REVISION))
@@ -235,44 +228,32 @@ def export(out: Path) -> None:
             "THIRD_PARTY_NOTICES.md",
         )
     }
-
-    out.mkdir(parents=True, exist_ok=True)
-    save_file(tower, out / "model.safetensors", metadata={"format": "pt"})
-    save_file(projector, out / "projector.safetensors", metadata={"format": "pt"})
-    (out / "config.json").write_text(json.dumps(tower_config(), indent=2) + "\n")
-    (out / "projector_config.json").write_text(
-        json.dumps(projector_config(projector), indent=2) + "\n"
-    )
-    (out / "configuration_moonvit.py").write_text(CONFIGURATION_SOURCE)
-    (out / "modeling_moonvit.py").write_text(
-        standalone_modeling_source(source_files["modeling_kimi_k25.py"].read_text())
-    )
-    (out / "media_utils.py").write_text(
-        standalone_media_utils_source(source_files["media_utils.py"].read_text())
-    )
-    (out / "kimi_k25_vision_processing.py").write_text(
-        standalone_processor_source(
-            source_files["kimi_k25_vision_processing.py"].read_text()
-        )
-    )
     processor_config = json.loads(source_files["preprocessor_config.json"].read_text())
     del processor_config["auto_map"]["AutoProcessor"]
-    (out / "preprocessor_config.json").write_text(
-        json.dumps(processor_config, indent=2) + "\n"
-    )
-    for name in (
-        "LICENSE",
-        "THIRD_PARTY_NOTICES.md",
-    ):
-        shutil.copyfile(source_files[name], out / name)
 
-    for path in sorted(out.iterdir()):
-        print(f"{path.stat().st_size / 1e6:9.2f} MB  {path.name}")
+    write_bundle(
+        out,
+        weights={"model.safetensors": tower, "projector.safetensors": projector},
+        configs={
+            "config.json": tower_config(),
+            "projector_config.json": projector_config(projector),
+            "preprocessor_config.json": processor_config,
+        },
+        license=source_files["LICENSE"],
+        files={"THIRD_PARTY_NOTICES.md": source_files["THIRD_PARTY_NOTICES.md"]},
+    )
+    (out / "configuration_moonvit.py").write_text(CONFIGURATION_SOURCE)
+    (out / "modeling_moonvit.py").write_text(standalone_modeling_source(source_files["modeling_kimi_k25.py"].read_text()))
+    (out / "media_utils.py").write_text(standalone_media_utils_source(source_files["media_utils.py"].read_text()))
+    (out / "kimi_k25_vision_processing.py").write_text(
+        standalone_processor_source(source_files["kimi_k25_vision_processing.py"].read_text())
+    )
+    print_sizes(out)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--out", type=Path, default=Path("hf/MoonViT-K2.6"))
+    parser.add_argument("--out", type=Path, default=ROOT / "hf/MoonViT-K2.6")
     args = parser.parse_args()
     export(args.out)
 
