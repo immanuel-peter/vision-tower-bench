@@ -7,12 +7,12 @@ import shutil
 from pathlib import Path
 
 import torch
-from safetensors.torch import save_file
 
 from vtb.adapters.nemotron35 import (
     CHECKPOINTS, CODE_CONFIG_REPO, CODE_CONFIG_REVISION, RADIO_CODE_REVISION,
     source_index, source_weights,
 )
+from vtb.bundle import write_bundle, write_json
 
 
 def export(name: str, out: Path | None = None) -> Path:
@@ -26,9 +26,6 @@ def export(name: str, out: Path | None = None) -> Path:
     out.mkdir(parents=True, exist_ok=True)
     if out.resolve() != source.resolve():
         shutil.copytree(source, out, ignore=shutil.ignore_patterns("*.safetensors"), dirs_exist_ok=True)
-    for part, filename in (("tower", "model.safetensors"), ("projector", "projector.safetensors"), ("final_norm", "final_norm.safetensors")):
-        if weights[part]:
-            save_file(weights[part], out / filename, metadata={"format": "pt"})
     config = {
         "source": checkpoint.repo, "revision": checkpoint.revision,
         "code_config_source": CODE_CONFIG_REPO, "code_config_revision": CODE_CONFIG_REVISION,
@@ -40,7 +37,8 @@ def export(name: str, out: Path | None = None) -> Path:
         "projector_activation": "relu2", "projector_norm_eps": 1e-5,
         "vision_final_layernorm_eps": 1e-6,
     }
-    (out / "config.json").write_text(json.dumps(config, indent=2) + "\n")
+    files = (("tower", "model.safetensors"), ("projector", "projector.safetensors"), ("final_norm", "final_norm.safetensors"))
+    write_bundle(out, weights={filename: weights[part] for part, filename in files if weights[part]}, configs={"config.json": config})
     index = source_index(checkpoint)
     inventory = {
         part: {
@@ -50,7 +48,7 @@ def export(name: str, out: Path | None = None) -> Path:
         } for part, part_weights in weights.items()
     }
     inventory["source_shards"] = sorted({shard for key, shard in index.items() if key.startswith(("vision_model.", "mlp1.", "vision_projector.vision_final_layernorm."))})
-    (out / "inventory.json").write_text(json.dumps(inventory, indent=2) + "\n")
+    write_json(out / "inventory.json", inventory)
     print(json.dumps({"model": name, "out": str(out), "tensor_counts": {key: len(value) for key, value in weights.items()}}, indent=2))
     return out
 

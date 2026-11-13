@@ -14,10 +14,10 @@ from transformers import (
     Qwen3_5VisionModel,
 )
 
-from scripts.export_muse_glimmer_vision import write_bundle as write_muse_bundle
-from scripts.export_moonvit_k26 import BUNDLE_FILES as KIMI_BUNDLE_FILES
-from scripts.export_qwen3_8_vision import write_bundle as write_qwen_bundle
+from scripts.export_moonvit_k26_vision import BUNDLE_FILES as KIMI_BUNDLE_FILES
+from scripts.export_muse_glimmer_vision import projector_config as muse_projector_config
 from vtb.adapters.muse_glimmer import Projector
+from vtb.bundle import write_bundle
 
 
 def test_qwen_bundle_loads_through_auto_model_without_the_parent_repo(tmp_path):
@@ -42,7 +42,13 @@ def test_qwen_bundle_loads_through_auto_model_without_the_parent_repo(tmp_path):
     license_path.write_text("Apache License\n")
     out = tmp_path / "bundle"
 
-    write_qwen_bundle(tower, preprocessor, license_path, out)
+    write_bundle(
+        out,
+        tower=tower,
+        architecture="Qwen3_5VisionModel",
+        preprocessor=json.loads(preprocessor.read_text()),
+        license=license_path,
+    )
 
     loaded = AutoModel.from_pretrained(out, local_files_only=True)
     processor = AutoProcessor.from_pretrained(out, local_files_only=True)
@@ -99,7 +105,16 @@ def test_muse_bundle_loads_the_tower_and_keeps_the_projector_separate(tmp_path):
     usage_policy.write_text("Usage policy\n")
     out = tmp_path / "bundle"
 
-    write_muse_bundle(tower, projector, processor_config, license_path, usage_policy, out)
+    write_bundle(
+        out,
+        tower=tower,
+        architecture="MuseGlimmerVisionModel",
+        weights={"projector.safetensors": projector.state_dict()},
+        configs={"projector_config.json": muse_projector_config(projector)},
+        preprocessor=json.loads(processor_config.read_text())["image_processor"],
+        license=license_path,
+        files={"USAGE_POLICY.md": usage_policy},
+    )
 
     loaded = AutoModel.from_pretrained(out, local_files_only=True)
     assert isinstance(loaded, MuseGlimmerVisionModel)
@@ -134,7 +149,7 @@ def test_kimi_bundle_declares_local_model_and_processor_code():
 
 @pytest.mark.skipif(
     not (KIMI_BUNDLE / "model.safetensors").is_file(),
-    reason="run scripts/export_moonvit_k26.py first",
+    reason="run scripts/export_moonvit_k26_vision.py first",
 )
 def test_kimi_bundle_loads_offline_without_the_parent_repositories():
     loaded = AutoModel.from_pretrained(

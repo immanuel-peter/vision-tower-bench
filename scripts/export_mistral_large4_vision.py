@@ -10,15 +10,14 @@ loaded through auto_map with trust_remote_code.
 
 import argparse
 import hashlib
-import json
 import shutil
 from pathlib import Path
 
 import torch
 from huggingface_hub import HfApi, hf_hub_download
-from safetensors.torch import save_file
 
 from vtb.adapters import mistral_large4 as ml4
+from vtb.bundle import print_sizes, write_bundle
 
 MODELING_SOURCE = ml4.ROOT / "vtb/models/pixtral_large4.py"
 MODELING_FILE = "modeling_pixtral_large4.py"
@@ -96,36 +95,6 @@ def finish_manifest(out: Path, base: dict) -> dict:
 
 
 
-def write_bundle(native: dict[str, torch.Tensor], source: dict, processor: dict, license_path: Path, out: Path,
-                 shards: list[str]) -> None:
-    tower_state, projector_state = ml4.convert(native)
-    if any(t.dtype != torch.bfloat16 for t in [*tower_state.values(), *projector_state.values()]):
-        raise ValueError("expected BF16 tensors")
-    out.mkdir(parents=True, exist_ok=True)
-    config = ml4.vision_config(source)
-    config.architectures = ["PixtralLarge4VisionModel"]
-    config.dtype = "bfloat16"
-    config.auto_map = {
-        "AutoConfig": "modeling_pixtral_large4.PixtralLarge4VisionConfig",
-        "AutoModel": "modeling_pixtral_large4.PixtralLarge4VisionModel",
-    }
-    config.save_pretrained(out)
-    shutil.copyfile(MODELING_SOURCE, out / MODELING_FILE)
-    shutil.copyfile(ml4.ROOT / "LICENSE", out / "LICENSE-CODE")
-    save_file({k: v.contiguous() for k, v in tower_state.items()}, out / "model.safetensors", metadata={"format": "pt"})
-    save_file(
-        {k: v.contiguous() for k, v in projector_state.items()}, out / "projector.safetensors", metadata={"format": "pt"}
-    )
-    (out / "projector_config.json").write_text(json.dumps(projector_settings(source), indent=2) + "\n")
-    image_processor = dict(processor["image_processor"])
-    image_processor["processor_class"] = "AutoImageProcessor"
-    (out / "preprocessor_config.json").write_text(json.dumps(image_processor, indent=2) + "\n")
-    shutil.copyfile(license_path, out / "LICENSE")
-    from vtb.bundle_manifest import copy_assets
-    copy_assets(ml4.RELEASE_DIR, out)
-    finish_manifest(out, manifest(native, shards))
-
-
 def export(out: Path) -> Path:
     native = ml4.source_weights()
     shards = sorted(set(ml4.source_index().values()))
@@ -138,10 +107,33 @@ def export(out: Path) -> Path:
             if (tracked / name).is_file():
                 (out / name).parent.mkdir(parents=True, exist_ok=True)
                 shutil.copyfile(tracked / name, out / name)
-    write_bundle(native, source, processor, license_path, out, shards)
-    for path in sorted(out.rglob("*")):
-        if path.is_file():
-            print(f"{path.stat().st_size / 1e6:10.2f} MB  {path.relative_to(out)}")
+    tower_state, projector_state = ml4.convert(native)
+    if any(t.dtype != torch.bfloat16 for t in [*tower_state.values(), *projector_state.values()]):
+        raise ValueError("expected BF16 tensors")
+    out.mkdir(parents=True, exist_ok=True)
+    config = ml4.vision_config(source)
+    config.architectures = ["PixtralLarge4VisionModel"]
+    config.dtype = "bfloat16"
+    config.auto_map = {
+        "AutoConfig": "modeling_pixtral_large4.PixtralLarge4VisionConfig",
+        "AutoModel": "modeling_pixtral_large4.PixtralLarge4VisionModel",
+    }
+    config.save_pretrained(out)
+    write_bundle(
+        out,
+        weights={
+            "model.safetensors": {k: v.contiguous() for k, v in tower_state.items()},
+            "projector.safetensors": {k: v.contiguous() for k, v in projector_state.items()},
+        },
+        configs={"projector_config.json": projector_settings(source)},
+        preprocessor=processor["image_processor"],
+        license=license_path,
+        files={MODELING_FILE: MODELING_SOURCE, "LICENSE-CODE": ml4.ROOT / "LICENSE"},
+    )
+    from vtb.bundle_manifest import copy_assets
+    copy_assets(ml4.RELEASE_DIR, out)
+    finish_manifest(out, manifest(native, shards))
+    print_sizes(out)
     return out
 
 

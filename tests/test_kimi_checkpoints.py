@@ -4,7 +4,7 @@ from types import SimpleNamespace
 import pytest
 import torch
 
-from scripts import export_moonvit_v2 as export
+from scripts import export_moonvit_v2_vision as export
 from vtb import probe
 from vtb.adapters.moonvit_v2 import CHECKPOINTS, K3, K31_PRO, KimiK31ProAdapter, MoonViTV2Adapter
 from vtb.probe_run import Split, fit_reducer
@@ -62,16 +62,13 @@ def test_discovery_uses_pinned_index_not_shard_constants(tmp_path, monkeypatch, 
     }
 
 
-def test_read_prefix_cannot_reuse_k3_for_pro(monkeypatch):
-    def download(repo, shard, revision):
-        return repo
-    monkeypatch.setattr(export, "hf_hub_download", download)
-    monkeypatch.setattr(export, "load_file", lambda repo: {
-        "vision_tower.a": torch.tensor(1 if repo == K3.repo else 2),
-        "mm_projector.a": torch.tensor(99),
-    })
-    assert export.read_prefix("any", "vision_tower.", K3)["a"].item() == 1
-    assert export.read_prefix("any", "vision_tower.", K31_PRO)["a"].item() == 2
+def test_read_parent_cannot_reuse_k3_for_pro(monkeypatch):
+    def load(repo, shards, prefix, revision):
+        assert revision == (K3.revision if repo == K3.repo else K31_PRO.revision)
+        return {"a": torch.tensor(1 if repo == K3.repo else 2)}
+    monkeypatch.setattr(export, "load_prefixed", load)
+    assert export.read_parent(K3, ["any"], "vision_tower.")["a"].item() == 1
+    assert export.read_parent(K31_PRO, ["any"], "vision_tower.")["a"].item() == 2
 
 
 @pytest.mark.parametrize("adapter_class", [MoonViTV2Adapter, KimiK31ProAdapter])
