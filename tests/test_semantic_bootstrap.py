@@ -5,7 +5,7 @@ from vtb.semantic_bootstrap import paired_image_bootstrap
 
 
 def test_bootstrap_runner_defaults_to_the_headline_arm():
-    from scripts.semantic_bootstrap import parser
+    from vtb.semantic_bootstrap_run import parser
 
     args = parser().parse_args(
         [

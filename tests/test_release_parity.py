@@ -10,15 +10,15 @@ from PIL import Image
 from safetensors.torch import load_file
 from transformers import AutoModel
 
-from scripts.export_moonvit_k26_vision import SOURCE_REVISION as KIMI_REVISION
-from scripts.export_moonvit_k26_vision import load_source_parts as load_kimi_source
-from scripts.export_muse_glimmer_vision import SOURCE_REVISION as MUSE_REVISION
-from scripts.export_muse_glimmer_vision import load_source_parts as load_muse_source
-from scripts.export_qwen3_8_vision import SOURCE_REVISION as QWEN_REVISION
-from scripts.export_qwen3_8_vision import load_source_tower as load_qwen_source
-from scripts.validate_mimo26 import assert_parity as assert_mimo26_parity, validate as validate_mimo26
-from scripts.validate_nemotron35 import assert_parity, validate as validate_nemotron35
-from scripts.validate_mistral_large4 import validate as validate_mistral_large4
+from vtb.export_moonvit_k26_vision import SOURCE_REVISION as KIMI_REVISION
+from vtb.export_moonvit_k26_vision import load_source_parts as load_kimi_source
+from vtb.export_muse_glimmer_vision import SOURCE_REVISION as MUSE_REVISION
+from vtb.export_muse_glimmer_vision import load_source_parts as load_muse_source
+from vtb.export_qwen3_8_vision import SOURCE_REVISION as QWEN_REVISION
+from vtb.export_qwen3_8_vision import load_source_tower as load_qwen_source
+from vtb.validate_mimo26 import assert_parity as assert_mimo26_parity, validate as validate_mimo26
+from vtb.validate_nemotron35 import assert_parity, validate as validate_nemotron35
+from vtb.validate_mistral_large4 import validate as validate_mistral_large4
 from vtb.adapters import kimi_k26, mimo26, mistral_large4, muse_glimmer, nemotron35, qwen3_5
 from vtb.shards import load_prefixed
 

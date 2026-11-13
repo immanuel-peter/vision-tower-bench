@@ -14,8 +14,8 @@ from transformers import (
     Qwen3_5VisionModel,
 )
 
-from scripts.export_moonvit_k26_vision import BUNDLE_FILES as KIMI_BUNDLE_FILES
-from scripts.export_muse_glimmer_vision import projector_config as muse_projector_config
+from vtb.export_moonvit_k26_vision import BUNDLE_FILES as KIMI_BUNDLE_FILES
+from vtb.export_muse_glimmer_vision import projector_config as muse_projector_config
 from vtb.adapters.muse_glimmer import Projector
 from vtb.bundle import write_bundle
 

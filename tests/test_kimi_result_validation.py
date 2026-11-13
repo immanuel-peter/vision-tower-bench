@@ -2,7 +2,7 @@ from copy import deepcopy
 
 import pytest
 
-from scripts.validate_kimi_results import validate_correspondence, validate_pairing
+from vtb.validate_kimi_results import validate_correspondence, validate_pairing
 
 
 def example():
@@ -45,7 +45,7 @@ def test_wrong_exclusion_count_and_missing_selection_are_rejected():
 def test_cache_validator_checks_actual_tensors_and_ids(tmp_path):
     import torch
     from vtb.feature_batch import FeatureBatch
-    from scripts.validate_kimi_results import validate_cache
+    from vtb.validate_kimi_results import validate_cache
     widths = {"tower": 1024, "merged": 4096, "projected": 7168}
     slices = [("tower", layer) for layer in (3, 7, 10, 14, 17, 20, 24, 27)] + [("merged", 27), ("projected", 27)]
     for stage, layer in slices:
@@ -62,7 +62,7 @@ def test_cache_validator_checks_actual_tensors_and_ids(tmp_path):
 
 
 def test_primary_validator_checks_search_seeds_split_and_capacity_evidence():
-    from scripts.validate_kimi_results import SEMANTIC_RATES, ids_digest, validate_probe
+    from vtb.validate_kimi_results import SEMANTIC_RATES, ids_digest, validate_probe
     ids = [f"image-{i}" for i in range(13000)]
     splits = {"train": ids[:9100], "val": ids[9100:11050], "test": ids[11050:]}
     cell = dict(stage="tower", layer_index=27, relative_depth=1.0, model_id="model",
@@ -107,7 +107,7 @@ def test_primary_validator_checks_search_seeds_split_and_capacity_evidence():
                        expected_slices={("tower", 99)})
 
     import copy
-    from scripts.validate_kimi_results import DEPTH_SLICES
+    from vtb.validate_kimi_results import DEPTH_SLICES
     matrix = copy.deepcopy(payload)
     matrix["protocol"]["device"] = "per-cell"
     matrix["cells"] = []

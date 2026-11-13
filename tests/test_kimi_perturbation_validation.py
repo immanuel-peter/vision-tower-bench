@@ -2,7 +2,7 @@ from copy import deepcopy
 
 import pytest
 
-from scripts.validate_kimi_results import SEMANTIC_RATES, ids_digest, validate_perturbation
+from vtb.validate_kimi_results import SEMANTIC_RATES, ids_digest, validate_perturbation
 
 
 def payload():

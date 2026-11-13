@@ -5,7 +5,7 @@ import sys
 
 import pytest
 
-from scripts import perturbation_run
+from vtb import perturbation_run
 
 
 def test_merged_projected_only_cache_reaches_scoring(monkeypatch, tmp_path):
