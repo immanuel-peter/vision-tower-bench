@@ -13,10 +13,11 @@ from transformers.models.gemma4.modeling_gemma4 import Gemma4RMSNorm
 
 from vtb.feature_batch import FeatureBatch
 from vtb.images import square_crop
+from vtb.provenance import open_release
 from vtb.shards import load_prefixed
 
 MODEL_ID = "immanuelpeter/Gemma4-31B-Vision"
-BUNDLE = Path(__file__).resolve().parents[2] / "hf/Gemma4-31B-Vision"
+REVISION = "cb7d82f7d3fc1f77b675d59cb2d1b8c9edf19163"
 
 # google/gemma-4-31B-it is where scripts/export_gemma4_vision.py reads both halves from.
 SOURCE_REPO = "google/gemma-4-31B-it"
@@ -128,10 +129,9 @@ def load_projector(dtype: torch.dtype, bundle: Path) -> Projector:
 
 
 def load_parts(dtype: torch.dtype) -> tuple[Gemma4VisionModel, Projector]:
-    if (BUNDLE / "model.safetensors").exists():
-        tower = AutoModel.from_pretrained(BUNDLE, dtype=dtype).eval()
-        return tower, load_projector(dtype, BUNDLE)
-    return load_source_parts(dtype)
+    bundle = open_release(MODEL_ID, REVISION, SOURCE_REPO, SOURCE_REVISION)
+    tower = AutoModel.from_pretrained(bundle, dtype=dtype, local_files_only=True).eval()
+    return tower, load_projector(dtype, bundle)
 
 
 class Gemma4Adapter:

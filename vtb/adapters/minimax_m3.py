@@ -20,6 +20,7 @@ from transformers.models.minimax_m3_vl.modeling_minimax_m3_vl import (
 
 from vtb.feature_batch import FeatureBatch
 from vtb.images import square_crop
+from vtb.provenance import open_release
 from vtb.shards import load_prefixed
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -31,23 +32,33 @@ class Checkpoint:
     model_id: str
     repo: str
     revision: str
+    release_revision: str
 
     @property
     def release_dir(self) -> Path:
         return ROOT / "hf" / self.model_id.split("/")[-1]
 
     @property
-    def bundle(self) -> Path:
+    def override(self) -> Path | None:
         override = os.environ.get(f"VTB_{self.name.upper()}_BUNDLE")
-        return Path(override) if override else self.release_dir
+        return Path(override) if override else None
+
+    def open(self, bundle: Path | None = None) -> Path:
+        return open_release(self.model_id, self.release_revision, self.repo, self.revision, bundle=bundle or self.override, required=self == FLASH)
+
+    @property
+    def bundle(self) -> Path:
+        return self.open()
 
 
 M3 = Checkpoint("minimax_m3", "immanuelpeter/MiniMax-M3-Vision",
-               "MiniMaxAI/MiniMax-M3", "f0e1c1e04d40177e4673a22097036854f536e9c0")
+               "MiniMaxAI/MiniMax-M3", "f0e1c1e04d40177e4673a22097036854f536e9c0",
+               "949099e5411c33f604f1b3bc7ed7c4c500b4b5e7")
 FLASH = Checkpoint("minimax_m31_flash", "immanuelpeter/MiniMax-M3.1-Flash-Vision",
-                  "MiniMaxAI/MiniMax-M3.1-Flash", "54e4e69dfc452b1e94a426c24a4fdeeaa8e3ad5e")
+                  "MiniMaxAI/MiniMax-M3.1-Flash", "54e4e69dfc452b1e94a426c24a4fdeeaa8e3ad5e",
+                  "8a97b39d8005c174d901cb51eba8b5185abf7a47")
 CHECKPOINTS = {item.name: item for item in (M3, FLASH)}
-MODEL_ID, BUNDLE = M3.model_id, M3.bundle
+MODEL_ID = M3.model_id
 SOURCE_REPO, SOURCE_REVISION = M3.repo, M3.revision
 TOWER_PREFIX = "vision_tower.vision_model."
 PROJECTOR_PREFIX = "multi_modal_projector."
@@ -175,27 +186,18 @@ def projector_from_settings(settings: dict, dtype: torch.dtype) -> nn.Module:
 
 
 def load_parts(dtype: torch.dtype, checkpoint: Checkpoint = M3, bundle: Path | None = None) -> tuple[MiniMaxM3VLVisionModel, nn.Module]:
-    bundle = checkpoint.bundle if bundle is None else bundle
-    if (bundle / "model.safetensors").exists():
-        manifest = bundle / "export_manifest.json"
-        if checkpoint == FLASH and not manifest.is_file():
-            raise ValueError("Flash bundles require export_manifest.json checkpoint provenance")
-        if manifest.exists():
-            provenance = loads(manifest.read_text())
-            if (provenance["source_repo"], provenance["source_revision"]) != (checkpoint.repo, checkpoint.revision):
-                raise ValueError(f"bundle provenance does not match {checkpoint.name}")
-        config = MiniMaxM3VLVisionConfig.from_pretrained(bundle, local_files_only=True)
-        tower = MiniMaxM3VLVisionModel._from_config(config, dtype=dtype)
-        tower.load_state_dict({
-            name: tensor.to(dtype) for name, tensor in load_file(bundle / "model.safetensors").items()
-        })
-        settings = loads((bundle / "projector_config.json").read_text())
-        projector = projector_from_settings(settings, dtype)
-        projector.load_state_dict({
-            name: tensor.to(dtype) for name, tensor in load_file(bundle / "projector.safetensors").items()
-        })
-        return tower.eval(), projector.to(dtype).eval()
-    return load_source_parts(dtype, checkpoint)
+    bundle = checkpoint.open(bundle)
+    config = MiniMaxM3VLVisionConfig.from_pretrained(bundle, local_files_only=True)
+    tower = MiniMaxM3VLVisionModel._from_config(config, dtype=dtype)
+    tower.load_state_dict({
+        name: tensor.to(dtype) for name, tensor in load_file(bundle / "model.safetensors").items()
+    })
+    settings = loads((bundle / "projector_config.json").read_text())
+    projector = projector_from_settings(settings, dtype)
+    projector.load_state_dict({
+        name: tensor.to(dtype) for name, tensor in load_file(bundle / "projector.safetensors").items()
+    })
+    return tower.eval(), projector.to(dtype).eval()
 
 
 class MiniMaxAdapter:

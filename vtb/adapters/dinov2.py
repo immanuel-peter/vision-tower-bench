@@ -7,6 +7,7 @@ from transformers import AutoModel
 
 from vtb.feature_batch import FeatureBatch
 from vtb.images import square_crop
+from vtb.provenance import log_loaded
 
 MODEL_ID = "facebook/dinov2-large"
 REVISION = "47b73eefe95e8d44ec3623f8890bd894b6ea2d6c"
@@ -46,6 +47,7 @@ class DINOv2Adapter:
     collate = staticmethod(collate)
 
     def __init__(self, resolution: int = 448, dtype=torch.bfloat16, device: str = "mps"):
+        log_loaded(self.model_id, f"{MODEL_ID}@{REVISION}")
         self.model = AutoModel.from_pretrained(self.model_id, revision=REVISION, dtype=dtype).to(device).eval()
         self.resolution = resolution
         self.device = device
