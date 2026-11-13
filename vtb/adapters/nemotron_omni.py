@@ -5,7 +5,8 @@ import torch
 from safetensors.torch import load_file
 from torch import nn
 from torchvision import transforms
-from transformers import AutoConfig, AutoModel
+from transformers import AutoConfig
+from transformers.dynamic_module_utils import get_class_from_dynamic_module
 
 from vtb.feature_batch import FeatureBatch
 from vtb.images import square_crop
@@ -17,6 +18,8 @@ REVISION = "98b048584471e079444542388009ef9eae4bfbce"
 
 SOURCE_REPO = "nvidia/Nemotron-3-Nano-Omni-30B-A3B-Reasoning-BF16"
 SOURCE_REVISION = "e5e9932441de940c9a62185c870ea5bcd4cd24e2"
+RADIO_CODE_REPO = "nvidia/C-RADIOv4-H"
+RADIO_CODE_REVISION = "0057b339059c0b9e1b4ba996f975410ebbfdfcc8"
 VISION_SHARD = "model-00001-of-00017.safetensors"
 TOWER_PREFIX = "vision_model."
 PROJECTOR_PREFIX = "mlp1."
@@ -113,9 +116,13 @@ def attach_video_embedder(radio) -> None:
     )
 
 
+def build_radio(vision_config):
+    return get_class_from_dynamic_module("hf_model.RADIOModel", RADIO_CODE_REPO, revision=RADIO_CODE_REVISION)(vision_config)
+
+
 def load_source_parts(dtype: torch.dtype = torch.bfloat16):
     config = AutoConfig.from_pretrained(SOURCE_REPO, trust_remote_code=True, revision=SOURCE_REVISION)
-    radio = AutoModel.from_config(config.vision_config, trust_remote_code=True)
+    radio = build_radio(config.vision_config)
     attach_video_embedder(radio)
     weights = load_prefixed(SOURCE_REPO, [VISION_SHARD], TOWER_PREFIX, revision=SOURCE_REVISION)
     result = radio.load_state_dict({name: tensor.to(dtype) for name, tensor in weights.items()}, strict=False)
@@ -135,7 +142,7 @@ def load_source_parts(dtype: torch.dtype = torch.bfloat16):
 def load_parts(dtype: torch.dtype):
     bundle = open_release(MODEL_ID, REVISION, SOURCE_REPO, SOURCE_REVISION, required=True)
     config = AutoConfig.from_pretrained(SOURCE_REPO, trust_remote_code=True, revision=SOURCE_REVISION)
-    radio = AutoModel.from_config(config.vision_config, trust_remote_code=True)
+    radio = build_radio(config.vision_config)
     attach_video_embedder(radio)
     radio.load_state_dict({
         name: tensor.to(dtype) for name, tensor in load_file(bundle / "model.safetensors").items()
