@@ -9,6 +9,7 @@ from vtb.feature_batch import FeatureBatch
 from vtb.images import square_crop
 
 MODEL_ID = "google/siglip2-so400m-patch14-384"
+REVISION = "e8e487298228002f3d8a82e0cd5c8ea9c567f57f"
 
 
 @dataclass(frozen=True)
@@ -41,7 +42,7 @@ class SigLIP2Adapter:
     collate = staticmethod(collate)
 
     def __init__(self, resolution: int = 448, dtype=torch.bfloat16, device: str = "mps"):
-        self.model = SiglipVisionModel.from_pretrained(self.model_id, dtype=dtype).to(device).eval()
+        self.model = SiglipVisionModel.from_pretrained(self.model_id, revision=REVISION, dtype=dtype).to(device).eval()
         self.resolution = resolution
         self.device = device
         self.num_layers = self.model.config.num_hidden_layers
