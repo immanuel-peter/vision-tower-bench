@@ -9,6 +9,7 @@ from pathlib import Path
 from torch.utils.data import DataLoader
 
 from vtb.cache import ShardWriter
+from vtb.adapters.common import default_device
 from vtb.adapters.deepseek_v41 import DeepSeekV41Adapter
 from vtb.adapters.dinov2 import DINOv2Adapter
 from vtb.adapters.dinov3 import DINOv3Adapter
@@ -61,8 +62,8 @@ def main() -> None:
         "--batch-size", type=int, default=None,
         help="defaults to 1 for Kimi K3 and K3.1 Pro, 16 for other models",
     )
-    parser.add_argument("--resolution", type=int, default=448)
-    parser.add_argument("--device", default="mps")
+    parser.add_argument("--resolution", type=int, default=None, help="defaults to the adapter's default_resolution")
+    parser.add_argument("--device", default=None, help="defaults to cuda, then mps, then cpu")
     parser.add_argument(
         "--workers",
         type=int,
@@ -106,8 +107,13 @@ def main() -> None:
     if batch_one and args.batch_size != 1:
         parser.error(f"{args.model} requires --batch-size 1")
 
+    adapter_class = ADAPTERS[args.model]
+    if args.resolution is None:
+        args.resolution = getattr(adapter_class, "default_resolution", 448)
+    if args.device is None:
+        args.device = default_device()
     options = {"stages": args.stages} if args.stages else {}
-    adapter = ADAPTERS[args.model](resolution=args.resolution, device=args.device, **options)
+    adapter = adapter_class(resolution=args.resolution, device=args.device, **options)
     dataset = ImageFolder(args.images, adapter.preprocess(), args.limit)
     loader = DataLoader(
         dataset,

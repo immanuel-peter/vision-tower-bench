@@ -8,6 +8,8 @@ import pytest
 import torch
 from PIL import Image
 
+from vtb.adapters.base import TowerAdapter
+from vtb.adapters.common import raster
 from vtb.adapters.deepseek_v41 import DeepSeekV41Adapter
 from vtb.adapters.dinov2 import DINOv2Adapter
 from vtb.adapters.dinov3 import DINOv3Adapter
@@ -21,7 +23,7 @@ from vtb.adapters.moonvit_v2 import KimiK31ProAdapter, MoonViTV2Adapter
 from vtb.adapters.nemotron_omni import NemotronOmniAdapter
 from vtb.adapters.nemotron35 import Nemotron35BoltAdapter, Nemotron35SuperAdapter
 from vtb.adapters.muse_glimmer import MuseGlimmerAdapter
-from vtb.adapters.qwen3_5 import MERGE_SIZE, PATCH_SIZE, Qwen3_5Adapter, raster
+from vtb.adapters.qwen3_5 import MERGE_SIZE, PATCH_SIZE, Qwen3_5Adapter
 from vtb.adapters.siglip2 import SigLIP2Adapter
 from vtb.extract import ADAPTERS
 
@@ -67,7 +69,9 @@ def test_every_roster_adapter_is_registered_for_extraction():
 def test_adapter_yields_every_stage_at_the_expected_shape(adapter_class, image):
     tower_side, merged_side, tower_width, merged_width, projected_width = EXPECTED[adapter_class]
     adapter = adapter_class(resolution=RESOLUTION, device="cpu", dtype=torch.float32)
+    assert isinstance(adapter, TowerAdapter)
     batch = adapter.collate([adapter.preprocess()(image)])
+    assert isinstance(batch, dict)
     yielded = list(adapter.extract(batch, ["one"]))
 
     assert {b.stage for b in yielded} == set(adapter.stages)

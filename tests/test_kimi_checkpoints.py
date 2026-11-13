@@ -34,7 +34,7 @@ def test_tower_and_projector_share_immutable_revision_without_changing_k3(monkey
         calls.append(("projector", model_id, revision))
         return torch.nn.Identity()
     monkeypatch.setattr(moonvit_v2.AutoModel, "from_pretrained", load)
-    monkeypatch.setattr(moonvit_v2, "load_projector", projector)
+    monkeypatch.setattr(moonvit_v2, "load_projector_weights", projector)
     adapter_class(device="cpu")
     revision = adapter_class.checkpoint.bundle_revision
     assert calls == [("tower", adapter_class.model_id, revision), ("projector", adapter_class.model_id, revision)]

@@ -1,5 +1,5 @@
 from collections.abc import Iterator
-from dataclasses import dataclass, field
+from functools import partial
 from json import loads
 from pathlib import Path
 
@@ -7,11 +7,11 @@ import torch
 from huggingface_hub import hf_hub_download
 from safetensors.torch import load_file
 from torch import nn
-from torchvision import transforms
 from transformers import AutoModel
 
+from vtb.adapters.base import Inputs
+from vtb.adapters.common import HALF, PatchPreprocess, default_device, depth_points, make_batch, pack_patches
 from vtb.feature_batch import FeatureBatch
-from vtb.images import square_crop
 from vtb.provenance import log_loaded
 
 MODEL_ID = "immanuelpeter/MoonViT-K2.6"
@@ -19,7 +19,7 @@ REVISION = "84ec70ac59184bfa74fca77af9e1cdeccb32b5d6"
 PROJECTOR_FILE = "projector.safetensors"
 PROJECTOR_CONFIG = "projector_config.json"
 
-# Kimi K2.6 is where scripts/export_moonvit_k26.py reads both halves from.
+# Kimi K2.6 is where scripts/export_moonvit_k26_vision.py reads both halves from.
 SOURCE_REPO = "moonshotai/Kimi-K2.6"
 SOURCE_SHARDS = ("model-00063-of-000064.safetensors", "model-00064-of-000064.safetensors")
 TOWER_PREFIX = "vision_tower."
@@ -27,39 +27,11 @@ PROJECTOR_PREFIX = "mm_projector."
 PATCH_SIZE = 14
 
 
-@dataclass(frozen=True)
-class Preprocess:
-    resolution: int
-    pipeline: transforms.Compose = field(init=False, repr=False)
-
-    def __post_init__(self) -> None:
-        object.__setattr__(
-            self,
-            "pipeline",
-            transforms.Compose([
-                square_crop(self.resolution),
-                transforms.ToTensor(),
-                transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
-            ]),
-        )
-
-    def __call__(self, image) -> torch.Tensor:
-        pixels = self.pipeline(image)
-        channels, height, width = pixels.shape
-        rows, cols = height // PATCH_SIZE, width // PATCH_SIZE
-        patches = pixels.view(channels, rows, PATCH_SIZE, cols, PATCH_SIZE)
-        return patches.permute(1, 3, 0, 2, 4).reshape(-1, channels, PATCH_SIZE, PATCH_SIZE)
+Preprocess = partial(PatchPreprocess, mean=HALF, std=HALF, patch_size=PATCH_SIZE, flatten=False)
+collate = partial(pack_patches, grid_key="grid_thws")
 
 
-def collate(samples: list[torch.Tensor]) -> dict[str, torch.Tensor]:
-    side = int(samples[0].shape[0] ** 0.5)
-    return {
-        "pixel_values": torch.cat(samples),
-        "grid_thws": torch.tensor([[1, side, side]] * len(samples)),
-    }
-
-
-def load_projector(dtype: torch.dtype) -> nn.Module:
+def load_projector_weights(dtype: torch.dtype) -> nn.Module:
     """Build Kimi K2.6's patch merger from its published weights."""
     settings = loads(Path(hf_hub_download(MODEL_ID, PROJECTOR_CONFIG, revision=REVISION)).read_text())
     projector = nn.Module()
@@ -78,33 +50,34 @@ def load_parts(dtype: torch.dtype, attention: str = "eager"):
     tower = AutoModel.from_pretrained(
         MODEL_ID, revision=REVISION, dtype=dtype, trust_remote_code=True, attn_implementation=attention
     ).eval()
-    return tower, load_projector(dtype)
+    return tower, load_projector_weights(dtype)
 
 
 class KimiK26Adapter:
     """Use batch size 1 without flash attention, as measured."""
 
     model_id = MODEL_ID
+    default_resolution = 448
     stages = ("tower", "merged", "projected")
     collate = staticmethod(collate)
 
-    def __init__(self, resolution: int = 448, dtype=torch.bfloat16, device: str = "mps"):
-        tower, projector = load_parts(dtype)
-        self.model = tower.to(device)
-        self.projector = projector.to(device)
-        self.resolution = resolution
-        self.device = device
+    def __init__(self, resolution: int | None = None, dtype: torch.dtype = torch.bfloat16, device: str | None = None):
+        self.resolution = self.default_resolution if resolution is None else resolution
+        self.device = default_device() if device is None else device
         self.dtype = dtype
+        tower, projector = load_parts(dtype)
+        self.model = tower.to(self.device)
+        self.projector = projector.to(self.device)
         self.num_layers = self.model.config.num_hidden_layers
 
-    def preprocess(self) -> Preprocess:
+    def preprocess(self) -> PatchPreprocess:
         return Preprocess(self.resolution)
 
     def depth_points(self, n: int = 8) -> list[int]:
-        return [round(self.num_layers * (k + 1) / n) for k in range(n)]
+        return depth_points(self.num_layers, n)
 
     @torch.inference_mode()
-    def extract(self, inputs: dict[str, torch.Tensor], image_ids: list[str]) -> Iterator[FeatureBatch]:
+    def extract(self, inputs: Inputs, image_ids: list[str]) -> Iterator[FeatureBatch]:
         points = self.depth_points()
         captured: dict[int, torch.Tensor] = {}
         handles = []
@@ -132,20 +105,9 @@ class KimiK26Adapter:
         rows = len(image_ids)
         width = self.model.config.hidden_size
         for layer in points:
-            yield self._batch(captured[layer].view(rows, -1, width), image_ids, "tower", layer)
+            yield make_batch(self, captured[layer].view(rows, -1, width), image_ids, "tower", layer)
 
         stacked = torch.stack(merged)
-        yield self._batch(stacked.flatten(2), image_ids, "merged", self.num_layers)
+        yield make_batch(self, stacked.flatten(2), image_ids, "merged", self.num_layers)
         grouped = self.projector.pre_norm(stacked).flatten(2)
-        yield self._batch(self.projector.proj(grouped), image_ids, "projected", self.num_layers)
-
-    def _batch(self, tokens: torch.Tensor, image_ids: list[str], stage: str, layer: int) -> FeatureBatch:
-        return FeatureBatch(
-            tokens=tokens.cpu(),
-            image_ids=image_ids,
-            model_id=self.model_id,
-            stage=stage,
-            layer_index=layer,
-            num_layers=self.num_layers,
-            resolution=self.resolution,
-        )
+        yield make_batch(self, self.projector.proj(grouped), image_ids, "projected", self.num_layers)
