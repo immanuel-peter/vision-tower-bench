@@ -14,7 +14,7 @@ import torch
 from huggingface_hub import hf_hub_download
 from PIL import Image
 
-from scripts import validate_mistral_large4 as validate
+from vtb import validate_mistral_large4 as validate
 from vtb.adapters import mistral_large4 as ml4
 
 

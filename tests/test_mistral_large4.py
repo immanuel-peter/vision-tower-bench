@@ -9,7 +9,7 @@ from transformers import Mistral3Config, PixtralImageProcessor, PixtralVisionCon
 from transformers.models.mistral3.modeling_mistral3 import Mistral3MultiModalProjector
 from transformers.models.pixtral.modeling_pixtral import apply_rotary_pos_emb
 
-from scripts import validate_mistral_large4 as validate
+from vtb import validate_mistral_large4 as validate
 from vtb.adapters import mistral_large4 as ml4
 
 needs_weights = pytest.mark.skipif(os.environ.get("VTB_SKIP_WEIGHTS") == "1", reason="VTB_SKIP_WEIGHTS=1")

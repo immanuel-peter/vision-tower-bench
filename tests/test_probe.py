@@ -529,7 +529,7 @@ def test_primary_reducer_and_flags_stay_unstandardized():
 
 
 def test_perturbation_runner_keeps_the_primary_reducer_by_default():
-    from scripts.perturbation_run import parser
+    from vtb.perturbation_run import parser
 
     base = ["--clean-run", "a", "--features-root", "b", "--model-dir", "c", "--labels", "d",
             "--transform-manifest", "e", "--out", "f"]

@@ -3,8 +3,8 @@ import json
 import pytest
 import torch
 
-from scripts.extract_kimi_cpu import SLICES, WIDTHS, digest, restore_chunks, validate_batches
-from scripts.extract_kimi_gpu import restore as restore_gpu, selected_slices
+from vtb.extract_kimi_cpu import SLICES, WIDTHS, digest, restore_chunks, validate_batches
+from vtb.extract_kimi_gpu import restore as restore_gpu, selected_slices
 from vtb.feature_batch import FeatureBatch
 
 

@@ -2,7 +2,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from scripts.tower_throughput import configured_patch_size, parser
+from vtb.tower_throughput import configured_patch_size, parser
 
 
 def adapter_with_patch_size(value):

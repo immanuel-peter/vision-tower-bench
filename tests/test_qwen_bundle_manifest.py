@@ -5,7 +5,7 @@ import pytest
 import torch
 from safetensors.torch import save_file
 
-from scripts import export_qwen3_8_vision as exporter
+from vtb import export_qwen3_8_vision as exporter
 from vtb.adapters.qwen3_5 import FLASH_NEXT
 
 

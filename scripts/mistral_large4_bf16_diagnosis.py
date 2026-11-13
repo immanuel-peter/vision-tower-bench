@@ -33,7 +33,7 @@ from PIL import Image
 from torch.nn.attention import SDPBackend, sdpa_kernel
 from transformers.models.pixtral import modeling_pixtral
 
-from scripts import validate_mistral_large4 as validate
+from vtb import validate_mistral_large4 as validate
 from vtb.adapters import mistral_large4 as ml4
 
 DEPTHS = (4, 8, 11, 15, 19, 22, 26, 30)

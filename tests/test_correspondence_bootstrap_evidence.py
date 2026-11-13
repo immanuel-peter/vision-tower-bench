@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from scripts import correspondence_bootstrap
+from vtb import correspondence_bootstrap
 
 
 def payload():
