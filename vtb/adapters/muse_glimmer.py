@@ -1,5 +1,5 @@
 from collections.abc import Iterator
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from json import loads
 from pathlib import Path
 from types import SimpleNamespace
@@ -8,7 +8,6 @@ import torch
 from huggingface_hub import hf_hub_download
 from safetensors.torch import load_file
 from torch import nn
-from torchvision import transforms
 from transformers import AutoModel, MuseGlimmerVisionModel
 from transformers.models.muse_glimmer.modeling_muse_glimmer import (
     MuseGlimmerRMSNorm,
@@ -16,8 +15,9 @@ from transformers.models.muse_glimmer.modeling_muse_glimmer import (
 )
 from transformers.vision_utils import get_vision_window_index
 
+from vtb.adapters.base import Inputs
+from vtb.adapters.common import HALF, ImagePreprocess, default_device, depth_points, make_batch, pack_patches
 from vtb.feature_batch import FeatureBatch
-from vtb.images import square_crop
 from vtb.provenance import log_loaded
 
 MODEL_ID = "immanuelpeter/Muse-Glimmer-Vision"
@@ -37,23 +37,12 @@ MERGE_SIZE = 2
 
 
 @dataclass(frozen=True)
-class Preprocess:
-    resolution: int
-    pipeline: transforms.Compose = field(init=False, repr=False)
-
-    def __post_init__(self) -> None:
-        object.__setattr__(
-            self,
-            "pipeline",
-            transforms.Compose([
-                square_crop(self.resolution),
-                transforms.ToTensor(),
-                transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
-            ]),
-        )
+class Preprocess(ImagePreprocess):
+    mean: tuple[float, ...] | None = HALF
+    std: tuple[float, ...] | None = HALF
 
     def __call__(self, image) -> torch.Tensor:
-        pixels = self.pipeline(image).unsqueeze(0)
+        pixels = self.pixels(image).unsqueeze(0)
         _, channels, height, width = pixels.shape
         rows, cols = height // PATCH_SIZE, width // PATCH_SIZE
         patches = pixels.view(1, channels, rows, PATCH_SIZE, cols, PATCH_SIZE)
@@ -63,12 +52,7 @@ class Preprocess:
         return patches.reshape(rows * cols, TEMPORAL_PATCH_SIZE * channels * PATCH_SIZE * PATCH_SIZE)
 
 
-def collate(samples: list[torch.Tensor]) -> dict[str, torch.Tensor]:
-    side = int(samples[0].shape[0] ** 0.5)
-    return {
-        "pixel_values": torch.cat(samples),
-        "grid_thw": torch.tensor([[1, side, side]] * len(samples)),
-    }
+collate = pack_patches
 
 
 class Projector(nn.Module):
@@ -105,23 +89,24 @@ def load_parts(dtype: torch.dtype) -> tuple[MuseGlimmerVisionModel, Projector]:
 
 class MuseGlimmerAdapter:
     model_id = MODEL_ID
+    default_resolution = 448
     stages = ("tower", "merged", "projected")
     collate = staticmethod(collate)
 
-    def __init__(self, resolution: int = 448, dtype=torch.bfloat16, device: str = "mps"):
-        tower, projector = load_parts(dtype)
-        self.model = tower.to(device)
-        self.projector = projector.to(device)
-        self.resolution = resolution
-        self.device = device
+    def __init__(self, resolution: int | None = None, dtype: torch.dtype = torch.bfloat16, device: str | None = None):
+        self.resolution = self.default_resolution if resolution is None else resolution
+        self.device = default_device() if device is None else device
         self.dtype = dtype
+        tower, projector = load_parts(dtype)
+        self.model = tower.to(self.device)
+        self.projector = projector.to(self.device)
         self.num_layers = self.model.config.num_hidden_layers
 
     def preprocess(self) -> Preprocess:
         return Preprocess(self.resolution)
 
     def depth_points(self, n: int = 8) -> list[int]:
-        return [round(self.num_layers * (k + 1) / n) for k in range(n)]
+        return depth_points(self.num_layers, n)
 
     def _unwindow(self, grid_thw: torch.Tensor) -> torch.Tensor:
         config = self.model.config
@@ -134,7 +119,7 @@ class MuseGlimmerAdapter:
         return torch.argsort(window_index)
 
     @torch.inference_mode()
-    def extract(self, inputs: dict[str, torch.Tensor], image_ids: list[str]) -> Iterator[FeatureBatch]:
+    def extract(self, inputs: Inputs, image_ids: list[str]) -> Iterator[FeatureBatch]:
         points = self.depth_points()
         captured: dict[int, torch.Tensor] = {}
         handles = []
@@ -162,20 +147,9 @@ class MuseGlimmerAdapter:
         order = self._unwindow(grid_thw)
         for layer in points:
             tokens = captured[layer] if layer == self.num_layers else captured[layer][order]
-            yield self._batch(tokens.view(rows, -1, width), image_ids, "tower", layer)
+            yield make_batch(self, tokens.view(rows, -1, width), image_ids, "tower", layer)
 
         # The tower already merges each 2x2 block, so its output is the merged Stage.
         merged = out.last_hidden_state.view(rows, -1, width * MERGE_SIZE**2)
-        yield self._batch(merged, image_ids, "merged", self.num_layers)
-        yield self._batch(self.projector(merged), image_ids, "projected", self.num_layers)
-
-    def _batch(self, tokens: torch.Tensor, image_ids: list[str], stage: str, layer: int) -> FeatureBatch:
-        return FeatureBatch(
-            tokens=tokens.cpu(),
-            image_ids=image_ids,
-            model_id=self.model_id,
-            stage=stage,
-            layer_index=layer,
-            num_layers=self.num_layers,
-            resolution=self.resolution,
-        )
+        yield make_batch(self, merged, image_ids, "merged", self.num_layers)
+        yield make_batch(self, self.projector(merged), image_ids, "projected", self.num_layers)

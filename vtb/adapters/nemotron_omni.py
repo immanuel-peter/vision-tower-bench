@@ -1,15 +1,14 @@
 from collections.abc import Iterator
-from dataclasses import dataclass, field
 
 import torch
 from safetensors.torch import load_file
 from torch import nn
-from torchvision import transforms
 from transformers import AutoConfig
 from transformers.dynamic_module_utils import get_class_from_dynamic_module
 
+from vtb.adapters.base import Inputs
+from vtb.adapters.common import ImagePreprocess, default_device, depth_points, make_batch, stack_pixels
 from vtb.feature_batch import FeatureBatch
-from vtb.images import square_crop
 from vtb.provenance import open_release
 from vtb.shards import load_prefixed
 
@@ -74,27 +73,8 @@ def make_projector() -> nn.Sequential:
     )
 
 
-@dataclass(frozen=True)
-class Preprocess:
-    resolution: int
-    pipeline: transforms.Compose = field(init=False, repr=False)
-
-    def __post_init__(self) -> None:
-        object.__setattr__(
-            self,
-            "pipeline",
-            transforms.Compose([
-                square_crop(self.resolution),
-                transforms.ToTensor(),
-            ]),
-        )
-
-    def __call__(self, image) -> torch.Tensor:
-        return self.pipeline(image)
-
-
-def collate(samples: list[torch.Tensor]) -> dict[str, torch.Tensor]:
-    return {"pixel_values": torch.stack(samples)}
+Preprocess = ImagePreprocess
+collate = stack_pixels
 
 
 def _cast_radio(radio, dtype: torch.dtype):
@@ -157,26 +137,27 @@ def load_parts(dtype: torch.dtype):
 
 class NemotronOmniAdapter:
     model_id = MODEL_ID
+    default_resolution = 448
     stages = ("tower", "merged", "projected")
     collate = staticmethod(collate)
 
-    def __init__(self, resolution: int = 448, dtype=torch.bfloat16, device: str = "mps"):
-        radio, projector = load_parts(dtype)
-        self.model = radio.to(device)
-        self.projector = projector.to(device)
-        self.resolution = resolution
-        self.device = device
+    def __init__(self, resolution: int | None = None, dtype: torch.dtype = torch.bfloat16, device: str | None = None):
+        self.resolution = self.default_resolution if resolution is None else resolution
+        self.device = default_device() if device is None else device
         self.dtype = dtype
+        radio, projector = load_parts(dtype)
+        self.model = radio.to(self.device)
+        self.projector = projector.to(self.device)
         self.num_layers = len(self.model.radio_model.model.blocks)
 
-    def preprocess(self) -> Preprocess:
+    def preprocess(self) -> ImagePreprocess:
         return Preprocess(self.resolution)
 
     def depth_points(self, n: int = 8) -> list[int]:
-        return [round(self.num_layers * (k + 1) / n) for k in range(n)]
+        return depth_points(self.num_layers, n)
 
     @torch.inference_mode()
-    def extract(self, inputs: dict[str, torch.Tensor], image_ids: list[str]) -> Iterator[FeatureBatch]:
+    def extract(self, inputs: Inputs, image_ids: list[str]) -> Iterator[FeatureBatch]:
         points = self.depth_points()
         captured: dict[int, torch.Tensor] = {}
         handles = []
@@ -210,22 +191,11 @@ class NemotronOmniAdapter:
             return tokens.reshape(rows, height * width, -1)
 
         for layer in points:
-            yield self._batch(spatial(captured[layer]), image_ids, "tower", layer)
+            yield make_batch(self, spatial(captured[layer]), image_ids, "tower", layer)
 
         features = out.features
         tower = features.reshape(rows, height, width, -1)
         merged = pixel_shuffle(tower, DOWNSAMPLE)
         merged = merged.reshape(rows, -1, merged.shape[-1])
-        yield self._batch(merged, image_ids, "merged", self.num_layers)
-        yield self._batch(self.projector(merged), image_ids, "projected", self.num_layers)
-
-    def _batch(self, tokens: torch.Tensor, image_ids: list[str], stage: str, layer: int) -> FeatureBatch:
-        return FeatureBatch(
-            tokens=tokens.cpu(),
-            image_ids=image_ids,
-            model_id=self.model_id,
-            stage=stage,
-            layer_index=layer,
-            num_layers=self.num_layers,
-            resolution=self.resolution,
-        )
+        yield make_batch(self, merged, image_ids, "merged", self.num_layers)
+        yield make_batch(self, self.projector(merged), image_ids, "projected", self.num_layers)

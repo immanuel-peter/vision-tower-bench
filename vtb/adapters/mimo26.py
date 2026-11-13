@@ -3,25 +3,25 @@
 import json
 import os
 from collections.abc import Iterator
-from dataclasses import dataclass, field
+from dataclasses import dataclass
+from functools import partial
 from math import isqrt
 from pathlib import Path
 
 import torch
 from huggingface_hub import hf_hub_download
 from safetensors.torch import load_file
-from torchvision import transforms
 
+from vtb.adapters.base import Inputs
+from vtb.adapters.common import IMAGENET_MEAN as IMAGE_MEAN, IMAGENET_STD as IMAGE_STD, PatchPreprocess, default_device, depth_points, make_batch, pack_patches, raster as merge_raster
 from vtb.feature_batch import FeatureBatch
-from vtb.images import square_crop
+from vtb.images import square_crop  # noqa: F401  re-exported for tests
 from vtb.models.mimo26 import MiMoVisionConfig, MiMoVisionModel
 from vtb.provenance import log_loaded, open_release
 from vtb.shards import load_prefixed
 
 ROOT = Path(__file__).resolve().parents[2]
 PATCH_SIZE, TEMPORAL_PATCH_SIZE, MERGE_SIZE = 16, 2, 2
-IMAGE_MEAN = (0.485, 0.456, 0.406)
-IMAGE_STD = (0.229, 0.224, 0.225)
 VISUAL_TENSORS = 364
 
 
@@ -82,36 +82,17 @@ def source_weights(checkpoint: Checkpoint) -> dict[str, torch.Tensor]:
     return weights
 
 
-@dataclass(frozen=True)
-class Preprocess:
-    resolution: int
-    pipeline: transforms.Compose = field(init=False, repr=False)
-
-    def __post_init__(self):
-        if self.resolution <= 0 or self.resolution % (PATCH_SIZE * MERGE_SIZE):
-            raise ValueError("MiMo resolution must be a positive multiple of 32")
-        object.__setattr__(self, "pipeline", transforms.Compose([
-            square_crop(self.resolution),
-            transforms.ToTensor(),
-            transforms.Normalize(IMAGE_MEAN, IMAGE_STD),
-        ]))
-
-    def __call__(self, image) -> torch.Tensor:
-        pixels = self.pipeline(image.convert("RGB"))
-        c, h, w = pixels.shape
-        frames = pixels.unsqueeze(0).expand(TEMPORAL_PATCH_SIZE, -1, -1, -1)
-        # Qwen2-VL processor order: merge block, within-block row/col, C/T/H/W.
-        patches = frames.reshape(1, 2, c, h // 32, 2, 16, w // 32, 2, 16)
-        return patches.permute(0, 3, 6, 4, 7, 2, 1, 5, 8).reshape(-1, c * 2 * 16 * 16)
+# Qwen2-VL processor order: merge block, within-block row/col, C/T/H/W.
+Preprocess = partial(PatchPreprocess, mean=IMAGE_MEAN, std=IMAGE_STD, rgb=True, patch_size=PATCH_SIZE, merge_size=MERGE_SIZE, temporal_patch_size=TEMPORAL_PATCH_SIZE)
 
 
-def collate(samples: list[torch.Tensor]) -> dict[str, torch.Tensor]:
+def collate(samples: list[torch.Tensor]) -> Inputs:
     if not samples:
         raise ValueError("empty MiMo batch")
     side = isqrt(samples[0].shape[0])
     if side % 2 or side**2 != samples[0].shape[0] or any(s.shape != samples[0].shape for s in samples):
         raise ValueError("MiMo batches require equal, even-sided square patch grids")
-    return {"pixel_values": torch.cat(samples), "grid_thw": torch.tensor([[1, side, side]] * len(samples))}
+    return pack_patches(samples)
 
 
 def raster(tokens: torch.Tensor, grid_thw: torch.Tensor, column_major: bool) -> list[torch.Tensor]:
@@ -129,8 +110,7 @@ def raster(tokens: torch.Tensor, grid_thw: torch.Tensor, column_major: bool) -> 
         sample = tokens[offset:offset + count]
         if column_major:
             sample = sample.reshape(w // 2, h // 2, 4, width).transpose(0, 1)
-        blocks = sample.reshape(h // 2, w // 2, 2, 2, width)
-        restored.append(blocks.permute(0, 2, 1, 3, 4).reshape(count, width))
+        restored.append(merge_raster(sample, 1, MERGE_SIZE, (h, w))[0])
         offset += count
     if offset != tokens.shape[0]:
         raise ValueError("grid_thw does not describe the token count")
@@ -161,24 +141,27 @@ def load_model(checkpoint: Checkpoint, dtype: torch.dtype, bundle: Path | None =
 
 class MiMo26Adapter:
     checkpoint = PRO
+    default_resolution = 448
     stages = ("tower", "merged", "projected")
     collate = staticmethod(collate)
 
-    def __init__(self, resolution: int = 448, dtype=torch.bfloat16, device: str = "mps", *, bundle: Path | None = None):
-        Preprocess(resolution)  # Reject unsupported grids before loading weights.
-        self.model = load_model(self.checkpoint, dtype, bundle).to(device)
+    def __init__(self, resolution: int | None = None, dtype: torch.dtype = torch.bfloat16, device: str | None = None, *, bundle: Path | None = None):
+        self.resolution = self.default_resolution if resolution is None else resolution
+        self.device = default_device() if device is None else device
+        self.dtype = dtype
+        Preprocess(self.resolution)  # Reject unsupported grids before loading weights.
+        self.model = load_model(self.checkpoint, dtype, bundle).to(self.device)
         self.model_id = self.checkpoint.model_id
-        self.resolution, self.dtype, self.device = resolution, dtype, device
         self.num_layers = self.model.config.depth
 
-    def preprocess(self):
+    def preprocess(self) -> PatchPreprocess:
         return Preprocess(self.resolution)
 
     def depth_points(self, n: int = 8) -> list[int]:
-        return sorted({round(self.num_layers * (k + 1) / n) for k in range(n)} - {0})
+        return depth_points(self.num_layers, n)
 
     @torch.inference_mode()
-    def extract(self, inputs: dict[str, torch.Tensor], image_ids: list[str]) -> Iterator[FeatureBatch]:
+    def extract(self, inputs: Inputs, image_ids: list[str]) -> Iterator[FeatureBatch]:
         grid = inputs["grid_thw"]
         if len(grid) != len(image_ids):
             raise ValueError("grid/image ID count differs")
@@ -204,7 +187,7 @@ class MiMo26Adapter:
         for layer in self.depth_points():
             column_major = visual.vit_window_attn_types[layer - 1] == 1
             tokens = torch.stack(raster(captured[layer], grid, column_major))
-            yield self._batch(tokens, image_ids, "tower", layer)
+            yield make_batch(self, tokens, image_ids, "tower", layer)
 
         # Both pinned configs end in a full-attention row-order block. The parent
         # merger consumes that order, so the 2x2 groups already form a raster grid.
@@ -212,11 +195,8 @@ class MiMo26Adapter:
             raise ValueError("pinned MiMo image exports must finish in row order")
         rows = len(image_ids)
         merged = captured["merged"].reshape(rows, -1, self.model.config.hidden_size * 4)
-        yield self._batch(merged, image_ids, "merged", self.num_layers)
-        yield self._batch(projected.reshape(rows, merged.shape[1], -1), image_ids, "projected", self.num_layers)
-
-    def _batch(self, tokens, image_ids, stage, layer):
-        return FeatureBatch(tokens.cpu(), image_ids, self.model_id, stage, layer, self.num_layers, self.resolution)
+        yield make_batch(self, merged, image_ids, "merged", self.num_layers)
+        yield make_batch(self, projected.reshape(rows, merged.shape[1], -1), image_ids, "projected", self.num_layers)
 
 
 class MiMo26ProAdapter(MiMo26Adapter):

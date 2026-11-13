@@ -68,7 +68,7 @@ scope of the geometry corrections and the historical layer sweeps.
 
 ## Evaluating a new Tower
 
-**1. Wrap it.** Return patch tokens at eight even relative depths, plus merged and projected if you have them. Include your own preprocessing.
+**1. Wrap it.** Implement the `TowerAdapter` Protocol in [vtb/adapters/base.py](vtb/adapters/base.py) and register the class in `vtb.extract.ADAPTERS`. The constructor takes `resolution=None, dtype=torch.bfloat16, device=None`; `None` means the class's `default_resolution` (448, or a grid-matched value such as DINOv3's 512) and the first of cuda, mps or cpu. `preprocess()` returns a callable from a PIL image to one sample, `collate()` turns samples into a `dict[str, Tensor]`, and `extract(inputs, image_ids)` yields a `FeatureBatch` per depth point from `depth_points()` (eight even relative depths), then merged and projected if you have them, matching the read-only `stages` tuple. [vtb/adapters/common.py](vtb/adapters/common.py) holds the shared preprocessing, merge-block `raster`, `depth_points` and `make_batch`.
 
 **2. Meet three constraints.** Patch tokens only, no class token. Raster order, so undo any merge-block or window grouping before caching. Square token grid, the pooling and dense decoders assume one.
 
