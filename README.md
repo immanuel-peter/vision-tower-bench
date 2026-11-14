@@ -68,19 +68,15 @@ scope of the geometry corrections and the historical layer sweeps.
 
 ## Evaluating a new Tower
 
-**1. Wrap it.** Implement `TowerAdapter` in [vtb/adapters/base.py](vtb/adapters/base.py) and register the class in `vtb.extract.ADAPTERS`.
-  a. Constructor: `resolution=None, dtype=torch.bfloat16, device=None`. `None` means `default_resolution` (448; 512 for DINOv3) and the first of cuda, mps, cpu.
-  b. `preprocess()` maps a PIL image to one sample; `collate()` batches samples into a `dict[str, Tensor]`.
-  c. `extract()` yields a `FeatureBatch` per depth in `depth_points()` (eight even depths), then merged and projected per `stages`.
-  d. Shared helpers are in [vtb/adapters/common.py](vtb/adapters/common.py).
-
-**2. Meet three constraints.** Patch tokens only, no class token. Raster order, so undo any merge-block or window grouping before caching. Square token grid, the pooling and dense decoders assume one.
-
-**3. Prove it matches.** A Tower pulled from a larger checkpoint must match that checkpoint within BF16 tolerance on fixed images.
-
-**4. Extract once.** Cache features per model, Stage, depth and resolution. Probes read the cache after that.
-
-**5. Run the matrices.** Same learning-rate grid, three seeds, validation picks the rate.
+1. **Wrap it.** Implement `TowerAdapter` in [vtb/adapters/base.py](vtb/adapters/base.py) and register the class in `vtb.extract.ADAPTERS`.
+   - Constructor: `resolution=None, dtype=torch.bfloat16, device=None`. `None` means `default_resolution` (448; 512 for DINOv3) and the first of cuda, mps, cpu.
+   - `preprocess()` maps a PIL image to one sample; `collate()` batches samples into a `dict[str, Tensor]`.
+   - `extract()` yields a `FeatureBatch` per depth in `depth_points()` (eight even depths), then merged and projected per `stages`.
+   - Shared helpers are in [vtb/adapters/common.py](vtb/adapters/common.py).
+2. **Meet three constraints.** Patch tokens only, no class token. Raster order, so undo any merge-block or window grouping before caching. Square token grid, the pooling and dense decoders assume one.
+3. **Prove it matches.** A Tower pulled from a larger checkpoint must match that checkpoint within BF16 tolerance on fixed images.
+4. **Extract once.** Cache features per model, Stage, depth and resolution. Probes read the cache after that.
+5. **Run the matrices.** Same learning-rate grid, three seeds, validation picks the rate.
 
 ## Layout
 
