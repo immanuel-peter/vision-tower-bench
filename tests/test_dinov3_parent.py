@@ -51,7 +51,7 @@ def test_every_depth_matches_independent_parent_block_hooks(parent, resolution):
         handles.append(parent.model.layer[depth - 1].register_forward_hook(capture))
     try:
         with torch.inference_mode():
-            final = parent(pixels.to(DEVICE, DTYPE)).last_hidden_state[:, PREFIX_TOKENS:].cpu()
+            final = parent(pixels["pixel_values"].to(DEVICE, DTYPE)).last_hidden_state[:, PREFIX_TOKENS:].cpu()
     finally:
         for handle in handles:
             handle.remove()

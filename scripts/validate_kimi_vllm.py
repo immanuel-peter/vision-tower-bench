@@ -13,7 +13,7 @@ from PIL import Image
 from safetensors.torch import load_file
 
 from scripts.kimi_vllm_reference import load_reference
-from vtb.adapters.moonvit_v2 import CHECKPOINTS, MoonViTV2Adapter, collate, load_projector
+from vtb.adapters.moonvit_v2 import CHECKPOINTS, MoonViTV2Adapter, collate, load_projector_weights
 
 
 def main():
@@ -69,7 +69,7 @@ def main():
     from transformers import AutoModel
     adapter.model = AutoModel.from_pretrained(args.bundle, trust_remote_code=True, dtype=dtype).to(args.device).eval()
     # Load the local Projector without resolving a Hub ID.
-    adapter.projector = load_projector(dtype, str(args.bundle)).to(args.device)
+    adapter.projector = load_projector_weights(dtype, str(args.bundle)).to(args.device)
     adapter.resolution, adapter.dtype, adapter.device, adapter.num_layers = 448, dtype, args.device, 27
     captured = {}
     handles = []

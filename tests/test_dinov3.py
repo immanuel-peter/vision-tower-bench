@@ -81,7 +81,7 @@ def test_adapter_pins_source_drops_registers_and_retains_parent_final_norm(monke
     monkeypatch.setattr(dinov3.DINOv3ViTModel, "from_pretrained", load)
     adapter = dinov3.DINOv3Adapter(resolution=32, dtype=torch.float32, device="cpu")
     assert calls == [((dinov3.SOURCE_REPO,), {"revision": dinov3.SOURCE_REVISION, "dtype": torch.float32})]
-    batches = list(adapter.extract(torch.zeros(2, 3, 32, 32), ["first", "second"]))
+    batches = list(adapter.extract({"pixel_values": torch.zeros(2, 3, 32, 32)}, ["first", "second"]))
     assert [b.layer_index for b in batches] == [3, 6, 9, 12, 15, 18, 21, 24]
     for batch in batches:
         expected = parent.final if batch.layer_index == 24 else parent.hidden_states[batch.layer_index]
@@ -91,9 +91,9 @@ def test_adapter_pins_source_drops_registers_and_retains_parent_final_norm(monke
         assert batch.model_id == dinov3.SOURCE_REPO
         assert batch.relative_depth == batch.layer_index / 24
     with pytest.raises(ValueError, match="expected pixels"):
-        list(adapter.extract(torch.zeros(1, 3, 48, 32), ["wrong"]))
+        list(adapter.extract({"pixel_values": torch.zeros(1, 3, 48, 32)}, ["wrong"]))
     with pytest.raises(ValueError, match="same length"):
-        list(adapter.extract(torch.zeros(2, 3, 32, 32), ["wrong"]))
+        list(adapter.extract({"pixel_values": torch.zeros(2, 3, 32, 32)}, ["wrong"]))
 
 
 def test_parent_preprocessor_normalization_on_the_bench_crop():

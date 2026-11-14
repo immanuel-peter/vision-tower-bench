@@ -41,7 +41,7 @@ def test_checkpoint_revisions_are_commit_shas():
         assert SHA.fullmatch(checkpoint.revision) and SHA.fullmatch(checkpoint.release_revision)
     for checkpoint in moonvit_v2.CHECKPOINTS.values():
         assert SHA.fullmatch(checkpoint.revision) and SHA.fullmatch(checkpoint.bundle_revision)
-    assert inspect.signature(moonvit_v2.load_projector).parameters["revision"].default == moonvit_v2.K3.bundle_revision
+    assert inspect.signature(moonvit_v2.load_projector_weights).parameters["revision"].default == moonvit_v2.K3.bundle_revision
     for module in (minimax_m3, mimo26, nemotron35):
         for checkpoint in module.CHECKPOINTS.values():
             assert SHA.fullmatch(checkpoint.revision) and SHA.fullmatch(checkpoint.release_revision)
