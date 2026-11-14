@@ -1,22 +1,25 @@
 from collections.abc import Iterator
 from dataclasses import dataclass, field
-from pathlib import Path
 
 import torch
 from safetensors.torch import load_file
 from torch import nn
 from torchvision import transforms
-from transformers import AutoConfig, AutoModel
+from transformers import AutoConfig
+from transformers.dynamic_module_utils import get_class_from_dynamic_module
 
 from vtb.feature_batch import FeatureBatch
 from vtb.images import square_crop
+from vtb.provenance import open_release
 from vtb.shards import load_prefixed
 
 MODEL_ID = "immanuelpeter/C-RADIOv4-H-3-Omni"
-BUNDLE = Path(__file__).resolve().parents[2] / "hf/C-RADIOv4-H-3-Omni"
+REVISION = "98b048584471e079444542388009ef9eae4bfbce"
 
 SOURCE_REPO = "nvidia/Nemotron-3-Nano-Omni-30B-A3B-Reasoning-BF16"
 SOURCE_REVISION = "e5e9932441de940c9a62185c870ea5bcd4cd24e2"
+RADIO_CODE_REPO = "nvidia/C-RADIOv4-H"
+RADIO_CODE_REVISION = "0057b339059c0b9e1b4ba996f975410ebbfdfcc8"
 VISION_SHARD = "model-00001-of-00017.safetensors"
 TOWER_PREFIX = "vision_model."
 PROJECTOR_PREFIX = "mlp1."
@@ -25,6 +28,7 @@ DOWNSAMPLE = 0.5
 VIT_WIDTH = 1280
 PROJECTOR_HIDDEN = 20480
 LLM_WIDTH = 2688
+SOURCE_MISSING_KEYS = {"radio_model.summary_idxs"}
 
 
 class SquaredReLU(nn.Module):
@@ -112,12 +116,18 @@ def attach_video_embedder(radio) -> None:
     )
 
 
+def build_radio(vision_config):
+    return get_class_from_dynamic_module("hf_model.RADIOModel", RADIO_CODE_REPO, revision=RADIO_CODE_REVISION)(vision_config)
+
+
 def load_source_parts(dtype: torch.dtype = torch.bfloat16):
     config = AutoConfig.from_pretrained(SOURCE_REPO, trust_remote_code=True, revision=SOURCE_REVISION)
-    radio = AutoModel.from_config(config.vision_config, trust_remote_code=True)
+    radio = build_radio(config.vision_config)
     attach_video_embedder(radio)
     weights = load_prefixed(SOURCE_REPO, [VISION_SHARD], TOWER_PREFIX, revision=SOURCE_REVISION)
-    radio.load_state_dict({name: tensor.to(dtype) for name, tensor in weights.items()}, strict=False)
+    result = radio.load_state_dict({name: tensor.to(dtype) for name, tensor in weights.items()}, strict=False)
+    if set(result.missing_keys) != SOURCE_MISSING_KEYS or result.unexpected_keys:
+        raise ValueError(f"unexpected Omni source keys: missing {result.missing_keys}, unexpected {result.unexpected_keys}")
     radio = _cast_radio(radio, dtype)
     projector = make_projector()
     projector.load_state_dict({
@@ -130,20 +140,19 @@ def load_source_parts(dtype: torch.dtype = torch.bfloat16):
 
 
 def load_parts(dtype: torch.dtype):
-    if (BUNDLE / "model.safetensors").exists():
-        config = AutoConfig.from_pretrained(SOURCE_REPO, trust_remote_code=True, revision=SOURCE_REVISION)
-        radio = AutoModel.from_config(config.vision_config, trust_remote_code=True)
-        attach_video_embedder(radio)
-        radio.load_state_dict({
-            name: tensor.to(dtype) for name, tensor in load_file(BUNDLE / "model.safetensors").items()
-        }, strict=False)
-        radio = _cast_radio(radio, dtype)
-        projector = make_projector()
-        projector.load_state_dict({
-            name: tensor.to(dtype) for name, tensor in load_file(BUNDLE / "projector.safetensors").items()
-        })
-        return radio.eval(), projector.to(dtype).eval()
-    return load_source_parts(dtype)
+    bundle = open_release(MODEL_ID, REVISION, SOURCE_REPO, SOURCE_REVISION, required=True)
+    config = AutoConfig.from_pretrained(SOURCE_REPO, trust_remote_code=True, revision=SOURCE_REVISION)
+    radio = build_radio(config.vision_config)
+    attach_video_embedder(radio)
+    radio.load_state_dict({
+        name: tensor.to(dtype) for name, tensor in load_file(bundle / "model.safetensors").items()
+    }, strict=True)
+    radio = _cast_radio(radio, dtype)
+    projector = make_projector()
+    projector.load_state_dict({
+        name: tensor.to(dtype) for name, tensor in load_file(bundle / "projector.safetensors").items()
+    })
+    return radio.eval(), projector.to(dtype).eval()
 
 
 class NemotronOmniAdapter:

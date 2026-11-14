@@ -9,6 +9,7 @@ from transformers import DINOv3ViTModel
 
 from vtb.feature_batch import FeatureBatch
 from vtb.images import square_crop
+from vtb.provenance import log_loaded
 
 SOURCE_REPO = "facebook/dinov3-vitl16-pretrain-lvd1689m"
 SOURCE_REVISION = "ea8dc2863c51be0a264bab82070e3e8836b02d51"
@@ -64,6 +65,7 @@ class DINOv3Adapter:
 
     def __init__(self, resolution: int = 512, dtype=torch.bfloat16, device: str = "mps"):
         check_resolution(resolution)
+        log_loaded(self.model_id, f"{SOURCE_REPO}@{SOURCE_REVISION}")
         self.model = DINOv3ViTModel.from_pretrained(
             SOURCE_REPO, revision=SOURCE_REVISION, dtype=dtype,
         ).to(device).eval()

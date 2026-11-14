@@ -18,6 +18,7 @@ from transformers.vision_utils import get_vision_window_index
 
 from vtb.feature_batch import FeatureBatch
 from vtb.images import square_crop
+from vtb.provenance import log_loaded
 
 MODEL_ID = "immanuelpeter/Muse-Glimmer-Vision"
 REVISION = "c0cd7ffcb881966e04c4adead0f057f8ceb09447"
@@ -94,6 +95,7 @@ def projector_shapes(settings: dict) -> SimpleNamespace:
 
 
 def load_parts(dtype: torch.dtype) -> tuple[MuseGlimmerVisionModel, Projector]:
+    log_loaded(MODEL_ID, f"{MODEL_ID}@{REVISION}")
     tower = AutoModel.from_pretrained(MODEL_ID, revision=REVISION, dtype=dtype).eval()
     settings = loads(Path(hf_hub_download(MODEL_ID, PROJECTOR_CONFIG, revision=REVISION)).read_text())
     projector = Projector(projector_shapes(settings))

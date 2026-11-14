@@ -12,6 +12,7 @@ from transformers import AutoModel
 
 from vtb.feature_batch import FeatureBatch
 from vtb.images import square_crop
+from vtb.provenance import log_loaded
 
 MODEL_ID = "immanuelpeter/MoonViT-K2.6"
 REVISION = "84ec70ac59184bfa74fca77af9e1cdeccb32b5d6"
@@ -73,6 +74,7 @@ def load_projector(dtype: torch.dtype) -> nn.Module:
 
 
 def load_parts(dtype: torch.dtype, attention: str = "eager"):
+    log_loaded(MODEL_ID, f"{MODEL_ID}@{REVISION}")
     tower = AutoModel.from_pretrained(
         MODEL_ID, revision=REVISION, dtype=dtype, trust_remote_code=True, attn_implementation=attention
     ).eval()
