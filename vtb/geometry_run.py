@@ -10,7 +10,7 @@ import numpy as np
 import torch
 from torch.nn.functional import interpolate
 
-from vtb import cache, geometry
+from vtb import cache, geometry, probe
 from vtb.geometry_metrics import (
     depth_si_loss,
     evaluate_depth,
@@ -288,9 +288,9 @@ def main() -> None:
         if args.match_capacity:
             batch = match_capacity(batch, split, args.width)
         # The cache holds bfloat16; the heads are float32.
-        features = geometry.dense_map(batch).float()
+        features = geometry.batch_dense_maps(batch).float()
 
-        parameters = geometry.parameter_count(build_head(features.shape[1], args.task, args))
+        parameters = probe.parameter_count(build_head(features.shape[1], args.task, args))
         result = run_cell(
             features, targets, valid, split, args.task, coverage, order, scenes, args
         )

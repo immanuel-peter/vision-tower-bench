@@ -1,6 +1,7 @@
 from PIL import Image
 
-from vtb.adapters.deepseek_v41 import DOWNSAMPLE, PATCH_SIZE, Preprocess
+from vtb.adapters.deepseek_v41 import Preprocess
+from vtb.models.deepseek_v41 import DOWNSAMPLE, PATCH_SIZE
 
 
 def test_448_is_a_32_by_32_patch_grid():

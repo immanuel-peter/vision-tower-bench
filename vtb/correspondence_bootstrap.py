@@ -8,7 +8,7 @@ from pathlib import Path
 
 import torch
 
-from vtb.correspondence import paired_bootstrap
+from vtb.bootstrap import paired_bootstrap
 
 PRIMARY = {"scannet": "recall_10px", "navi": "recall_2cm", "spair": "pck_0.1"}
 

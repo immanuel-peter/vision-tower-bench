@@ -194,7 +194,7 @@ def test_dense_map_restores_the_patch_grid():
         num_layers=24,
         resolution=448,
     )
-    maps = geometry.dense_map(batch)
+    maps = geometry.batch_dense_maps(batch)
     assert maps.shape == (2, 64, 32, 32)
     # Token 101 maps to row 3, column 5.
     assert torch.equal(maps[0, :, 3, 5], batch.tokens[0, 3 * 32 + 5, :])
@@ -215,14 +215,14 @@ def test_dense_map_refuses_a_pooled_batch():
         resolution=448,
     )
     with pytest.raises(ValueError, match="full patch tokens"):
-        geometry.dense_map(batch.pooled(4))
+        geometry.batch_dense_maps(batch.pooled(4))
 
 
 def test_geometry_head_capacity_tracks_token_width():
     from vtb import geometry
 
-    narrow = geometry.parameter_count(geometry.DepthHead([1024]))
-    wide = geometry.parameter_count(geometry.DepthHead([7168]))
+    narrow = probe.parameter_count(geometry.DepthHead([1024]))
+    wide = probe.parameter_count(geometry.DepthHead([7168]))
     assert wide > 2.5 * narrow
 
 
@@ -296,7 +296,7 @@ def test_geometry_runner_trains_a_depth_cell_end_to_end(tmp_path):
     targets, _ = geometry_run.load_targets(tmp_path / "targets.npz", batch.image_ids, "depth")
     assert targets.shape == (24, 1, 16, 16)
 
-    features = geometry.dense_map(batch)
+    features = geometry.batch_dense_maps(batch)
     assert features.shape == (24, 32, 8, 8)
 
     args = argparse.Namespace(
@@ -416,7 +416,7 @@ def test_bfloat16_cache_reaches_a_float32_head(tmp_path):
     )
     writer.close()
 
-    raw = geometry.dense_map(cache.load_batch(tmp_path, "tower", 6))
+    raw = geometry.batch_dense_maps(cache.load_batch(tmp_path, "tower", 6))
     assert raw.dtype == torch.bfloat16
     head = geometry.SurfaceNormalHead([32], head="linear")
     with pytest.raises(RuntimeError):

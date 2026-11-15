@@ -16,7 +16,7 @@ class Matches:
     confidence: torch.Tensor
 
 
-def dense_map(tokens: torch.Tensor) -> torch.Tensor:
+def token_dense_map(tokens: torch.Tensor) -> torch.Tensor:
     if tokens.ndim != 2:
         raise ValueError(f"tokens must be (token, width), got {tuple(tokens.shape)}")
     side = isqrt(tokens.shape[0])
@@ -167,37 +167,3 @@ def recall(errors: torch.Tensor, threshold: float) -> float:
     if errors.numel() == 0:
         return float("nan")
     return (errors < threshold).float().mean().item()
-
-
-def paired_bootstrap(
-    first: torch.Tensor,
-    second: torch.Tensor,
-    *,
-    resamples: int = 10_000,
-    confidence: float = 0.95,
-    seed: int = 0,
-    batch_size: int = 256,
-) -> dict[str, float | int | str]:
-    if first.shape != second.shape or first.ndim != 1:
-        raise ValueError("paired measurements must have the same one-dimensional shape")
-    if not len(first):
-        raise ValueError("cannot bootstrap empty measurements")
-    difference = first.float() - second.float()
-    generator = torch.Generator().manual_seed(seed)
-    draws = []
-    for start in range(0, resamples, batch_size):
-        count = min(batch_size, resamples - start)
-        index = torch.randint(len(difference), (count, len(difference)), generator=generator)
-        draws.append(difference[index].mean(dim=1))
-    distribution = torch.cat(draws)
-    tail = (1 - confidence) / 2
-    lower, upper = torch.quantile(distribution, torch.tensor([tail, 1 - tail]))
-    return {
-        "point_estimate": difference.mean().item(),
-        "confidence": confidence,
-        "lower": lower.item(),
-        "upper": upper.item(),
-        "resamples": resamples,
-        "bootstrap_seed": seed,
-        "difference": "first_minus_second",
-    }

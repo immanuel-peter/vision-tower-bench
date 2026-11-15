@@ -11,10 +11,9 @@ from pathlib import Path
 
 import torch
 
-from vtb.correspondence import paired_bootstrap
+from vtb.bootstrap import paired_bootstrap, paired_image_bootstrap
 from vtb.correspondence_bootstrap import PRIMARY
 from vtb.methods import require_same
-from vtb.semantic_bootstrap import paired_image_bootstrap
 
 
 def parser() -> argparse.ArgumentParser:

@@ -7,7 +7,7 @@ from pathlib import Path
 import torch
 
 from vtb import cache, probe_run
-from vtb.semantic_bootstrap import paired_image_bootstrap
+from vtb.bootstrap import paired_image_bootstrap
 from vtb.methods import require_same
 
 
