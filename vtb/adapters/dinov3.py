@@ -1,54 +1,26 @@
 """Pinned official DINOv3 ViT-L/16 control, separate from DINOv2."""
 
 from collections.abc import Iterator
-from dataclasses import dataclass, field
+from functools import partial
 
 import torch
-from torchvision import transforms
 from transformers import DINOv3ViTModel
 
+from vtb.adapters.base import Inputs
+from vtb.adapters.common import IMAGENET_MEAN, IMAGENET_STD, ImagePreprocess, default_device, depth_points, make_batch, stack_pixels
 from vtb.feature_batch import FeatureBatch
-from vtb.images import square_crop
 from vtb.provenance import log_loaded
 
 SOURCE_REPO = "facebook/dinov3-vitl16-pretrain-lvd1689m"
 SOURCE_REVISION = "ea8dc2863c51be0a264bab82070e3e8836b02d51"
-IMAGENET_MEAN = (0.485, 0.456, 0.406)
-IMAGENET_STD = (0.229, 0.224, 0.225)
 PATCH_SIZE = 16
 PREFIX_TOKENS = 5
 
-
-def check_resolution(resolution: int) -> None:
-    if resolution <= 0 or resolution % PATCH_SIZE:
-        raise ValueError("DINOv3 resolution must be a positive multiple of 16")
-
-
-@dataclass(frozen=True)
-class Preprocess:
-    """Bench crop and interpolation, official ImageNet channel normalization.
-
-    The parent processor's default is a bilinear square resize. The bench uses
-    a bicubic short-side resize and center crop for both DINO controls.
-    """
-
-    resolution: int
-    pipeline: transforms.Compose = field(init=False, repr=False)
-
-    def __post_init__(self) -> None:
-        check_resolution(self.resolution)
-        object.__setattr__(self, "pipeline", transforms.Compose([
-            square_crop(self.resolution),
-            transforms.ToTensor(),
-            transforms.Normalize(IMAGENET_MEAN, IMAGENET_STD),
-        ]))
-
-    def __call__(self, image) -> torch.Tensor:
-        return self.pipeline(image.convert("RGB"))
-
-
-def collate(samples: list[torch.Tensor]) -> torch.Tensor:
-    return torch.stack(samples)
+# Bench crop and interpolation with official ImageNet channel normalization. The
+# parent processor's default is a bilinear square resize; the bench uses a
+# bicubic short-side resize and center crop for both DINO controls.
+Preprocess = partial(ImagePreprocess, mean=IMAGENET_MEAN, std=IMAGENET_STD, rgb=True, multiple=PATCH_SIZE)
+collate = stack_pixels
 
 
 class DINOv3Adapter:
@@ -60,33 +32,33 @@ class DINOv3Adapter:
     """
 
     model_id = SOURCE_REPO
+    default_resolution = 512
     stages = ("tower",)
     collate = staticmethod(collate)
 
-    def __init__(self, resolution: int = 512, dtype=torch.bfloat16, device: str = "mps"):
-        check_resolution(resolution)
+    def __init__(self, resolution: int | None = None, dtype: torch.dtype = torch.bfloat16, device: str | None = None):
+        self.resolution = self.default_resolution if resolution is None else resolution
+        self.device = default_device() if device is None else device
+        Preprocess(self.resolution)
         log_loaded(self.model_id, f"{SOURCE_REPO}@{SOURCE_REVISION}")
         self.model = DINOv3ViTModel.from_pretrained(
             SOURCE_REPO, revision=SOURCE_REVISION, dtype=dtype,
-        ).to(device).eval()
+        ).to(self.device).eval()
         config = self.model.config
         if (config.num_hidden_layers, config.hidden_size, config.patch_size,
                 config.num_register_tokens) != (24, 1024, PATCH_SIZE, 4):
             raise ValueError("expected the pinned DINOv3 ViT-L/16 with four registers")
-        self.resolution = resolution
-        self.device = device
         self.num_layers = config.num_hidden_layers
 
-    def preprocess(self) -> Preprocess:
+    def preprocess(self) -> ImagePreprocess:
         return Preprocess(self.resolution)
 
     def depth_points(self, n: int = 8) -> list[int]:
-        if not 1 <= n <= self.num_layers:
-            raise ValueError(f"depth count must be between 1 and {self.num_layers}")
-        return [round(self.num_layers * (k + 1) / n) for k in range(n)]
+        return depth_points(self.num_layers, n)
 
     @torch.inference_mode()
-    def extract(self, pixel_values: torch.Tensor, image_ids: list[str]) -> Iterator[FeatureBatch]:
+    def extract(self, inputs: Inputs, image_ids: list[str]) -> Iterator[FeatureBatch]:
+        pixel_values = inputs["pixel_values"]
         if pixel_values.ndim != 4 or tuple(pixel_values.shape[1:]) != (3, self.resolution, self.resolution):
             raise ValueError(f"expected pixels [B, 3, {self.resolution}, {self.resolution}]")
         if pixel_values.shape[0] != len(image_ids):
@@ -104,8 +76,4 @@ class DINOv3Adapter:
                 raise ValueError(f"unexpected DINOv3 patch layout {tuple(patches.shape)}")
             # Parent Conv2d flatten(2) emits rows first. Removing the prefix
             # preserves that raster order; no reshape or register averaging.
-            yield FeatureBatch(
-                tokens=patches.cpu(), image_ids=image_ids, model_id=self.model_id,
-                stage="tower", layer_index=layer, num_layers=self.num_layers,
-                resolution=self.resolution,
-            )
+            yield make_batch(self, patches, image_ids, "tower", layer)

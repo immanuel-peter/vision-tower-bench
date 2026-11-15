@@ -7,6 +7,7 @@ external image processor, before the BF16 vision forward.
 
 import json
 import os
+from collections.abc import Iterator, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -17,6 +18,8 @@ from torch import nn
 from transformers import AutoConfig
 from transformers.dynamic_module_utils import get_class_from_dynamic_module
 
+from vtb.adapters.base import Inputs
+from vtb.adapters.common import default_device, make_batch
 from vtb.adapters.nemotron_omni import (
     DOWNSAMPLE,
     PATCH_SIZE,
@@ -32,6 +35,7 @@ from vtb.adapters.nemotron_omni import (
     collate,
     pixel_shuffle,
 )
+from vtb.feature_batch import STAGES, FeatureBatch
 from vtb.provenance import open_release
 from vtb.shards import load_prefixed
 
@@ -167,28 +171,34 @@ def load_parts(checkpoint: Checkpoint, dtype: torch.dtype):
 
 class Nemotron35Adapter(NemotronOmniAdapter):
     checkpoint = SUPER
-    stages = ("tower", "merged", "projected")
+    default_stages: tuple[str, ...] = STAGES
     collate = staticmethod(collate)
 
-    def __init__(self, resolution=448, dtype=torch.bfloat16, device="cuda", stages=None):
-        if resolution <= 0 or resolution % (2 * PATCH_SIZE):
+    def __init__(self, resolution: int | None = None, dtype: torch.dtype = torch.bfloat16, device: str | None = None, stages: Sequence[str] | None = None):
+        self.resolution = self.default_resolution if resolution is None else resolution
+        self.device = default_device() if device is None else device
+        self.dtype = dtype
+        if self.resolution <= 0 or self.resolution % (2 * PATCH_SIZE):
             raise ValueError("resolution must be a positive multiple of 32 for 2x2 pixel shuffle")
-        self.selected_stages = tuple(self.stages if stages is None else stages)
-        if not self.selected_stages or set(self.selected_stages) - set(self.stages):
+        self.selected_stages = tuple(self.default_stages if stages is None else stages)
+        if not self.selected_stages or set(self.selected_stages) - set(STAGES):
             raise ValueError(f"unknown or empty stages: {self.selected_stages}")
-        self.stages = self.selected_stages
         radio, projector, norm = load_parts(self.checkpoint, dtype)
-        self.model, self.projector, self.final_norm = radio.to(device), projector.to(device), norm.to(device)
+        self.model, self.projector, self.final_norm = radio.to(self.device), projector.to(self.device), norm.to(self.device)
         self.model_id = self.checkpoint.model_id
-        self.resolution, self.dtype, self.device = resolution, dtype, device
         self.num_layers = len(self.model.radio_model.model.blocks)
 
-    @torch.inference_mode()
-    def extract(self, inputs, image_ids):
-        points = self.depth_points() if "tower" in self.selected_stages else []
-        captured, handles = {}, []
+    @property
+    def stages(self) -> tuple[str, ...]:
+        return self.selected_stages
 
-        def capture(layer):
+    @torch.inference_mode()
+    def extract(self, inputs: Inputs, image_ids: list[str]) -> Iterator[FeatureBatch]:
+        points = self.depth_points() if "tower" in self.selected_stages else []
+        captured: dict[int, torch.Tensor] = {}
+        handles = []
+
+        def capture(layer: int):
             def hook(_module, _args, output):
                 captured[layer] = (output[0] if isinstance(output, tuple) else output).detach()
             return hook
@@ -207,15 +217,15 @@ class Nemotron35Adapter(NemotronOmniAdapter):
                 handle.remove()
         skip = self.model.radio_model.model.patch_generator.num_skip
         for layer in points:
-            yield self._batch(captured[layer][:, skip:], image_ids, "tower", layer)
+            yield make_batch(self, captured[layer][:, skip:], image_ids, "tower", layer)
         if set(self.selected_stages) & {"merged", "projected"}:
             side = self.resolution // PATCH_SIZE
             tower = self.final_norm(output.features).reshape(len(image_ids), side, side, VIT_WIDTH)
             merged = pixel_shuffle(tower, DOWNSAMPLE).flatten(1, 2)
             if "merged" in self.selected_stages:
-                yield self._batch(merged, image_ids, "merged", self.num_layers)
+                yield make_batch(self, merged, image_ids, "merged", self.num_layers)
             if "projected" in self.selected_stages:
-                yield self._batch(self.projector(merged), image_ids, "projected", self.num_layers)
+                yield make_batch(self, self.projector(merged), image_ids, "projected", self.num_layers)
 
 
 class Nemotron35SuperAdapter(Nemotron35Adapter):
@@ -224,6 +234,4 @@ class Nemotron35SuperAdapter(Nemotron35Adapter):
 
 class Nemotron35BoltAdapter(Nemotron35Adapter):
     checkpoint = BOLT
-
-    def __init__(self, *args, stages=("merged", "projected"), **kwargs):
-        super().__init__(*args, stages=stages, **kwargs)
+    default_stages = ("merged", "projected")

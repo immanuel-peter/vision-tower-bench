@@ -1,5 +1,5 @@
 from collections.abc import Iterator
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from json import loads
 from pathlib import Path
 
@@ -7,12 +7,12 @@ import torch
 import torch.nn.functional as F
 from safetensors.torch import load_file
 from torch import nn
-from torchvision import transforms
 from transformers import AutoConfig, AutoModel, Gemma4VisionModel
 from transformers.models.gemma4.modeling_gemma4 import Gemma4RMSNorm
 
+from vtb.adapters.base import Inputs
+from vtb.adapters.common import ImagePreprocess, default_device, depth_points, make_batch
 from vtb.feature_batch import FeatureBatch
-from vtb.images import square_crop
 from vtb.provenance import open_release
 from vtb.shards import load_prefixed
 
@@ -50,31 +50,18 @@ def position_ids(side: int, rows: int) -> torch.Tensor:
 
 
 @dataclass(frozen=True)
-class Preprocess:
+class Preprocess(ImagePreprocess):
     """Square-crop, then pad bottom-right so the 3x3 pool divides the grid."""
 
-    resolution: int
-    pipeline: transforms.Compose = field(init=False, repr=False)
-
-    def __post_init__(self) -> None:
-        object.__setattr__(
-            self,
-            "pipeline",
-            transforms.Compose([
-                square_crop(self.resolution),
-                transforms.ToTensor(),
-            ]),
-        )
-
     def __call__(self, image) -> torch.Tensor:
-        pixels = self.pipeline(image)
+        pixels = self.pixels(image)
         target = padded_side(self.resolution)
         _, height, width = pixels.shape
         pixels = F.pad(pixels, (0, target - width, 0, target - height), value=PAD_VALUE)
         return patchify(pixels)
 
 
-def collate(samples: list[torch.Tensor]) -> dict[str, torch.Tensor]:
+def collate(samples: list[torch.Tensor]) -> Inputs:
     side = int(samples[0].shape[0] ** 0.5)
     return {
         "pixel_values": torch.stack(samples),
@@ -121,7 +108,7 @@ def load_source_parts(dtype: torch.dtype) -> tuple[Gemma4VisionModel, Projector]
     return tower.eval(), projector.to(dtype).eval()
 
 
-def load_projector(dtype: torch.dtype, bundle: Path) -> Projector:
+def load_projector_weights(dtype: torch.dtype, bundle: Path) -> Projector:
     settings = loads((bundle / "projector_config.json").read_text())
     projector = Projector(settings)
     projector.load_state_dict(load_file(bundle / "projector.safetensors"))
@@ -131,31 +118,32 @@ def load_projector(dtype: torch.dtype, bundle: Path) -> Projector:
 def load_parts(dtype: torch.dtype) -> tuple[Gemma4VisionModel, Projector]:
     bundle = open_release(MODEL_ID, REVISION, SOURCE_REPO, SOURCE_REVISION)
     tower = AutoModel.from_pretrained(bundle, dtype=dtype, local_files_only=True).eval()
-    return tower, load_projector(dtype, bundle)
+    return tower, load_projector_weights(dtype, bundle)
 
 
 class Gemma4Adapter:
     model_id = MODEL_ID
+    default_resolution = 448
     stages = ("tower", "merged", "projected")
     collate = staticmethod(collate)
 
-    def __init__(self, resolution: int = 448, dtype=torch.bfloat16, device: str = "mps"):
-        tower, projector = load_parts(dtype)
-        self.model = tower.to(device)
-        self.projector = projector.to(device)
-        self.resolution = resolution
-        self.device = device
+    def __init__(self, resolution: int | None = None, dtype: torch.dtype = torch.bfloat16, device: str | None = None):
+        self.resolution = self.default_resolution if resolution is None else resolution
+        self.device = default_device() if device is None else device
         self.dtype = dtype
+        tower, projector = load_parts(dtype)
+        self.model = tower.to(self.device)
+        self.projector = projector.to(self.device)
         self.num_layers = self.model.config.num_hidden_layers
 
     def preprocess(self) -> Preprocess:
         return Preprocess(self.resolution)
 
     def depth_points(self, n: int = 8) -> list[int]:
-        return [round(self.num_layers * (k + 1) / n) for k in range(n)]
+        return depth_points(self.num_layers, n)
 
     @torch.inference_mode()
-    def extract(self, inputs: dict[str, torch.Tensor], image_ids: list[str]) -> Iterator[FeatureBatch]:
+    def extract(self, inputs: Inputs, image_ids: list[str]) -> Iterator[FeatureBatch]:
         points = self.depth_points()
         captured: dict[int, torch.Tensor] = {}
         handles = []
@@ -182,21 +170,10 @@ class Gemma4Adapter:
         rows = len(image_ids)
         width = self.model.config.hidden_size
         for layer in points:
-            yield self._batch(captured[layer].view(rows, -1, width), image_ids, "tower", layer)
+            yield make_batch(self, captured[layer].view(rows, -1, width), image_ids, "tower", layer)
 
         merged = out.last_hidden_state
         if merged.ndim == 2:
             merged = merged.view(rows, -1, width)
-        yield self._batch(merged, image_ids, "merged", self.num_layers)
-        yield self._batch(self.projector(merged), image_ids, "projected", self.num_layers)
-
-    def _batch(self, tokens: torch.Tensor, image_ids: list[str], stage: str, layer: int) -> FeatureBatch:
-        return FeatureBatch(
-            tokens=tokens.cpu(),
-            image_ids=image_ids,
-            model_id=self.model_id,
-            stage=stage,
-            layer_index=layer,
-            num_layers=self.num_layers,
-            resolution=self.resolution,
-        )
+        yield make_batch(self, merged, image_ids, "merged", self.num_layers)
+        yield make_batch(self, self.projector(merged), image_ids, "projected", self.num_layers)

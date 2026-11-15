@@ -1,16 +1,16 @@
 from collections.abc import Iterator
-from dataclasses import dataclass, field
-from functools import lru_cache
+from functools import lru_cache, partial
+from math import isqrt
 from types import SimpleNamespace
 
 import torch
 import torch.nn.functional as F
 from safetensors.torch import load_file
 from torch import nn
-from torchvision import transforms
 
+from vtb.adapters.base import Inputs
+from vtb.adapters.common import HALF, PatchPreprocess, default_device, depth_points, make_batch
 from vtb.feature_batch import FeatureBatch
-from vtb.images import square_crop
 from vtb.provenance import open_release
 from vtb.shards import load_prefixed
 
@@ -155,32 +155,11 @@ class Aligner(nn.Module):
         return F.unfold(x.unsqueeze(0), r, stride=r).squeeze(0).transpose(0, 1)
 
 
-@dataclass(frozen=True)
-class Preprocess:
-    resolution: int
-    pipeline: transforms.Compose = field(init=False, repr=False)
-
-    def __post_init__(self) -> None:
-        object.__setattr__(
-            self,
-            "pipeline",
-            transforms.Compose([
-                square_crop(self.resolution),
-                transforms.ToTensor(),
-                transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
-            ]),
-        )
-
-    def __call__(self, image) -> torch.Tensor:
-        pixels = self.pipeline(image)
-        channels, height, width = pixels.shape
-        rows, cols = height // PATCH_SIZE, width // PATCH_SIZE
-        patches = pixels.reshape(channels, rows, PATCH_SIZE, cols, PATCH_SIZE)
-        return patches.permute(1, 3, 0, 2, 4).reshape(rows * cols, channels, PATCH_SIZE, PATCH_SIZE)
+Preprocess = partial(PatchPreprocess, mean=HALF, std=HALF, patch_size=PATCH_SIZE, flatten=False)
 
 
-def collate(samples: list[torch.Tensor]) -> dict[str, torch.Tensor]:
-    side = int(samples[0].shape[0] ** 0.5)
+def collate(samples: list[torch.Tensor]) -> Inputs:
+    side = isqrt(samples[0].shape[0])
     return {"patches": torch.stack(samples), "grid": torch.tensor([side, side])}
 
 
@@ -213,26 +192,27 @@ def load_parts(dtype: torch.dtype) -> tuple[ViT, Aligner]:
 
 class DeepSeekV41Adapter:
     model_id = MODEL_ID
+    default_resolution = 448
     stages = ("tower", "merged", "projected")
     collate = staticmethod(collate)
 
-    def __init__(self, resolution: int = 448, dtype=torch.bfloat16, device: str = "mps"):
-        tower, aligner = load_parts(dtype)
-        self.model = tower.to(device)
-        self.aligner = aligner.to(device)
-        self.resolution = resolution
-        self.device = device
+    def __init__(self, resolution: int | None = None, dtype: torch.dtype = torch.bfloat16, device: str | None = None):
+        self.resolution = self.default_resolution if resolution is None else resolution
+        self.device = default_device() if device is None else device
         self.dtype = dtype
+        tower, aligner = load_parts(dtype)
+        self.model = tower.to(self.device)
+        self.aligner = aligner.to(self.device)
         self.num_layers = len(self.model.blocks)
 
-    def preprocess(self) -> Preprocess:
+    def preprocess(self) -> PatchPreprocess:
         return Preprocess(self.resolution)
 
     def depth_points(self, n: int = 8) -> list[int]:
-        return [round(self.num_layers * (k + 1) / n) for k in range(n)]
+        return depth_points(self.num_layers, n)
 
     @torch.inference_mode()
-    def extract(self, inputs: dict[str, torch.Tensor], image_ids: list[str]) -> Iterator[FeatureBatch]:
+    def extract(self, inputs: Inputs, image_ids: list[str]) -> Iterator[FeatureBatch]:
         points = self.depth_points()
         n_h, n_w = int(inputs["grid"][0]), int(inputs["grid"][1])
         rows = len(image_ids)
@@ -267,17 +247,6 @@ class DeepSeekV41Adapter:
             projected.append(self.aligner(tokens, n_h, n_w))
 
         for layer in points:
-            yield self._batch(torch.stack(towers[layer]).view(rows, -1, width), image_ids, "tower", layer)
-        yield self._batch(torch.stack(merged), image_ids, "merged", self.num_layers)
-        yield self._batch(torch.stack(projected), image_ids, "projected", self.num_layers)
-
-    def _batch(self, tokens: torch.Tensor, image_ids: list[str], stage: str, layer: int) -> FeatureBatch:
-        return FeatureBatch(
-            tokens=tokens.cpu(),
-            image_ids=image_ids,
-            model_id=self.model_id,
-            stage=stage,
-            layer_index=layer,
-            num_layers=self.num_layers,
-            resolution=self.resolution,
-        )
+            yield make_batch(self, torch.stack(towers[layer]).view(rows, -1, width), image_ids, "tower", layer)
+        yield make_batch(self, torch.stack(merged), image_ids, "merged", self.num_layers)
+        yield make_batch(self, torch.stack(projected), image_ids, "projected", self.num_layers)

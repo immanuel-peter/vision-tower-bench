@@ -68,15 +68,11 @@ scope of the geometry corrections and the historical layer sweeps.
 
 ## Evaluating a new Tower
 
-**1. Wrap it.** Return patch tokens at eight even relative depths, plus merged and projected if you have them. Include your own preprocessing.
-
-**2. Meet three constraints.** Patch tokens only, no class token. Raster order, so undo any merge-block or window grouping before caching. Square token grid, the pooling and dense decoders assume one.
-
-**3. Prove it matches.** A Tower pulled from a larger checkpoint must match that checkpoint within BF16 tolerance on fixed images.
-
-**4. Extract once.** Cache features per model, Stage, depth and resolution. Probes read the cache after that.
-
-**5. Run the matrices.** Same learning-rate grid, three seeds, validation picks the rate.
+1. **Wrap it.** Implement `TowerAdapter` in [vtb/adapters/base.py](vtb/adapters/base.py) and register the class in `vtb.extract.ADAPTERS`.
+2. **Meet three constraints.** Patch tokens only, no class token. Raster order, so undo any merge-block or window grouping before caching. Square token grid, the pooling and dense decoders assume one.
+3. **Prove it matches.** A Tower pulled from a larger checkpoint must match that checkpoint within BF16 tolerance on fixed images.
+4. **Extract once.** Cache features per model, Stage, depth and resolution. Probes read the cache after that.
+5. **Run the matrices.** Same learning-rate grid, three seeds, validation picks the rate.
 
 ## Layout
 
