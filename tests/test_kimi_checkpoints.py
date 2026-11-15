@@ -38,10 +38,8 @@ def test_tower_and_projector_share_immutable_revision_without_changing_k3(monkey
     adapter_class(device="cpu")
     revision = adapter_class.checkpoint.bundle_revision
     assert calls == [("tower", adapter_class.model_id, revision), ("projector", adapter_class.model_id, revision)]
-    if adapter_class is MoonViTV2Adapter:
-        assert revision is None
-    else:
-        assert revision == "6ab95e2daf86e8100be2e712a7a71c0fba26dac4"
+    expected = "bcaedfccd1f07d23ab20de8a0a168668c27cacb3" if adapter_class is MoonViTV2Adapter else "6ab95e2daf86e8100be2e712a7a71c0fba26dac4"
+    assert revision == expected
 
 
 @pytest.mark.parametrize("checkpoint", CHECKPOINTS.values())

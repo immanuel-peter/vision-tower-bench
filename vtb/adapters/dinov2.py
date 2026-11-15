@@ -8,6 +8,8 @@ from transformers import AutoModel
 from vtb.feature_batch import FeatureBatch
 from vtb.images import square_crop
 
+MODEL_ID = "facebook/dinov2-large"
+REVISION = "47b73eefe95e8d44ec3623f8890bd894b6ea2d6c"
 IMAGENET_MEAN = (0.485, 0.456, 0.406)
 IMAGENET_STD = (0.229, 0.224, 0.225)
 
@@ -39,12 +41,12 @@ def collate(samples: list[torch.Tensor]) -> torch.Tensor:
 class DINOv2Adapter:
     """Expose DINOv2 as the self-supervised control tower."""
 
-    model_id = "facebook/dinov2-large"
+    model_id = MODEL_ID
     stages = ("tower",)
     collate = staticmethod(collate)
 
     def __init__(self, resolution: int = 448, dtype=torch.bfloat16, device: str = "mps"):
-        self.model = AutoModel.from_pretrained(self.model_id, dtype=dtype).to(device).eval()
+        self.model = AutoModel.from_pretrained(self.model_id, revision=REVISION, dtype=dtype).to(device).eval()
         self.resolution = resolution
         self.device = device
         self.num_layers = self.model.config.num_hidden_layers

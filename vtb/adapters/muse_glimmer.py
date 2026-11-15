@@ -20,6 +20,7 @@ from vtb.feature_batch import FeatureBatch
 from vtb.images import square_crop
 
 MODEL_ID = "immanuelpeter/Muse-Glimmer-Vision"
+REVISION = "c0cd7ffcb881966e04c4adead0f057f8ceb09447"
 PROJECTOR_FILE = "projector.safetensors"
 PROJECTOR_CONFIG = "projector_config.json"
 
@@ -93,10 +94,10 @@ def projector_shapes(settings: dict) -> SimpleNamespace:
 
 
 def load_parts(dtype: torch.dtype) -> tuple[MuseGlimmerVisionModel, Projector]:
-    tower = AutoModel.from_pretrained(MODEL_ID, dtype=dtype).eval()
-    settings = loads(Path(hf_hub_download(MODEL_ID, PROJECTOR_CONFIG)).read_text())
+    tower = AutoModel.from_pretrained(MODEL_ID, revision=REVISION, dtype=dtype).eval()
+    settings = loads(Path(hf_hub_download(MODEL_ID, PROJECTOR_CONFIG, revision=REVISION)).read_text())
     projector = Projector(projector_shapes(settings))
-    projector.load_state_dict(load_file(hf_hub_download(MODEL_ID, PROJECTOR_FILE)))
+    projector.load_state_dict(load_file(hf_hub_download(MODEL_ID, PROJECTOR_FILE, revision=REVISION)))
     return tower, projector.to(dtype).eval()
 
 

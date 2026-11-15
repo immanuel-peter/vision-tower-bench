@@ -31,10 +31,11 @@ class Checkpoint:
     revision: str
     model_id: str
     bundle: str
-    bundle_revision: str | None = None
+    bundle_revision: str
 
 
-K3 = Checkpoint(SOURCE_REPO, "f831ab66814297da540d832a5235f8e904f29d06", MODEL_ID, "MoonViT-V2")
+K3 = Checkpoint(SOURCE_REPO, "f831ab66814297da540d832a5235f8e904f29d06", MODEL_ID, "MoonViT-V2",
+                "bcaedfccd1f07d23ab20de8a0a168668c27cacb3")
 K31_PRO = Checkpoint("moonshotai/Kimi-K3.1-Pro", "6d0a0202956796543364d666ab19c6ad1a494ee1",
                      "immanuelpeter/MoonViT-K3.1-Pro", "MoonViT-K3.1-Pro",
                      "6ab95e2daf86e8100be2e712a7a71c0fba26dac4")
@@ -73,11 +74,10 @@ def collate(samples: list[torch.Tensor]) -> dict[str, torch.Tensor]:
     }
 
 
-def load_projector(dtype: torch.dtype, model_id: str = MODEL_ID, revision: str | None = None) -> nn.Module:
+def load_projector(dtype: torch.dtype, model_id: str = MODEL_ID, revision: str = K3.bundle_revision) -> nn.Module:
     """Build Kimi K3's patch merger from its published weights."""
     local = Path(model_id) / PROJECTOR_FILE
-    options = {"revision": revision} if revision else {}
-    weights = load_file(local if local.is_file() else hf_hub_download(model_id, PROJECTOR_FILE, **options))
+    weights = load_file(local if local.is_file() else hf_hub_download(model_id, PROJECTOR_FILE, revision=revision))
     width, merged_width = weights["proj.2.weight"].shape
 
     projector = nn.Module()
@@ -100,9 +100,8 @@ class MoonViTV2Adapter:
     collate = staticmethod(collate)
 
     def __init__(self, resolution: int = 448, dtype=torch.bfloat16, device: str = "mps"):
-        options = {"revision": self.checkpoint.bundle_revision} if self.checkpoint.bundle_revision else {}
         self.model = (
-            AutoModel.from_pretrained(self.model_id, dtype=dtype, trust_remote_code=True, **options)
+            AutoModel.from_pretrained(self.model_id, dtype=dtype, revision=self.checkpoint.bundle_revision, trust_remote_code=True)
             .to(device)
             .eval()
         )
