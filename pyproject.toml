@@ -14,21 +14,29 @@ classifiers = [
 ]
 requires-python = ">=3.12"
 dependencies = [
-    "datasets>=5.0.1",
-    "einops>=0.8.2",
-    "open-clip-torch>=3.3.0",
-    "pillow>=12.3.0",
-    "safetensors>=0.8.0",
-    "scipy>=1.18.1",
+    "einops>=0.8",
+    "huggingface-hub>=1.0",
+    "numpy>=1.26",
+    "open-clip-torch>=3.3",
+    "pillow>=10.0",
+    "requests>=2.31",
+    "safetensors>=0.4.3",
     "timm>=1.0.29",
     "torch>=2.13.0",
     "torchvision>=0.28.0",
     "transformers>=5.16.1",
 ]
 
+[project.optional-dependencies]
+bench = [
+    "datasets>=5.0",
+    "scipy>=1.11",
+]
+
 [dependency-groups]
 dev = [
     "pytest>=9.1.1",
+    "vision-tower-bench[bench]",
 ]
 figures = [
     "matplotlib>=3.11.1",
@@ -38,7 +46,7 @@ figures = [
 Homepage = "https://ipeter.dev/blog/vision-tower-bench"
 Repository = "https://github.com/immanuel-peter/vision-tower-bench"
 Issues = "https://github.com/immanuel-peter/vision-tower-bench/issues"
-Towers = "https://huggingface.co/collections/immanuelpeter/vision-towers"
+Towers = "https://huggingface.co/collections/immanuelpeter/vision-heads"
 
 [build-system]
 requires = ["hatchling"]
