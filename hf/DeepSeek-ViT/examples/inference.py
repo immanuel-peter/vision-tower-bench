@@ -1,6 +1,6 @@
 import argparse
 from pathlib import Path
-import sys
+import runpy
 
 from PIL import Image
 import torch
@@ -8,8 +8,9 @@ from huggingface_hub import hf_hub_download
 from safetensors.torch import load_file
 from torchvision import transforms
 
-sys.path.insert(0, str(Path(__file__).absolute().parents[1]))
-from vision import Aligner, ViT
+BUNDLE = Path(__file__).absolute().parents[1]
+module = runpy.run_path(str(BUNDLE / "vision.py"))
+Aligner, ViT = module["Aligner"], module["ViT"]
 
 
 MODEL_ID = "immanuelpeter/DeepSeek-ViT"

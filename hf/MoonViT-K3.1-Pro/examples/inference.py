@@ -6,6 +6,7 @@ Run from this downloaded bundle, or pass --model-dir for another pinned snapshot
 import argparse
 import hashlib
 import json
+import runpy
 import time
 from pathlib import Path
 
@@ -14,10 +15,8 @@ from PIL import Image, ImageOps
 from safetensors.torch import load_file
 from transformers import AutoImageProcessor, AutoModel
 
-
-import sys
-sys.path.insert(0, str(Path(__file__).absolute().parents[1]))
-from projector import Projector
+BUNDLE = Path(__file__).absolute().parents[1]
+Projector = runpy.run_path(str(BUNDLE / "projector.py"))["Projector"]
 
 
 def square_image(image, resolution):

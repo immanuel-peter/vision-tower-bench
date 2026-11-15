@@ -1,14 +1,14 @@
 import argparse
 from pathlib import Path
-import sys
+import runpy
 
 from PIL import Image
 import torch
 from huggingface_hub import snapshot_download
 from torchvision import transforms
 
-sys.path.insert(0, str(Path(__file__).absolute().parents[1]))
-from vision import load_vision
+BUNDLE = Path(__file__).absolute().parents[1]
+load_vision = runpy.run_path(str(BUNDLE / "vision.py"))["load_vision"]
 
 
 MODEL_ID = "immanuelpeter/C-RADIOv4-H-3.5-Super"
