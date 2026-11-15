@@ -1,6 +1,7 @@
 import os
 from collections.abc import Iterator
-from dataclasses import dataclass, field
+from dataclasses import dataclass
+from functools import partial
 from json import loads
 from pathlib import Path
 
@@ -8,7 +9,6 @@ import torch
 from huggingface_hub import hf_hub_download
 from safetensors.torch import load_file
 from torch import nn
-from torchvision import transforms
 from transformers.models.minimax_m3_vl.configuration_minimax_m3_vl import (
     MiniMaxM3VLConfig,
     MiniMaxM3VLVisionConfig,
@@ -18,8 +18,10 @@ from transformers.models.minimax_m3_vl.modeling_minimax_m3_vl import (
     MiniMaxM3VLVisionModel,
 )
 
+from vtb.adapters.base import Inputs
+from vtb.adapters.common import CLIP_MEAN, CLIP_STD, PatchPreprocess, default_device, depth_points, make_batch, pack_patches, raster
 from vtb.feature_batch import FeatureBatch
-from vtb.images import square_crop
+from vtb.provenance import open_release
 from vtb.shards import load_prefixed
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -31,23 +33,33 @@ class Checkpoint:
     model_id: str
     repo: str
     revision: str
+    release_revision: str
 
     @property
     def release_dir(self) -> Path:
         return ROOT / "hf" / self.model_id.split("/")[-1]
 
     @property
-    def bundle(self) -> Path:
+    def override(self) -> Path | None:
         override = os.environ.get(f"VTB_{self.name.upper()}_BUNDLE")
-        return Path(override) if override else self.release_dir
+        return Path(override) if override else None
+
+    def open(self, bundle: Path | None = None) -> Path:
+        return open_release(self.model_id, self.release_revision, self.repo, self.revision, bundle=bundle or self.override, required=self == FLASH)
+
+    @property
+    def bundle(self) -> Path:
+        return self.open()
 
 
 M3 = Checkpoint("minimax_m3", "immanuelpeter/MiniMax-M3-Vision",
-               "MiniMaxAI/MiniMax-M3", "f0e1c1e04d40177e4673a22097036854f536e9c0")
+               "MiniMaxAI/MiniMax-M3", "f0e1c1e04d40177e4673a22097036854f536e9c0",
+               "949099e5411c33f604f1b3bc7ed7c4c500b4b5e7")
 FLASH = Checkpoint("minimax_m31_flash", "immanuelpeter/MiniMax-M3.1-Flash-Vision",
-                  "MiniMaxAI/MiniMax-M3.1-Flash", "54e4e69dfc452b1e94a426c24a4fdeeaa8e3ad5e")
+                  "MiniMaxAI/MiniMax-M3.1-Flash", "54e4e69dfc452b1e94a426c24a4fdeeaa8e3ad5e",
+                  "8a97b39d8005c174d901cb51eba8b5185abf7a47")
 CHECKPOINTS = {item.name: item for item in (M3, FLASH)}
-MODEL_ID, BUNDLE = M3.model_id, M3.bundle
+MODEL_ID = M3.model_id
 SOURCE_REPO, SOURCE_REVISION = M3.repo, M3.revision
 TOWER_PREFIX = "vision_tower.vision_model."
 PROJECTOR_PREFIX = "multi_modal_projector."
@@ -55,8 +67,6 @@ MERGE_MLP_PREFIX = "patch_merge_mlp."
 PATCH_SIZE = 14
 TEMPORAL_PATCH_SIZE = 2
 MERGE_SIZE = 2
-CLIP_MEAN = (0.48145466, 0.4578275, 0.40821073)
-CLIP_STD = (0.26862954, 0.26130258, 0.27577711)
 
 
 def remap_tower(weights: dict[str, torch.Tensor]) -> dict[str, torch.Tensor]:
@@ -75,50 +85,8 @@ def remap_projector(linear: dict[str, torch.Tensor], merge: dict[str, torch.Tens
     return remapped
 
 
-@dataclass(frozen=True)
-class Preprocess:
-    resolution: int
-    pipeline: transforms.Compose = field(init=False, repr=False)
-
-    def __post_init__(self) -> None:
-        object.__setattr__(
-            self,
-            "pipeline",
-            transforms.Compose([
-                square_crop(self.resolution),
-                transforms.ToTensor(),
-                transforms.Normalize(CLIP_MEAN, CLIP_STD),
-            ]),
-        )
-
-    def __call__(self, image) -> torch.Tensor:
-        pixels = self.pipeline(image)
-        channels, height, width = pixels.shape
-        rows, cols = height // PATCH_SIZE, width // PATCH_SIZE
-        frames = pixels.unsqueeze(0).expand(TEMPORAL_PATCH_SIZE, -1, -1, -1)
-        patches = frames.reshape(
-            1, TEMPORAL_PATCH_SIZE, channels,
-            rows // MERGE_SIZE, MERGE_SIZE, PATCH_SIZE,
-            cols // MERGE_SIZE, MERGE_SIZE, PATCH_SIZE,
-        )
-        patches = patches.permute(0, 3, 6, 4, 7, 2, 1, 5, 8)
-        return patches.reshape(rows * cols, channels * TEMPORAL_PATCH_SIZE * PATCH_SIZE * PATCH_SIZE)
-
-
-def collate(samples: list[torch.Tensor]) -> dict[str, torch.Tensor]:
-    side = int(samples[0].shape[0] ** 0.5)
-    return {
-        "pixel_values": torch.cat(samples),
-        "grid_thw": torch.tensor([[1, side, side]] * len(samples)),
-    }
-
-
-def raster(tokens: torch.Tensor, rows: int) -> torch.Tensor:
-    width = tokens.shape[-1]
-    side = int((tokens.numel() // (rows * width)) ** 0.5)
-    blocks = side // MERGE_SIZE
-    grid = tokens.view(rows, blocks, blocks, MERGE_SIZE, MERGE_SIZE, width)
-    return grid.permute(0, 1, 3, 2, 4, 5).reshape(rows, side * side, width)
+Preprocess = partial(PatchPreprocess, mean=CLIP_MEAN, std=CLIP_STD, patch_size=PATCH_SIZE, merge_size=MERGE_SIZE, temporal_patch_size=TEMPORAL_PATCH_SIZE)
+collate = pack_patches
 
 
 def merge_2x2(tokens: torch.Tensor) -> torch.Tensor:
@@ -175,52 +143,44 @@ def projector_from_settings(settings: dict, dtype: torch.dtype) -> nn.Module:
 
 
 def load_parts(dtype: torch.dtype, checkpoint: Checkpoint = M3, bundle: Path | None = None) -> tuple[MiniMaxM3VLVisionModel, nn.Module]:
-    bundle = checkpoint.bundle if bundle is None else bundle
-    if (bundle / "model.safetensors").exists():
-        manifest = bundle / "export_manifest.json"
-        if checkpoint == FLASH and not manifest.is_file():
-            raise ValueError("Flash bundles require export_manifest.json checkpoint provenance")
-        if manifest.exists():
-            provenance = loads(manifest.read_text())
-            if (provenance["source_repo"], provenance["source_revision"]) != (checkpoint.repo, checkpoint.revision):
-                raise ValueError(f"bundle provenance does not match {checkpoint.name}")
-        config = MiniMaxM3VLVisionConfig.from_pretrained(bundle, local_files_only=True)
-        tower = MiniMaxM3VLVisionModel._from_config(config, dtype=dtype)
-        tower.load_state_dict({
-            name: tensor.to(dtype) for name, tensor in load_file(bundle / "model.safetensors").items()
-        })
-        settings = loads((bundle / "projector_config.json").read_text())
-        projector = projector_from_settings(settings, dtype)
-        projector.load_state_dict({
-            name: tensor.to(dtype) for name, tensor in load_file(bundle / "projector.safetensors").items()
-        })
-        return tower.eval(), projector.to(dtype).eval()
-    return load_source_parts(dtype, checkpoint)
+    bundle = checkpoint.open(bundle)
+    config = MiniMaxM3VLVisionConfig.from_pretrained(bundle, local_files_only=True)
+    tower = MiniMaxM3VLVisionModel._from_config(config, dtype=dtype)
+    tower.load_state_dict({
+        name: tensor.to(dtype) for name, tensor in load_file(bundle / "model.safetensors").items()
+    })
+    settings = loads((bundle / "projector_config.json").read_text())
+    projector = projector_from_settings(settings, dtype)
+    projector.load_state_dict({
+        name: tensor.to(dtype) for name, tensor in load_file(bundle / "projector.safetensors").items()
+    })
+    return tower.eval(), projector.to(dtype).eval()
 
 
 class MiniMaxAdapter:
     checkpoint = M3
+    default_resolution = 448
     stages = ("tower", "merged", "projected")
     collate = staticmethod(collate)
 
-    def __init__(self, resolution: int = 448, dtype=torch.bfloat16, device: str = "mps", *, bundle: Path | None = None):
+    def __init__(self, resolution: int | None = None, dtype: torch.dtype = torch.bfloat16, device: str | None = None, *, bundle: Path | None = None):
+        self.resolution = self.default_resolution if resolution is None else resolution
+        self.device = default_device() if device is None else device
+        self.dtype = dtype
         tower, projector = load_parts(dtype, self.checkpoint, bundle)
         self.model_id = self.checkpoint.model_id
-        self.model = tower.to(device)
-        self.projector = projector.to(device)
-        self.resolution = resolution
-        self.device = device
-        self.dtype = dtype
+        self.model = tower.to(self.device)
+        self.projector = projector.to(self.device)
         self.num_layers = self.model.config.num_hidden_layers
 
-    def preprocess(self) -> Preprocess:
+    def preprocess(self) -> PatchPreprocess:
         return Preprocess(self.resolution)
 
     def depth_points(self, n: int = 8) -> list[int]:
-        return [round(self.num_layers * (k + 1) / n) for k in range(n)]
+        return depth_points(self.num_layers, n)
 
     @torch.inference_mode()
-    def extract(self, inputs: dict[str, torch.Tensor], image_ids: list[str]) -> Iterator[FeatureBatch]:
+    def extract(self, inputs: Inputs, image_ids: list[str]) -> Iterator[FeatureBatch]:
         points = self.depth_points()
         captured: dict[int, list[torch.Tensor]] = {}
         handles = []
@@ -265,24 +225,13 @@ class MiniMaxAdapter:
 
         for layer in points:
             tokens = torch.cat([value.reshape(1, -1, width) for value in captured[layer]], dim=1)
-            yield self._batch(raster(packed(tokens), rows), image_ids, "tower", layer)
+            yield make_batch(self, raster(packed(tokens), rows), image_ids, "tower", layer)
 
         last_packed = packed(torch.cat([value.reshape(1, -1, width) for value in outputs], dim=1))
         merged = merge_2x2(raster(last_packed, rows))
-        yield self._batch(merged, image_ids, "merged", self.num_layers)
+        yield make_batch(self, merged, image_ids, "merged", self.num_layers)
         projected = torch.stack([self.projector(tokens) for tokens in last_packed])
-        yield self._batch(projected, image_ids, "projected", self.num_layers)
-
-    def _batch(self, tokens: torch.Tensor, image_ids: list[str], stage: str, layer: int) -> FeatureBatch:
-        return FeatureBatch(
-            tokens=tokens.cpu(),
-            image_ids=image_ids,
-            model_id=self.model_id,
-            stage=stage,
-            layer_index=layer,
-            num_layers=self.num_layers,
-            resolution=self.resolution,
-        )
+        yield make_batch(self, projected, image_ids, "projected", self.num_layers)
 
 
 class MiniMaxM3Adapter(MiniMaxAdapter):

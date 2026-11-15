@@ -2,14 +2,13 @@
 
 import argparse
 import hashlib
-import json
 import shutil
 from pathlib import Path
 
 import torch
-from safetensors.torch import save_file
 
-from vtb.adapters.mimo26 import CHECKPOINTS, ROOT, load_model, source_json, source_weights
+from vtb.adapters.mimo26 import CHECKPOINTS, load_model, source_json, source_weights
+from vtb.bundle import ROOT, write_bundle, write_json
 
 MODELING_SOURCE = ROOT / "vtb/models/mimo26.py"
 
@@ -33,11 +32,12 @@ def export(name: str, out: Path | None = None) -> Path:
         "AutoModel": "modeling_mimo_vision.MiMoVisionModel",
     }
     model.config.save_pretrained(out)
-    save_file(model.state_dict(), out / "model.safetensors", metadata={"format": "pt"})
-    shutil.copyfile(MODELING_SOURCE, out / "modeling_mimo_vision.py")
-    processor = source_json(checkpoint, "preprocessor_config.json")
-    processor["processor_class"] = "AutoImageProcessor"
-    (out / "preprocessor_config.json").write_text(json.dumps(processor, indent=2) + "\n")
+    write_bundle(
+        out,
+        weights={"model.safetensors": model.state_dict()},
+        preprocessor=source_json(checkpoint, "preprocessor_config.json"),
+        files={"modeling_mimo_vision.py": MODELING_SOURCE},
+    )
     manifest = {
         "source_repo": checkpoint.repo, "source_revision": checkpoint.revision,
         "tensors": len(original), "bytes": sum(t.nbytes for t in original.values()),
@@ -46,7 +46,7 @@ def export(name: str, out: Path | None = None) -> Path:
             for key, t in original.items()
         },
     }
-    (out / "export_manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
+    write_json(out / "export_manifest.json", manifest)
     print(f"{name}: {manifest['tensors']} tensors, {manifest['bytes']} bytes -> {out}")
     return out
 

@@ -7,7 +7,7 @@ import numpy as np
 import torch
 import yaml
 
-from scripts import export_minimax_m3_vision as exporter
+from vtb import export_minimax_m3_vision as exporter
 from vtb.adapters.minimax_m3 import FLASH, Preprocess
 
 ROOT = Path(__file__).parents[1]

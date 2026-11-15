@@ -10,18 +10,18 @@ import json
 import os
 import re
 from collections.abc import Iterator
-from dataclasses import dataclass, field
+from functools import partial
 from pathlib import Path
 
 import torch
 from huggingface_hub import hf_hub_download
 from safetensors.torch import load_file
-from torchvision import transforms
 from transformers import Mistral3Config, PixtralVisionConfig, PixtralVisionModel
 from transformers.models.mistral3.modeling_mistral3 import Mistral3MultiModalProjector
 
+from vtb.adapters.base import Inputs
+from vtb.adapters.common import ImagePreprocess, default_device, depth_points, make_batch, stack_pixels
 from vtb.feature_batch import FeatureBatch
-from vtb.images import square_crop
 from vtb.models.pixtral_large4 import (  # noqa: F401  re-exported for tests and scripts
     ATTENTION_BACKENDS,
     PixtralLarge4VisionConfig,
@@ -31,6 +31,7 @@ from vtb.models.pixtral_large4 import (  # noqa: F401  re-exported for tests and
     rotary_table,
     rotate,
 )
+from vtb.provenance import check_provenance, log_loaded
 from vtb.shards import load_prefixed
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -197,9 +198,7 @@ def bundle_dir() -> Path:
 
 
 def load_bundle_parts(bundle: Path, dtype: torch.dtype) -> tuple[PixtralVisionModel, Mistral3MultiModalProjector]:
-    manifest = json.loads((bundle / "export_manifest.json").read_text())
-    if (manifest["source_repo"], manifest["source_revision"]) != (SOURCE_REPO, SOURCE_REVISION):
-        raise ValueError("bundle provenance does not match the pinned Mistral Large 4 revision")
+    check_provenance(bundle, SOURCE_REPO, SOURCE_REVISION, required=True)
     tower_config = PixtralLarge4VisionConfig.from_pretrained(bundle, local_files_only=True)
     mm_config = Mistral3Config(**json.loads((bundle / "projector_config.json").read_text()))
     return build_parts(
@@ -220,34 +219,20 @@ def load_bundle_projector(bundle: Path, dtype: torch.dtype) -> Mistral3MultiModa
 def load_parts(dtype: torch.dtype) -> tuple[PixtralVisionModel, Mistral3MultiModalProjector]:
     bundle = bundle_dir()
     if (bundle / "model.safetensors").is_file():
+        log_loaded(MODEL_ID, str(bundle))
         return load_bundle_parts(bundle, dtype)
+    log_loaded(MODEL_ID, f"parent checkpoint {SOURCE_REPO}@{SOURCE_REVISION}")
     return load_source_parts(dtype)
 
 
-@dataclass(frozen=True)
-class Preprocess:
-    """Square crop with bicubic resize, then CLIP normalization. No padding is needed."""
-
-    resolution: int
-    pipeline: transforms.Compose = field(init=False, repr=False)
-
-    def __post_init__(self) -> None:
-        if self.resolution <= 0 or self.resolution % ALIGN:
-            raise ValueError(f"Mistral Large 4 resolution must be a positive multiple of {ALIGN}")
-        object.__setattr__(self, "pipeline", transforms.Compose([
-            square_crop(self.resolution),
-            transforms.ToTensor(),
-            transforms.Normalize(IMAGE_MEAN, IMAGE_STD),
-        ]))
-
-    def __call__(self, image) -> torch.Tensor:
-        return self.pipeline(image.convert("RGB"))
+# Square crop with bicubic resize, then CLIP normalization. No padding is needed.
+Preprocess = partial(ImagePreprocess, mean=IMAGE_MEAN, std=IMAGE_STD, rgb=True, multiple=ALIGN)
 
 
-def collate(samples: list[torch.Tensor]) -> dict[str, torch.Tensor]:
+def collate(samples: list[torch.Tensor]) -> Inputs:
     if not samples or any(sample.shape != samples[0].shape for sample in samples):
         raise ValueError("Mistral Large 4 batches require equal square images")
-    return {"pixel_values": torch.stack(samples)}
+    return stack_pixels(samples)
 
 
 def tower_forward(
@@ -273,46 +258,35 @@ def projector_stages(
 
 class MistralLarge4Adapter:
     model_id = MODEL_ID
+    default_resolution = 448
     stages = ("tower", "merged", "projected")
     collate = staticmethod(collate)
 
-    def __init__(self, resolution: int = 448, dtype=torch.bfloat16, device: str = "mps"):
-        Preprocess(resolution)  # Reject unsupported grids before loading weights.
-        tower, projector = load_parts(dtype)
-        self.model = tower.to(device)
-        self.projector = projector.to(device)
-        self.resolution = resolution
-        self.device = device
+    def __init__(self, resolution: int | None = None, dtype: torch.dtype = torch.bfloat16, device: str | None = None):
+        self.resolution = self.default_resolution if resolution is None else resolution
+        self.device = default_device() if device is None else device
         self.dtype = dtype
+        Preprocess(self.resolution)  # Reject unsupported grids before loading weights.
+        tower, projector = load_parts(dtype)
+        self.model = tower.to(self.device)
+        self.projector = projector.to(self.device)
         self.num_layers = self.model.config.num_hidden_layers
 
-    def preprocess(self) -> Preprocess:
+    def preprocess(self) -> ImagePreprocess:
         return Preprocess(self.resolution)
 
     def depth_points(self, n: int = 8) -> list[int]:
-        return [round(self.num_layers * (k + 1) / n) for k in range(n)]
+        return depth_points(self.num_layers, n)
 
     @torch.inference_mode()
-    def extract(self, inputs: dict[str, torch.Tensor], image_ids: list[str]) -> Iterator[FeatureBatch]:
+    def extract(self, inputs: Inputs, image_ids: list[str]) -> Iterator[FeatureBatch]:
         pixels = inputs["pixel_values"].to(self.device, self.dtype)
         if len(pixels) != len(image_ids):
             raise ValueError("pixel/image ID count differs")
         points = self.depth_points()
         final, captured = tower_forward(self.model, pixels, tuple(points))
         for layer in points:
-            yield self._batch(captured[layer], image_ids, "tower", layer)
+            yield make_batch(self, captured[layer], image_ids, "tower", layer)
         merged, projected = projector_stages(self.projector, final, pixels.shape[-1] // PATCH_SIZE)
-        yield self._batch(merged, image_ids, "merged", self.num_layers)
-        yield self._batch(projected, image_ids, "projected", self.num_layers)
-
-    def _batch(self, tokens: torch.Tensor, image_ids: list[str], stage: str, layer: int) -> FeatureBatch:
-        return FeatureBatch(
-            tokens=tokens.cpu(),
-            image_ids=image_ids,
-            model_id=self.model_id,
-            stage=stage,
-            layer_index=layer,
-            num_layers=self.num_layers,
-            resolution=self.resolution,
-        )
-
+        yield make_batch(self, merged, image_ids, "merged", self.num_layers)
+        yield make_batch(self, projected, image_ids, "projected", self.num_layers)

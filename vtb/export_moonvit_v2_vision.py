@@ -1,24 +1,21 @@
 """Build a publishable MoonViT-V2 repository from the Kimi K3 shards."""
 
 import argparse
-import hashlib
 import json
-import shutil
 from pathlib import Path
 
 import torch
 from huggingface_hub import hf_hub_download
-from safetensors.torch import load_file, save_file
+from safetensors.torch import load_file
 
 from vtb.adapters.moonvit_v2 import (
     CHECKPOINTS,
     K3,
     PROJECTOR_PREFIX,
-    PROJECTOR_SHARD,
-    SOURCE_REPO,
     TOWER_PREFIX,
-    TOWER_SHARD,
 )
+from vtb.bundle import ROOT, expect_tensors, print_sizes, write_bundle
+from vtb.shards import load_prefixed
 
 TOWER_REPO = "AI4Industry/MoonViT-V2"
 CODE_REVISION = "c5acb88baf02a94e68ca8a225f7eebee152c1fc6"
@@ -35,11 +32,6 @@ VENDORED = (
 )
 
 
-def read_prefix(shard: str, prefix: str, checkpoint=K3) -> dict[str, torch.Tensor]:
-    weights = load_file(hf_hub_download(checkpoint.repo, shard, revision=checkpoint.revision))
-    return {k.removeprefix(prefix): v for k, v in weights.items() if k.startswith(prefix)}
-
-
 def discover_shards(checkpoint) -> dict[str, list[str]]:
     path = hf_hub_download(checkpoint.repo, "model.safetensors.index.json", revision=checkpoint.revision)
     mapping = json.loads(Path(path).read_text())["weight_map"]
@@ -52,6 +44,16 @@ def discover_shards(checkpoint) -> dict[str, list[str]]:
            for name, shard in mapping.items()):
         raise ValueError("vision shards contain non-vision tensors; refusing a full LM download")
     return result
+
+
+def read_parent(checkpoint, shards: list[str], prefix: str) -> dict[str, torch.Tensor]:
+    combined = {}
+    for shard in shards:
+        weights = load_prefixed(checkpoint.repo, [shard], prefix, revision=checkpoint.revision)
+        if combined.keys() & weights.keys():
+            raise ValueError("duplicate source tensor")
+        combined.update(weights)
+    return combined
 
 
 def check_against_standalone(tower: dict[str, torch.Tensor]) -> None:
@@ -86,50 +88,41 @@ def main() -> None:
     parser.add_argument("--out", type=Path)
     args = parser.parse_args()
     checkpoint = CHECKPOINTS[args.checkpoint]
-    args.out = args.out or Path("hf") / checkpoint.bundle
-    args.out.mkdir(parents=True, exist_ok=True)
+    args.out = args.out or ROOT / "hf" / checkpoint.bundle
 
     shards = discover_shards(checkpoint)
-    def read(prefix):
-        combined = {}
-        for shard in shards[prefix]:
-            weights = read_prefix(shard, prefix, checkpoint)
-            if combined.keys() & weights.keys():
-                raise ValueError("duplicate source tensor")
-            combined.update(weights)
-        return combined
-    tower, projector = read(TOWER_PREFIX), read(PROJECTOR_PREFIX)
-    if len(tower) != TOWER_TENSORS or len(projector) != PROJECTOR_TENSORS:
-        raise SystemExit(f"expected {TOWER_TENSORS} and {PROJECTOR_TENSORS} tensors, read {len(tower)} and {len(projector)}")
+    tower = expect_tensors(read_parent(checkpoint, shards[TOWER_PREFIX], TOWER_PREFIX), TOWER_TENSORS, "Tower")
+    projector = expect_tensors(read_parent(checkpoint, shards[PROJECTOR_PREFIX], PROJECTOR_PREFIX), PROJECTOR_TENSORS, "Projector")
 
     if any(t.dtype != torch.bfloat16 for t in (*tower.values(), *projector.values())):
         raise ValueError("expected BF16 source tensors")
     if checkpoint == K3:
         check_against_standalone(tower)
 
-    save_file(tower, args.out / "model.safetensors", metadata={"format": "pt"})
-    save_file(projector, args.out / "projector.safetensors", metadata={"format": "pt"})
-    (args.out / "projector_config.json").write_text(json.dumps(projector_config(projector), indent=2) + "\n")
-
-    for name in VENDORED:
-        shutil.copyfile(hf_hub_download(TOWER_REPO, name, revision=CODE_REVISION), args.out / name)
-    shutil.copyfile(hf_hub_download(checkpoint.repo, "LICENSE", revision=checkpoint.revision), args.out / "LICENSE")
-    shutil.copyfile(hf_hub_download(TOWER_REPO, "LICENSE", revision=CODE_REVISION), args.out / "LICENSE-CODE")
+    write_bundle(
+        args.out,
+        weights={"model.safetensors": tower, "projector.safetensors": projector},
+        configs={"projector_config.json": projector_config(projector)},
+        license=Path(hf_hub_download(checkpoint.repo, "LICENSE", revision=checkpoint.revision)),
+        files={
+            **{name: Path(hf_hub_download(TOWER_REPO, name, revision=CODE_REVISION)) for name in VENDORED},
+            "LICENSE-CODE": Path(hf_hub_download(TOWER_REPO, "LICENSE", revision=CODE_REVISION)),
+        },
+    )
     for filename, prefix in (("model.safetensors", TOWER_PREFIX), ("projector.safetensors", PROJECTOR_PREFIX)):
         exported = load_file(args.out / filename)
-        parent = read(prefix)
+        parent = read_parent(checkpoint, shards[prefix], prefix)
         if exported.keys() != parent.keys() or any(not torch.equal(exported[k], parent[k]) for k in parent):
             raise ValueError(f"export differs from pinned parent: {filename}")
     from vtb.bundle_manifest import copy_assets, write_manifest
-    assets = Path(__file__).resolve().parents[1] / "hf" / checkpoint.bundle
+    assets = ROOT / "hf" / checkpoint.bundle
     copy_assets(assets, args.out)
     write_manifest(args.out, checkpoint.repo, checkpoint.revision,
                    [name for group in shards.values() for name in group],
                    extra={"exact_parent_identity": True, "code_repo": TOWER_REPO, "code_revision": CODE_REVISION,
                           "forward_parity": "Independent math-reference BF16 exact; production official SDPA BF16 disagreement retained."})
 
-    for path in sorted(args.out.iterdir()):
-        print(f"{path.stat().st_size / 1e6:9.2f} MB  {path.name}")
+    print_sizes(args.out)
     print(f"\nBundle: {checkpoint.model_id}. Publish only after independent forward parity.")
 
 

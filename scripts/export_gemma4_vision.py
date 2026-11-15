@@ -2,12 +2,10 @@
 
 import argparse
 import json
-import shutil
 from pathlib import Path
 
 import torch
 from huggingface_hub import hf_hub_download
-from safetensors.torch import save_file
 from transformers import AutoConfig, Gemma4VisionModel
 
 from vtb.adapters.gemma4 import (
@@ -19,6 +17,7 @@ from vtb.adapters.gemma4 import (
     Projector,
     projector_settings,
 )
+from vtb.bundle import ROOT, expect_tensors, print_sizes, write_bundle
 from vtb.shards import load_prefixed
 
 TOWER_TENSORS = 355
@@ -30,19 +29,13 @@ def load_source_parts(
 ) -> tuple[Gemma4VisionModel, Projector]:
     config = AutoConfig.from_pretrained(SOURCE_REPO, revision=SOURCE_REVISION)
     tower = Gemma4VisionModel._from_config(config.vision_config, dtype=dtype)
-    tower_weights = load_prefixed(
-        SOURCE_REPO, [VISION_SHARD], TOWER_PREFIX, revision=SOURCE_REVISION
-    )
-    if len(tower_weights) != TOWER_TENSORS:
-        raise SystemExit(f"expected {TOWER_TENSORS} Tower tensors, read {len(tower_weights)}")
+    tower_weights = expect_tensors(load_prefixed(SOURCE_REPO, [VISION_SHARD], TOWER_PREFIX, revision=SOURCE_REVISION), TOWER_TENSORS, "Tower")
     tower.load_state_dict({name: tensor.to(dtype) for name, tensor in tower_weights.items()})
 
     projector = Projector(projector_settings(config.vision_config, config.text_config.hidden_size))
-    projector_weights = load_prefixed(
-        SOURCE_REPO, [VISION_SHARD], PROJECTOR_PREFIX, revision=SOURCE_REVISION
+    projector_weights = expect_tensors(
+        load_prefixed(SOURCE_REPO, [VISION_SHARD], PROJECTOR_PREFIX, revision=SOURCE_REVISION), PROJECTOR_TENSORS, "Projector"
     )
-    if len(projector_weights) != PROJECTOR_TENSORS:
-        raise SystemExit(f"expected {PROJECTOR_TENSORS} Projector tensors, read {len(projector_weights)}")
     projector.load_state_dict({name: tensor.to(dtype) for name, tensor in projector_weights.items()})
     return tower.eval(), projector.to(dtype).eval()
 
@@ -56,35 +49,24 @@ def projector_config(projector: Projector) -> dict:
     }
 
 
-def write_bundle(tower: Gemma4VisionModel, projector: Projector, out: Path) -> None:
-    out.mkdir(parents=True, exist_ok=True)
-    tower.config.architectures = ["Gemma4VisionModel"]
-    tower.save_pretrained(out, safe_serialization=True)
-    save_file(projector.state_dict(), out / "projector.safetensors", metadata={"format": "pt"})
-    (out / "projector_config.json").write_text(json.dumps(projector_config(projector), indent=2) + "\n")
-
-    processor = json.loads(
-        Path(hf_hub_download(SOURCE_REPO, "processor_config.json", revision=SOURCE_REVISION)).read_text()
-    )
-    image_processor = processor["image_processor"]
-    image_processor["processor_class"] = "AutoImageProcessor"
-    (out / "preprocessor_config.json").write_text(json.dumps(image_processor, indent=2) + "\n")
-    license_src = Path(__file__).resolve().parents[1] / "hf/Gemma4-31B-Vision/LICENSE"
-    dest = out / "LICENSE"
-    if license_src.exists() and license_src.resolve() != dest.resolve():
-        shutil.copyfile(license_src, dest)
-
-
 def export(out: Path) -> None:
     tower, projector = load_source_parts()
-    write_bundle(tower, projector, out)
-    for path in sorted(out.iterdir()):
-        print(f"{path.stat().st_size / 1e6:9.2f} MB  {path.name}")
+    processor = json.loads(Path(hf_hub_download(SOURCE_REPO, "processor_config.json", revision=SOURCE_REVISION)).read_text())
+    write_bundle(
+        out,
+        tower=tower,
+        architecture="Gemma4VisionModel",
+        weights={"projector.safetensors": projector.state_dict()},
+        configs={"projector_config.json": projector_config(projector)},
+        preprocessor=processor["image_processor"],
+        license=ROOT / "hf/Gemma4-31B-Vision/LICENSE",
+    )
+    print_sizes(out)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--out", type=Path, default=Path("hf/Gemma4-31B-Vision"))
+    parser.add_argument("--out", type=Path, default=ROOT / "hf/Gemma4-31B-Vision")
     args = parser.parse_args()
     export(args.out)
 

@@ -5,8 +5,8 @@ from types import SimpleNamespace
 import pytest
 import torch
 
-from scripts import perturbation_run
-from scripts.cross_run_bootstrap import perturbation
+from vtb import perturbation_run
+from vtb.cross_run_bootstrap import perturbation
 from vtb import methods, probe, probe_run
 
 
