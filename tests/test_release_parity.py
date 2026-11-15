@@ -10,8 +10,8 @@ from PIL import Image
 from safetensors.torch import load_file
 from transformers import AutoModel
 
-from scripts.export_moonvit_k26 import SOURCE_REVISION as KIMI_REVISION
-from scripts.export_moonvit_k26 import load_source_parts as load_kimi_source
+from scripts.export_moonvit_k26_vision import SOURCE_REVISION as KIMI_REVISION
+from scripts.export_moonvit_k26_vision import load_source_parts as load_kimi_source
 from scripts.export_muse_glimmer_vision import SOURCE_REVISION as MUSE_REVISION
 from scripts.export_muse_glimmer_vision import load_source_parts as load_muse_source
 from scripts.export_qwen3_8_vision import SOURCE_REVISION as QWEN_REVISION

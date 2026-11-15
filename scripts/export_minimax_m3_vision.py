@@ -1,13 +1,10 @@
 """Build a standalone MiniMax-M3 vision repository."""
 
 import argparse
-import hashlib
 import json
-import shutil
 from pathlib import Path
 
 from huggingface_hub import hf_hub_download
-from safetensors.torch import save_file
 
 from vtb.adapters.minimax_m3 import (
     CHECKPOINTS,
@@ -17,6 +14,7 @@ from vtb.adapters.minimax_m3 import (
     source_weights,
     source_json,
 )
+from vtb.bundle import expect_tensors, print_sizes, write_bundle
 
 TOWER_TENSORS = 515
 PROJECTOR_TENSORS = 8
@@ -32,43 +30,33 @@ def write_manifest(out: Path, checkpoint=M3) -> dict:
 
 def export(out: Path, checkpoint=M3) -> None:
     tower_weights, projector_weights = source_weights(checkpoint)
-    if len(tower_weights) != TOWER_TENSORS:
-        raise SystemExit(f"expected {TOWER_TENSORS} Tower tensors, read {len(tower_weights)}")
-    if len(projector_weights) != PROJECTOR_TENSORS:
-        raise SystemExit(f"expected {PROJECTOR_TENSORS} Projector tensors, read {len(projector_weights)}")
+    expect_tensors(tower_weights, TOWER_TENSORS, "Tower")
+    expect_tensors(projector_weights, PROJECTOR_TENSORS, "Projector")
 
     tower, projector = load_source_parts(checkpoint=checkpoint)
-    out.mkdir(parents=True, exist_ok=True)
-    tower.config.architectures = ["MiniMaxM3VLVisionModel"]
-    tower.save_pretrained(out, safe_serialization=True)
-    save_file(tower_weights, out / "model.safetensors", metadata={"format": "pt"})
-    save_file(projector_weights, out / "projector.safetensors", metadata={"format": "pt"})
-    (out / "projector_config.json").write_text(
-        json.dumps(
-            {
+    preprocessor = json.loads(
+        Path(hf_hub_download(checkpoint.repo, "preprocessor_config.json", revision=checkpoint.revision)).read_text()
+    )
+    write_bundle(
+        out,
+        tower=tower,
+        architecture="MiniMaxM3VLVisionModel",
+        weights={"model.safetensors": tower_weights, "projector.safetensors": projector_weights},
+        configs={
+            "projector_config.json": {
                 "input_size": projector.linear_1.in_features,
                 "hidden_size": projector.linear_1.out_features,
                 "output_size": projector.merge_linear_2.out_features,
                 "merged_hidden_size": projector.merge_linear_1.in_features,
-            },
-            indent=2,
-        )
-        + "\n"
-    )
-    preprocessor = json.loads(
-        Path(hf_hub_download(checkpoint.repo, "preprocessor_config.json", revision=checkpoint.revision)).read_text()
-    )
-    preprocessor["processor_class"] = "AutoImageProcessor"
-    (out / "preprocessor_config.json").write_text(json.dumps(preprocessor, indent=2) + "\n")
-    shutil.copyfile(
-        hf_hub_download(checkpoint.repo, "LICENSE", revision=checkpoint.revision),
-        out / "LICENSE",
+            }
+        },
+        preprocessor=preprocessor,
+        license=Path(hf_hub_download(checkpoint.repo, "LICENSE", revision=checkpoint.revision)),
     )
     from vtb.bundle_manifest import copy_assets
     copy_assets(checkpoint.release_dir, out)
     write_manifest(out, checkpoint)
-    for path in sorted(out.iterdir()):
-        print(f"{path.stat().st_size / 1e6:9.2f} MB  {path.name}")
+    print_sizes(out)
 
 
 def main() -> None:

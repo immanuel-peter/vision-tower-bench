@@ -9,19 +9,14 @@ from huggingface_hub import hf_hub_download
 from safetensors.torch import load_file
 from transformers import AutoModel
 
-from scripts.export_moonvit_v2 import PROJECTOR_TENSORS, TOWER_TENSORS, discover_shards, projector_config, read_prefix
+from scripts.export_moonvit_v2_vision import PROJECTOR_TENSORS, TOWER_TENSORS, discover_shards, projector_config, read_parent
 from vtb.adapters.moonvit_v2 import PROJECTOR_PREFIX, TOWER_PREFIX, CHECKPOINTS
 
 pytestmark = pytest.mark.skipif(os.environ.get("VTB_SKIP_WEIGHTS") == "1", reason="VTB_SKIP_WEIGHTS=1")
 
 
 def parent_tensors(checkpoint, prefix):
-    tensors = {}
-    for shard in discover_shards(checkpoint)[prefix]:
-        payload = read_prefix(shard, prefix, checkpoint)
-        assert not tensors.keys() & payload.keys()
-        tensors.update(payload)
-    return tensors
+    return read_parent(checkpoint, discover_shards(checkpoint)[prefix], prefix)
 
 
 @pytest.mark.parametrize("checkpoint", CHECKPOINTS.values())
