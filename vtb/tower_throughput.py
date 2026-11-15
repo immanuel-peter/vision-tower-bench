@@ -36,7 +36,7 @@ def parser() -> argparse.ArgumentParser:
     ap.add_argument("--count", type=int, default=768)
     ap.add_argument("--batch-size", type=int, required=True)
     ap.add_argument("--workers", type=int, default=8)
-    ap.add_argument("--resolution", type=int, default=448)
+    ap.add_argument("--resolution", type=int, default=None, help="defaults to the adapter's default_resolution")
     ap.add_argument("--warmup-batches", type=int, default=2)
     ap.add_argument("--device", default="cuda")
     return ap
@@ -44,6 +44,8 @@ def parser() -> argparse.ArgumentParser:
 
 def main() -> None:
     args = parser().parse_args()
+    if args.resolution is None:
+        args.resolution = ADAPTERS[args.model].default_resolution
     if args.count < 768:
         raise SystemExit("throughput comparisons require at least 768 measured images")
 

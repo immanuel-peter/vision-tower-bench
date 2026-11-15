@@ -103,7 +103,7 @@ def test_correspondence_runner_keeps_full_patch_grid_defaults():
         "--model", "dinov2", "--dataset", "scannet", "--root", "data", "--out", "out.json"
     ])
 
-    assert args.resolution == 448
+    assert args.resolution is None
     assert args.evaluation_side == 64
     assert args.num_correspondences == 1_000
 

@@ -42,10 +42,12 @@ def main() -> None:
     parser.add_argument("--model", default="muse_glimmer", choices=sorted(ADAPTERS))
     parser.add_argument("--image", type=Path, required=True)
     parser.add_argument("--out", type=Path, default=Path("docs/figures"))
-    parser.add_argument("--resolution", type=int, default=448)
+    parser.add_argument("--resolution", type=int, default=None, help="defaults to the adapter's default_resolution")
     parser.add_argument("--device", default="mps")
     parser.add_argument("--all-depths", action="store_true", help="also render every sampled Tower depth")
     args = parser.parse_args()
+    if args.resolution is None:
+        args.resolution = ADAPTERS[args.model].default_resolution
     args.out.mkdir(parents=True, exist_ok=True)
 
     adapter = ADAPTERS[args.model](resolution=args.resolution, device=args.device)

@@ -7,6 +7,7 @@ the original six-Tower v1 records, supporting evidence, corrections, and failed 
 source files used for deepest-stage geometry figures. Paths in that index are
 relative to this directory. Model IDs inside the JSONs identify the checkpoints;
 historical filename slugs `qwen3_5` and `moonvit_v2` mean Qwen3.8 and Kimi K3.
+These slugs are frozen: [vtb/roster.py](../vtb/roster.py) lists every Tower's canonical slug with its display name, model ID, and adapter. Older names that stay canonical include `qwen3_5` (Qwen3.8), `moonvit_v2` (Kimi K3), `glm5` (GLM 5.3 Flash), and `nemotron_omni` (C-RADIOv4-H-3-Omni from Nemotron 3 Omni).
 
 Git tracks only this README, the other Markdown notes, and `index.json`. The payloads live on the Hugging Face Dataset [immanuelpeter/vision-tower-bench-results](https://huggingface.co/datasets/immanuelpeter/vision-tower-bench-results) under the same paths, alongside the former local-only run notes in `measurements/`. `index.json` pins the dataset revision under `payloads` and lists a URL and SHA256 for each file. Run the fetch script below before reading the directories in the table.
 
