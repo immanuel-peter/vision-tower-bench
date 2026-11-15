@@ -53,7 +53,7 @@ that execution.
 
 ## Reproduction
 
-The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/scripts/export_moonvit_v2.py)
+The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/scripts/export_moonvit_v2_vision.py)
 extracts `vision_tower` from shard 96 and `mm_projector` from shard 95 of
 `moonshotai/Kimi-K3.1-Pro`. It preserves the original BF16 weights and verifies
 every exported tensor against the pinned parent before writing.
