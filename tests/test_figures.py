@@ -6,6 +6,8 @@ from pathlib import Path
 
 import pytest
 
+from scripts.fetch_results import absent
+
 pytest.importorskip("matplotlib")
 
 ROOT = Path(__file__).parents[1]
@@ -13,6 +15,7 @@ SPEC = importlib.util.spec_from_file_location("vtb_figures", ROOT / "scripts/fig
 assert SPEC and SPEC.loader
 FIGURE_SCRIPT = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(FIGURE_SCRIPT)
+requires_payloads = pytest.mark.skipif(bool(absent(["results/"])), reason="payloads not fetched: uv run python scripts/fetch_results.py")
 
 
 @pytest.mark.parametrize("model", ["minimax_m3", "minimax_m31_flash"])
@@ -21,6 +24,7 @@ def test_tower_name_distinguishes_minimax_siblings(model, suffix):
     assert FIGURE_SCRIPT.tower_name(model + suffix) == model
 
 
+@requires_payloads
 def test_m3_image_isolation_override_preserves_other_models_and_historical_files():
     path = FIGURE_SCRIPT.measurement_path("recognition", "minimax_m3", readout="attention", arm="matched")
     assert path == ROOT / "results/diagnostics/minimax-m31-flash/m3-image-isolation/recognition/minimax_m3_probe_attention_matched.json"
@@ -65,6 +69,7 @@ def test_roster_covers_the_registered_tower_suite():
     assert "qwen38_flash_next" not in FIGURE_SCRIPT.OCCLUSION
 
 
+@requires_payloads
 def test_occlusion_filter_excludes_scale_and_motion_blur():
     payload = json.loads(
         (ROOT / "results/perturbation/minimax_m3_perturbation.json").read_text()
@@ -76,6 +81,7 @@ def test_occlusion_filter_excludes_scale_and_motion_blur():
     assert [condition["value"] for condition in conditions] == [0, 0.1, 0.2, 0.35, 0.5]
 
 
+@requires_payloads
 def test_projector_matrix_covers_every_projector_and_panel():
     panels = FIGURE_SCRIPT.projector_intervals()
 
@@ -111,6 +117,7 @@ def test_projector_matrix_covers_every_projector_and_panel():
     assert states.count("unresolved") == 5
 
 
+@requires_payloads
 def test_default_figures_render(tmp_path):
     assert "projector-matrix" in FIGURE_SCRIPT.FIGURES
     assert "projector-forest" not in FIGURE_SCRIPT.FIGURES
@@ -121,6 +128,7 @@ def test_default_figures_render(tmp_path):
         assert path.stat().st_size > 0
 
 
+@requires_payloads
 def test_geometry_figures_separate_corrected_stages_from_historical_sweeps(monkeypatch, tmp_path):
     figures = []
     subplots = FIGURE_SCRIPT.plt.subplots
@@ -162,6 +170,7 @@ def test_geometry_figures_separate_corrected_stages_from_historical_sweeps(monke
         assert list(line.get_ydata()) == pytest.approx([cell["d1"] for cell in cells])
 
 
+@requires_payloads
 def test_semantic_forest_includes_the_v3_comparisons(tmp_path):
     path = tmp_path / "forest.svg"
     FIGURE_SCRIPT.semantic_forest(path)
@@ -173,6 +182,7 @@ def test_semantic_forest_includes_the_v3_comparisons(tmp_path):
         assert f"attention, matched, {stage}" in labels
 
 
+@requires_payloads
 def test_semantic_forest_includes_all_kimi_sibling_stages(tmp_path):
     paths = FIGURE_SCRIPT.SOURCES["semantic_checkpoint_comparisons"]
     payloads = [json.loads((ROOT / "results" / path).read_text()) for path in paths]
@@ -186,6 +196,7 @@ def test_semantic_forest_includes_all_kimi_sibling_stages(tmp_path):
     assert path.read_text().count("kimi_k31_pro - moonvit_v2") == 3
 
 
+@requires_payloads
 def test_label_budget_reads_the_standardized_runs_for_every_tower():
     series = FIGURE_SCRIPT.label_budget_series()
 
@@ -194,6 +205,7 @@ def test_label_budget_reads_the_standardized_runs_for_every_tower():
         assert sorted(series[model]) == [0.01, 0.05, 0.2, 1.0]
 
 
+@requires_payloads
 def test_qwen_sibling_figure_uses_paired_points_and_spair_macro_intervals(monkeypatch, tmp_path):
     figures = []
     subplots = FIGURE_SCRIPT.plt.subplots

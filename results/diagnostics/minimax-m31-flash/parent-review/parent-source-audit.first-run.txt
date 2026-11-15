@@ -1,9 +1,0 @@
-Verified source shard MiniMaxAI/MiniMax-M3 model-00026-of-00059.safetensors
-Verified source shard MiniMaxAI/MiniMax-M3 model-00059-of-00059.safetensors
-Verified source shard MiniMaxAI/MiniMax-M3.1-Flash model-00013-of-00048.safetensors
-Verified source shard MiniMaxAI/MiniMax-M3.1-Flash model-00048-of-00048.safetensors
-Traceback (most recent call last):
-  File "/tmp/vtb-delivery/issues/21/parent-source-audit.py", line 24, in <module>
-    with safe_open(W/'hf'/bundle/'model.safetensors',framework='pt') as tower,safe_open(W/'hf'/bundle/'projector.safetensors',framework='pt') as projector:
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-FileNotFoundError: No such file or directory: /home/shadeform/.t3/worktrees/vision-tower-bench/t3-acfaf281/hf/MiniMax-M3-Vision/model.safetensors

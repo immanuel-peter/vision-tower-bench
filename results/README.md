@@ -8,6 +8,8 @@ source files used for deepest-stage geometry figures. Paths in that index are
 relative to this directory. Model IDs inside the JSONs identify the checkpoints;
 historical filename slugs `qwen3_5` and `moonvit_v2` mean Qwen3.8 and Kimi K3.
 
+Git tracks only this README, the other Markdown notes, and `index.json`. The payloads live on the Hugging Face Dataset [immanuelpeter/vision-tower-bench-results](https://huggingface.co/datasets/immanuelpeter/vision-tower-bench-results) under the same paths, alongside the former local-only run notes in `measurements/`. `index.json` pins the dataset revision under `payloads` and lists a URL and SHA256 for each file. Run the fetch script below before reading the directories in the table.
+
 ## Find an experiment
 
 | Directory | Contents and status |
@@ -157,9 +159,10 @@ controls; the latter preserves both batch-size variants for Kimi.
 
 ## Use the files
 
-From the repository root:
+From the repository root, fetch the payloads at the pinned revision, then render figures or tables:
 
 ```bash
+uv run python scripts/fetch_results.py
 uv sync --group figures
 uv run --group figures python scripts/figures.py
 uv run python scripts/semantic_table.py results/recognition/*_probe_attention_matched.json
@@ -170,5 +173,4 @@ Matrix scripts accept an output directory. Use `results/recognition/` for
 `scripts/semantic_matrix.sh` and `results/geometry/` for
 `scripts/geometry_matrix.sh` when collecting a new full matrix. Preserve prior
 runs in a separate directory when a protocol changes, and update the index with
-the correction's scope. JSON, JSONL, and TSV measurements remain in Git so a
-clone contains the evidence needed to inspect the figures.
+the correction's scope. `fetch_results.py` downloads every payload into `results/` and the run notes into `docs/measurements/`, verifies each SHA256, and skips files that already match. Pass path prefixes such as `results/recognition/` to fetch a subset, or `--check` to verify without downloading. To publish new payloads, upload them to the dataset at the same paths and add their URL and SHA256 to `index.json` under the new revision.

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render the blog figures from committed result JSON. No GPU, no feature cache."""
+"""Render the blog figures from the fetched result JSON. No GPU, no feature cache."""
 
 import argparse
 import json
@@ -660,6 +660,8 @@ def main() -> None:
     parser.add_argument("--format", dest="formats", nargs="+", default=["svg"],
                         choices=("svg", "pdf", "png"))
     args = parser.parse_args()
+    if any(not (RESULTS.parent / path).is_file() for path in INDEX["payloads"]["files"] if path.startswith("results/")):
+        parser.exit(1, "result payloads are missing; run: uv run python scripts/fetch_results.py results/\n")
     args.out.mkdir(parents=True, exist_ok=True)
 
     for name, draw in FIGURES.items():
