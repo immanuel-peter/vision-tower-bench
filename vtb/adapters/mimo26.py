@@ -15,6 +15,7 @@ from torchvision import transforms
 from vtb.feature_batch import FeatureBatch
 from vtb.images import square_crop
 from vtb.models.mimo26 import MiMoVisionConfig, MiMoVisionModel
+from vtb.provenance import log_loaded, open_release
 from vtb.shards import load_prefixed
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -30,15 +31,23 @@ class Checkpoint:
     model_id: str
     repo: str
     revision: str
+    release_revision: str
 
     @property
     def release_dir(self) -> Path:
         return ROOT / "hf" / self.model_id.split("/")[-1]
 
     @property
-    def bundle(self) -> Path:
+    def override(self) -> Path | None:
         override = os.environ.get(f"VTB_{self.name.upper()}_BUNDLE")
-        return Path(override) if override else self.release_dir
+        return Path(override) if override else None
+
+    def open(self, bundle: Path | None = None) -> Path:
+        return open_release(self.model_id, self.release_revision, self.repo, self.revision, bundle=bundle or self.override, required=True)
+
+    @property
+    def bundle(self) -> Path:
+        return self.open()
 
 
 PRO = Checkpoint(
@@ -46,12 +55,14 @@ PRO = Checkpoint(
     "immanuelpeter/MiMoViT-2.6-Pro",
     "XiaomiMiMo/MiMo-V2.6-Pro-RL",
     "b61f21852680ee02a29e946e18cf8697f4844061",
+    "bdfd5fdb9808cd08c4f9b1df909452b74c3543e3",
 )
 FLASH = Checkpoint(
     "mimo26_flash",
     "immanuelpeter/MiMoViT-2.6-Flash",
     "XiaomiMiMo/MiMo-V2.6-Flash-RL",
     "dcd3fd83fb181622fbc606fbb1709901982a62c2",
+    "2880544f6d1b11d4836cb8f102be3afaa2cfe670",
 )
 CHECKPOINTS = {item.name: item for item in (PRO, FLASH)}
 
@@ -127,16 +138,12 @@ def raster(tokens: torch.Tensor, grid_thw: torch.Tensor, column_major: bool) -> 
 
 
 def load_model(checkpoint: Checkpoint, dtype: torch.dtype, bundle: Path | None = None) -> MiMoVisionModel:
-    bundle = checkpoint.bundle if bundle is None else bundle
-    if (bundle / "model.safetensors").is_file():
-        manifest = bundle / "export_manifest.json"
-        if manifest.is_file():
-            provenance = json.loads(manifest.read_text())
-            if (provenance["source_repo"], provenance["source_revision"]) != (checkpoint.repo, checkpoint.revision):
-                raise ValueError(f"bundle provenance does not match {checkpoint.name}")
+    if bundle is None or (bundle / "model.safetensors").is_file():
+        bundle = checkpoint.open(bundle)
         config = MiMoVisionConfig.from_pretrained(bundle, local_files_only=True)
         weights = load_file(bundle / "model.safetensors")
     else:
+        log_loaded(checkpoint.model_id, f"parent checkpoint {checkpoint.repo}@{checkpoint.revision}")
         config = MiMoVisionConfig(**source_json(checkpoint, "config.json")["vision_config"])
         weights = {"visual." + name: tensor for name, tensor in source_weights(checkpoint).items()}
     with torch.device("meta"):

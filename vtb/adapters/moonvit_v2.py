@@ -11,6 +11,7 @@ from transformers import AutoModel
 
 from vtb.feature_batch import FeatureBatch
 from vtb.images import square_crop
+from vtb.provenance import log_loaded
 
 PATCH_SIZE = 14
 
@@ -100,6 +101,7 @@ class MoonViTV2Adapter:
     collate = staticmethod(collate)
 
     def __init__(self, resolution: int = 448, dtype=torch.bfloat16, device: str = "mps"):
+        log_loaded(self.model_id, f"{self.model_id}@{self.checkpoint.bundle_revision}")
         self.model = (
             AutoModel.from_pretrained(self.model_id, dtype=dtype, revision=self.checkpoint.bundle_revision, trust_remote_code=True)
             .to(device)

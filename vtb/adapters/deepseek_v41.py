@@ -1,7 +1,6 @@
 from collections.abc import Iterator
 from dataclasses import dataclass, field
 from functools import lru_cache
-from pathlib import Path
 from types import SimpleNamespace
 
 import torch
@@ -12,10 +11,11 @@ from torchvision import transforms
 
 from vtb.feature_batch import FeatureBatch
 from vtb.images import square_crop
+from vtb.provenance import open_release
 from vtb.shards import load_prefixed
 
 MODEL_ID = "immanuelpeter/DeepSeek-ViT"
-BUNDLE = Path(__file__).resolve().parents[2] / "hf/DeepSeek-ViT"
+REVISION = "9783c022bd626549c6c20460cad37edcc0490f0f"
 
 SOURCE_REPO = "deepseek-ai/DeepSeek-V4.1-Flash"
 SOURCE_REVISION = "dba1be0a40aa45a94ad051997016db3960a90277"
@@ -199,17 +199,16 @@ def load_source_parts(dtype: torch.dtype = torch.bfloat16) -> tuple[ViT, Aligner
 
 
 def load_parts(dtype: torch.dtype) -> tuple[ViT, Aligner]:
-    if (BUNDLE / "model.safetensors").exists():
-        tower = ViT()
-        tower.load_state_dict({
-            name: tensor.to(dtype) for name, tensor in load_file(BUNDLE / "model.safetensors").items()
-        })
-        aligner = Aligner()
-        aligner.load_state_dict({
-            name: tensor.to(dtype) for name, tensor in load_file(BUNDLE / "projector.safetensors").items()
-        })
-        return tower.to(dtype).eval(), aligner.to(dtype).eval()
-    return load_source_parts(dtype)
+    bundle = open_release(MODEL_ID, REVISION, SOURCE_REPO, SOURCE_REVISION)
+    tower = ViT()
+    tower.load_state_dict({
+        name: tensor.to(dtype) for name, tensor in load_file(bundle / "model.safetensors").items()
+    })
+    aligner = Aligner()
+    aligner.load_state_dict({
+        name: tensor.to(dtype) for name, tensor in load_file(bundle / "projector.safetensors").items()
+    })
+    return tower.to(dtype).eval(), aligner.to(dtype).eval()
 
 
 class DeepSeekV41Adapter:

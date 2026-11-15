@@ -7,6 +7,7 @@ from transformers import SiglipVisionModel
 
 from vtb.feature_batch import FeatureBatch
 from vtb.images import square_crop
+from vtb.provenance import log_loaded
 
 MODEL_ID = "google/siglip2-so400m-patch14-384"
 REVISION = "e8e487298228002f3d8a82e0cd5c8ea9c567f57f"
@@ -42,6 +43,7 @@ class SigLIP2Adapter:
     collate = staticmethod(collate)
 
     def __init__(self, resolution: int = 448, dtype=torch.bfloat16, device: str = "mps"):
+        log_loaded(self.model_id, f"{MODEL_ID}@{REVISION}")
         self.model = SiglipVisionModel.from_pretrained(self.model_id, revision=REVISION, dtype=dtype).to(device).eval()
         self.resolution = resolution
         self.device = device
