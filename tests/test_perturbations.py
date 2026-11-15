@@ -1,9 +1,9 @@
 import numpy as np
 from PIL import Image
 
-from scripts.prep_perturbations import centre_scale, directional_blur, occlude
-from scripts.perturbation_extract import parser as extraction_parser
-from scripts.perturbation_run import condition_details
+from vtb.perturbations import centre_scale, directional_blur, occlude
+from vtb.perturbation_extract import parser as extraction_parser
+from vtb.perturbations import condition_details
 
 
 def patterned_image() -> Image.Image:
