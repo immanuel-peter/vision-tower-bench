@@ -19,30 +19,8 @@ mkdir -p "$CACHE" "$OUT"
 : > "$OUT/alerts.log"
 : > "$OUT/expected_cells.tsv"
 
-batch_for() {
-    case "$1" in
-        dinov2|siglip2|gemma4|glm5) echo 16 ;;
-        moonvit_v2|kimi_k26|kimi_k31_pro) echo 1 ;;
-        minimax_m3|minimax_m31_flash|nemotron_omni|deepseek_v41) echo 8 ;;
-        qwen3_5|qwen38_flash_next) echo 8 ;;
-        muse_glimmer) echo 4 ;;
-        nemotron35_super|nemotron35_bolt|dinov3|mimo26_pro|mimo26_flash|mistral_large4) echo 8 ;;
-    esac
-}
-
-resolution_for() {
-    case "$1" in
-        dinov3) echo 512 ;;
-        *) echo 448 ;;
-    esac
-}
-
-expected_for() {
-    case "$1" in
-        dinov2|dinov3|siglip2) echo 1 ;;
-        nemotron35_bolt) echo 2 ;;
-        *) echo 3 ;;
-    esac
+spec() {
+    uv run python -c "from vtb.roster import BY_SLUG; t = BY_SLUG['$1']; print(t.batch_size, t.adapter().default_resolution, len(t.stages()))"
 }
 
 jobs=($MODELS)
@@ -56,8 +34,7 @@ lane() {
     local index="$1" gpu="$2" model batch resolution rc
     while read -r model; do
         [ -n "$model" ] || continue
-        batch=$(batch_for "$model")
-        resolution=$(resolution_for "$model")
+        read -r batch resolution _ <<< "$(spec "$model")"
         rc=0
         echo "[$(date -u +%T)] start $model extraction on gpu $gpu" >> "$OUT/lane$index.log"
         CUDA_VISIBLE_DEVICES="$gpu" OMP_NUM_THREADS="$THREADS" MKL_NUM_THREADS="$THREADS" \
@@ -82,8 +59,8 @@ lane() {
 }
 
 for model in $MODELS; do
-    printf '%s\t%s\n' "${model}_perturbation.json" "$(expected_for "$model")" \
-        >> "$OUT/expected_cells.tsv"
+    read -r _ _ stages <<< "$(spec "$model")"
+    printf '%s\t%s\n' "${model}_perturbation.json" "$stages" >> "$OUT/expected_cells.tsv"
 done
 sort -o "$OUT/expected_cells.tsv" "$OUT/expected_cells.tsv"
 
