@@ -43,7 +43,7 @@ class Checkpoint:
         return Path(override) if override else None
 
     def open(self, bundle: Path | None = None) -> Path:
-        return open_release(self.model_id, self.release_revision, self.repo, self.revision, bundle=bundle or self.override, required=True)
+        return open_release(self.model_id, self.release_revision, self.repo, self.revision, bundle=bundle or self.override)
 
     @property
     def bundle(self) -> Path:
@@ -55,14 +55,14 @@ PRO = Checkpoint(
     "immanuelpeter/MiMoViT-2.6-Pro",
     "XiaomiMiMo/MiMo-V2.6-Pro-RL",
     "b61f21852680ee02a29e946e18cf8697f4844061",
-    "bdfd5fdb9808cd08c4f9b1df909452b74c3543e3",
+    "a744ae36c6f302a478e14fe0aa0aa6f9c6d04904",
 )
 FLASH = Checkpoint(
     "mimo26_flash",
     "immanuelpeter/MiMoViT-2.6-Flash",
     "XiaomiMiMo/MiMo-V2.6-Flash-RL",
     "dcd3fd83fb181622fbc606fbb1709901982a62c2",
-    "2880544f6d1b11d4836cb8f102be3afaa2cfe670",
+    "5d09ff0c40593f156d335d6c94b848c790e41cd6",
 )
 CHECKPOINTS = {item.name: item for item in (PRO, FLASH)}
 

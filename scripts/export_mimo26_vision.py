@@ -1,7 +1,6 @@
 """Build standalone MiMo 2.6 Pro and Flash vision repositories from the pinned parents."""
 
 import argparse
-import hashlib
 import shutil
 from pathlib import Path
 
@@ -41,10 +40,6 @@ def export(name: str, out: Path | None = None) -> Path:
     manifest = {
         "source_repo": checkpoint.repo, "source_revision": checkpoint.revision,
         "tensors": len(original), "bytes": sum(t.nbytes for t in original.values()),
-        "tensor_sha256": {
-            key: hashlib.sha256(t.contiguous().view(torch.uint8).numpy().tobytes()).hexdigest()
-            for key, t in original.items()
-        },
     }
     write_json(out / "export_manifest.json", manifest)
     print(f"{name}: {manifest['tensors']} tensors, {manifest['bytes']} bytes -> {out}")

@@ -78,12 +78,6 @@ def test_flash_rejects_m3_bundle_provenance(tmp_path):
         mm.load_parts(torch.bfloat16, mm.FLASH, tmp_path)
 
 
-def test_flash_requires_bundle_provenance(tmp_path):
-    (tmp_path / "model.safetensors").touch()
-    with pytest.raises(ValueError, match="provenance"):
-        mm.load_parts(torch.bfloat16, mm.FLASH, tmp_path)
-
-
 @pytest.mark.skipif(bool(os.getenv("VTB_SKIP_WEIGHTS")), reason="weight checks disabled")
 def test_flash_bundle_is_distinct_from_m3():
     for filename in ("model.safetensors", "projector.safetensors"):

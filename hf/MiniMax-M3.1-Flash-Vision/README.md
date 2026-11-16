@@ -23,7 +23,7 @@ This repository packages the Tower and Projector from
 | `projector.safetensors` | 8 | `multi_modal_projector` and remapped `patch_merge_mlp` |
 | `projector_config.json`, `projector.py` | | Projector shapes and loader |
 | `config.json`, `preprocessor_config.json` | | Vision-only model and image-processing configuration |
-| `export_manifest.json` | | Source pin, tensor counts and file hashes |
+| `export_manifest.json` | | Source pin and tensor counts |
 | `LICENSE`, `LICENSE-CODE`, `NOTICE` | | Weight license, code license and attribution |
 
 ## Architecture

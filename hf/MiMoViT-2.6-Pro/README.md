@@ -21,7 +21,7 @@ This repository packages the vision Tower and merger from [MiMo V2.6 Pro](https:
 | `model.safetensors` | 364 | Tower blocks, patch embedding and merger, from the parent's `visual.*` |
 | `modeling_mimo_vision.py` | | Vision classes extracted from the parent, loaded with `trust_remote_code` |
 | `config.json`, `preprocessor_config.json` | | Vision configuration and the parent's `Qwen2VLImageProcessor` settings |
-| `export_manifest.json` | | Source pin and the SHA256 of every tensor |
+| `export_manifest.json` | | Source pin and tensor count |
 | `LICENSE`, `LICENSE-CODE`, `NOTICE` | | Weight and code licenses |
 
 ## Architecture

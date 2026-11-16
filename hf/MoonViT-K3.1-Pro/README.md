@@ -23,7 +23,7 @@ MoonViT Tower and Projector.
 | `projector.safetensors` | 3 | Kimi K3.1 Pro `mm_projector` |
 | `projector_config.json` | | Projector shapes, read from the weights |
 | `config.json`, `configuration_moonvit_v2.py`, `modeling_moonvit_v2.py`, `image_processing_moonvit_v2.py`, `preprocessor_config.json` | | Vendored from `AI4Industry/MoonViT-V2` |
-| `export_manifest.json` | | Source pin, tensor counts and file hashes |
+| `export_manifest.json` | | Source pin and tensor counts |
 | `LICENSE`, `LICENSE-CODE`, `NOTICE` | | Weight license, code license and attribution |
 
 ## Architecture

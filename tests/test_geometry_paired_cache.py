@@ -36,6 +36,9 @@ def test_paired_cell_cache_reuses_exact_measurements_and_invalidates_changed_inp
     args.learning_rates = [1e-3]
     geometry_bootstrap_run.cached_train_cell(run, "tower", 32, args)
     assert len(calls) == 4
-    args.cell_cache = None
+    monkeypatch.setattr(geometry_bootstrap_run, "CELL_CACHE_VERSION", geometry_bootstrap_run.CELL_CACHE_VERSION + 1)
     geometry_bootstrap_run.cached_train_cell(run, "tower", 32, args)
     assert len(calls) == 5
+    args.cell_cache = None
+    geometry_bootstrap_run.cached_train_cell(run, "tower", 32, args)
+    assert len(calls) == 6

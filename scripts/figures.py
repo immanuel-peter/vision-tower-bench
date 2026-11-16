@@ -615,7 +615,8 @@ def main() -> None:
     parser.add_argument("--format", dest="formats", nargs="+", default=["svg"],
                         choices=("svg", "pdf", "png"))
     args = parser.parse_args()
-    if any(not (RESULTS.parent / path).is_file() for path in INDEX["payloads"]["files"] if path.startswith("results/")):
+    marker = RESULTS / "payload-revision.txt"
+    if not marker.is_file() or marker.read_text().strip() != INDEX["payloads"]["revision"]:
         parser.exit(1, "result payloads are missing; run: uv run python scripts/fetch_results.py results/\n")
     args.out.mkdir(parents=True, exist_ok=True)
 

@@ -24,6 +24,7 @@ jobs:
             results/**
             !results/**/*.md
             !results/index.json
+            .cache/huggingface/download/results/**
           key: results-${{ hashFiles('results/index.json') }}
 
       - name: Fetch result payloads

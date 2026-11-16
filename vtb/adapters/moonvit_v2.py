@@ -40,7 +40,7 @@ K3 = Checkpoint(SOURCE_REPO, "f831ab66814297da540d832a5235f8e904f29d06", MODEL_I
                 "bcaedfccd1f07d23ab20de8a0a168668c27cacb3")
 K31_PRO = Checkpoint("moonshotai/Kimi-K3.1-Pro", "6d0a0202956796543364d666ab19c6ad1a494ee1",
                      "immanuelpeter/MoonViT-K3.1-Pro", "MoonViT-K3.1-Pro",
-                     "6ab95e2daf86e8100be2e712a7a71c0fba26dac4")
+                     "129e85c01ce4db85044bc49352ad359fc12dd5ff")
 CHECKPOINTS = {"moonvit_v2": K3, "kimi_k31_pro": K31_PRO}
 
 

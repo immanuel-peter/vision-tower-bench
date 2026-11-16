@@ -9,7 +9,7 @@ relative to this directory. Model IDs inside the JSONs identify the checkpoints;
 historical filename slugs `qwen3_5` and `moonvit_v2` mean Qwen3.8 and Kimi K3.
 These slugs are frozen: [vtb/roster.py](../vtb/roster.py) lists every Tower's canonical slug with its display name, model ID, and adapter. Older names that stay canonical include `qwen3_5` (Qwen3.8), `moonvit_v2` (Kimi K3), `glm5` (GLM 5.3 Flash), and `nemotron_omni` (C-RADIOv4-H-3-Omni from Nemotron 3 Omni).
 
-Git tracks only this README, the other Markdown notes, and `index.json`. The payloads live on the Hugging Face Dataset [immanuelpeter/vision-tower-bench-results](https://huggingface.co/datasets/immanuelpeter/vision-tower-bench-results) under the same paths, alongside the former local-only run notes in `measurements/`. `index.json` pins the dataset revision under `payloads` and lists a URL and SHA256 for each file. Run the fetch script below before reading the directories in the table.
+Git tracks only this README, the other Markdown notes, and `index.json`. The payloads live on the Hugging Face Dataset [immanuelpeter/vision-tower-bench-results](https://huggingface.co/datasets/immanuelpeter/vision-tower-bench-results) under the same paths, alongside the former local-only run notes in `measurements/`. `index.json` pins the dataset revision under `payloads`. Run the fetch script below before reading the directories in the table.
 
 ## Find an experiment
 
@@ -174,4 +174,4 @@ Matrix scripts accept an output directory. Use `results/recognition/` for
 `scripts/semantic_matrix.sh` and `results/geometry/` for
 `scripts/geometry_matrix.sh` when collecting a new full matrix. Preserve prior
 runs in a separate directory when a protocol changes, and update the index with
-the correction's scope. `fetch_results.py` downloads every payload into `results/` and the run notes into `docs/measurements/`, verifies each SHA256, and skips files that already match. Pass path prefixes such as `results/recognition/` to fetch a subset, or `--check` to verify without downloading. To publish new payloads, upload them to the dataset at the same paths and add their URL and SHA256 to `index.json` under the new revision.
+the correction's scope. `fetch_results.py` downloads every payload at the pinned revision into `results/` and the run notes into `docs/measurements/`, and restores any missing or changed file on a rerun. Pass path prefixes such as `results/recognition/` to fetch a subset, or `--check` to list missing or out-of-date files without downloading. To publish new payloads, upload them to the dataset at the same paths and set `payloads.revision` in `index.json` to the new dataset commit.

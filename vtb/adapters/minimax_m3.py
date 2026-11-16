@@ -45,7 +45,7 @@ class Checkpoint:
         return Path(override) if override else None
 
     def open(self, bundle: Path | None = None) -> Path:
-        return open_release(self.model_id, self.release_revision, self.repo, self.revision, bundle=bundle or self.override, required=self == FLASH)
+        return open_release(self.model_id, self.release_revision, self.repo, self.revision, bundle=bundle or self.override)
 
     @property
     def bundle(self) -> Path:
@@ -57,7 +57,7 @@ M3 = Checkpoint("minimax_m3", "immanuelpeter/MiniMax-M3-Vision",
                "949099e5411c33f604f1b3bc7ed7c4c500b4b5e7")
 FLASH = Checkpoint("minimax_m31_flash", "immanuelpeter/MiniMax-M3.1-Flash-Vision",
                   "MiniMaxAI/MiniMax-M3.1-Flash", "54e4e69dfc452b1e94a426c24a4fdeeaa8e3ad5e",
-                  "8a97b39d8005c174d901cb51eba8b5185abf7a47")
+                  "dbf507fe14de22b0f4adb08380adada21c072d29")
 CHECKPOINTS = {item.name: item for item in (M3, FLASH)}
 MODEL_ID = M3.model_id
 SOURCE_REPO, SOURCE_REVISION = M3.repo, M3.revision

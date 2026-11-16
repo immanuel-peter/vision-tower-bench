@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from scripts.fetch_results import absent
+from scripts.fetch_results import fetched
 
 pytest.importorskip("matplotlib")
 
@@ -15,7 +15,7 @@ SPEC = importlib.util.spec_from_file_location("vtb_figures", ROOT / "scripts/fig
 assert SPEC and SPEC.loader
 FIGURE_SCRIPT = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(FIGURE_SCRIPT)
-requires_payloads = pytest.mark.skipif(bool(absent(["results/"])), reason="payloads not fetched: uv run python scripts/fetch_results.py")
+requires_payloads = pytest.mark.skipif(not fetched(), reason="payloads not fetched: uv run python scripts/fetch_results.py")
 
 
 @pytest.mark.parametrize("model", ["minimax_m3", "minimax_m31_flash"])

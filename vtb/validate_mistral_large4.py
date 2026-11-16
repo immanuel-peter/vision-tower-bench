@@ -69,10 +69,6 @@ def sha256_file(path: Path, chunk: int = 1 << 24) -> str:
     return digest.hexdigest()
 
 
-def tensor_sha256(tensor: torch.Tensor) -> str:
-    return hashlib.sha256(tensor.detach().cpu().contiguous().view(torch.uint8).numpy().tobytes()).hexdigest()
-
-
 # ---------------------------------------------------------------- reference
 
 
@@ -416,7 +412,6 @@ def identity_report(shard: Path, bundle: Path | None) -> tuple[dict, dict[str, t
         released.update({
             "multi_modal_projector." + k: v for k, v in load_file(bundle / "projector.safetensors").items()
         })
-        manifest = json.loads((bundle / "export_manifest.json").read_text())
         drift = {}
         exact = True
         for name, tensor in native.items():
@@ -432,14 +427,12 @@ def identity_report(shard: Path, bundle: Path | None) -> tuple[dict, dict[str, t
                 "bit_exact": same,
                 "cosine": torch.nn.functional.cosine_similarity(a, b, dim=0).item(),
                 "relative_l2": ((a - b).norm() / b.norm()).item(),
-                "sha256_matches_manifest": manifest["tensor_sha256"][name] == tensor_sha256(tensor),
             }
         report["release"] = {
             "bundle": str(bundle),
             "tensors": len(released),
             "names_cover_source_once": sorted(released) == sorted(ml4.remap_key(n) for n in native),
             "bit_exact_after_inverse_permutation": exact,
-            "manifest_sha256_all_match": all(item["sha256_matches_manifest"] for item in drift.values()),
             "max_relative_l2": max(item["relative_l2"] for item in drift.values()),
             "min_cosine": min(item["cosine"] for item in drift.values()),
             "per_tensor": drift,
