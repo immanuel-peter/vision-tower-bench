@@ -11,7 +11,7 @@ from vtb.feature_batch import FeatureBatch
 PROBE3D_COMMIT = "https://github.com/mbanani/probe3d"
 
 
-def dense_map(batch: FeatureBatch) -> torch.Tensor:
+def batch_dense_maps(batch: FeatureBatch) -> torch.Tensor:
     """Reshape patch tokens to (images, dim, height, width)."""
     if batch.pooled_to is not None:
         raise ValueError("geometry needs full patch tokens, not a pooled grid")
@@ -112,6 +112,3 @@ def _build(head: str, input_dims: list[int], output_dim: int, hidden_dim: int) -
         return MultiscaleHead(input_dims, output_dim, hidden_dim)
     raise ValueError(f"unknown head {head!r}")
 
-
-def parameter_count(module: nn.Module) -> int:
-    return sum(p.numel() for p in module.parameters() if p.requires_grad)

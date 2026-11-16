@@ -2,19 +2,19 @@ import pytest
 import torch
 from PIL import Image
 
+from vtb.bootstrap import paired_bootstrap
 from vtb.correspondence import (
-    dense_map,
     geometric_errors,
-    paired_bootstrap,
     ratio_matches,
     recall,
     semantic_errors,
+    token_dense_map,
 )
 
 
 def test_dense_map_preserves_raster_order():
     tokens = torch.arange(12).reshape(4, 3)
-    mapped = dense_map(tokens)
+    mapped = token_dense_map(tokens)
 
     assert mapped.shape == (3, 2, 2)
     assert mapped[:, 0, 1].tolist() == [3, 4, 5]

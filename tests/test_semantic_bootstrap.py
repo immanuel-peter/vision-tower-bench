@@ -1,7 +1,7 @@
 import pytest
 import torch
 
-from vtb.semantic_bootstrap import paired_image_bootstrap
+from vtb.bootstrap import paired_image_bootstrap
 
 
 def test_bootstrap_runner_defaults_to_the_headline_arm():

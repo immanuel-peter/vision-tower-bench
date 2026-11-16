@@ -1,7 +1,7 @@
 import pytest
 import torch
 
-from vtb.geometry_bootstrap import paired_metric_bootstrap
+from vtb.bootstrap import paired_metric_bootstrap
 
 
 def test_geometry_bootstrap_runner_defaults_to_matched_protocol():

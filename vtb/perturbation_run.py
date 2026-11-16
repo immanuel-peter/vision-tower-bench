@@ -9,7 +9,7 @@ from pathlib import Path
 import torch
 
 from vtb import cache, probe_run
-from vtb.correspondence import paired_bootstrap
+from vtb.bootstrap import paired_bootstrap
 from vtb.perturbations import condition_details
 
 

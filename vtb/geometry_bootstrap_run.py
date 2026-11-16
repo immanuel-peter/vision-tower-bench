@@ -10,7 +10,7 @@ from pathlib import Path
 import torch
 
 from vtb import cache, geometry, geometry_run, probe_run
-from vtb.geometry_bootstrap import paired_metric_bootstrap
+from vtb.bootstrap import paired_metric_bootstrap
 
 
 def parser() -> argparse.ArgumentParser:
@@ -54,7 +54,7 @@ def train_cell(run: Path, stage: str, layer: int, args) -> dict:
 
     if args.arm == "matched":
         batch = geometry_run.match_capacity(batch, split, args.width)
-    features = geometry.dense_map(batch).float()
+    features = geometry.batch_dense_maps(batch).float()
 
     selected_rate, selection = geometry_run.select_learning_rate(
         features, targets, valid, split, args.task, args

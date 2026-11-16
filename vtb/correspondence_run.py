@@ -324,8 +324,8 @@ def extract_pair(adapter, images, model_name: str):
 def score_pair(dataset_name: str, instance: dict, pair_features: dict, args) -> dict:
     output = {}
     for (stage, layer), (tokens_0, tokens_1) in pair_features.items():
-        features_0 = correspondence.dense_map(tokens_0).to(args.device)
-        features_1 = correspondence.dense_map(tokens_1).to(args.device)
+        features_0 = correspondence.token_dense_map(tokens_0).to(args.device)
+        features_1 = correspondence.token_dense_map(tokens_1).to(args.device)
         if dataset_name == "spair":
             errors = correspondence.semantic_errors(
                 features_0,
