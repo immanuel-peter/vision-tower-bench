@@ -32,7 +32,6 @@ class Checkpoint:
     revision: str
     out_hidden_size: int
     license: str
-    release_revision: str
 
     @property
     def bundle(self) -> Path:
@@ -42,11 +41,11 @@ class Checkpoint:
 
 QWEN27B = Checkpoint(
     "qwen3_5", "immanuelpeter/Qwen3.8-27B-Vision", "Qwen/Qwen3.8-27B",
-    "1d4bf0f2ff6012fd82039f2fa52739d0dd7c60c0", 5120, "apache-2.0", "60a1bf9336197d19458290fd43f3d527f6cf3078",
+    "1d4bf0f2ff6012fd82039f2fa52739d0dd7c60c0", 5120, "apache-2.0",
 )
 FLASH_NEXT = Checkpoint(
     "qwen38_flash_next", "immanuelpeter/Qwen3.8-Flash-Next-Vision", "Qwen/Qwen3.8-Flash-Next",
-    "de4b8e4d43b917e7706784d8bb445c9af86a3540", 2560, "qwen-community-1.0", "8bca5e8a80c5a08c660281d18f10a134f3117ca8",
+    "de4b8e4d43b917e7706784d8bb445c9af86a3540", 2560, "qwen-community-1.0",
 )
 CHECKPOINTS = {c.name: c for c in (QWEN27B, FLASH_NEXT)}
 MODEL_ID, SOURCE_REPO = QWEN27B.model_id, QWEN27B.repo
@@ -107,9 +106,9 @@ def load_tower(dtype: torch.dtype, checkpoint: Checkpoint = QWEN27B) -> Qwen3_5V
         log_loaded(checkpoint.model_id, str(checkpoint.bundle))
         model = AutoModel.from_pretrained(checkpoint.bundle, dtype=dtype, local_files_only=True).eval()
     else:
-        log_loaded(checkpoint.model_id, f"{checkpoint.model_id}@{checkpoint.release_revision}")
+        log_loaded(checkpoint.model_id, checkpoint.model_id)
         model = AutoModel.from_pretrained(
-            checkpoint.model_id, revision=checkpoint.release_revision, dtype=dtype,
+            checkpoint.model_id, dtype=dtype,
         ).eval()
     if model.config.out_hidden_size != checkpoint.out_hidden_size:
         raise ValueError(f"wrong Projector width for {checkpoint.name}")

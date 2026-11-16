@@ -16,7 +16,6 @@ from vtb.provenance import open_release
 from vtb.shards import load_prefixed
 
 MODEL_ID = "immanuelpeter/DeepSeek-ViT"
-REVISION = "9783c022bd626549c6c20460cad37edcc0490f0f"
 
 SOURCE_REPO = "deepseek-ai/DeepSeek-V4.1-Flash"
 SOURCE_REVISION = "dba1be0a40aa45a94ad051997016db3960a90277"
@@ -71,7 +70,7 @@ def export(out: Path) -> None:
 
 
 def load_parts(dtype: torch.dtype) -> tuple[ViT, Aligner]:
-    bundle = open_release(MODEL_ID, REVISION, SOURCE_REPO, SOURCE_REVISION)
+    bundle = open_release(MODEL_ID, SOURCE_REPO, SOURCE_REVISION)
     tower = ViT()
     tower.load_state_dict({
         name: tensor.to(dtype) for name, tensor in load_file(bundle / "model.safetensors").items()

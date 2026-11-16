@@ -7,7 +7,7 @@ from safetensors.torch import load_file
 from transformers import AutoModel
 
 from vtb.adapters.kimi_k26 import (
-    MODEL_ID, PROJECTOR_PREFIX, PROJECTOR_TENSORS, REVISION, SOURCE_REPO, SOURCE_REVISION, SOURCE_SHARDS, TOWER_PREFIX, TOWER_TENSORS,
+    MODEL_ID, PROJECTOR_PREFIX, PROJECTOR_TENSORS, SOURCE_REPO, SOURCE_REVISION, SOURCE_SHARDS, TOWER_PREFIX, TOWER_TENSORS,
     Preprocess, collate, load_source_parts,
 )
 from vtb.parity import bit_exact, compare, fixed_images, weights_match
@@ -23,7 +23,7 @@ def release_projector(bundle):
 
 
 def validate(device: str = "cpu", dtype: torch.dtype = torch.float32) -> dict:
-    bundle = open_release(MODEL_ID, REVISION, SOURCE_REPO, SOURCE_REVISION)
+    bundle = open_release(MODEL_ID, SOURCE_REPO, SOURCE_REVISION)
     report = {"weights": {
         part: weights_match(load_file(bundle / filename), load_prefixed(SOURCE_REPO, SOURCE_SHARDS, prefix, revision=SOURCE_REVISION), count)
         for part, filename, prefix, count in (

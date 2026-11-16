@@ -103,7 +103,7 @@ def nemotron_reference(image: Image.Image, resolution: int) -> torch.Tensor:
 
 def kimi_reference(checkpoint):
     def reference(image: Image.Image, resolution: int) -> torch.Tensor:
-        processor = AutoImageProcessor.from_pretrained(checkpoint.model_id, revision=checkpoint.bundle_revision, trust_remote_code=True)
+        processor = AutoImageProcessor.from_pretrained(checkpoint.model_id, trust_remote_code=True)
         crop = transforms.Compose([transforms.Resize(resolution, interpolation=transforms.InterpolationMode.BICUBIC), transforms.CenterCrop(resolution)])
         return processor(crop(image), return_tensors="pt")["pixel_values"]
     return reference

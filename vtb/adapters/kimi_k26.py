@@ -19,7 +19,6 @@ from vtb.feature_batch import FeatureBatch
 from vtb.provenance import log_loaded
 
 MODEL_ID = "immanuelpeter/MoonViT-K2.6"
-REVISION = "84ec70ac59184bfa74fca77af9e1cdeccb32b5d6"
 PROJECTOR_FILE = "projector.safetensors"
 PROJECTOR_CONFIG = "projector_config.json"
 
@@ -37,7 +36,7 @@ collate = partial(pack_patches, grid_key="grid_thws")
 
 def load_projector_weights(dtype: torch.dtype) -> nn.Module:
     """Build Kimi K2.6's patch merger from its published weights."""
-    settings = loads(Path(hf_hub_download(MODEL_ID, PROJECTOR_CONFIG, revision=REVISION)).read_text())
+    settings = loads(Path(hf_hub_download(MODEL_ID, PROJECTOR_CONFIG)).read_text())
     projector = nn.Module()
     projector.pre_norm = nn.LayerNorm(settings["input_size"], eps=settings["norm_eps"])
     projector.proj = nn.Sequential(
@@ -45,14 +44,14 @@ def load_projector_weights(dtype: torch.dtype) -> nn.Module:
         nn.GELU(),
         nn.Linear(settings["hidden_size"], settings["output_size"]),
     )
-    projector.load_state_dict(load_file(hf_hub_download(MODEL_ID, PROJECTOR_FILE, revision=REVISION)))
+    projector.load_state_dict(load_file(hf_hub_download(MODEL_ID, PROJECTOR_FILE)))
     return projector.to(dtype).eval()
 
 
 def load_parts(dtype: torch.dtype, attention: str = "eager"):
-    log_loaded(MODEL_ID, f"{MODEL_ID}@{REVISION}")
+    log_loaded(MODEL_ID, MODEL_ID)
     tower = AutoModel.from_pretrained(
-        MODEL_ID, revision=REVISION, dtype=dtype, trust_remote_code=True, attn_implementation=attention
+        MODEL_ID, dtype=dtype, trust_remote_code=True, attn_implementation=attention
     ).eval()
     return tower, load_projector_weights(dtype)
 

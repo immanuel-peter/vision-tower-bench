@@ -35,7 +35,6 @@ class Checkpoint:
     model_id: str
     repo: str
     revision: str
-    release_revision: str
 
     @property
     def release_dir(self) -> Path:
@@ -47,7 +46,7 @@ class Checkpoint:
         return Path(override) if override else None
 
     def open(self, bundle: Path | None = None) -> Path:
-        return open_release(self.model_id, self.release_revision, self.repo, self.revision, bundle=bundle or self.override)
+        return open_release(self.model_id, self.repo, self.revision, bundle=bundle or self.override)
 
     @property
     def bundle(self) -> Path:
@@ -55,11 +54,9 @@ class Checkpoint:
 
 
 M3 = Checkpoint("minimax_m3", "immanuelpeter/MiniMax-M3-Vision",
-               "MiniMaxAI/MiniMax-M3", "f0e1c1e04d40177e4673a22097036854f536e9c0",
-               "949099e5411c33f604f1b3bc7ed7c4c500b4b5e7")
+               "MiniMaxAI/MiniMax-M3", "f0e1c1e04d40177e4673a22097036854f536e9c0")
 FLASH = Checkpoint("minimax_m31_flash", "immanuelpeter/MiniMax-M3.1-Flash-Vision",
-                  "MiniMaxAI/MiniMax-M3.1-Flash", "54e4e69dfc452b1e94a426c24a4fdeeaa8e3ad5e",
-                  "dbf507fe14de22b0f4adb08380adada21c072d29")
+                  "MiniMaxAI/MiniMax-M3.1-Flash", "54e4e69dfc452b1e94a426c24a4fdeeaa8e3ad5e")
 CHECKPOINTS = {item.name: item for item in (M3, FLASH)}
 MODEL_ID = M3.model_id
 SOURCE_REPO, SOURCE_REVISION = M3.repo, M3.revision
@@ -139,6 +136,11 @@ def write_export_manifest(out: Path, checkpoint: Checkpoint) -> dict:
     return write_manifest(out, checkpoint.repo, checkpoint.revision, shards, allow_mixed_source=True)
 
 
+def release_preprocessor(parent: dict) -> dict:
+    """The parent's processor maps to remote code the release does not ship; transformers has the class natively."""
+    return {**{key: value for key, value in parent.items() if key != "auto_map"}, "image_processor_type": "MiniMaxM3VLImageProcessor"}
+
+
 def export(out: Path, checkpoint: Checkpoint) -> None:
     tower_weights, projector_weights = source_weights(checkpoint)
     tower, projector = load_source_parts(checkpoint=checkpoint)
@@ -155,7 +157,7 @@ def export(out: Path, checkpoint: Checkpoint) -> None:
                 "merged_hidden_size": projector.merge_linear_1.in_features,
             }
         },
-        preprocessor=source_json(checkpoint, "preprocessor_config.json"),
+        preprocessor=release_preprocessor(source_json(checkpoint, "preprocessor_config.json")),
         license=Path(hf_hub_download(checkpoint.repo, "LICENSE", revision=checkpoint.revision)),
     )
     copy_assets(checkpoint.release_dir, out)

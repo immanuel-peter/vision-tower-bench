@@ -15,7 +15,6 @@ from vtb.provenance import open_release
 from vtb.shards import load_prefixed
 
 MODEL_ID = "immanuelpeter/GLM-5.3-Flash-Vision"
-REVISION = "44a87fd4e6e31f5722a375238b7aedce3e0ad2db"
 
 SOURCE_REPO = "zai-org/GLM-5.3-Flash"
 SOURCE_REVISION = "eb9eb208eb0d988989d07a6a12d0fdeb5f52574a"
@@ -53,7 +52,7 @@ def export(out: Path) -> None:
 
 
 def load_tower(dtype: torch.dtype) -> Glm5NextVisionModel:
-    bundle = open_release(MODEL_ID, REVISION, SOURCE_REPO, SOURCE_REVISION)
+    bundle = open_release(MODEL_ID, SOURCE_REPO, SOURCE_REVISION)
     return AutoModel.from_pretrained(bundle, dtype=dtype, local_files_only=True).eval()
 
 

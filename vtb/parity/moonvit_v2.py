@@ -243,7 +243,7 @@ def forward(checkpoint: Checkpoint, parent: dict, device: str, attention: str, d
 def validate(checkpoint: Checkpoint, device: str = "cpu", dtype: torch.dtype | None = None) -> dict:
     shards = discover_shards(checkpoint)
     parent = {part: read_parent(checkpoint, shards[prefix], prefix) for part, prefix in (("tower", TOWER_PREFIX), ("projector", PROJECTOR_PREFIX))}
-    bundle = Path(snapshot_download(checkpoint.model_id, revision=checkpoint.bundle_revision))
+    bundle = Path(snapshot_download(checkpoint.model_id))
     report = {"weights": {
         "tower": weights_match(load_file(bundle / "model.safetensors"), parent["tower"], TOWER_TENSORS),
         "projector": weights_match(load_file(bundle / "projector.safetensors"), parent["projector"], PROJECTOR_TENSORS),

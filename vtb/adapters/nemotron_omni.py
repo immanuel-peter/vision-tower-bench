@@ -15,7 +15,6 @@ from vtb.provenance import open_release
 from vtb.shards import load_prefixed
 
 MODEL_ID = "immanuelpeter/C-RADIOv4-H-3-Omni"
-REVISION = "98b048584471e079444542388009ef9eae4bfbce"
 
 SOURCE_REPO = "nvidia/Nemotron-3-Nano-Omni-30B-A3B-Reasoning-BF16"
 SOURCE_REVISION = "e5e9932441de940c9a62185c870ea5bcd4cd24e2"
@@ -140,7 +139,7 @@ def export(out: Path) -> None:
 
 
 def load_parts(dtype: torch.dtype):
-    bundle = open_release(MODEL_ID, REVISION, SOURCE_REPO, SOURCE_REVISION)
+    bundle = open_release(MODEL_ID, SOURCE_REPO, SOURCE_REVISION)
     config = AutoConfig.from_pretrained(SOURCE_REPO, trust_remote_code=True, revision=SOURCE_REVISION)
     radio = build_radio(config.vision_config)
     attach_video_embedder(radio)

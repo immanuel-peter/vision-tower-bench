@@ -37,14 +37,11 @@ class Checkpoint:
     revision: str
     model_id: str
     bundle: str
-    bundle_revision: str
 
 
-K3 = Checkpoint(SOURCE_REPO, "f831ab66814297da540d832a5235f8e904f29d06", MODEL_ID, "MoonViT-V2",
-                "bcaedfccd1f07d23ab20de8a0a168668c27cacb3")
+K3 = Checkpoint(SOURCE_REPO, "f831ab66814297da540d832a5235f8e904f29d06", MODEL_ID, "MoonViT-V2")
 K31_PRO = Checkpoint("moonshotai/Kimi-K3.1-Pro", "6d0a0202956796543364d666ab19c6ad1a494ee1",
-                     "immanuelpeter/MoonViT-K3.1-Pro", "MoonViT-K3.1-Pro",
-                     "129e85c01ce4db85044bc49352ad359fc12dd5ff")
+                     "immanuelpeter/MoonViT-K3.1-Pro", "MoonViT-K3.1-Pro")
 CHECKPOINTS = {"moonvit_v2": K3, "kimi_k31_pro": K31_PRO}
 
 
@@ -52,10 +49,10 @@ Preprocess = partial(PatchPreprocess, mean=HALF, std=HALF, patch_size=PATCH_SIZE
 collate = partial(pack_patches, grid_key="grid_thws")
 
 
-def load_projector_weights(dtype: torch.dtype, model_id: str = MODEL_ID, revision: str = K3.bundle_revision) -> nn.Module:
+def load_projector_weights(dtype: torch.dtype, model_id: str = MODEL_ID) -> nn.Module:
     """Build Kimi K3's patch merger from its published weights."""
     local = Path(model_id) / PROJECTOR_FILE
-    weights = load_file(local if local.is_file() else hf_hub_download(model_id, PROJECTOR_FILE, revision=revision))
+    weights = load_file(local if local.is_file() else hf_hub_download(model_id, PROJECTOR_FILE))
     width, merged_width = weights["proj.2.weight"].shape
 
     projector = nn.Module()
@@ -82,14 +79,14 @@ class MoonViTV2Adapter:
         self.resolution = self.default_resolution if resolution is None else resolution
         self.device = default_device() if device is None else device
         self.dtype = dtype
-        log_loaded(self.model_id, f"{self.model_id}@{self.checkpoint.bundle_revision}")
+        log_loaded(self.model_id, self.model_id)
         self.model = (
-            AutoModel.from_pretrained(self.model_id, dtype=dtype, revision=self.checkpoint.bundle_revision, trust_remote_code=True)
+            AutoModel.from_pretrained(self.model_id, dtype=dtype, trust_remote_code=True)
             .to(self.device)
             .eval()
         )
         self.num_layers = self.model.config.num_hidden_layers
-        self.projector = load_projector_weights(dtype, self.model_id, self.checkpoint.bundle_revision).to(self.device)
+        self.projector = load_projector_weights(dtype, self.model_id).to(self.device)
 
     def preprocess(self) -> PatchPreprocess:
         return Preprocess(self.resolution)

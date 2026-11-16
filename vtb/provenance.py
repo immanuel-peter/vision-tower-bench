@@ -30,14 +30,9 @@ def log_loaded(model_id: str, origin: str) -> None:
     logger.info("%s loaded weights from %s", model_id, origin)
 
 
-def open_release(model_id: str, revision: str, source_repo: str, source_revision: str, *, bundle: Path | None = None) -> Path:
-    """Return the release directory: a local bundle if given, else the Hub snapshot of model_id at revision.
-
-    A pinned Hub revision already fixes the files, so only a local bundle is checked against the expected source.
-    """
-    if bundle is None:
-        log_loaded(model_id, f"{model_id}@{revision} (source {source_repo}@{source_revision})")
-        return Path(snapshot_download(model_id, revision=revision))
-    check_provenance(bundle, source_repo, source_revision)
-    log_loaded(model_id, f"{bundle} (source {source_repo}@{source_revision})")
-    return bundle
+def open_release(model_id: str, source_repo: str, source_revision: str, *, bundle: Path | None = None) -> Path:
+    """Return a local bundle if given, else the latest Hub snapshot of our release, checked against its pinned parent."""
+    release = bundle or Path(snapshot_download(model_id))
+    check_provenance(release, source_repo, source_revision)
+    log_loaded(model_id, f"{bundle or model_id} (source {source_repo}@{source_revision})")
+    return release

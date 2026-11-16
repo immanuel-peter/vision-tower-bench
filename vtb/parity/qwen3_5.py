@@ -25,7 +25,7 @@ ADAPTERS = {QWEN27B: Qwen3_5Adapter, FLASH_NEXT: Qwen38FlashNextAdapter}
 def release_dir(checkpoint: Checkpoint) -> Path:
     if (checkpoint.bundle / "model.safetensors").is_file():
         return checkpoint.bundle
-    return Path(snapshot_download(checkpoint.model_id, revision=checkpoint.release_revision))
+    return Path(snapshot_download(checkpoint.model_id))
 
 
 def native_parent(checkpoint: Checkpoint, adapter, weights: dict, dtype: torch.dtype, resolutions=(96, 448)) -> dict:

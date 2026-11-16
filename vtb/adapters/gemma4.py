@@ -19,7 +19,6 @@ from vtb.provenance import open_release
 from vtb.shards import load_prefixed
 
 MODEL_ID = "immanuelpeter/Gemma4-31B-Vision"
-REVISION = "cb7d82f7d3fc1f77b675d59cb2d1b8c9edf19163"
 
 # google/gemma-4-31B-it is where export reads both halves from.
 SOURCE_REPO = "google/gemma-4-31B-it"
@@ -137,7 +136,7 @@ def load_projector_weights(dtype: torch.dtype, bundle: Path) -> Projector:
 
 
 def load_parts(dtype: torch.dtype) -> tuple[Gemma4VisionModel, Projector]:
-    bundle = open_release(MODEL_ID, REVISION, SOURCE_REPO, SOURCE_REVISION)
+    bundle = open_release(MODEL_ID, SOURCE_REPO, SOURCE_REVISION)
     tower = AutoModel.from_pretrained(bundle, dtype=dtype, local_files_only=True).eval()
     return tower, load_projector_weights(dtype, bundle)
 

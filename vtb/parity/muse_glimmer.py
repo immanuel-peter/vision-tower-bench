@@ -4,7 +4,7 @@ import torch
 from safetensors.torch import load_file
 
 from vtb.adapters.muse_glimmer import (
-    ADAPTER_PREFIX, MODEL_ID, PROJECTION_PREFIX, PROJECTOR_TENSORS, REVISION, SHARDS, SOURCE_REPO, SOURCE_REVISION, TOWER_PREFIX, TOWER_TENSORS,
+    ADAPTER_PREFIX, MODEL_ID, PROJECTION_PREFIX, PROJECTOR_TENSORS, SHARDS, SOURCE_REPO, SOURCE_REVISION, TOWER_PREFIX, TOWER_TENSORS,
     MuseGlimmerAdapter, load_source_parts,
 )
 from vtb.parity import bit_exact, release_against_source, weights_match
@@ -13,7 +13,7 @@ from vtb.shards import load_prefixed
 
 
 def validate(device: str = "cpu", dtype: torch.dtype = torch.float32) -> dict:
-    release = open_release(MODEL_ID, REVISION, SOURCE_REPO, SOURCE_REVISION)
+    release = open_release(MODEL_ID, SOURCE_REPO, SOURCE_REVISION)
     def parent(prefix):
         return load_prefixed(SOURCE_REPO, SHARDS, prefix, revision=SOURCE_REVISION)
     projector = {f"{module}.{name}": tensor for module, prefix in (("adapter", ADAPTER_PREFIX), ("projection", PROJECTION_PREFIX))
