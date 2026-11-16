@@ -70,7 +70,7 @@ See [docs/new-tower.md](docs/new-tower.md). Contributors and agents start from [
 ## Layout
 
 ```bash
-vtb/          # adapters (with each release's export), parity checks, feature cache, probes, geometry and correspondence scoring
+vtb/          # adapters, parity checks, feature cache, probes, scoring
 scripts/      # data prep, extraction matrices, figures
 tests/        # parity, preprocessing, probe and merge-layout tests
 hf/           # model cards and configs for the published towers
@@ -83,9 +83,19 @@ CONTEXT.md    # project vocabulary
 ```bash
 uv run pytest -q                      # full suite, downloads Tower weights
 VTB_SKIP_WEIGHTS=1 uv run pytest -q   # skip weight-dependent tests
-VTB_PARITY_DEVICE=cuda uv run pytest tests/test_parity.py   # every release against its parent, including Mistral's GPU-only check
+VTB_PARITY_DEVICE=cuda uv run pytest tests/test_parity.py   # every release against its parent
 ```
 
 ## License
 
-MIT covers code here, not weights. Published Towers keep parent terms. Apache-2.0 for Qwen3.8-27B, Muse Glimmer, and Gemma 4. Qwen Community License 1.0 for Qwen3.8 Flash-Next. MIT for GLM-5.3 Flash and DeepSeek-ViT. Kimi License for Kimi K2.6 and K3, and the custom Kimi K3.1-Pro License for K3.1 Pro. NVIDIA Open Model Agreement for C-RADIOv4-H-3-Omni. OpenMDW-1.1 for C-RADIOv4-H-3.5 Super and Bolt. MIT for MiMoViT-2.6 Pro and Flash. MiniMax Community License for MiniMax M3 and M3.1 Flash. Mistral Ecosystem Open-Weight License for Mistral Large 4. Each release ships its license.
+MIT covers code here, not weights. Published Towers keep their parent's terms, and each release ships its license.
+
+- Qwen3.8-27B, Muse Glimmer, Gemma 4: Apache-2.0
+- Qwen3.8 Flash-Next: Qwen Community License 1.0
+- GLM-5.3 Flash, DeepSeek-ViT, MiMoViT-2.6 Pro and Flash: MIT
+- Kimi K2.6, Kimi K3: Kimi License
+- Kimi K3.1 Pro: Kimi K3.1-Pro License
+- C-RADIOv4-H-3-Omni: NVIDIA Open Model Agreement
+- C-RADIOv4-H-3.5 Super and Bolt: OpenMDW-1.1
+- MiniMax M3, MiniMax M3.1 Flash: MiniMax Community License
+- Mistral Large 4: Mistral Ecosystem Open-Weight License
