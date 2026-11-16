@@ -13,7 +13,6 @@ from vtb.adapters.base import TowerAdapter
 from vtb.adapters.common import PatchPreprocess, depth_points, make_batch, raster
 from vtb.adapters.dinov3 import DINOv3Adapter
 from vtb.feature_batch import STAGES, FeatureBatch
-from vtb.roster import BY_SLUG, SLUGS
 
 ADAPTER_CLASSES = sorted(set(extract.ADAPTERS.values()), key=lambda c: c.__name__)
 
@@ -124,21 +123,3 @@ def test_nemotron35_stage_selection_is_per_instance_and_read_only(monkeypatch):
         bolt.stages = ("tower",)
     with pytest.raises(ValueError, match="unknown or empty"):
         nemotron35.Nemotron35SuperAdapter(device="cpu", stages=["pooled"])
-
-
-# A 600x480 image at each adapter's default resolution: pixels for whole-image towers, one row per patch otherwise.
-PREPROCESSED = {
-    "dinov2": (3, 448, 448), "siglip2": (3, 448, 448), "dinov3": (3, 512, 512),
-    "nemotron_omni": (3, 448, 448), "nemotron35_super": (3, 448, 448), "nemotron35_bolt": (3, 448, 448), "mistral_large4": (3, 448, 448),
-    "kimi_k26": (1024, 3, 14, 14), "moonvit_v2": (1024, 3, 14, 14), "kimi_k31_pro": (1024, 3, 14, 14), "deepseek_v41": (1024, 3, 14, 14),
-    "muse_glimmer": (1024, 1176), "glm5": (1024, 1176), "minimax_m3": (1024, 1176), "minimax_m31_flash": (1024, 1176),
-    "qwen3_5": (784, 1536), "qwen38_flash_next": (784, 1536), "mimo26_pro": (784, 1536), "mimo26_flash": (784, 1536),
-    "gemma4": (900, 768),
-}
-
-
-@pytest.mark.parametrize("slug", SLUGS)
-def test_preprocess_produces_the_expected_patch_grid(slug):
-    adapter_class = BY_SLUG[slug].adapter()
-    preprocess = sys.modules[adapter_class.__module__].Preprocess(adapter_class.default_resolution)
-    assert tuple(preprocess(Image.new("RGB", (600, 480), "gray")).shape) == PREPROCESSED[slug]

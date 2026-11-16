@@ -4,8 +4,10 @@ import runpy
 import shutil
 from pathlib import Path
 
+import numpy as np
 import pytest
 import torch
+from PIL import Image
 from safetensors.torch import load_file, save_file
 from transformers import (
     AutoModel,
@@ -19,8 +21,9 @@ from transformers import (
 )
 
 from scripts import render_hf_templates
-from vtb.adapters import nemotron_omni
+from vtb.adapters import minimax_m3, nemotron_omni
 from vtb.adapters.kimi_k26 import BUNDLE_FILES as KIMI_BUNDLE_FILES
+from vtb.adapters.moonvit_v2 import load_projector_weights
 from vtb.adapters.muse_glimmer import Projector
 from vtb.adapters.muse_glimmer import projector_config as muse_projector_config
 from vtb.bundle import write_bundle
@@ -263,3 +266,43 @@ def test_maintained_bundle_manifests_record_counts_and_shards():
         assert isinstance(m['source_shards'],list) and m['source_shards']
         assert m['dtype'] in {'mixed','bfloat16'}
     assert checked
+
+
+MINIMAX_BUNDLE = HF / "MiniMax-M3.1-Flash-Vision"
+
+
+def test_minimax_example_patch_packing_matches_the_benchmark():
+    module = load_example(MINIMAX_BUNDLE / "examples/inference.py")
+    pixels = np.arange(43 * 57 * 3, dtype=np.uint8).reshape(43, 57, 3)
+    image = Image.fromarray(pixels)
+    assert torch.equal(module.preprocess(image), minimax_m3.Preprocess(448)(image))
+
+
+def test_example_keeps_snapshot_root_when_script_is_a_symlink(tmp_path):
+    (tmp_path / "examples").mkdir()
+    path = tmp_path / "examples/inference.py"
+    path.symlink_to(MINIMAX_BUNDLE / "examples/inference.py")
+    module = load_example(path)
+    assert module.BUNDLE == tmp_path
+
+
+
+@pytest.mark.parametrize("dtype", [torch.float32, torch.bfloat16])
+def test_kimi_projector_file_matches_adapter_and_exact_gelu(tmp_path, dtype):
+    config = dict(input_size=4, hidden_size=4, output_size=6, norm_eps=1e-5)
+    weights = {
+        "proj.0.weight": torch.eye(4, dtype=dtype),
+        "proj.2.weight": torch.arange(24, dtype=dtype).reshape(6, 4) / 24,
+        "post_norm.weight": torch.linspace(.5, 1.5, 6, dtype=dtype),
+    }
+    save_file(weights, tmp_path / "projector.safetensors")
+    example = load_example(HF / "MoonViT-K3.1-Pro/projector.py").Projector(config).to(dtype).eval()
+    example.load_state_dict(weights, strict=True)
+    adapter = load_projector_weights(dtype, str(tmp_path))
+    assert example.proj[1].approximate == adapter.proj[1].approximate == "none"
+    assert set(example.state_dict()) == set(adapter.state_dict()) == set(weights)
+    tokens = torch.tensor([[[-2., -.5, .5, 2.], [-1., 0., 1., 3.]]], dtype=dtype)
+    with torch.inference_mode():
+        expected = adapter.post_norm(adapter.proj(tokens))
+        torch.testing.assert_close(example(tokens), expected, atol=0, rtol=0)
+
