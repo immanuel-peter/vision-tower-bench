@@ -8,7 +8,7 @@ from vtb.probe_run import split_indices
 SPLITS = "results/evidence/qwen38-flash-next/splits.json"
 
 
-@pytest.mark.skipif(not (Path(__file__).parents[1] / SPLITS).is_file(), reason="payloads not fetched: uv run python scripts/fetch_results.py")
+@pytest.mark.skipif(not (Path(__file__).parents[1] / SPLITS).is_file(), reason="needs the private results archive in results/")
 @pytest.mark.parametrize("dataset,counts", [
     ("diode", (541, 115, 115)),
     ("kitti", (700, 150, 150)),

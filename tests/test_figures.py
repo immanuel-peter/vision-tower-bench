@@ -1,12 +1,10 @@
-"""Keep the report figures aligned with the committed result suite."""
+"""Keep the report figures aligned with the result suite."""
 
 import importlib.util
 import json
 from pathlib import Path
 
 import pytest
-
-from scripts.fetch_results import fetched
 
 pytest.importorskip("matplotlib")
 
@@ -15,7 +13,7 @@ SPEC = importlib.util.spec_from_file_location("vtb_figures", ROOT / "scripts/fig
 assert SPEC and SPEC.loader
 FIGURE_SCRIPT = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(FIGURE_SCRIPT)
-requires_payloads = pytest.mark.skipif(not fetched(), reason="payloads not fetched: uv run python scripts/fetch_results.py")
+requires_payloads = pytest.mark.skipif(not (ROOT / "results/bootstrap").is_dir(), reason="needs the private results archive in results/")
 
 
 @pytest.mark.parametrize("model", ["minimax_m3", "minimax_m31_flash"])
