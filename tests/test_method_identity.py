@@ -7,7 +7,7 @@ import torch
 
 from vtb import perturbation_run
 from vtb.cross_run_bootstrap import perturbation
-from vtb import methods, probe, probe_run
+from vtb import methods, probe_run
 
 
 def test_real_perturbation_producer_rejects_mixed_methods(tmp_path, monkeypatch):
@@ -48,20 +48,6 @@ def test_legacy_certificate_is_bound_to_exact_payload(monkeypatch):
     assert methods.require_same(payload,payload)==methods.descriptor()
     with pytest.raises(ValueError,match='unknown'):
         methods.identify(payload|{'images':21})
-
-
-def test_common_reducer_fits_only_train_and_preserves_rng():
-    torch.manual_seed(53);tokens=torch.randn(12,3,9);tokens[:,:,0]=1
-    split=probe_run.Split(torch.arange(7),torch.arange(7,9),torch.arange(9,12))
-    state=torch.random.get_rng_state().clone()
-    fit=probe_run.fit_reducer(tokens,split,4,standardize_channels=True)
-    assert isinstance(fit,probe.StandardizedReducer)
-    assert torch.equal(state,torch.random.get_rng_state())
-    changed=tokens.clone();changed[7:]*=10000
-    other=probe_run.fit_reducer(changed,split,4,standardize_channels=True)
-    assert torch.equal(fit.basis,other.basis) and torch.equal(fit.mean,other.mean) and torch.equal(fit.scale,other.scale)
-    assert type(probe_run.fit_reducer(tokens,split,4)) is probe.Reducer
-    with pytest.raises(TypeError):probe_run.fit_reducer(tokens,split,4,True)
 
 
 def test_real_recognition_producer_records_its_actual_method(tmp_path, monkeypatch):

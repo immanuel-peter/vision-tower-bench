@@ -17,8 +17,8 @@ class Fetched(Exception):
 def hub(monkeypatch):
     calls = []
 
-    def snapshot_download(repo, revision):
-        calls.append((repo, revision))
+    def snapshot_download(repo):
+        calls.append(repo)
         raise Fetched
 
     monkeypatch.setattr(provenance, "snapshot_download", snapshot_download)
@@ -44,24 +44,26 @@ def test_bundle_without_a_record_is_accepted(tmp_path):
     check_provenance(tmp_path, "org/parent", "a")
 
 
-def test_open_release_logs_repo_at_revision_without_reading_the_snapshot(monkeypatch, tmp_path, caplog):
-    write(tmp_path, "export_manifest.json", {"source_repo": "org/other", "source_revision": "x"})
-    monkeypatch.setattr(provenance, "snapshot_download", lambda repo, revision: str(tmp_path))
+def test_open_release_checks_the_hub_snapshot_against_its_parent(monkeypatch, tmp_path, caplog):
+    write(tmp_path, "export_manifest.json", {"source_repo": "org/parent", "source_revision": "p"})
+    monkeypatch.setattr(provenance, "snapshot_download", lambda repo: str(tmp_path))
     with caplog.at_level(logging.INFO, logger="vtb.provenance"):
-        assert open_release("me/tower", "r", "org/parent", "p") == tmp_path
-    assert "me/tower loaded weights from me/tower@r (source org/parent@p)" in caplog.text
+        assert open_release("me/tower", "org/parent", "p") == tmp_path
+    assert "me/tower loaded weights from me/tower (source org/parent@p)" in caplog.text
+    with pytest.raises(ValueError, match="provenance"):
+        open_release("me/tower", "org/parent", "other")
 
 
 @pytest.mark.parametrize("load,release", [
-    (lambda: gemma4.load_parts(torch.bfloat16), (gemma4.MODEL_ID, gemma4.REVISION)),
-    (lambda: glm5.load_tower(torch.bfloat16), (glm5.MODEL_ID, glm5.REVISION)),
-    (lambda: deepseek_v41.load_parts(torch.bfloat16), (deepseek_v41.MODEL_ID, deepseek_v41.REVISION)),
-    (lambda: nemotron_omni.load_parts(torch.bfloat16), (nemotron_omni.MODEL_ID, nemotron_omni.REVISION)),
-    (lambda: minimax_m3.load_parts(torch.bfloat16, minimax_m3.FLASH), (minimax_m3.FLASH.model_id, minimax_m3.FLASH.release_revision)),
-    (lambda: mimo26.load_model(mimo26.PRO, torch.bfloat16), (mimo26.PRO.model_id, mimo26.PRO.release_revision)),
-    (lambda: nemotron35.load_parts(nemotron35.SUPER, torch.bfloat16), (nemotron35.SUPER.model_id, nemotron35.SUPER.release_revision)),
+    (lambda: gemma4.load_parts(torch.bfloat16), gemma4.MODEL_ID),
+    (lambda: glm5.load_tower(torch.bfloat16), glm5.MODEL_ID),
+    (lambda: deepseek_v41.load_parts(torch.bfloat16), deepseek_v41.MODEL_ID),
+    (lambda: nemotron_omni.load_parts(torch.bfloat16), nemotron_omni.MODEL_ID),
+    (lambda: minimax_m3.load_parts(torch.bfloat16, minimax_m3.FLASH), minimax_m3.FLASH.model_id),
+    (lambda: mimo26.load_model(mimo26.PRO, torch.bfloat16), mimo26.PRO.model_id),
+    (lambda: nemotron35.load_parts(nemotron35.SUPER, torch.bfloat16), nemotron35.SUPER.model_id),
 ], ids=["gemma4", "glm5", "deepseek_v41", "nemotron_omni", "minimax_m3", "mimo26", "nemotron35"])
-def test_default_load_fetches_the_pinned_release(hub, load, release):
+def test_default_load_fetches_the_latest_release(hub, load, release):
     with pytest.raises(Fetched):
         load()
     assert hub == [release]

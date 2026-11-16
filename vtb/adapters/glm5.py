@@ -1,22 +1,26 @@
 from collections.abc import Iterator
 from functools import partial
+from json import loads
+from pathlib import Path
 
 import torch
+from huggingface_hub import hf_hub_download
 from transformers import AutoConfig, AutoModel, Glm5NextVisionModel
 
 from vtb.adapters.base import Inputs
 from vtb.adapters.common import CLIP_MEAN, CLIP_STD, PatchPreprocess, default_device, depth_points, make_batch, pack_patches, raster
+from vtb.bundle import expect_tensors, write_bundle
 from vtb.feature_batch import FeatureBatch
 from vtb.provenance import open_release
 from vtb.shards import load_prefixed
 
 MODEL_ID = "immanuelpeter/GLM-5.3-Flash-Vision"
-REVISION = "44a87fd4e6e31f5722a375238b7aedce3e0ad2db"
 
 SOURCE_REPO = "zai-org/GLM-5.3-Flash"
 SOURCE_REVISION = "eb9eb208eb0d988989d07a6a12d0fdeb5f52574a"
 VISION_SHARD = "model-00062-of-00062.safetensors"
 VISION_PREFIX = "model.visual."
+TOWER_TENSORS = 347
 PATCH_SIZE = 14
 TEMPORAL_PATCH_SIZE = 2
 MERGE_SIZE = 2
@@ -35,8 +39,20 @@ def load_source_tower(dtype: torch.dtype = torch.bfloat16) -> Glm5NextVisionMode
     return tower.eval()
 
 
+def export(out: Path) -> None:
+    expect_tensors(load_prefixed(SOURCE_REPO, [VISION_SHARD], VISION_PREFIX, revision=SOURCE_REVISION), TOWER_TENSORS, "Tower")
+    processor = loads(Path(hf_hub_download(SOURCE_REPO, "processor_config.json", revision=SOURCE_REVISION)).read_text())
+    write_bundle(
+        out,
+        tower=load_source_tower(),
+        architecture="Glm5NextVisionModel",
+        preprocessor=processor["image_processor"],
+        license=Path(hf_hub_download(SOURCE_REPO, "LICENSE", revision=SOURCE_REVISION)),
+    )
+
+
 def load_tower(dtype: torch.dtype) -> Glm5NextVisionModel:
-    bundle = open_release(MODEL_ID, REVISION, SOURCE_REPO, SOURCE_REVISION)
+    bundle = open_release(MODEL_ID, SOURCE_REPO, SOURCE_REVISION)
     return AutoModel.from_pretrained(bundle, dtype=dtype, local_files_only=True).eval()
 
 

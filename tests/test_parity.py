@@ -1,167 +1,103 @@
-"""Verify the weights each adapter loads against their parent checkpoints.
-
-Four adapters now load a republished Tower, so these tests are what ties the repository
-the bench probes back to the checkpoint it came out of.
-
-These tests compare state dictionaries. They do not run the parent language models.
-"""
+"""Every published Tower against the checkpoint it came from. See vtb/parity/."""
 
 import os
 
 import pytest
 import torch
+from transformers import Mistral3Config, PixtralVisionConfig, PixtralVisionModel
+from transformers.models.mistral3.modeling_mistral3 import Mistral3MultiModalProjector
 
-from vtb.adapters import deepseek_v41, gemma4, glm5, kimi_k26, minimax_m3, muse_glimmer, nemotron_omni, qwen3_5, siglip2
-from vtb.shards import load_prefixed
+from vtb import parity
+from vtb.adapters import mistral_large4 as ml4
+from vtb.parity import mistral_large4 as validate
 
-pytestmark = pytest.mark.skipif(
-    os.environ.get("VTB_SKIP_WEIGHTS") == "1", reason="VTB_SKIP_WEIGHTS=1"
-)
+DEVICE = os.environ.get("VTB_PARITY_DEVICE", "cpu")
 
-
-def assert_bit_exact(
-    module_weights: dict[str, torch.Tensor],
-    checkpoint_weights: dict[str, torch.Tensor],
-    count: int,
-) -> None:
-    assert len(checkpoint_weights) == count
-    assert set(module_weights) == set(checkpoint_weights)
-    for name, weight in checkpoint_weights.items():
-        assert torch.equal(module_weights[name], weight), name
+needs_weights = pytest.mark.skipif(os.environ.get("VTB_SKIP_WEIGHTS") == "1", reason="VTB_SKIP_WEIGHTS=1")
 
 
-def test_siglip2_tower_matches_published_checkpoint():
-    tower = siglip2.SigLIP2Adapter(device="cpu", dtype=torch.float32).model
-    checkpoint_weights = load_prefixed(siglip2.MODEL_ID, ["model.safetensors"], "vision_model.")
-    assert_bit_exact(tower.state_dict(), checkpoint_weights, 448)
+@needs_weights
+@pytest.mark.parametrize("slug", parity.released())
+def test_release_matches_its_pinned_parent(slug):
+    if parity.requires_cuda(slug) and not DEVICE.startswith("cuda"):
+        pytest.skip(f"{slug} parity needs VTB_PARITY_DEVICE=cuda")
+    report = parity.validate(slug, DEVICE)
+    failing = {key: cell for section in ("weights", "forward") for key, cell in report.get(section, {}).items()
+               if not cell.get("bit_exact", cell.get("passed", True))}
+    assert report["passed"], failing
 
 
-@pytest.mark.parametrize("checkpoint", qwen3_5.CHECKPOINTS.values(), ids=qwen3_5.CHECKPOINTS)
-def test_qwen_tower_matches_parent_checkpoint(checkpoint):
-    tower = qwen3_5.load_tower(torch.bfloat16, checkpoint)
-    source = qwen3_5.source_weights(checkpoint)
-    assert_bit_exact(tower.state_dict(), source, 333)
-    assert all(tensor.dtype == torch.bfloat16 for tensor in tower.state_dict().values())
-    assert all(torch.equal(tensor.view(torch.uint8), source[name].view(torch.uint8))
-               for name, tensor in tower.state_dict().items())
-    assert tower.merger.linear_fc2.weight.shape == (checkpoint.out_hidden_size, 4608)
+# The checkers themselves: Mistral's reference needs a stand-in for xformers attention.
 
 
-def test_muse_tower_and_projector_match_parent_checkpoint():
-    tower, projector = muse_glimmer.load_parts(torch.bfloat16)
-    checkpoint_weights = load_prefixed(
-        muse_glimmer.SOURCE_REPO, muse_glimmer.SHARDS, muse_glimmer.TOWER_PREFIX
+def tiny_tower_config(**overrides) -> PixtralVisionConfig:
+    settings = dict(
+        hidden_size=32, intermediate_size=48, num_hidden_layers=4, num_attention_heads=2, head_dim=16,
+        image_size=112, patch_size=14, hidden_act="silu", rope_parameters={"rope_theta": 10000.0, "rope_type": "axial"},
     )
-    assert_bit_exact(tower.state_dict(), checkpoint_weights, 806)
-
-    for module, prefix, count in (
-        (projector.adapter, muse_glimmer.ADAPTER_PREFIX, 2),
-        (projector.projection, muse_glimmer.PROJECTION_PREFIX, 1),
-    ):
-        checkpoint_weights = load_prefixed(muse_glimmer.SOURCE_REPO, muse_glimmer.SHARDS, prefix)
-        assert_bit_exact(module.state_dict(), checkpoint_weights, count)
+    settings.update(overrides)
+    return PixtralVisionConfig(**settings)
 
 
-def test_gemma4_tower_and_projector_match_parent_checkpoint():
-    tower, projector = gemma4.load_source_parts(torch.bfloat16)
-    checkpoint_weights = load_prefixed(
-        gemma4.SOURCE_REPO,
-        [gemma4.VISION_SHARD],
-        gemma4.TOWER_PREFIX,
-        revision=gemma4.SOURCE_REVISION,
+def tiny_projector_config(tower: PixtralVisionConfig) -> Mistral3Config:
+    return Mistral3Config(
+        vision_config=tower.to_dict(),
+        text_config={"model_type": "mistral", "hidden_size": 40, "rms_norm_eps": 1e-5},
+        spatial_merge_size=2, projector_hidden_act="gelu", multimodal_projector_bias=False, vision_feature_layer=-1,
     )
-    loaded = {k: v for k, v in tower.state_dict().items() if k in checkpoint_weights}
-    assert_bit_exact(loaded, checkpoint_weights, 355)
-
-    checkpoint_weights = load_prefixed(
-        gemma4.SOURCE_REPO,
-        [gemma4.VISION_SHARD],
-        gemma4.PROJECTOR_PREFIX,
-        revision=gemma4.SOURCE_REVISION,
-    )
-    loaded = {k: v for k, v in projector.state_dict().items() if k in checkpoint_weights}
-    assert_bit_exact(loaded, checkpoint_weights, 1)
 
 
-def test_glm5_tower_matches_parent_checkpoint():
-    tower = glm5.load_source_tower(torch.bfloat16)
-    checkpoint_weights = load_prefixed(
-        glm5.SOURCE_REPO,
-        [glm5.VISION_SHARD],
-        glm5.VISION_PREFIX,
-        revision=glm5.SOURCE_REVISION,
-    )
-    loaded = {k: v for k, v in tower.state_dict().items() if k in checkpoint_weights}
-    assert_bit_exact(loaded, checkpoint_weights, 347)
+def tiny_parts():
+    torch.manual_seed(0)
+    config = tiny_tower_config()
+    tower = PixtralVisionModel(config).eval()
+    projector = Mistral3MultiModalProjector(tiny_projector_config(config)).eval()
+    return tower, projector
 
 
-@pytest.mark.parametrize("checkpoint", [minimax_m3.M3, minimax_m3.FLASH])
-def test_minimax_tower_and_projector_match_parent_checkpoint(checkpoint):
-    tower, projector = minimax_m3.load_parts(torch.bfloat16, checkpoint)
-    tower_weights, projector_weights = minimax_m3.source_weights(checkpoint)
-    assert_bit_exact(tower.state_dict(), {k: v.to(torch.bfloat16) for k, v in tower_weights.items()}, 515)
-    assert_bit_exact(projector.state_dict(), {k: v.to(torch.bfloat16) for k, v in projector_weights.items()}, 8)
+def test_attention_substitute_matches_softmax_attention_with_block_masks():
+    torch.manual_seed(0)
+    q, k, v = (torch.randn(1, 9, 3, 8) for _ in range(3))
+    mask = validate.BlockDiagonalMask.from_seqlens([4, 5])
+    actual = validate.memory_efficient_attention(q, k, v, mask)
+    for start, stop in ((0, 4), (4, 9)):
+        qs, ks, vs = (t[:, start:stop].transpose(1, 2) for t in (q, k, v))
+        weights = torch.softmax(qs @ ks.transpose(-1, -2) / 8**0.5, dim=-1)
+        torch.testing.assert_close(actual[:, start:stop], (weights @ vs).transpose(1, 2), rtol=1e-5, atol=1e-6)
+    unmasked = validate.memory_efficient_attention(q, k, v)
+    expected = torch.softmax(q.transpose(1, 2) @ k.permute(0, 2, 3, 1) / 8**0.5, -1) @ v.transpose(1, 2)
+    torch.testing.assert_close(unmasked, expected.transpose(1, 2), rtol=1e-5, atol=1e-6)
+    half = validate.memory_efficient_attention(q.bfloat16(), k.bfloat16(), v.bfloat16())
+    assert half.dtype == torch.bfloat16
 
 
-def test_nemotron_omni_tower_and_projector_match_parent_checkpoint():
-    radio, projector = nemotron_omni.load_source_parts(torch.bfloat16)
-    checkpoint_weights = load_prefixed(
-        nemotron_omni.SOURCE_REPO,
-        [nemotron_omni.VISION_SHARD],
-        nemotron_omni.TOWER_PREFIX,
-        revision=nemotron_omni.SOURCE_REVISION,
-    )
-    loaded = radio.state_dict()
-    matched = {k: v for k, v in loaded.items() if k in checkpoint_weights}
-    assert len(checkpoint_weights) == 390
-    for name, weight in checkpoint_weights.items():
-        assert name in loaded, name
-        assert torch.equal(loaded[name], weight.to(loaded[name].dtype)), name
+def tiny_corrected_bundle(tmp_path):
+    from transformers import AutoModel
 
-    checkpoint_weights = load_prefixed(
-        nemotron_omni.SOURCE_REPO,
-        [nemotron_omni.VISION_SHARD],
-        nemotron_omni.PROJECTOR_PREFIX,
-        revision=nemotron_omni.SOURCE_REVISION,
-    )
-    loaded = {k: v for k, v in projector.state_dict().items() if k in checkpoint_weights}
-    assert len(checkpoint_weights) == 3
-    for name, weight in checkpoint_weights.items():
-        assert torch.equal(loaded[name], weight.to(loaded[name].dtype)), name
+    torch.manual_seed(0)
+    config = ml4.PixtralLarge4VisionConfig(**{k: v for k, v in tiny_tower_config().to_dict().items() if k != "model_type"})
+    config.auto_map = {
+        "AutoConfig": "modeling_pixtral_large4.PixtralLarge4VisionConfig",
+        "AutoModel": "modeling_pixtral_large4.PixtralLarge4VisionModel",
+    }
+    model = ml4.PixtralLarge4VisionModel(config).eval()
+    model.save_pretrained(tmp_path)
+    (tmp_path / "modeling_pixtral_large4.py").write_bytes((ml4.ROOT / "vtb/models/pixtral_large4.py").read_bytes())
+    loaded = AutoModel.from_pretrained(tmp_path, trust_remote_code=True, local_files_only=True).eval()
+    return model, loaded
 
 
-def test_deepseek_v41_tower_and_aligner_match_parent_checkpoint():
-    tower, aligner = deepseek_v41.load_source_parts(torch.bfloat16)
-    checkpoint_weights = load_prefixed(
-        deepseek_v41.SOURCE_REPO,
-        [deepseek_v41.VISION_SHARD],
-        deepseek_v41.TOWER_PREFIX,
-        revision=deepseek_v41.SOURCE_REVISION,
-    )
-    loaded = {k: v for k, v in tower.state_dict().items() if k in checkpoint_weights}
-    assert len(checkpoint_weights) == 259
-    for name, weight in checkpoint_weights.items():
-        assert torch.equal(loaded[name], weight.to(loaded[name].dtype)), name
+def test_validator_release_path_equals_the_adapter_path(tmp_path):
+    _, loaded = tiny_corrected_bundle(tmp_path)
+    _, projector = tiny_parts()
+    pixels = torch.randn(2, 3, 112, 112).bfloat16()
+    loaded, projector = loaded.bfloat16(), projector.bfloat16()
+    with torch.inference_mode():
+        released = validate.release_stages(loaded, projector, pixels, (2, 4))
+        single = validate.release_stages(loaded, projector, pixels[:1], (2, 4))
+        shared = validate.candidate_stages(loaded, projector, pixels[:1], (2, 4))
+    assert set(released) == {"tower_L2", "tower_L4", "merged", "projected"}
+    for name, tensor in single.items():
+        assert torch.equal(tensor, shared[name])
+        assert torch.equal(released[name][0], tensor)
 
-    checkpoint_weights = load_prefixed(
-        deepseek_v41.SOURCE_REPO,
-        [deepseek_v41.VISION_SHARD],
-        deepseek_v41.ALIGNER_PREFIX,
-        revision=deepseek_v41.SOURCE_REVISION,
-    )
-    loaded = {k: v for k, v in aligner.state_dict().items() if k in checkpoint_weights}
-    assert len(checkpoint_weights) == 4
-    for name, weight in checkpoint_weights.items():
-        assert torch.equal(loaded[name], weight.to(loaded[name].dtype)), name
-
-
-def test_kimi_k26_republished_weights_match_parent_checkpoint():
-    tower, projector = kimi_k26.load_parts(torch.bfloat16)
-    for module, prefix, count in (
-        (tower, kimi_k26.TOWER_PREFIX, 329),
-        (projector, kimi_k26.PROJECTOR_PREFIX, 6),
-    ):
-        checkpoint_weights = load_prefixed(kimi_k26.SOURCE_REPO, kimi_k26.SOURCE_SHARDS, prefix)
-        # Ignore buffers the standalone model rebuilds at load time.
-        loaded = {k: v for k, v in module.state_dict().items() if k in checkpoint_weights}
-        assert_bit_exact(loaded, checkpoint_weights, count)

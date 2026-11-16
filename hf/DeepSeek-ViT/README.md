@@ -41,13 +41,13 @@ See [`examples/inference.py`](examples/inference.py) for image feature extractio
 
 ## Validation
 
-The [parity script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/tests/test_parity.py)
+The [parity check](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/parity/deepseek_v41.py)
 compares all 259 Tower tensors and 4 Aligner tensors with the pinned parent checkpoint
 using `torch.equal`.
 
 ## Reproduction
 
-The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/scripts/export_deepseek_v41_vision.py)
+The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/adapters/deepseek_v41.py)
 reads `vision.*` and `aligner.*` from shard 1 of `deepseek-ai/DeepSeek-V4.1-Flash`, 
 removes the prefixes, and writes the original BF16 tensors.
 

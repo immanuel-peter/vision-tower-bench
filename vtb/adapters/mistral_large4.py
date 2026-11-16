@@ -21,6 +21,8 @@ from transformers.models.mistral3.modeling_mistral3 import Mistral3MultiModalPro
 
 from vtb.adapters.base import Inputs
 from vtb.adapters.common import ImagePreprocess, default_device, depth_points, make_batch, stack_pixels
+from vtb.bundle import write_bundle
+from vtb.bundle_manifest import copy_assets, write_manifest
 from vtb.feature_batch import FeatureBatch
 from vtb.models.pixtral_large4 import (  # noqa: F401  re-exported for tests and scripts
     ATTENTION_BACKENDS,
@@ -37,6 +39,7 @@ from vtb.shards import load_prefixed
 ROOT = Path(__file__).resolve().parents[2]
 MODEL_ID = "immanuelpeter/PixtralViT-Large-4"
 RELEASE_DIR = ROOT / "hf" / "PixtralViT-Large-4"
+MODELING_SOURCE = ROOT / "vtb/models/pixtral_large4.py"
 SOURCE_REPO = "mistralai/Mistral-Large-4-1T-A52B"
 SOURCE_REVISION = "f12dabdc0c1e99e7f7924461a6f308859b05af4d"
 SOURCE_INDEX = "consolidated.safetensors.index.json"
@@ -223,6 +226,73 @@ def load_parts(dtype: torch.dtype) -> tuple[PixtralVisionModel, Mistral3MultiMod
         return load_bundle_parts(bundle, dtype)
     log_loaded(MODEL_ID, f"parent checkpoint {SOURCE_REPO}@{SOURCE_REVISION}")
     return load_source_parts(dtype)
+
+
+def projector_settings(source: dict) -> dict:
+    """The Mistral3Config fields Mistral3MultiModalProjector reads."""
+    text = source["text_config"]
+    return {
+        "vision_config": projector_config(source).vision_config.to_dict(),
+        "text_config": {"model_type": "mistral", "hidden_size": text["hidden_size"], "rms_norm_eps": text["rms_norm_eps"]},
+        "spatial_merge_size": source["spatial_merge_size"],
+        "projector_hidden_act": source["projector_hidden_act"],
+        "multimodal_projector_bias": source["multimodal_projector_bias"],
+        "vision_feature_layer": source["vision_feature_layer"],
+    }
+
+
+def export_manifest(native: dict[str, torch.Tensor], shards: list[str]) -> dict:
+    renamed = {name: remap_key(name) for name in sorted(native)}
+    return {
+        "source_repo": SOURCE_REPO,
+        "source_revision": SOURCE_REVISION,
+        "source_index": SOURCE_INDEX,
+        "source_shards": list(shards),
+        "tensors": len(native),
+        "tower_tensors": sum(name.startswith(TOWER_PREFIX) for name in native),
+        "projector_tensors": sum(not name.startswith(TOWER_PREFIX) for name in native),
+        "bytes": sum(t.nbytes for t in native.values()),
+        "dtype": "bfloat16",
+        "rope_permutation": {
+            "tensors": sorted(name for name, target in renamed.items() if is_rotary(target)),
+            "description": "per head, rows (2i, 2i + 1) move to (i, i + head_dim / 2); "
+            "w.view(16, 64, 2, 2048).transpose(1, 2).reshape(2048, 2048)",
+        },
+        "renamed": renamed,
+    }
+
+
+def export(out: Path) -> None:
+    """Rename to HF Pixtral and Mistral3 names, permuting ``wq`` and ``wk`` rows; values are never cast."""
+    native = source_weights()
+    shards = sorted(set(source_index().values()))
+    source = source_json("config.json")
+    tower_state, projector_state = convert(native)
+    if any(t.dtype != torch.bfloat16 for t in [*tower_state.values(), *projector_state.values()]):
+        raise ValueError("expected BF16 tensors")
+    out.mkdir(parents=True, exist_ok=True)
+    config = vision_config(source)
+    config.architectures = ["PixtralLarge4VisionModel"]
+    config.dtype = "bfloat16"
+    config.auto_map = {
+        "AutoConfig": "modeling_pixtral_large4.PixtralLarge4VisionConfig",
+        "AutoModel": "modeling_pixtral_large4.PixtralLarge4VisionModel",
+    }
+    config.save_pretrained(out)
+    write_bundle(
+        out,
+        weights={
+            "model.safetensors": {k: v.contiguous() for k, v in tower_state.items()},
+            "projector.safetensors": {k: v.contiguous() for k, v in projector_state.items()},
+        },
+        configs={"projector_config.json": projector_settings(source)},
+        preprocessor=source_json("processor_config.json")["image_processor"],
+        license=Path(hf_hub_download(SOURCE_REPO, "LICENSE", revision=SOURCE_REVISION)),
+        files={"modeling_pixtral_large4.py": MODELING_SOURCE, "LICENSE-CODE": ROOT / "LICENSE"},
+    )
+    copy_assets(RELEASE_DIR, out)
+    base = export_manifest(native, shards)
+    write_manifest(out, base["source_repo"], base["source_revision"], base["source_shards"], extra=base)
 
 
 # Square crop with bicubic resize, then CLIP normalization. No padding is needed.

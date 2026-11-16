@@ -5,6 +5,7 @@ from pathlib import Path
 
 import torch
 import torch.nn.functional as F
+from huggingface_hub import hf_hub_download
 from safetensors.torch import load_file
 from torch import nn
 from transformers import AutoConfig, AutoModel, Gemma4VisionModel
@@ -12,19 +13,21 @@ from transformers.models.gemma4.modeling_gemma4 import Gemma4RMSNorm
 
 from vtb.adapters.base import Inputs
 from vtb.adapters.common import ImagePreprocess, default_device, depth_points, make_batch
+from vtb.bundle import ROOT, expect_tensors, write_bundle
 from vtb.feature_batch import FeatureBatch
 from vtb.provenance import open_release
 from vtb.shards import load_prefixed
 
 MODEL_ID = "immanuelpeter/Gemma4-31B-Vision"
-REVISION = "cb7d82f7d3fc1f77b675d59cb2d1b8c9edf19163"
 
-# google/gemma-4-31B-it is where scripts/export_gemma4_vision.py reads both halves from.
+# google/gemma-4-31B-it is where export reads both halves from.
 SOURCE_REPO = "google/gemma-4-31B-it"
 SOURCE_REVISION = "842da3794eaa0b77d5f08bae87a17459d91ff475"
 VISION_SHARD = "model-00001-of-00002.safetensors"
 TOWER_PREFIX = "model.vision_tower."
 PROJECTOR_PREFIX = "model.embed_vision."
+TOWER_TENSORS = 355
+PROJECTOR_TENSORS = 1
 PATCH_SIZE = 16
 POOL_SIZE = 3
 ALIGN = PATCH_SIZE * POOL_SIZE
@@ -91,21 +94,38 @@ def projector_settings(vision_config, text_hidden: int) -> dict:
     }
 
 
-def load_source_parts(dtype: torch.dtype) -> tuple[Gemma4VisionModel, Projector]:
+def load_source_parts(dtype: torch.dtype = torch.bfloat16) -> tuple[Gemma4VisionModel, Projector]:
     config = AutoConfig.from_pretrained(SOURCE_REPO, revision=SOURCE_REVISION)
     tower = Gemma4VisionModel._from_config(config.vision_config, dtype=dtype)
-    weights = load_prefixed(
-        SOURCE_REPO, [VISION_SHARD], TOWER_PREFIX, revision=SOURCE_REVISION
-    )
+    weights = expect_tensors(load_prefixed(SOURCE_REPO, [VISION_SHARD], TOWER_PREFIX, revision=SOURCE_REVISION), TOWER_TENSORS, "Tower")
     tower.load_state_dict({name: tensor.to(dtype) for name, tensor in weights.items()})
     projector = Projector(projector_settings(config.vision_config, config.text_config.hidden_size))
-    projector.load_state_dict({
-        name: tensor.to(dtype)
-        for name, tensor in load_prefixed(
-            SOURCE_REPO, [VISION_SHARD], PROJECTOR_PREFIX, revision=SOURCE_REVISION
-        ).items()
-    })
+    weights = expect_tensors(load_prefixed(SOURCE_REPO, [VISION_SHARD], PROJECTOR_PREFIX, revision=SOURCE_REVISION), PROJECTOR_TENSORS, "Projector")
+    projector.load_state_dict({name: tensor.to(dtype) for name, tensor in weights.items()})
     return tower.eval(), projector.to(dtype).eval()
+
+
+def projector_config(projector: Projector) -> dict:
+    return {
+        "input_size": projector.embedding_projection.in_features,
+        "output_size": projector.embedding_projection.out_features,
+        "norm_eps": projector.embedding_pre_projection_norm.eps,
+        "torch_dtype": str(projector.embedding_projection.weight.dtype).removeprefix("torch."),
+    }
+
+
+def export(out: Path) -> None:
+    tower, projector = load_source_parts()
+    processor = loads(Path(hf_hub_download(SOURCE_REPO, "processor_config.json", revision=SOURCE_REVISION)).read_text())
+    write_bundle(
+        out,
+        tower=tower,
+        architecture="Gemma4VisionModel",
+        weights={"projector.safetensors": projector.state_dict()},
+        configs={"projector_config.json": projector_config(projector)},
+        preprocessor=processor["image_processor"],
+        license=ROOT / "hf/Gemma4-31B-Vision/LICENSE",
+    )
 
 
 def load_projector_weights(dtype: torch.dtype, bundle: Path) -> Projector:
@@ -116,7 +136,7 @@ def load_projector_weights(dtype: torch.dtype, bundle: Path) -> Projector:
 
 
 def load_parts(dtype: torch.dtype) -> tuple[Gemma4VisionModel, Projector]:
-    bundle = open_release(MODEL_ID, REVISION, SOURCE_REPO, SOURCE_REVISION)
+    bundle = open_release(MODEL_ID, SOURCE_REPO, SOURCE_REVISION)
     tower = AutoModel.from_pretrained(bundle, dtype=dtype, local_files_only=True).eval()
     return tower, load_projector_weights(dtype, bundle)
 

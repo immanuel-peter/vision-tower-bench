@@ -44,7 +44,7 @@ example. Use batch size 1 for reproducible attention.
 
 ## Validation
 
-The release tests compare all 165 Tower tensors and three Projector tensors with
+The [parity check](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/parity/moonvit_v2.py) compares all 165 Tower tensors and three Projector tensors with
 the pinned parent checkpoint using `torch.equal`. Fixed-image Tower, merged and
 projected outputs also match the parent implementation bit-for-bit in FP32 and
 in BF16 with mathematical attention. Under production vLLM BF16 attention they
@@ -53,7 +53,7 @@ that execution.
 
 ## Reproduction
 
-The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/scripts/export_moonvit_v2_vision.py)
+The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/adapters/moonvit_v2.py)
 extracts `vision_tower` from shard 96 and `mm_projector` from shard 95 of
 `moonshotai/Kimi-K3.1-Pro`. It preserves the original BF16 weights and verifies
 every exported tensor against the pinned parent before writing.

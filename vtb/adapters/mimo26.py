@@ -2,6 +2,7 @@
 
 import json
 import os
+import shutil
 from collections.abc import Iterator
 from dataclasses import dataclass
 from functools import partial
@@ -14,6 +15,7 @@ from safetensors.torch import load_file
 
 from vtb.adapters.base import Inputs
 from vtb.adapters.common import IMAGENET_MEAN as IMAGE_MEAN, IMAGENET_STD as IMAGE_STD, PatchPreprocess, default_device, depth_points, make_batch, pack_patches, raster as merge_raster
+from vtb.bundle import write_bundle, write_json
 from vtb.feature_batch import FeatureBatch
 from vtb.images import square_crop  # noqa: F401  re-exported for tests
 from vtb.models.mimo26 import MiMoVisionConfig, MiMoVisionModel
@@ -23,6 +25,7 @@ from vtb.shards import load_prefixed
 ROOT = Path(__file__).resolve().parents[2]
 PATCH_SIZE, TEMPORAL_PATCH_SIZE, MERGE_SIZE = 16, 2, 2
 VISUAL_TENSORS = 364
+MODELING_SOURCE = ROOT / "vtb/models/mimo26.py"
 
 
 @dataclass(frozen=True)
@@ -31,7 +34,6 @@ class Checkpoint:
     model_id: str
     repo: str
     revision: str
-    release_revision: str
 
     @property
     def release_dir(self) -> Path:
@@ -43,7 +45,7 @@ class Checkpoint:
         return Path(override) if override else None
 
     def open(self, bundle: Path | None = None) -> Path:
-        return open_release(self.model_id, self.release_revision, self.repo, self.revision, bundle=bundle or self.override)
+        return open_release(self.model_id, self.repo, self.revision, bundle=bundle or self.override)
 
     @property
     def bundle(self) -> Path:
@@ -55,14 +57,12 @@ PRO = Checkpoint(
     "immanuelpeter/MiMoViT-2.6-Pro",
     "XiaomiMiMo/MiMo-V2.6-Pro-RL",
     "b61f21852680ee02a29e946e18cf8697f4844061",
-    "a744ae36c6f302a478e14fe0aa0aa6f9c6d04904",
 )
 FLASH = Checkpoint(
     "mimo26_flash",
     "immanuelpeter/MiMoViT-2.6-Flash",
     "XiaomiMiMo/MiMo-V2.6-Flash-RL",
     "dcd3fd83fb181622fbc606fbb1709901982a62c2",
-    "5d09ff0c40593f156d335d6c94b848c790e41cd6",
 )
 CHECKPOINTS = {item.name: item for item in (PRO, FLASH)}
 
@@ -137,6 +137,35 @@ def load_model(checkpoint: Checkpoint, dtype: torch.dtype, bundle: Path | None =
     model = model.to(dtype=dtype)
     model.visual.rotary_pos_emb.inv_freq = frequencies
     return model.eval()
+
+
+def export(out: Path, checkpoint: Checkpoint) -> None:
+    source = checkpoint.release_dir
+    model = load_model(checkpoint, torch.bfloat16, bundle=Path("/nonexistent-mimo-bundle"))
+    original = source_weights(checkpoint)
+    for key, tensor in original.items():
+        if not torch.equal(model.state_dict()["visual." + key], tensor):
+            raise ValueError(f"export changed {key}")
+    out.mkdir(parents=True, exist_ok=True)
+    if out.resolve() != source.resolve():
+        shutil.copytree(source, out, ignore=shutil.ignore_patterns("*.safetensors"), dirs_exist_ok=True)
+    model.config.architectures = ["MiMoVisionModel"]
+    model.config.dtype = torch.bfloat16
+    model.config.auto_map = {
+        "AutoConfig": "modeling_mimo_vision.MiMoVisionConfig",
+        "AutoModel": "modeling_mimo_vision.MiMoVisionModel",
+    }
+    model.config.save_pretrained(out)
+    write_bundle(
+        out,
+        weights={"model.safetensors": model.state_dict()},
+        preprocessor=source_json(checkpoint, "preprocessor_config.json"),
+        files={"modeling_mimo_vision.py": MODELING_SOURCE},
+    )
+    write_json(out / "export_manifest.json", {
+        "source_repo": checkpoint.repo, "source_revision": checkpoint.revision,
+        "tensors": len(original), "bytes": sum(t.nbytes for t in original.values()),
+    })
 
 
 class MiMo26Adapter:

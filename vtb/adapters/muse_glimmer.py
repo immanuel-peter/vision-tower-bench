@@ -8,7 +8,7 @@ import torch
 from huggingface_hub import hf_hub_download
 from safetensors.torch import load_file
 from torch import nn
-from transformers import AutoModel, MuseGlimmerVisionModel
+from transformers import AutoConfig, AutoModel, MuseGlimmerVisionModel
 from transformers.models.muse_glimmer.modeling_muse_glimmer import (
     MuseGlimmerRMSNorm,
     MuseGlimmerVisionAdapter,
@@ -17,16 +17,18 @@ from transformers.vision_utils import get_vision_window_index
 
 from vtb.adapters.base import Inputs
 from vtb.adapters.common import HALF, ImagePreprocess, default_device, depth_points, make_batch, pack_patches
+from vtb.bundle import expect_tensors, write_bundle
 from vtb.feature_batch import FeatureBatch
 from vtb.provenance import log_loaded
+from vtb.shards import load_prefixed
 
 MODEL_ID = "immanuelpeter/Muse-Glimmer-Vision"
-REVISION = "c0cd7ffcb881966e04c4adead0f057f8ceb09447"
 PROJECTOR_FILE = "projector.safetensors"
 PROJECTOR_CONFIG = "projector_config.json"
 
-# Muse Glimmer 30B is where scripts/export_muse_glimmer_vision.py reads both halves from.
+# Muse Glimmer 30B is where export reads both halves from.
 SOURCE_REPO = "meta-models/Muse-Glimmer-30B"
+SOURCE_REVISION = "a4e59da52a7bc87ae7251dd5545c0dd437c44b68"
 SHARDS = ("model-00001-of-00002.safetensors", "model-00002-of-00002.safetensors")
 TOWER_PREFIX = "model.vision_tower."
 ADAPTER_PREFIX = "model.vision_adapter."
@@ -34,6 +36,8 @@ PROJECTION_PREFIX = "model.vision_projection."
 PATCH_SIZE = 14
 TEMPORAL_PATCH_SIZE = 2
 MERGE_SIZE = 2
+TOWER_TENSORS = 806
+PROJECTOR_TENSORS = 3
 
 
 @dataclass(frozen=True)
@@ -78,12 +82,54 @@ def projector_shapes(settings: dict) -> SimpleNamespace:
     )
 
 
+def load_source_parts(dtype: torch.dtype = torch.bfloat16) -> tuple[MuseGlimmerVisionModel, Projector]:
+    config = AutoConfig.from_pretrained(SOURCE_REPO, revision=SOURCE_REVISION)
+    tower = MuseGlimmerVisionModel._from_config(config.vision_config, dtype=dtype)
+    tower.load_state_dict(expect_tensors(load_prefixed(SOURCE_REPO, SHARDS, TOWER_PREFIX, revision=SOURCE_REVISION), TOWER_TENSORS, "Tower"))
+    projector = Projector(config)
+    projector.adapter.load_state_dict(load_prefixed(SOURCE_REPO, SHARDS, ADAPTER_PREFIX, revision=SOURCE_REVISION))
+    projector.projection.load_state_dict(load_prefixed(SOURCE_REPO, SHARDS, PROJECTION_PREFIX, revision=SOURCE_REVISION))
+    expect_tensors(projector.state_dict(), PROJECTOR_TENSORS, "Projector")
+    return tower.eval(), projector.to(dtype).eval()
+
+
+def projector_config(projector: Projector) -> dict:
+    return {
+        "input_size": projector.adapter.fc1.in_features,
+        "hidden_size": projector.adapter.fc1.out_features,
+        "output_size": projector.projection.out_features,
+        "linear_bias": False,
+        "activation_func": "gelu",
+        "norm_type": "rmsnorm_without_scale",
+        "norm_eps": projector.norm.eps,
+        "torch_dtype": str(projector.projection.weight.dtype).removeprefix("torch."),
+    }
+
+
+def export(out: Path) -> None:
+    tower, projector = load_source_parts()
+    files = {
+        name: Path(hf_hub_download(SOURCE_REPO, name, revision=SOURCE_REVISION))
+        for name in ("processor_config.json", "LICENSE", "USAGE_POLICY.md")
+    }
+    write_bundle(
+        out,
+        tower=tower,
+        architecture="MuseGlimmerVisionModel",
+        weights={"projector.safetensors": projector.state_dict()},
+        configs={"projector_config.json": projector_config(projector)},
+        preprocessor=loads(files["processor_config.json"].read_text())["image_processor"],
+        license=files["LICENSE"],
+        files={"USAGE_POLICY.md": files["USAGE_POLICY.md"]},
+    )
+
+
 def load_parts(dtype: torch.dtype) -> tuple[MuseGlimmerVisionModel, Projector]:
-    log_loaded(MODEL_ID, f"{MODEL_ID}@{REVISION}")
-    tower = AutoModel.from_pretrained(MODEL_ID, revision=REVISION, dtype=dtype).eval()
-    settings = loads(Path(hf_hub_download(MODEL_ID, PROJECTOR_CONFIG, revision=REVISION)).read_text())
+    log_loaded(MODEL_ID, MODEL_ID)
+    tower = AutoModel.from_pretrained(MODEL_ID, dtype=dtype).eval()
+    settings = loads(Path(hf_hub_download(MODEL_ID, PROJECTOR_CONFIG)).read_text())
     projector = Projector(projector_shapes(settings))
-    projector.load_state_dict(load_file(hf_hub_download(MODEL_ID, PROJECTOR_FILE, revision=REVISION)))
+    projector.load_state_dict(load_file(hf_hub_download(MODEL_ID, PROJECTOR_FILE)))
     return tower, projector.to(dtype).eval()
 
 

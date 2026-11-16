@@ -1,14 +1,17 @@
+"""Parents and upstream Towers load at a pinned commit; our own releases load their latest revision."""
+
 import ast
-import inspect
 import re
+import sys
 from pathlib import Path
 
 import pytest
 
-from vtb import provenance
-from vtb.adapters import deepseek_v41, dinov2, gemma4, glm5, kimi_k26, mimo26, minimax_m3, moonvit_v2, muse_glimmer, nemotron35, nemotron_omni, qwen3_5, siglip2
+from vtb import parity, provenance
+from vtb.roster import BY_SLUG, ROSTER
 
-MODULES = (dinov2, siglip2, qwen3_5, muse_glimmer, kimi_k26, moonvit_v2, gemma4, glm5, minimax_m3, nemotron_omni, mimo26, nemotron35, provenance)
+MODULES = (*dict.fromkeys(sys.modules[tower.adapter().__module__] for tower in ROSTER), provenance)
+OURS = {sys.modules[BY_SLUG[slug].adapter().__module__] for slug in parity.released()} | {provenance}
 SHA = re.compile(r"[0-9a-f]{40}")
 
 
@@ -22,26 +25,19 @@ def hub_calls(module):
 
 
 @pytest.mark.parametrize("module", MODULES, ids=lambda m: m.__name__)
-def test_every_hub_load_passes_a_revision(module):
+def test_every_parent_and_upstream_hub_load_passes_a_revision(module):
     calls = list(hub_calls(module))
     assert calls
     for call in calls:
         keywords = {k.arg: k.value for k in call.keywords}
         local = "local_files_only" in keywords and ast.literal_eval(keywords["local_files_only"]) is True
-        assert "revision" in keywords or local, f"{module.__name__}:{call.lineno} loads from the Hub without a revision"
+        repo = ast.unparse(call.args[0]) if call.args else ""
+        own_release = module in OURS and "model_id" in repo.lower()
+        assert "revision" in keywords or local or own_release, f"{module.__name__}:{call.lineno} loads {repo} from the Hub without a revision"
 
 
-@pytest.mark.parametrize("module", (dinov2, siglip2, muse_glimmer, kimi_k26, gemma4, glm5, nemotron_omni, deepseek_v41), ids=lambda m: m.__name__)
-def test_module_revision_is_a_commit_sha(module):
-    assert SHA.fullmatch(module.REVISION)
-
-
-def test_checkpoint_revisions_are_commit_shas():
-    for checkpoint in qwen3_5.CHECKPOINTS.values():
-        assert SHA.fullmatch(checkpoint.revision) and SHA.fullmatch(checkpoint.release_revision)
-    for checkpoint in moonvit_v2.CHECKPOINTS.values():
-        assert SHA.fullmatch(checkpoint.revision) and SHA.fullmatch(checkpoint.bundle_revision)
-    assert inspect.signature(moonvit_v2.load_projector_weights).parameters["revision"].default == moonvit_v2.K3.bundle_revision
-    for module in (minimax_m3, mimo26, nemotron35):
-        for checkpoint in module.CHECKPOINTS.values():
-            assert SHA.fullmatch(checkpoint.revision) and SHA.fullmatch(checkpoint.release_revision)
+@pytest.mark.parametrize("module", MODULES[:-1], ids=lambda m: m.__name__)
+def test_pinned_revisions_are_commit_shas(module):
+    pins = [value for name, value in vars(module).items() if name.endswith("REVISION") and isinstance(value, str)]
+    pins += [checkpoint.revision for checkpoint in getattr(module, "CHECKPOINTS", {}).values()]
+    assert pins and all(SHA.fullmatch(pin) for pin in pins)

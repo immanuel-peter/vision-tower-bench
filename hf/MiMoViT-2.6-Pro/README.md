@@ -43,11 +43,11 @@ See [`examples/inference.py`](examples/inference.py) for image feature extractio
 
 ## Validation
 
-The [release parity test](https://github.com/immanuel-peter/vision-tower-bench/blob/main/tests/test_release_parity.py) compares every exported tensor with the pinned parent using `torch.equal`, then checks all stages against the parent's own `MiMoVisionTransformer`.
+The [parity check](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/parity/mimo26.py) compares every exported tensor with the pinned parent using `torch.equal`, then checks all stages against the parent's own `MiMoVisionTransformer`.
 
 ## Reproduction
 
-The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/scripts/export_mimo26_vision.py) reads the `visual.*` tensors from the pinned parent and writes the original BF16 tensors.
+The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/adapters/mimo26.py) reads the `visual.*` tensors from the pinned parent and writes the original BF16 tensors.
 
 ## Credits
 

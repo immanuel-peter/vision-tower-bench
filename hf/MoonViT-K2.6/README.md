@@ -46,13 +46,13 @@ inference.
 
 ## Validation
 
-The release tests compare all 335 packaged tensors with shards 63 and 64 of the pinned
+The [parity check](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/parity/kimi_k26.py) compares all 335 packaged tensors with shards 63 and 64 of the pinned
 Moonshot checkpoint using `torch.equal`. Fixed-image merged and projected outputs also
 match the parent implementation bit-for-bit on CPU and in BF16 on an NVIDIA A100.
 
 ## Reproduction
 
-The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/scripts/export_moonvit_k26_vision.py)
+The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/adapters/kimi_k26.py)
 splits the BF16 weights published by
 [`exolabs/Kimi-K2.6-vision`](https://huggingface.co/exolabs/Kimi-K2.6-vision) into separate
 Tower and Projector files. It derives a vision-only loader and processor from the pinned

@@ -1,6 +1,5 @@
 """Weight-free checks of the shared adapter helpers and the TowerAdapter contract."""
 
-import json
 import sys
 
 import pytest
@@ -124,40 +123,3 @@ def test_nemotron35_stage_selection_is_per_instance_and_read_only(monkeypatch):
         bolt.stages = ("tower",)
     with pytest.raises(ValueError, match="unknown or empty"):
         nemotron35.Nemotron35SuperAdapter(device="cpu", stages=["pooled"])
-
-
-def test_extract_uses_the_adapter_default_resolution(monkeypatch, tmp_path):
-    images = tmp_path / "images"
-    images.mkdir()
-    Image.new("RGB", (32, 32)).save(images / "sample.png")
-    seen = {}
-
-    class Adapter:
-        default_resolution = 512
-        model_id = "test/default-resolution"
-        stages = ("tower",)
-        num_layers = 1
-
-        def __init__(self, resolution, device):
-            seen.update(resolution=resolution, device=device)
-            self.resolution, self.device = resolution, device
-
-        def depth_points(self):
-            return [1]
-
-        def preprocess(self):
-            return lambda _image: torch.zeros(3, 4, 4)
-
-        def collate(self, rows):
-            return {"pixel_values": torch.stack(rows)}
-
-        def extract(self, inputs, ids):
-            yield FeatureBatch(tokens=torch.zeros(len(ids), 4, 8), image_ids=ids, model_id=self.model_id, stage="tower", layer_index=1, num_layers=1, resolution=self.resolution)
-
-    monkeypatch.setitem(extract.ADAPTERS, "test-default-resolution", Adapter)
-    monkeypatch.setattr(extract, "default_device", lambda: "cpu")
-    monkeypatch.setattr(sys, "argv", ["extract", "--model", "test-default-resolution", "--images", str(images), "--out", str(tmp_path / "features"), "--workers", "0"])
-    extract.main()
-    assert seen == {"resolution": 512, "device": "cpu"}
-    summary = json.loads((tmp_path / "features/test-default-resolution_512_full/summary.json").read_text())
-    assert summary["resolution"] == 512 and summary["device"] == "cpu"

@@ -45,13 +45,13 @@ Forward one image per call: the native HF attention couples images in a single c
 
 ## Validation
 
-The release tests compare all 515 Tower tensors and eight Projector tensors with the
+The [parity check](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/parity/minimax_m3.py) compares all 515 Tower tensors and eight Projector tensors with the
 pinned parent checkpoint using `torch.equal`. Fixed-image Tower, merged and projected
 outputs also match the native parent implementation at 56 and 448 pixels.
 
 ## Reproduction
 
-The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/scripts/export_minimax_m3_vision.py)
+The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/adapters/minimax_m3.py)
 reads the Tower and Projector tensors from the pinned parent and writes the original
 tensors, preserving their dtypes. The script pins the parent revision.
 

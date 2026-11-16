@@ -67,15 +67,15 @@ Findings are in the [report](https://ipeter.dev/blog/vision-tower-bench) and the
 
 1. **Wrap it.** Implement `TowerAdapter` in [vtb/adapters/base.py](vtb/adapters/base.py) and add a `Tower` to `ROSTER` in [vtb/roster.py](vtb/roster.py).
 2. **Meet three constraints.** Patch tokens only, no class token. Raster order, so undo any merge-block or window grouping before caching. Square token grid, the pooling and dense decoders assume one.
-3. **Prove it matches.** A Tower pulled from a larger checkpoint must match that checkpoint within BF16 tolerance on fixed images.
+3. **Prove it matches.** A Tower pulled from a larger checkpoint must match that checkpoint within BF16 tolerance on fixed images. Give its adapter module an `export` so `python -m vtb.export <slug>` rebuilds the release, and a `vtb/parity/<module>.py` so `python -m vtb.parity <slug>` checks it against the parent.
 4. **Extract once.** Cache features per model, Stage, depth and resolution. Probes read the cache after that.
 5. **Run the matrices.** Same learning-rate grid, three seeds, validation picks the rate.
 
 ## Layout
 
 ```bash
-vtb/          # adapters, feature cache, probes, geometry and correspondence scoring
-scripts/      # export, extraction matrices, bootstraps, figures
+vtb/          # adapters (with each release's export), parity checks, feature cache, probes, geometry and correspondence scoring
+scripts/      # data prep, extraction matrices, figures
 tests/        # parity, preprocessing, probe and merge-layout tests
 hf/           # model cards and configs for the published towers
 CONTEXT.md    # project vocabulary
@@ -86,6 +86,7 @@ CONTEXT.md    # project vocabulary
 ```bash
 uv run pytest -q                      # full suite, downloads Tower weights
 VTB_SKIP_WEIGHTS=1 uv run pytest -q   # skip weight-dependent tests
+VTB_PARITY_DEVICE=cuda uv run pytest tests/test_parity.py   # every release against its parent, including Mistral's GPU-only check
 ```
 
 ## License

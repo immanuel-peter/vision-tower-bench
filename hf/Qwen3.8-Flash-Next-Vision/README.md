@@ -46,13 +46,13 @@ See [`examples/inference.py`](examples/inference.py) for image feature extractio
 
 ## Validation
 
-The release tests compare all 333 tensors with the pinned parent checkpoint using
+The [parity check](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/parity/qwen3_5.py) compares all 333 tensors with the pinned parent checkpoint using
 `torch.equal`. Fixed-image Tower and merged outputs also match the parent implementation
 bit-for-bit on CPU and in BF16 on an NVIDIA RTX PRO 6000 Blackwell.
 
 ## Reproduction
 
-The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/scripts/export_qwen3_8_vision.py)
+The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/adapters/qwen3_5.py)
 reads `model.visual.*` from shard 1 of `Qwen/Qwen3.8-Flash-Next`, removes the prefix,
 and writes the original BF16 tensors. The script pins the parent revision.
 
