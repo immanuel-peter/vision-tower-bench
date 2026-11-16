@@ -9,29 +9,23 @@ loaded through auto_map with trust_remote_code.
 """
 
 import argparse
-import hashlib
 import shutil
 from pathlib import Path
 
 import torch
-from huggingface_hub import HfApi, hf_hub_download
+from huggingface_hub import hf_hub_download
 
 from vtb.adapters import mistral_large4 as ml4
 from vtb.bundle import print_sizes, write_bundle
 
 MODELING_SOURCE = ml4.ROOT / "vtb/models/pixtral_large4.py"
 MODELING_FILE = "modeling_pixtral_large4.py"
-MANIFEST = "export_manifest.json"
 BUNDLE_FILES = (
     "README.md",
     "NOTICE",
     "projector.py",
     "examples/inference.py",
 )
-
-
-def tensor_sha256(tensor: torch.Tensor) -> str:
-    return hashlib.sha256(tensor.contiguous().view(torch.uint8).numpy().tobytes()).hexdigest()
 
 
 def projector_settings(source: dict) -> dict:
@@ -48,15 +42,12 @@ def projector_settings(source: dict) -> dict:
 
 
 def manifest(native: dict[str, torch.Tensor], shards: list[str]) -> dict:
-    info = HfApi().model_info(ml4.SOURCE_REPO, revision=ml4.SOURCE_REVISION, files_metadata=True)
-    lfs = {item.rfilename: item.lfs.sha256 for item in info.siblings if item.lfs is not None}
     renamed = {name: ml4.remap_key(name) for name in sorted(native)}
     return {
         "source_repo": ml4.SOURCE_REPO,
         "source_revision": ml4.SOURCE_REVISION,
         "source_index": ml4.SOURCE_INDEX,
         "source_shards": list(shards),
-        "source_shard_sha256": {shard: lfs[shard] for shard in shards},
         "tensors": len(native),
         "tower_tensors": sum(name.startswith(ml4.TOWER_PREFIX) for name in native),
         "projector_tensors": sum(not name.startswith(ml4.TOWER_PREFIX) for name in native),
@@ -68,25 +59,7 @@ def manifest(native: dict[str, torch.Tensor], shards: list[str]) -> dict:
             "w.view(16, 64, 2, 2048).transpose(1, 2).reshape(2048, 2048)",
         },
         "renamed": renamed,
-        "tensor_sha256": {name: tensor_sha256(native[name]) for name in sorted(native)},
     }
-
-
-def file_sha256(path: Path) -> str:
-    digest = hashlib.sha256()
-    with open(path, "rb") as handle:
-        while block := handle.read(1 << 24):
-            digest.update(block)
-    return digest.hexdigest()
-
-
-def distributed_files(out: Path) -> list[Path]:
-    """Every file the release distributes, except the manifest itself."""
-    return sorted(
-        path for path in out.rglob("*")
-        if path.is_file() and path.name not in (MANIFEST, ".gitattributes")
-        and "__pycache__" not in path.parts and path.suffix != ".pyc"
-    )
 
 
 def finish_manifest(out: Path, base: dict) -> dict:

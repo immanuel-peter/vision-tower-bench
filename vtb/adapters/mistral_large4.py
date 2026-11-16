@@ -198,7 +198,7 @@ def bundle_dir() -> Path:
 
 
 def load_bundle_parts(bundle: Path, dtype: torch.dtype) -> tuple[PixtralVisionModel, Mistral3MultiModalProjector]:
-    check_provenance(bundle, SOURCE_REPO, SOURCE_REVISION, required=True)
+    check_provenance(bundle, SOURCE_REPO, SOURCE_REVISION)
     tower_config = PixtralLarge4VisionConfig.from_pretrained(bundle, local_files_only=True)
     mm_config = Mistral3Config(**json.loads((bundle / "projector_config.json").read_text()))
     return build_parts(

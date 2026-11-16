@@ -23,7 +23,7 @@ This repository packages the C-RADIOv4-H Tower, final LayerNorm, and Projector f
 | `model.safetensors` | 391 | RADIO Tower from Super `vision_model.*`, including `summary_idxs` |
 | `final_norm.safetensors` | 2 | `vision_projector.vision_final_layernorm` |
 | `projector.safetensors` | 3 | Super `mlp1` Projector |
-| `config.json`, `inventory.json` | | Source and code pins, widths, and the shape, dtype and SHA256 of every tensor |
+| `config.json` | | Source and code pins and widths |
 | `vision.py` | | Loader used by `examples/inference.py` |
 
 ## Architecture

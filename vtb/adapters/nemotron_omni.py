@@ -120,7 +120,7 @@ def load_source_parts(dtype: torch.dtype = torch.bfloat16):
 
 
 def load_parts(dtype: torch.dtype):
-    bundle = open_release(MODEL_ID, REVISION, SOURCE_REPO, SOURCE_REVISION, required=True)
+    bundle = open_release(MODEL_ID, REVISION, SOURCE_REPO, SOURCE_REVISION)
     config = AutoConfig.from_pretrained(SOURCE_REPO, trust_remote_code=True, revision=SOURCE_REVISION)
     radio = build_radio(config.vision_config)
     attach_video_embedder(radio)

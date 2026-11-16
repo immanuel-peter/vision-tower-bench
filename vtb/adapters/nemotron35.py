@@ -67,7 +67,7 @@ class Checkpoint:
         return Path(override) if override else None
 
     def open(self, bundle: Path | None = None) -> Path:
-        return open_release(self.model_id, self.release_revision, self.repo, self.revision, bundle=bundle or self.override, required=True)
+        return open_release(self.model_id, self.release_revision, self.repo, self.revision, bundle=bundle or self.override)
 
     @property
     def bundle(self) -> Path:

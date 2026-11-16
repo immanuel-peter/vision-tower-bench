@@ -22,7 +22,7 @@ This repository packages the C-RADIOv4-H Tower and Projector from [Nemotron 3.5 
 |---|---|---|
 | `model.safetensors` | 391 | RADIO Tower from Bolt `vision_model.*`, including `summary_idxs` |
 | `projector.safetensors` | 3 | Bolt `mlp1` Projector |
-| `config.json`, `inventory.json` | | Source and code pins, widths, and the shape, dtype and SHA256 of every tensor |
+| `config.json` | | Source and code pins and widths |
 | `vision.py` | | Loader used by `examples/inference.py` |
 
 ## Architecture

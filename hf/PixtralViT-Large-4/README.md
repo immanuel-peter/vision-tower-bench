@@ -25,7 +25,7 @@ This repository packages the Tower and Projector from
 | `projector.py`, `projector_config.json` | | Projector shapes and loader |
 | `config.json`, `preprocessor_config.json` | | Vision configuration and `PixtralImageProcessor` settings |
 | `examples/inference.py` | | Single-image extraction example |
-| `export_manifest.json` | | Source pin, shard SHA256 and tensor name map |
+| `export_manifest.json` | | Source pin and tensor name map |
 | `LICENSE`, `LICENSE-CODE`, `NOTICE` | | Weight license, code license and attribution |
 
 ## Architecture

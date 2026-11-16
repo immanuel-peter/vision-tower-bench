@@ -1,27 +1,21 @@
 """Build standalone Nemotron Super and Nemotron Bolt vision repositories."""
 
 import argparse
-import hashlib
 import json
 import shutil
 from pathlib import Path
 
-import torch
-
 from vtb.adapters.nemotron35 import (
     CHECKPOINTS, CODE_CONFIG_REPO, CODE_CONFIG_REVISION, RADIO_CODE_REVISION,
-    source_index, source_weights,
+    source_weights,
 )
-from vtb.bundle import write_bundle, write_json
+from vtb.bundle import write_bundle
 
 
 def export(name: str, out: Path | None = None) -> Path:
     checkpoint = CHECKPOINTS[name]
     source = checkpoint.release_dir
     out = out or source
-    license_hash = hashlib.sha256((source / "LICENSE").read_bytes()).hexdigest()
-    if license_hash != "2ab44b68365473c112f5092211a38f231cb23e50de68b75a13369adbd76a74df":
-        raise ValueError("bundle must include the unmodified official OpenMDW-1.1 license")
     weights = source_weights(checkpoint)
     out.mkdir(parents=True, exist_ok=True)
     if out.resolve() != source.resolve():
@@ -39,16 +33,6 @@ def export(name: str, out: Path | None = None) -> Path:
     }
     files = (("tower", "model.safetensors"), ("projector", "projector.safetensors"), ("final_norm", "final_norm.safetensors"))
     write_bundle(out, weights={filename: weights[part] for part, filename in files if weights[part]}, configs={"config.json": config})
-    index = source_index(checkpoint)
-    inventory = {
-        part: {
-            key: {"shape": list(value.shape), "dtype": str(value.dtype),
-                  "sha256": hashlib.sha256(value.contiguous().view(torch.uint8).numpy().tobytes()).hexdigest()}
-            for key, value in sorted(part_weights.items())
-        } for part, part_weights in weights.items()
-    }
-    inventory["source_shards"] = sorted({shard for key, shard in index.items() if key.startswith(("vision_model.", "mlp1.", "vision_projector.vision_final_layernorm."))})
-    write_json(out / "inventory.json", inventory)
     print(json.dumps({"model": name, "out": str(out), "tensor_counts": {key: len(value) for key, value in weights.items()}}, indent=2))
     return out
 

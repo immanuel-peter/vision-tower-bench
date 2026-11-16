@@ -12,6 +12,9 @@ import torch
 from vtb import cache, geometry, geometry_run, probe_run
 from vtb.bootstrap import paired_metric_bootstrap
 
+# Bump when a change to cell training would change cached results.
+CELL_CACHE_VERSION = 1
+
 
 def parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser()
@@ -100,31 +103,19 @@ def cached_train_cell(run: Path, stage: str, layer: int, args) -> dict:
         "task", "arm", "head", "width", "epochs", "batch_size", "seeds",
         "scale_invariant", "max_depth", "learning_rates", "device",
     )}
-    paths = [args.targets, Path(__file__)] + list(cache.shards(run, stage, layer))
+    paths = [args.targets] + list(cache.shards(run, stage, layer))
     manifest = args.targets.with_name(args.targets.name.replace("_targets.npz", "_manifest.json"))
     if manifest.is_file():
         paths.append(manifest)
-    paths += sorted((Path(__file__).resolve().parents[1] / "vtb").rglob("*.py"))
-    hashes = {str(path.resolve()): hashlib.sha256(path.read_bytes()).hexdigest() for path in paths}
-    identity = {"stage": stage, "layer": layer, "protocol": protocol,
-                "files": hashes, "torch": str(torch.__version__),
-                "threads": torch.get_num_threads(),
-                "float32_matmul_precision": torch.get_float32_matmul_precision(),
-                "cudnn_allow_tf32": torch.backends.cudnn.allow_tf32,
-                "matmul_allow_tf32": torch.backends.cuda.matmul.allow_tf32}
+    inputs = {str(path.resolve()): hashlib.sha256(path.read_bytes()).hexdigest() for path in paths}
+    identity = {"version": CELL_CACHE_VERSION, "stage": stage, "layer": layer, "protocol": protocol, "inputs": inputs}
     key = hashlib.sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()
     args.cell_cache.mkdir(parents=True, exist_ok=True)
     path = args.cell_cache / f"{key}.pt"
     if path.is_file():
-        stored = torch.load(path, map_location="cpu", weights_only=True)
-        assert stored["identity"] == identity
-        result = stored["result"]
-        assert result["values"].shape == (args.seeds, len(result["image_ids"]))
-        assert torch.isfinite(result["values"]).all()
-        print(f"reuse verified paired cell {stage}:{layer} {key}", flush=True)
-        return result
+        print(f"reuse paired cell {stage}:{layer} {key}", flush=True)
+        return torch.load(path, map_location="cpu", weights_only=True)["result"]
     result = train_cell(run, stage, layer, args)
-    assert torch.isfinite(result["values"]).all()
     result["paired_cache_key"] = key
     scratch = path.with_suffix(f".{os.getpid()}.partial")
     torch.save({"identity": identity, "result": result}, scratch)

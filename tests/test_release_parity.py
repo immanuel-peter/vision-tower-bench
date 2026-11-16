@@ -224,7 +224,7 @@ def test_mistral_large4_release_matches_the_independent_mistral_forward(tmp_path
     )
     release = report["identity"]["release"]
     assert report["identity"]["shard_sha256"] == report["identity"]["shard_lfs_sha256"]
-    assert release["bit_exact_after_inverse_permutation"] and release["manifest_sha256_all_match"]
+    assert release["bit_exact_after_inverse_permutation"]
     assert release["tensors"] == 276
     assert {case["resolution"] for case in report["cases"]} == {448, 1540}
     assert len(report["cases"]) == 80

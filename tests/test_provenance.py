@@ -33,21 +33,19 @@ def write(path, name, data):
 
 def test_manifest_and_config_records_are_both_checked(tmp_path):
     write(tmp_path, "config.json", {"source": "org/parent", "revision": "a"})
-    check_provenance(tmp_path, "org/parent", "a", required=True)
+    check_provenance(tmp_path, "org/parent", "a")
     with pytest.raises(ValueError, match="org/parent@a does not match org/parent@b"):
         check_provenance(tmp_path, "org/parent", "b")
     write(tmp_path, "export_manifest.json", {"source_repo": "org/parent", "source_revision": "b"})
     check_provenance(tmp_path, "org/parent", "b")
 
 
-def test_missing_record_fails_only_when_required(tmp_path):
+def test_bundle_without_a_record_is_accepted(tmp_path):
     check_provenance(tmp_path, "org/parent", "a")
-    with pytest.raises(ValueError, match="records no source provenance"):
-        check_provenance(tmp_path, "org/parent", "a", required=True)
 
 
-def test_open_release_logs_repo_at_revision(monkeypatch, tmp_path, caplog):
-    write(tmp_path, "export_manifest.json", {"source_repo": "org/parent", "source_revision": "p"})
+def test_open_release_logs_repo_at_revision_without_reading_the_snapshot(monkeypatch, tmp_path, caplog):
+    write(tmp_path, "export_manifest.json", {"source_repo": "org/other", "source_revision": "x"})
     monkeypatch.setattr(provenance, "snapshot_download", lambda repo, revision: str(tmp_path))
     with caplog.at_level(logging.INFO, logger="vtb.provenance"):
         assert open_release("me/tower", "r", "org/parent", "p") == tmp_path

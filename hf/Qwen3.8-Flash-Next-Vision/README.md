@@ -22,7 +22,7 @@ This repository packages the Tower and learned merger from
 | `model.safetensors` | 333 | Tower and learned merger, extracted from source shard 1 |
 | `config.json` | | Vision-only `Qwen3_5VisionConfig` |
 | `preprocessor_config.json` | | Qwen image preprocessing configuration |
-| `export_manifest.json` | | Source pin, tensor counts and file hashes |
+| `export_manifest.json` | | Source pin and tensor counts |
 | `LICENSE` | | Qwen Community License 1.0 |
 
 Qwen implements the learned merger inside `Qwen3_5VisionModel`, so this repository does

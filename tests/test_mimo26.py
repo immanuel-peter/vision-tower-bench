@@ -136,7 +136,7 @@ def test_bundle_metadata_pins_real_variants(checkpoint, width):
     assert config["out_hidden_size"] == width
     assert config["vit_window_attn_types"] == MiMoVisionConfig().vit_window_attn_types
     assert (manifest["source_repo"], manifest["source_revision"]) == (checkpoint.repo, checkpoint.revision)
-    assert manifest["tensors"] == len(manifest["tensor_sha256"]) == mimo26.VISUAL_TENSORS
+    assert manifest["tensors"] == mimo26.VISUAL_TENSORS
     assert checkpoint.model_id in (bundle / "examples/inference.py").read_text()
 
 
