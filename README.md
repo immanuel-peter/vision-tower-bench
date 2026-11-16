@@ -12,6 +12,15 @@ uv add git+https://github.com/immanuel-peter/vision-tower-bench
 
 The data-prep scripts need the `bench` extra (`vision-tower-bench[bench]`). This repo's `uv sync` pulls Linux `torch` and `torchvision` from the PyTorch cu129 index. That pin lives in `[tool.uv.sources]`, which does not carry over to installs from other projects, so a downstream project gets the default PyPI wheels unless it points `torch` at the index that matches its CUDA version.
 
+```python
+import vtb
+
+tower = vtb.load("dinov2")  # any slug in vtb.SLUGS; kwargs: resolution, dtype, device
+inputs = tower.collate([tower.preprocess()(image)])
+for batch in tower.extract(inputs, image_ids=["img0"]):
+    print(batch.stage, batch.layer_index, batch.tokens.shape)
+```
+
 ## What it measures
 
 Four capability axes:
@@ -76,7 +85,7 @@ scope of the geometry corrections and the historical layer sweeps.
 
 ## Evaluating a new Tower
 
-1. **Wrap it.** Implement `TowerAdapter` in [vtb/adapters/base.py](vtb/adapters/base.py) and register the class in `vtb.extract.ADAPTERS`.
+1. **Wrap it.** Implement `TowerAdapter` in [vtb/adapters/base.py](vtb/adapters/base.py) and add a `Tower` to `ROSTER` in [vtb/roster.py](vtb/roster.py).
 2. **Meet three constraints.** Patch tokens only, no class token. Raster order, so undo any merge-block or window grouping before caching. Square token grid, the pooling and dense decoders assume one.
 3. **Prove it matches.** A Tower pulled from a larger checkpoint must match that checkpoint within BF16 tolerance on fixed images.
 4. **Extract once.** Cache features per model, Stage, depth and resolution. Probes read the cache after that.
