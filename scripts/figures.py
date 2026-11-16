@@ -14,31 +14,12 @@ import numpy as np
 from matplotlib.colors import ListedColormap
 from matplotlib.patches import Patch
 
+from vtb.roster import ROSTER, SLUGS
+
 RESULTS = Path(__file__).resolve().parents[1] / "results"
 INDEX = json.loads((RESULTS / "index.json").read_text())
 SOURCES = INDEX["figure_sources"]
-TOWERS: tuple[str, ...] = (
-    "dinov2",
-    "siglip2",
-    "muse_glimmer",
-    "glm5",
-    "nemotron_omni",
-    "kimi_k26",
-    "qwen3_5",
-    "deepseek_v41",
-    "gemma4",
-    "moonvit_v2",
-    "kimi_k31_pro",
-    "minimax_m3",
-    "minimax_m31_flash",
-    "nemotron35_super",
-    "nemotron35_bolt",
-    "dinov3",
-    "mimo26_pro",
-    "mimo26_flash",
-    "qwen38_flash_next",
-    "mistral_large4",
-)
+TOWERS: tuple[str, ...] = SLUGS
 PROJECTORS: tuple[str, ...] = tuple(
     model for model in TOWERS if model not in ("dinov2", "siglip2", "dinov3")
 )
@@ -50,36 +31,10 @@ OUTLIER_NOTE = (
     "\u2020 outlier channels dominate the final Tower layer; "
     "see results/diagnostics/mimo26-tower-outlier-channel and mistral-large4-outlier-channels"
 )
-PALETTE: tuple[str, ...] = (
-    "#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b",
-    "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#31a354", "#393b79", "#9e9ac8",
-    "#637939", "#b5cf6b", "#6baed6", "#843c39", "#d6616b", "#a55194", "#7b4173",
-)
+PALETTE: tuple[str, ...] = tuple(tower.colour for tower in ROSTER)
 COLOUR: dict[str, str] = dict(zip(TOWERS, PALETTE, strict=True))
 
-# Public report names. Plots and tables must agree.
-DISPLAY: dict[str, str] = {
-    "dinov2": "DINOv2",
-    "siglip2": "SigLIP2",
-    "muse_glimmer": "Muse Glimmer",
-    "glm5": "GLM 5.3 Flash",
-    "nemotron_omni": "Nemotron 3 Omni",
-    "kimi_k26": "Kimi K2.6",
-    "qwen3_5": "Qwen3.8",
-    "qwen38_flash_next": "Qwen3.8 Flash-Next",
-    "deepseek_v41": "DeepSeek V4.1",
-    "gemma4": "Gemma 4",
-    "moonvit_v2": "Kimi K3",
-    "kimi_k31_pro": "Kimi K3.1 Pro",
-    "minimax_m3": "MiniMax M3",
-    "minimax_m31_flash": "MiniMax M3.1 Flash",
-    "nemotron35_super": "Nemotron 3.5 Super",
-    "nemotron35_bolt": "Nemotron 3.5 Bolt",
-    "dinov3": "DINOv3",
-    "mimo26_pro": "MiMo V2.6 Pro",
-    "mimo26_flash": "MiMo V2.6 Flash",
-    "mistral_large4": "Mistral Large 4",
-}
+DISPLAY: dict[str, str] = {tower.slug: tower.display for tower in ROSTER}
 
 
 def flagged(model: str) -> str:

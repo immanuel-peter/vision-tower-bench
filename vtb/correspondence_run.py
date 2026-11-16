@@ -399,7 +399,7 @@ def parser() -> argparse.ArgumentParser:
     ap.add_argument("--root", type=Path, required=True)
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--limit", type=int, default=None)
-    ap.add_argument("--resolution", type=int, default=448)
+    ap.add_argument("--resolution", type=int, default=None, help="defaults to the adapter's default_resolution")
     ap.add_argument("--evaluation-side", type=int, default=64)
     ap.add_argument("--num-correspondences", type=int, default=1000)
     ap.add_argument("--device", default="cuda")
@@ -408,6 +408,8 @@ def parser() -> argparse.ArgumentParser:
 
 def main() -> None:
     args = parser().parse_args()
+    if args.resolution is None:
+        args.resolution = ADAPTERS[args.model].default_resolution
     dataset = DATASETS[args.dataset](args.root, args.resolution)
     count = min(len(dataset), args.limit) if args.limit else len(dataset)
     adapter = ADAPTERS[args.model](resolution=args.resolution, device=args.device)

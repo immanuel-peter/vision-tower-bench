@@ -10,45 +10,10 @@ from torch.utils.data import DataLoader
 
 from vtb.cache import ShardWriter
 from vtb.adapters.common import default_device
-from vtb.adapters.deepseek_v41 import DeepSeekV41Adapter
-from vtb.adapters.dinov2 import DINOv2Adapter
-from vtb.adapters.dinov3 import DINOv3Adapter
-from vtb.adapters.gemma4 import Gemma4Adapter
-from vtb.adapters.glm5 import GLM5Adapter
-from vtb.adapters.kimi_k26 import KimiK26Adapter
-from vtb.adapters.mimo26 import MiMo26FlashAdapter, MiMo26ProAdapter
-from vtb.adapters.minimax_m3 import MiniMaxM3Adapter, MiniMaxM31FlashAdapter
-from vtb.adapters.mistral_large4 import MistralLarge4Adapter
-from vtb.adapters.moonvit_v2 import KimiK31ProAdapter, MoonViTV2Adapter
-from vtb.adapters.muse_glimmer import MuseGlimmerAdapter
-from vtb.adapters.nemotron_omni import NemotronOmniAdapter
-from vtb.adapters.nemotron35 import Nemotron35BoltAdapter, Nemotron35SuperAdapter
-from vtb.adapters.qwen3_5 import Qwen3_5Adapter, Qwen38FlashNextAdapter
-from vtb.adapters.siglip2 import SigLIP2Adapter
 from vtb.images import ImageFolder
+from vtb.roster import ROSTER
 
-ADAPTERS = {
-    "deepseek_v41": DeepSeekV41Adapter,
-    "dinov2": DINOv2Adapter,
-    "dinov3": DINOv3Adapter,
-    "gemma4": Gemma4Adapter,
-    "glm5": GLM5Adapter,
-    "kimi_k26": KimiK26Adapter,
-    "mimo26_pro": MiMo26ProAdapter,
-    "mimo26_flash": MiMo26FlashAdapter,
-    "minimax_m3": MiniMaxM3Adapter,
-    "minimax_m31_flash": MiniMaxM31FlashAdapter,
-    "mistral_large4": MistralLarge4Adapter,
-    "moonvit_v2": MoonViTV2Adapter,
-    "kimi_k31_pro": KimiK31ProAdapter,
-    "muse_glimmer": MuseGlimmerAdapter,
-    "nemotron_omni": NemotronOmniAdapter,
-    "nemotron35_super": Nemotron35SuperAdapter,
-    "nemotron35_bolt": Nemotron35BoltAdapter,
-    "qwen3_5": Qwen3_5Adapter,
-    "qwen38_flash_next": Qwen38FlashNextAdapter,
-    "siglip2": SigLIP2Adapter,
-}
+ADAPTERS = {tower.slug: tower.adapter() for tower in ROSTER}
 IMAGENET_100 = 130_000
 
 

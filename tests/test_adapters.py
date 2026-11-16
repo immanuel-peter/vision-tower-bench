@@ -17,13 +17,13 @@ from vtb.adapters.gemma4 import Gemma4Adapter
 from vtb.adapters.glm5 import GLM5Adapter
 from vtb.adapters.kimi_k26 import KimiK26Adapter
 from vtb.adapters.mimo26 import MiMo26FlashAdapter, MiMo26ProAdapter
-from vtb.adapters.minimax_m3 import MiniMaxM3Adapter
+from vtb.adapters.minimax_m3 import MiniMaxM3Adapter, MiniMaxM31FlashAdapter
 from vtb.adapters.mistral_large4 import MistralLarge4Adapter
 from vtb.adapters.moonvit_v2 import KimiK31ProAdapter, MoonViTV2Adapter
 from vtb.adapters.nemotron_omni import NemotronOmniAdapter
 from vtb.adapters.nemotron35 import Nemotron35BoltAdapter, Nemotron35SuperAdapter
 from vtb.adapters.muse_glimmer import MuseGlimmerAdapter
-from vtb.adapters.qwen3_5 import MERGE_SIZE, PATCH_SIZE, Qwen3_5Adapter
+from vtb.adapters.qwen3_5 import MERGE_SIZE, PATCH_SIZE, Qwen3_5Adapter, Qwen38FlashNextAdapter
 from vtb.adapters.siglip2 import SigLIP2Adapter
 from vtb.extract import ADAPTERS
 
@@ -38,10 +38,12 @@ EXPECTED = {
     KimiK31ProAdapter: (32, 16, 1024, 4096, 7168),
     KimiK26Adapter: (32, 16, 1152, 4608, 7168),
     Qwen3_5Adapter: (28, 14, 1152, 4608, 5120),
+    Qwen38FlashNextAdapter: (28, 14, 1152, 4608, 2560),
     MuseGlimmerAdapter: (32, 16, 1536, 6144, 6656),
     Gemma4Adapter: (30, 10, 1152, 1152, 5376),
     GLM5Adapter: (32, 16, 1024, 4096, 4096),
     MiniMaxM3Adapter: (32, 16, 1280, 5120, 6144),
+    MiniMaxM31FlashAdapter: (32, 16, 1280, 5120, 6144),
     NemotronOmniAdapter: (28, 14, 1280, 5120, 2688),
     DeepSeekV41Adapter: (32, 11, 1024, 9216, 5120),
     Nemotron35SuperAdapter: (28, 14, 1280, 5120, 4096),

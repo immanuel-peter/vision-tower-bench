@@ -22,7 +22,7 @@ def parser() -> argparse.ArgumentParser:
     ap.add_argument("--count", type=int, default=2_000)
     ap.add_argument("--batch-size", type=int, required=True)
     ap.add_argument("--workers", type=int, default=8)
-    ap.add_argument("--resolution", type=int, default=448)
+    ap.add_argument("--resolution", type=int, default=None, help="defaults to the adapter's default_resolution")
     ap.add_argument("--device", default="cuda")
     ap.add_argument("--images-per-shard", type=int, default=512)
     return ap
@@ -30,6 +30,8 @@ def parser() -> argparse.ArgumentParser:
 
 def main() -> None:
     args = parser().parse_args()
+    if args.resolution is None:
+        args.resolution = ADAPTERS[args.model].default_resolution
     protocol = json.loads(args.transform_manifest.read_text())
     if args.count != protocol["images"]:
         raise SystemExit(f"requested {args.count} images but manifest has {protocol['images']}")
