@@ -22,39 +22,11 @@ from transformers.dynamic_module_utils import get_class_from_dynamic_module
 
 from vtb.adapters.mimo26 import CHECKPOINTS, FLASH, PRO, MiMo26FlashAdapter, MiMo26ProAdapter, source_weights
 from vtb.images import square_crop
+from vtb.parity import compare, reference_raster
 
 ADAPTERS = {PRO.name: MiMo26ProAdapter, FLASH.name: MiMo26FlashAdapter}
 ABSENT_BIASES = {"merger.ln_q.bias", "merger.mlp.0.bias", "merger.mlp.2.bias"}
 TOLERANCE = {torch.bfloat16: 0.016, torch.float32: 1e-4}
-
-
-def statistics(actual, expected):
-    delta = actual.float() - expected.float()
-    return {
-        "shape": list(actual.shape), "max_abs": delta.abs().max().item(),
-        "rms": delta.square().mean().sqrt().item(),
-        "cosine": torch.nn.functional.cosine_similarity(actual.double().flatten(), expected.double().flatten(), dim=0).item(),
-        "bit_exact": torch.equal(actual, expected),
-    }
-
-
-def reference_raster(packed, grid, column_major):
-    """Independent coordinate scatter, avoiding the adapter reshape path."""
-    restored, start = [], 0
-    for t, h, w in grid.tolist():
-        assert t == 1
-        image = torch.empty(h, w, packed.shape[-1], device=packed.device, dtype=packed.dtype)
-        outer = [(y, x) for y in range(0, h, 2) for x in range(0, w, 2)]
-        if column_major:
-            outer.sort(key=lambda coord: (coord[1], coord[0]))
-        for y, x in outer:
-            for dy in range(2):
-                for dx in range(2):
-                    image[y + dy, x + dx] = packed[start]
-                    start += 1
-        restored.append(image.flatten(0, 1))
-    assert start == len(packed)
-    return torch.stack(restored)
 
 
 def load_reference(checkpoint, weights, device, dtype):
@@ -125,7 +97,7 @@ def validate(name, bundle, device, resolutions=(96, 448), dtype=torch.bfloat16):
             for handle in handles:
                 handle.remove()
         case = {"resolution": resolution, "batch_size": len(images),
-                "preprocessing": statistics(inputs["pixel_values"], processed["pixel_values"]), "features": []}
+                "preprocessing": compare(inputs["pixel_values"], processed["pixel_values"]), "features": []}
         for batch in adapter.extract(inputs, ["noise_wide", "noise_tall"]):
             if batch.stage == "tower":
                 column_major = parent.vit_window_attn_types[batch.layer_index - 1] == 1
@@ -134,14 +106,14 @@ def validate(name, bundle, device, resolutions=(96, 448), dtype=torch.bfloat16):
                 expected = captured["merged"].reshape(len(images), -1, 5120)
             else:
                 expected = projected.reshape(len(images), -1, config.vision_config["out_hidden_size"])
-            case["features"].append({"stage": batch.stage, "layer": batch.layer_index, **statistics(batch.tokens, expected.cpu())})
+            case["features"].append({"stage": batch.stage, "layer": batch.layer_index, **compare(batch.tokens, expected.cpu())})
         with torch.inference_mode():
             actual = released(inputs["pixel_values"].to(device, dtype), inputs["grid_thw"])
             rms_merged = torch.nn.functional.rms_norm(captured[28], (1280,), parent.merger.ln_q.weight, eps=1e-6).reshape(-1, 5120)
             rms_projected = parent.merger.mlp(rms_merged)
-        case["auto_model_projected"] = statistics(actual.cpu(), projected.cpu())
+        case["auto_model_projected"] = compare(actual.cpu(), projected.cpu())
         # vLLM feeds this merger RMSNorm instead of LayerNorm. Replace only that.
-        case["rmsnorm_merger_ablation"] = statistics(rms_projected.cpu(), projected.cpu())
+        case["rmsnorm_merger_ablation"] = compare(rms_projected.cpu(), projected.cpu())
         report["cases"].append(case)
     del adapter, parent, released
     gc.collect()

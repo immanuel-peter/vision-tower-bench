@@ -51,7 +51,7 @@ checkpoint using `torch.equal`.
 
 ## Reproduction
 
-The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/scripts/export_minimax_m3_vision.py)
+The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/adapters/minimax_m3.py)
 reads `vision_tower.vision_model.*` from shard 59 of `MiniMaxAI/MiniMax-M3`.
 It remaps `encoder.layers` to `layers` and `embeddings.patch_embedding` to `embeddings.proj`, 
 then writes 515 Tower tensors. The Projector comes from `multi_modal_projector.*` and `patch_merge_mlp.*` 

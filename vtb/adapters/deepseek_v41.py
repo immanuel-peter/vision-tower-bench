@@ -1,12 +1,15 @@
 from collections.abc import Iterator
 from functools import partial
 from math import isqrt
+from pathlib import Path
 
 import torch
+from huggingface_hub import hf_hub_download
 from safetensors.torch import load_file
 
 from vtb.adapters.base import Inputs
 from vtb.adapters.common import HALF, PatchPreprocess, default_device, depth_points, make_batch
+from vtb.bundle import expect_tensors, write_bundle
 from vtb.feature_batch import FeatureBatch
 from vtb.models.deepseek_v41 import ARGS, PATCH_SIZE, Aligner, ViT
 from vtb.provenance import open_release
@@ -20,6 +23,8 @@ SOURCE_REVISION = "dba1be0a40aa45a94ad051997016db3960a90277"
 VISION_SHARD = "model-00001-of-00048.safetensors"
 TOWER_PREFIX = "vision."
 ALIGNER_PREFIX = "aligner."
+TOWER_TENSORS = 259
+PROJECTOR_TENSORS = 4
 
 Preprocess = partial(PatchPreprocess, mean=HALF, std=HALF, patch_size=PATCH_SIZE, flatten=False)
 
@@ -41,6 +46,28 @@ def load_source_parts(dtype: torch.dtype = torch.bfloat16) -> tuple[ViT, Aligner
         ).items()
     })
     return tower.to(dtype).eval(), aligner.to(dtype).eval()
+
+
+def export(out: Path) -> None:
+    expect_tensors(load_prefixed(SOURCE_REPO, [VISION_SHARD], TOWER_PREFIX, revision=SOURCE_REVISION), TOWER_TENSORS, "Tower")
+    expect_tensors(load_prefixed(SOURCE_REPO, [VISION_SHARD], ALIGNER_PREFIX, revision=SOURCE_REVISION), PROJECTOR_TENSORS, "Aligner")
+
+    tower, aligner = load_source_parts()
+    write_bundle(
+        out,
+        weights={"model.safetensors": tower.state_dict(), "projector.safetensors": aligner.state_dict()},
+        configs={
+            "config.json": {
+                "architectures": ["DeepSeekV41ViT"],
+                "vision_n_layers": 32,
+                "vision_dim": 1024,
+                "vision_patch_size": 14,
+                "vision_downsample_ratio": 3,
+                "aligner_dim": 5120,
+            }
+        },
+        license=Path(hf_hub_download(SOURCE_REPO, "LICENSE", revision=SOURCE_REVISION)),
+    )
 
 
 def load_parts(dtype: torch.dtype) -> tuple[ViT, Aligner]:

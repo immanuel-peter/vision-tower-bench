@@ -61,7 +61,7 @@ lane() {
         rc=0
         echo "[$(date -u +%T)] start $model extraction on gpu $gpu" >> "$OUT/lane$index.log"
         CUDA_VISIBLE_DEVICES="$gpu" OMP_NUM_THREADS="$THREADS" MKL_NUM_THREADS="$THREADS" \
-        uv run python scripts/perturbation_extract.py \
+        uv run python -m vtb.perturbation_extract \
             --model "$model" --identity-images "$IDENTITY" --condition-images "$CONDITIONS" \
             --transform-manifest "$MANIFEST" --out "$CACHE" --batch-size "$batch" --resolution "$resolution" \
             --workers "$WORKERS" --device cuda > "$OUT/${model}_extract.log" 2>&1 || rc=$?
@@ -71,7 +71,7 @@ lane() {
         rc=0
         echo "[$(date -u +%T)] start $model fixed-readout scoring" >> "$OUT/lane$index.log"
         CUDA_VISIBLE_DEVICES="$gpu" OMP_NUM_THREADS="$THREADS" MKL_NUM_THREADS="$THREADS" \
-        uv run python scripts/perturbation_run.py \
+        uv run python -m vtb.perturbation_run \
             --clean-run "$CACHE/identity/${model}_${resolution}_pool4" --features-root "$CACHE" \
             --model-dir "${model}_${resolution}_pool4" --labels "$LABELS" \
             --transform-manifest "$MANIFEST" --out "$OUT/${model}_perturbation.json" \

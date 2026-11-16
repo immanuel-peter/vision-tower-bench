@@ -51,7 +51,7 @@ implementation bit-for-bit in FP32 and BF16 at 448 and 1540 pixels.
 
 ## Reproduction
 
-The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/scripts/export_mistral_large4_vision.py)
+The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/adapters/mistral_large4.py)
 range-reads the 276 vision tensors from the shard the pinned index names, renames
 them to HF Pixtral names and reorders each `wq` and `wk` head from interleaved
 rotary pairs to rotate-half order. It writes the original BF16 tensors. The script

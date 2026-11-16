@@ -16,24 +16,8 @@ from transformers import AutoModel
 from transformers.models.qwen4_exp.configuration_qwen4_exp import Qwen4ExpVisionConfig
 from transformers.models.qwen4_exp.modeling_qwen4_exp import Qwen4ExpVisionModel
 
+from vtb.parity import reference_raster, tensor_sha256
 from vtb.adapters.qwen3_5 import FLASH_NEXT, QWEN27B, Qwen38FlashNextAdapter, collate, Preprocess, source_json, source_weights
-
-
-def digest(tensor):
-    return hashlib.sha256(tensor.contiguous().view(torch.uint8).numpy().tobytes()).hexdigest()
-
-
-def reference_raster(packed, batch, side):
-    result = torch.empty(batch, side, side, packed.shape[-1], device=packed.device, dtype=packed.dtype)
-    offset = 0
-    for image in range(batch):
-        for y in range(0, side, 2):
-            for x in range(0, side, 2):
-                for dy in range(2):
-                    for dx in range(2):
-                        result[image, y + dy, x + dx] = packed[offset]
-                        offset += 1
-    return result.flatten(1, 2)
 
 
 def validate(bundle, device, resolutions=(96, 448), dtype=torch.float32):
@@ -46,7 +30,7 @@ def validate(bundle, device, resolutions=(96, 448), dtype=torch.float32):
         actual = state[name]
         assert actual.dtype == expected.dtype == torch.bfloat16, name
         assert torch.equal(actual, expected), name
-        actual_sha256, source_sha256 = digest(actual), digest(expected)
+        actual_sha256, source_sha256 = tensor_sha256(actual), tensor_sha256(expected)
         assert actual_sha256 == source_sha256, name
         identity[name] = {"shape": list(actual.shape), "dtype": str(actual.dtype),
                           "sha256": actual_sha256, "source_sha256": source_sha256}
@@ -102,7 +86,7 @@ def validate(bundle, device, resolutions=(96, 448), dtype=torch.float32):
             torch.testing.assert_close(actual,expected_tensor,rtol=0,atol=0)
         for batch in batches:
             if batch.stage == "tower":
-                target = reference_raster(captured[batch.layer_index],2,resolution//16)
+                target = reference_raster(captured[batch.layer_index], torch.tensor([[1, resolution // 16, resolution // 16]] * 2))
             elif batch.stage == "merged":
                 target = expected.last_hidden_state.reshape(2,-1,4608)
             else:

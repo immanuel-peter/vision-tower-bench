@@ -47,7 +47,7 @@ compares the 355 Tower tensors and the Projector Linear with the pinned parent u
 
 ## Reproduction
 
-The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/scripts/export_gemma4_vision.py)
+The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/adapters/gemma4.py)
 reads `model.vision_tower.*` (355 tensors) and `model.embed_vision.*` (1 tensor) from
 `model-00001-of-00002.safetensors` of `google/gemma-4-31B-it`. It strips the prefixes
 and writes the original BF16 tensors.

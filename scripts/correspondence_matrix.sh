@@ -47,7 +47,7 @@ lane() {
         rc=0
         echo "[$(date -u +%T)] start $model $dataset on gpu $gpu" >> "$OUT/lane$index.log"
         CUDA_VISIBLE_DEVICES="$gpu" OMP_NUM_THREADS="$THREADS" MKL_NUM_THREADS="$THREADS" \
-        uv run python scripts/correspondence_run.py \
+        uv run python -m vtb.correspondence_run \
             --model "$model" --dataset "$dataset" --root "$root" --out "$out" \
             > "$OUT/${model}_${dataset}.log" 2>&1 || rc=$?
         echo "[$(date -u +%T)] done $model $dataset rc=$rc" >> "$OUT/lane$index.log"

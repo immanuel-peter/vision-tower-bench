@@ -41,7 +41,7 @@ compares all 347 tensors with the pinned parent checkpoint using `torch.equal`.
 
 ## Reproduction
 
-The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/scripts/export_glm5_vision.py)
+The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/adapters/glm5.py)
 reads `model.visual.*` from shard 62 of `zai-org/GLM-5.3-Flash`, removes the prefix, and
 writes the original BF16 tensors. It copies the image section of the parent processor
 configuration.

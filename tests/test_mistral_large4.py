@@ -225,7 +225,7 @@ def test_source_shapes_and_dtypes():
 def test_bundle_manifest_and_configs_record_the_pinned_parent():
     bundle = ml4.RELEASE_DIR
     if not (bundle / "export_manifest.json").is_file():
-        pytest.skip("run scripts/export_mistral_large4_vision.py first")
+        pytest.skip("run python -m vtb.export mistral_large4 first")
     manifest = json.loads((bundle / "export_manifest.json").read_text())
     assert (manifest["source_repo"], manifest["source_revision"]) == (ml4.SOURCE_REPO, ml4.SOURCE_REVISION)
     assert manifest["tensors"] == 276 and len(manifest["rope_permutation"]["tensors"]) == 60

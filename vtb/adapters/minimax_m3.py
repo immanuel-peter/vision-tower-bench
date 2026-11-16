@@ -20,6 +20,8 @@ from transformers.models.minimax_m3_vl.modeling_minimax_m3_vl import (
 
 from vtb.adapters.base import Inputs
 from vtb.adapters.common import CLIP_MEAN, CLIP_STD, PatchPreprocess, default_device, depth_points, make_batch, pack_patches, raster
+from vtb.bundle import expect_tensors, write_bundle
+from vtb.bundle_manifest import copy_assets, write_manifest
 from vtb.feature_batch import FeatureBatch
 from vtb.provenance import open_release
 from vtb.shards import load_prefixed
@@ -64,6 +66,8 @@ SOURCE_REPO, SOURCE_REVISION = M3.repo, M3.revision
 TOWER_PREFIX = "vision_tower.vision_model."
 PROJECTOR_PREFIX = "multi_modal_projector."
 MERGE_MLP_PREFIX = "patch_merge_mlp."
+TOWER_TENSORS = 515
+PROJECTOR_TENSORS = 8
 PATCH_SIZE = 14
 TEMPORAL_PATCH_SIZE = 2
 MERGE_SIZE = 2
@@ -114,8 +118,8 @@ def source_weights(checkpoint: Checkpoint) -> tuple[dict, dict]:
 
     tower = remap_tower(read(TOWER_PREFIX))
     projector = remap_projector(read(PROJECTOR_PREFIX), read(MERGE_MLP_PREFIX))
-    if len(tower) != 515 or len(projector) != 8:
-        raise ValueError(f"expected 515 Tower and 8 Projector tensors, got {len(tower)}, {len(projector)}")
+    expect_tensors(tower, TOWER_TENSORS, "Tower")
+    expect_tensors(projector, PROJECTOR_TENSORS, "Projector")
     return tower, projector
 
 
@@ -127,6 +131,35 @@ def load_source_parts(dtype: torch.dtype = torch.bfloat16, checkpoint: Checkpoin
     projector = MiniMaxM3VLMultiModalProjector(config).to(dtype)
     projector.load_state_dict({name: tensor.to(dtype) for name, tensor in projector_weights.items()}, strict=True)
     return tower.eval(), projector.eval()
+
+
+def write_export_manifest(out: Path, checkpoint: Checkpoint) -> dict:
+    index = source_json(checkpoint, "model.safetensors.index.json")["weight_map"]
+    shards = {shard for name, shard in index.items() if name.startswith((TOWER_PREFIX, PROJECTOR_PREFIX, MERGE_MLP_PREFIX))}
+    return write_manifest(out, checkpoint.repo, checkpoint.revision, shards, allow_mixed_source=True)
+
+
+def export(out: Path, checkpoint: Checkpoint) -> None:
+    tower_weights, projector_weights = source_weights(checkpoint)
+    tower, projector = load_source_parts(checkpoint=checkpoint)
+    write_bundle(
+        out,
+        tower=tower,
+        architecture="MiniMaxM3VLVisionModel",
+        weights={"model.safetensors": tower_weights, "projector.safetensors": projector_weights},
+        configs={
+            "projector_config.json": {
+                "input_size": projector.linear_1.in_features,
+                "hidden_size": projector.linear_1.out_features,
+                "output_size": projector.merge_linear_2.out_features,
+                "merged_hidden_size": projector.merge_linear_1.in_features,
+            }
+        },
+        preprocessor=source_json(checkpoint, "preprocessor_config.json"),
+        license=Path(hf_hub_download(checkpoint.repo, "LICENSE", revision=checkpoint.revision)),
+    )
+    copy_assets(checkpoint.release_dir, out)
+    write_export_manifest(out, checkpoint)
 
 
 def projector_from_settings(settings: dict, dtype: torch.dtype) -> nn.Module:

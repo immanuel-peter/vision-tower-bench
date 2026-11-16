@@ -4,7 +4,6 @@ from types import SimpleNamespace
 import pytest
 import torch
 
-from vtb import export_moonvit_v2_vision as export
 from vtb import probe
 from vtb.adapters.moonvit_v2 import CHECKPOINTS, K3, K31_PRO, KimiK31ProAdapter, MoonViTV2Adapter
 from vtb.probe_run import Split, fit_reducer
@@ -53,8 +52,8 @@ def test_discovery_uses_pinned_index_not_shard_constants(tmp_path, monkeypatch, 
         assert (repo, revision) == (checkpoint.repo, checkpoint.revision)
         assert name == "model.safetensors.index.json"
         return str(index)
-    monkeypatch.setattr(export, "hf_hub_download", download)
-    assert export.discover_shards(checkpoint) == {
+    monkeypatch.setattr(moonvit_v2, "hf_hub_download", download)
+    assert moonvit_v2.discover_shards(checkpoint) == {
         "vision_tower.": ["other.safetensors", "tower.safetensors"],
         "mm_projector.": ["projector.safetensors"],
     }
@@ -64,9 +63,9 @@ def test_read_parent_cannot_reuse_k3_for_pro(monkeypatch):
     def load(repo, shards, prefix, revision):
         assert revision == (K3.revision if repo == K3.repo else K31_PRO.revision)
         return {"a": torch.tensor(1 if repo == K3.repo else 2)}
-    monkeypatch.setattr(export, "load_prefixed", load)
-    assert export.read_parent(K3, ["any"], "vision_tower.")["a"].item() == 1
-    assert export.read_parent(K31_PRO, ["any"], "vision_tower.")["a"].item() == 2
+    monkeypatch.setattr(moonvit_v2, "load_prefixed", load)
+    assert moonvit_v2.read_parent(K3, ["any"], "vision_tower.")["a"].item() == 1
+    assert moonvit_v2.read_parent(K31_PRO, ["any"], "vision_tower.")["a"].item() == 2
 
 
 @pytest.mark.parametrize("adapter_class", [MoonViTV2Adapter, KimiK31ProAdapter])

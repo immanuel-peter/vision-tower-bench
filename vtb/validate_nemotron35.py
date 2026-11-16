@@ -16,7 +16,6 @@ from pathlib import Path
 
 import numpy as np
 import torch
-import torch.nn.functional as F
 from PIL import Image
 from safetensors.torch import load_file
 from huggingface_hub import hf_hub_download
@@ -25,6 +24,7 @@ from transformers.activations import ACT2FN
 from transformers.dynamic_module_utils import get_class_from_dynamic_module
 from transformers.integrations import use_kernel_forward_from_hub
 
+from vtb.parity import compare
 from vtb.adapters.nemotron35 import (
     BOLT, CHECKPOINTS, SUPER, Nemotron35BoltAdapter, Nemotron35SuperAdapter, Preprocess, source_weights,
 )
@@ -92,16 +92,6 @@ def load_reference(checkpoint, dtype, device):
     return radio, projector.to(device, dtype).eval(), conditioner.to(device).float()
 
 
-def metrics(actual, expected):
-    a, e = actual.cpu().double().flatten(), expected.cpu().double().flatten()
-    return {
-        "shape": list(actual.shape), "bit_exact": torch.equal(actual, expected),
-        "max_abs": (a - e).abs().max().item(),
-        "relative_l2": ((a - e).norm() / e.norm().clamp_min(1e-12)).item(),
-        "cosine": max(-1., min(1., F.cosine_similarity(a[None], e[None]).item())),
-    }
-
-
 def validate(name, bundle, device, resolution=448, dtype=torch.bfloat16, image_path=None):
     checkpoint = CHECKPOINTS[name]
     weights = source_weights(checkpoint)
@@ -153,7 +143,7 @@ def validate(name, bundle, device, resolution=448, dtype=torch.bfloat16, image_p
     }
     for batch in adapter.extract({"pixel_values": pixels}, [str(i) for i in range(len(pixels))]):
         key = (batch.stage, batch.layer_index)
-        report["cells"][f"{key[0]}:{key[1]}"] = metrics(batch.tokens, expected[key])
+        report["cells"][f"{key[0]}:{key[1]}"] = compare(batch.tokens, expected[key])
     # Test the delivered source as well, always against the independent parent.
     spec = importlib.util.spec_from_file_location("release_vision", bundle / "vision.py")
     module = importlib.util.module_from_spec(spec)
@@ -163,7 +153,7 @@ def validate(name, bundle, device, resolution=448, dtype=torch.bfloat16, image_p
     torch.cuda.empty_cache()
     released = module.load_vision(bundle, dtype=dtype).to(device)
     output = released(pixels)
-    report["release_cells"] = {stage: metrics(value.cpu(), expected[(stage, 32)]) for stage, value in output.items()}
+    report["release_cells"] = {stage: compare(value.cpu(), expected[(stage, 32)]) for stage, value in output.items()}
     return report
 
 

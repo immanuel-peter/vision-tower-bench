@@ -45,7 +45,7 @@ also match the parent implementation bit-for-bit on CPU and in BF16 on an NVIDIA
 
 ## Reproduction
 
-The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/scripts/export_muse_glimmer_vision.py)
+The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/adapters/muse_glimmer.py)
 reads the Tower and Projector ranges from both `meta-models/Muse-Glimmer-30B` shards. It
 removes the parent prefixes, preserves the original BF16 weights, and extracts the image
 section of the parent processor configuration. The script pins the parent revision.

@@ -41,7 +41,7 @@ example.
 
 ## Reproduction
 
-The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/scripts/export_moonvit_v2_vision.py)
+The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/adapters/moonvit_v2.py)
 extracts `mm_projector` from shard 95 and `vision_tower` from shard 96 of
 `moonshotai/Kimi-K3`. It preserves the original BF16 weights and verifies all 165 Tower
 tensors against `AI4Industry/MoonViT-V2` before writing.

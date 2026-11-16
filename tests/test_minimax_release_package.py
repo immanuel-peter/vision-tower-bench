@@ -6,7 +6,7 @@ import numpy as np
 import torch
 import yaml
 
-from vtb import export_minimax_m3_vision as exporter
+from vtb.adapters import minimax_m3 as exporter
 from vtb.adapters.minimax_m3 import FLASH, Preprocess
 
 ROOT = Path(__file__).parents[1]
@@ -46,12 +46,12 @@ def test_manifest_records_source_shards_and_counts(monkeypatch, tmp_path):
     from safetensors.torch import save_file
     save_file({"tower.weight": torch.ones(1, dtype=torch.bfloat16)}, tmp_path / "model.safetensors")
     save_file({"proj.weight": torch.ones(1, dtype=torch.bfloat16)}, tmp_path / "projector.safetensors")
-    result = exporter.write_manifest(tmp_path, FLASH)
+    result = exporter.write_export_manifest(tmp_path, FLASH)
     assert result["source_shards"] == ["a.safetensors", "z.safetensors"]
     assert (result["tower_tensors"], result["projector_tensors"]) == (1, 1)
     assert result["dtype"] == "bfloat16"
     first = (tmp_path / "export_manifest.json").read_bytes()
-    exporter.write_manifest(tmp_path, FLASH)
+    exporter.write_export_manifest(tmp_path, FLASH)
     assert (tmp_path / "export_manifest.json").read_bytes() == first
 
 

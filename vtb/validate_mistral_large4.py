@@ -20,7 +20,6 @@ reference ``TransformerBlock`` does not forward the mask to attention anyway.
 """
 
 import argparse
-import hashlib
 import importlib
 import json
 import platform
@@ -41,6 +40,7 @@ from PIL import Image
 from safetensors import safe_open
 
 from vtb.adapters import mistral_large4 as ml4
+from vtb.parity import compare, file_sha256
 
 REFERENCE_PACKAGE = "mistral-inference"
 REFERENCE_VERSION = "1.6.0"
@@ -61,14 +61,6 @@ BF16_MIN_COSINE = 0.999
 CONTROL_MIN_RELATIVE = 0.05
 
 
-def sha256_file(path: Path, chunk: int = 1 << 24) -> str:
-    digest = hashlib.sha256()
-    with open(path, "rb") as handle:
-        while block := handle.read(chunk):
-            digest.update(block)
-    return digest.hexdigest()
-
-
 # ---------------------------------------------------------------- reference
 
 
@@ -84,7 +76,7 @@ def fetch_reference(root: Path) -> Path:
         response = requests.get(url, timeout=300)
         response.raise_for_status()
         wheel.write_bytes(response.content)
-    if sha256_file(wheel) != REFERENCE_SHA256:
+    if file_sha256(wheel) != REFERENCE_SHA256:
         raise ValueError(f"{wheel} does not match the pinned SHA256")
     if not (unpacked / "mistral_inference" / "vision_encoder.py").is_file():
         with zipfile.ZipFile(wheel) as archive:
@@ -296,22 +288,6 @@ def hf_packed_stages(tower, projector, pixels: torch.Tensor) -> dict[str, torch.
     return {f"tower_L{tower.config.num_hidden_layers}": final, "projected": projected}
 
 
-def compare(actual: torch.Tensor, expected: torch.Tensor) -> dict:
-    a, e = actual.double().flatten(), expected.double().flatten()
-    if actual.shape != expected.shape:
-        raise ValueError(f"shape {tuple(actual.shape)} != {tuple(expected.shape)}")
-    delta = a - e
-    return {
-        "shape": list(actual.shape),
-        "max_abs": delta.abs().max().item(),
-        "reference_max_abs": e.abs().max().item(),
-        "rms": delta.square().mean().sqrt().item(),
-        "relative": (delta.norm() / e.norm()).item(),
-        "cosine": torch.nn.functional.cosine_similarity(a, e, dim=0).item(),
-        "finite": bool(torch.isfinite(actual).all()),
-    }
-
-
 # ---------------------------------------------------------------- controls
 
 
@@ -379,7 +355,7 @@ def identity_report(shard: Path, bundle: Path | None) -> tuple[dict, dict[str, t
     started = time.time()
     metadata = HfApi().model_info(ml4.SOURCE_REPO, revision=ml4.SOURCE_REVISION, files_metadata=True)
     lfs = next(item.lfs.sha256 for item in metadata.siblings if item.rfilename == SHARD)
-    digest = sha256_file(shard)
+    digest = file_sha256(shard)
     if digest != lfs:
         raise ValueError(f"{shard} SHA256 {digest} does not match the pinned LFS {lfs}")
     native = native_from_shard(shard)
@@ -470,8 +446,8 @@ def run_parity(native, args, report) -> None:
         "package": REFERENCE_PACKAGE,
         "version": REFERENCE_VERSION,
         "wheel_sha256": REFERENCE_SHA256,
-        "vision_encoder_py_sha256": sha256_file(Path(vision.__file__)),
-        "transformer_layers_py_sha256": sha256_file(Path(layers.__file__)),
+        "vision_encoder_py_sha256": file_sha256(Path(vision.__file__)),
+        "transformer_layers_py_sha256": file_sha256(Path(layers.__file__)),
         "attention_substitutes": {
             "efficient": "torch SDPA EFFICIENT_ATTENTION (kernel adapted from xformers) in the input dtype",
             "explicit": "float32 softmax(q k^T / sqrt(d)) v per head in (batch, seq, head, dim) layout",
@@ -480,7 +456,7 @@ def run_parity(native, args, report) -> None:
     }
 
     images = synthetic_images(args.out.parent / "parity-images") + [Path(p) for p in args.images]
-    report["images"] = [{"path": str(p), "sha256": sha256_file(p)} for p in images]
+    report["images"] = [{"path": str(p), "sha256": file_sha256(p)} for p in images]
     depths = tuple(round(30 * (k + 1) / 8) for k in range(8))
     report["depths"] = list(depths)
     if args.bundle is not None and (args.bundle / "model.safetensors").is_file():
@@ -488,7 +464,7 @@ def run_parity(native, args, report) -> None:
         load_candidate = lambda dtype: load_release(args.bundle, dtype)  # noqa: E731
         stage_fn = release_stages
         modeling = args.bundle / "modeling_pixtral_large4.py"
-        report["candidate_modeling_sha256"] = sha256_file(modeling) if modeling.is_file() else None
+        report["candidate_modeling_sha256"] = file_sha256(modeling) if modeling.is_file() else None
     else:
         candidate_source = "convert() of the SHA256-verified shard tensors"
         load_candidate = lambda dtype: ml4.build_parts(  # noqa: E731
@@ -599,12 +575,12 @@ def run_parity(native, args, report) -> None:
             torch.cuda.empty_cache()
             ref32 = outputs["reference_float32"][0]
             measured = {stage: compare(value.cpu(), ref32[stage]) for stage, value in stages.items()}
-            worst = max(item["relative"] for item in measured.values())
+            worst = max(item["relative_l2"] for item in measured.values())
             report["controls"].append({
                 "resolution": resolution,
                 "image": images[0].name,
                 "control": name,
-                "worst_stage": max(measured, key=lambda s: measured[s]["relative"]),
+                "worst_stage": max(measured, key=lambda s: measured[s]["relative_l2"]),
                 "worst_relative": worst,
                 "stages": measured,
                 # The eps control is a sensitivity measurement, not a required failure.
@@ -622,13 +598,13 @@ def candidate_stages_batch(tower, projector, pixels, depths) -> dict[str, torch.
 
 
 def case_passes(case: dict) -> bool:
-    fp32_ok = case["adapter_fp32"]["relative"] <= FP32_RELATIVE_TOLERANCE
-    floor = case["reference_bf16_floor"]["relative"]
+    fp32_ok = case["adapter_fp32"]["relative_l2"] <= FP32_RELATIVE_TOLERANCE
+    floor = case["reference_bf16_floor"]["relative_l2"]
     bf16 = case["adapter_bf16"]
-    bf16_ok = bf16["relative"] <= BF16_FLOOR_FACTOR * floor + BF16_FLOOR_SLACK and bf16["cosine"] >= BF16_MIN_COSINE
+    bf16_ok = bf16["relative_l2"] <= BF16_FLOOR_FACTOR * floor + BF16_FLOOR_SLACK and bf16["cosine"] >= BF16_MIN_COSINE
     case["direct_bf16_cosine_ok"] = case["adapter_bf16_vs_reference_bf16"]["cosine"] >= BF16_MIN_COSINE
     finite = all(item["finite"] for item in case.values() if isinstance(item, dict))
-    packed_ok = "hf_packed_fp32" not in case or case["hf_packed_fp32"]["relative"] <= FP32_RELATIVE_TOLERANCE
+    packed_ok = "hf_packed_fp32" not in case or case["hf_packed_fp32"]["relative_l2"] <= FP32_RELATIVE_TOLERANCE
     return bool(fp32_ok and bf16_ok and finite and packed_ok)
 
 

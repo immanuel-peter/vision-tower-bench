@@ -47,7 +47,7 @@ bit-for-bit on CPU and in BF16 on an NVIDIA A100.
 
 ## Reproduction
 
-The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/scripts/export_qwen3_8_vision.py)
+The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/adapters/qwen3_5.py)
 reads `model.visual.*` from shard 1 of `Qwen/Qwen3.8-27B`, removes the prefix, and writes
 the original BF16 tensors. The script pins the parent revision.
 

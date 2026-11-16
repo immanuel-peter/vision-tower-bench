@@ -7,6 +7,7 @@ external image processor, before the BF16 vision forward.
 
 import json
 import os
+import shutil
 from collections.abc import Iterator, Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -35,6 +36,7 @@ from vtb.adapters.nemotron_omni import (
     collate,
     pixel_shuffle,
 )
+from vtb.bundle import write_bundle
 from vtb.feature_batch import STAGES, FeatureBatch
 from vtb.provenance import open_release
 from vtb.shards import load_prefixed
@@ -167,6 +169,27 @@ def load_parts(checkpoint: Checkpoint, dtype: torch.dtype):
         "final_norm": load_file(bundle / "final_norm.safetensors") if checkpoint.final_layernorm else {},
     }
     return build_parts(checkpoint, weights, dtype)
+
+
+def export(out: Path, checkpoint: Checkpoint) -> None:
+    source = checkpoint.release_dir
+    weights = source_weights(checkpoint)
+    out.mkdir(parents=True, exist_ok=True)
+    if out.resolve() != source.resolve():
+        shutil.copytree(source, out, ignore=shutil.ignore_patterns("*.safetensors"), dirs_exist_ok=True)
+    config = {
+        "source": checkpoint.repo, "revision": checkpoint.revision,
+        "code_config_source": CODE_CONFIG_REPO, "code_config_revision": CODE_CONFIG_REVISION,
+        "radio_code_revision": RADIO_CODE_REVISION,
+        "vision_final_layernorm": checkpoint.final_layernorm,
+        "patch_size": 16, "num_layers": 32, "num_prefix_tokens": 10,
+        "summary_idxs": [0, 1], "vit_hidden": 1280, "downsample_ratio": 0.5,
+        "projector_hidden": 20480, "llm_hidden": 4096,
+        "projector_activation": "relu2", "projector_norm_eps": 1e-5,
+        "vision_final_layernorm_eps": 1e-6,
+    }
+    files = (("tower", "model.safetensors"), ("projector", "projector.safetensors"), ("final_norm", "final_norm.safetensors"))
+    write_bundle(out, weights={filename: weights[part] for part, filename in files if weights[part]}, configs={"config.json": config})
 
 
 class Nemotron35Adapter(NemotronOmniAdapter):

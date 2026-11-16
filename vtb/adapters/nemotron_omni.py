@@ -1,4 +1,5 @@
 from collections.abc import Iterator
+from pathlib import Path
 
 import torch
 from safetensors.torch import load_file
@@ -8,6 +9,7 @@ from transformers.dynamic_module_utils import get_class_from_dynamic_module
 
 from vtb.adapters.base import Inputs
 from vtb.adapters.common import ImagePreprocess, default_device, depth_points, make_batch, stack_pixels
+from vtb.bundle import ROOT, expect_tensors, write_bundle
 from vtb.feature_batch import FeatureBatch
 from vtb.provenance import open_release
 from vtb.shards import load_prefixed
@@ -28,6 +30,8 @@ VIT_WIDTH = 1280
 PROJECTOR_HIDDEN = 20480
 LLM_WIDTH = 2688
 SOURCE_MISSING_KEYS = {"radio_model.summary_idxs"}
+TOWER_TENSORS = 390
+PROJECTOR_TENSORS = 3
 
 
 class SquaredReLU(nn.Module):
@@ -117,6 +121,22 @@ def load_source_parts(dtype: torch.dtype = torch.bfloat16):
         ).items()
     })
     return radio.eval(), projector.to(dtype).eval()
+
+
+def export(out: Path) -> None:
+    expect_tensors(load_prefixed(SOURCE_REPO, [VISION_SHARD], TOWER_PREFIX, revision=SOURCE_REVISION), TOWER_TENSORS, "Tower")
+    expect_tensors(load_prefixed(SOURCE_REPO, [VISION_SHARD], PROJECTOR_PREFIX, revision=SOURCE_REVISION), PROJECTOR_TENSORS, "Projector")
+
+    radio, projector = load_source_parts()
+    write_bundle(
+        out,
+        weights={"model.safetensors": radio.state_dict(), "projector.safetensors": projector.state_dict()},
+        configs={
+            "config.json": {"architectures": ["RADIOModel"], "source": SOURCE_REPO, "revision": SOURCE_REVISION},
+            "projector_config.json": {"type": "internvl_mlp1", "vit_hidden": VIT_WIDTH, "projector_hidden": PROJECTOR_HIDDEN, "llm_hidden": LLM_WIDTH},
+        },
+        license=ROOT / "hf/C-RADIOv4-H-3-Omni/LICENSE",
+    )
 
 
 def load_parts(dtype: torch.dtype):

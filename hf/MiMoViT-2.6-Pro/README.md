@@ -47,7 +47,7 @@ The [release parity test](https://github.com/immanuel-peter/vision-tower-bench/b
 
 ## Reproduction
 
-The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/scripts/export_mimo26_vision.py) reads the `visual.*` tensors from the pinned parent and writes the original BF16 tensors.
+The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/adapters/mimo26.py) reads the `visual.*` tensors from the pinned parent and writes the original BF16 tensors.
 
 ## Credits
 

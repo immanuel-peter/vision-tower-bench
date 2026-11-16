@@ -15,11 +15,8 @@ from transformers.models.minimax_m3_vl import modeling_minimax_m3_vl as parent_c
 from transformers.models.minimax_m3_vl.configuration_minimax_m3_vl import MiniMaxM3VLConfig
 
 from vtb.adapters import minimax_m3 as mm
+from vtb.parity import tensor_sha256
 from vtb.shards import load_prefixed
-
-
-def digest(tensor):
-    return hashlib.sha256(tensor.contiguous().view(torch.uint8).numpy().tobytes()).hexdigest()
 
 
 def main():
@@ -51,7 +48,7 @@ def main():
             released = load_file(cp.bundle / filename)
             assert released.keys() == weights.keys()
             assert all(torch.equal(released[k], v) for k, v in weights.items())
-            report["identity"][cp.name][filename] = {k: {"sha256": digest(v), "shape": list(v.shape), "dtype": str(v.dtype)} for k, v in weights.items()}
+            report["identity"][cp.name][filename] = {k: {"sha256": tensor_sha256(v), "shape": list(v.shape), "dtype": str(v.dtype)} for k, v in weights.items()}
 
     for part, first, second in zip(("tower", "projector"), states[mm.M3.name], states[mm.FLASH.name]):
         rows = []

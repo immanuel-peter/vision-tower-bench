@@ -14,9 +14,8 @@ from transformers import (
     Qwen3_5VisionModel,
 )
 
-from vtb.export_moonvit_k26_vision import BUNDLE_FILES as KIMI_BUNDLE_FILES
-from vtb.export_muse_glimmer_vision import projector_config as muse_projector_config
-from vtb.adapters.muse_glimmer import Projector
+from vtb.adapters.kimi_k26 import BUNDLE_FILES as KIMI_BUNDLE_FILES
+from vtb.adapters.muse_glimmer import Projector, projector_config as muse_projector_config
 from vtb.bundle import write_bundle
 
 
@@ -149,7 +148,7 @@ def test_kimi_bundle_declares_local_model_and_processor_code():
 
 @pytest.mark.skipif(
     not (KIMI_BUNDLE / "model.safetensors").is_file(),
-    reason="run scripts/export_moonvit_k26_vision.py first",
+    reason="run python -m vtb.export kimi_k26 first",
 )
 def test_kimi_bundle_loads_offline_without_the_parent_repositories():
     loaded = AutoModel.from_pretrained(

@@ -10,6 +10,8 @@ from functools import partial
 import torch
 from transformers import AutoModel, Qwen3_5VisionConfig, Qwen3_5VisionModel
 
+from vtb.bundle import write_bundle
+from vtb.bundle_manifest import copy_assets, write_manifest
 from vtb.shards import load_prefixed
 
 from vtb.adapters.base import Inputs
@@ -69,6 +71,25 @@ def load_source_tower(checkpoint: Checkpoint, dtype=torch.bfloat16) -> Qwen3_5Vi
     model = Qwen3_5VisionModel._from_config(Qwen3_5VisionConfig(**config), dtype=dtype)
     model.load_state_dict(source_weights(checkpoint), strict=True)
     return model.eval()
+
+
+def write_export_manifest(out: Path, checkpoint: Checkpoint) -> None:
+    index = source_json(checkpoint, "model.safetensors.index.json")["weight_map"]
+    shards = {shard for name, shard in index.items() if name.startswith(VISION_PREFIX)}
+    write_manifest(out, checkpoint.repo, checkpoint.revision, shards, merger_in_model=True,
+                   extra={"out_hidden_size": checkpoint.out_hidden_size, "license": checkpoint.license})
+
+
+def export(out: Path, checkpoint: Checkpoint) -> None:
+    write_bundle(
+        out,
+        tower=load_source_tower(checkpoint),
+        architecture="Qwen3_5VisionModel",
+        preprocessor=source_json(checkpoint, "preprocessor_config.json"),
+        license=Path(hf_hub_download(checkpoint.repo, "LICENSE", revision=checkpoint.revision)),
+    )
+    copy_assets(ROOT / "hf" / checkpoint.model_id.split("/")[-1], out)
+    write_export_manifest(out, checkpoint)
 
 
 PATCH_SIZE = 16

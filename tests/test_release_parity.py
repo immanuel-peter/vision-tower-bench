@@ -10,12 +10,11 @@ from PIL import Image
 from safetensors.torch import load_file
 from transformers import AutoModel
 
-from vtb.export_moonvit_k26_vision import SOURCE_REVISION as KIMI_REVISION
-from vtb.export_moonvit_k26_vision import load_source_parts as load_kimi_source
-from vtb.export_muse_glimmer_vision import SOURCE_REVISION as MUSE_REVISION
-from vtb.export_muse_glimmer_vision import load_source_parts as load_muse_source
-from vtb.export_qwen3_8_vision import SOURCE_REVISION as QWEN_REVISION
-from vtb.export_qwen3_8_vision import load_source_tower as load_qwen_source
+from vtb.adapters.kimi_k26 import SOURCE_REVISION as KIMI_REVISION
+from vtb.adapters.kimi_k26 import load_source_parts as load_kimi_source
+from vtb.adapters.muse_glimmer import SOURCE_REVISION as MUSE_REVISION
+from vtb.adapters.muse_glimmer import load_source_parts as load_muse_source
+from vtb.adapters.qwen3_5 import load_source_tower as load_qwen_source
 from vtb.validate_mimo26 import assert_parity as assert_mimo26_parity, validate as validate_mimo26
 from vtb.validate_nemotron35 import assert_parity, validate as validate_nemotron35
 from vtb.validate_mistral_large4 import validate as validate_mistral_large4
@@ -123,7 +122,7 @@ def test_kimi_release_weights_match_the_pinned_parent():
 
 @pytest.mark.parametrize("checkpoint", qwen3_5.CHECKPOINTS.values(), ids=qwen3_5.CHECKPOINTS)
 def test_qwen_release_forward_matches_the_parent(checkpoint):
-    source = load_qwen_source(DTYPE, checkpoint).to(DEVICE)
+    source = load_qwen_source(checkpoint, DTYPE).to(DEVICE)
     released = AutoModel.from_pretrained(
         checkpoint.bundle,
         dtype=DTYPE,
@@ -228,7 +227,7 @@ def test_mistral_large4_release_matches_the_independent_mistral_forward(tmp_path
     assert release["tensors"] == 276
     assert {case["resolution"] for case in report["cases"]} == {448, 1540}
     assert len(report["cases"]) == 80
-    assert all(case["adapter_fp32"]["relative"] <= 1e-4 for case in report["cases"])
+    assert all(case["adapter_fp32"]["relative_l2"] <= 1e-4 for case in report["cases"])
     # The release reproduces the reference BF16 forward exactly. The BF16-vs-FP32
     # gate is not asserted: the parent's own BF16 forward misses it at deep Stages.
     assert report["all_direct_bf16_bit_exact"]

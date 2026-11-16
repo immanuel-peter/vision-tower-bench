@@ -54,7 +54,7 @@ parent using `torch.equal`. That is bit-identity with Omni `vision_model.*` and
 
 ## Reproduction
 
-The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/scripts/export_nemotron_omni_vision.py)
+The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/adapters/nemotron_omni.py)
 reads `vision_model.*` (390 tensors) and `mlp1.*` (3 tensors) from shard 1 of
 `nvidia/Nemotron-3-Nano-Omni-30B-A3B-Reasoning-BF16`. It removes the prefixes and
 writes the original BF16 tensors.
