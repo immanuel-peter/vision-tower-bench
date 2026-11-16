@@ -44,7 +44,7 @@ QWEN27B = Checkpoint(
 )
 FLASH_NEXT = Checkpoint(
     "qwen38_flash_next", "immanuelpeter/Qwen3.8-Flash-Next-Vision", "Qwen/Qwen3.8-Flash-Next",
-    "de4b8e4d43b917e7706784d8bb445c9af86a3540", 2560, "qwen-community-1.0", "120ed5d5baf11cb478099350e94218ee3cbed3df",
+    "de4b8e4d43b917e7706784d8bb445c9af86a3540", 2560, "qwen-community-1.0", "8bca5e8a80c5a08c660281d18f10a134f3117ca8",
 )
 CHECKPOINTS = {c.name: c for c in (QWEN27B, FLASH_NEXT)}
 MODEL_ID, SOURCE_REPO = QWEN27B.model_id, QWEN27B.repo

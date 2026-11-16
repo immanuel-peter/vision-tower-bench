@@ -80,7 +80,7 @@ SUPER = Checkpoint(
     "nvidia/NVIDIA-Nemotron-3.5-Super-VL-120B-A12B-BF16",
     "97e009758ae21747ee3752d2e43b005fb1e23a61",
     True,
-    "d023f42c7e0284ac0f3c007f9d22fb5253de7b82",
+    "219bb8d4ed7cdd98dc6b15daa624567f7c7fdb57",
 )
 BOLT = Checkpoint(
     "nemotron35_bolt",
@@ -88,7 +88,7 @@ BOLT = Checkpoint(
     "nvidia/NVIDIA-Nemotron-3.5-Bolt-74B-A9B-BF16",
     "a6a1e5030819a130a1ea08aadb1fe42f4cc86777",
     False,
-    "212a8064f23b70e1cc03990855398a66ab1d32d5",
+    "6dfa5e8a4cb08b005014715614870139260c26bc",
 )
 CHECKPOINTS = {item.name: item for item in (SUPER, BOLT)}
 
