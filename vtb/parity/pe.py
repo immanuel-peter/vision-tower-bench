@@ -56,7 +56,8 @@ VLLM_HELPERS = ("_linear", "_rope", "_normalize", "_reference_image")
 VLLM_CONSTANTS = ("_CLIP_MEAN", "_CLIP_STD", "_PROCESSOR_CLIP_STD")
 PE_TENSORS = 327
 # Relative L2 per cell. PE-Lang L in FP32 on CPU is bit-exact; in BF16 on CUDA it reaches 0.039 at L23,
-# where each implementation is already 0.057 from its own FP32 output.
+# where each implementation is already 0.057 from its own FP32 output. Inkling 2 Small against vLLM's
+# BF16 reference reaches 0.033 at L23.
 TOLERANCE = {
     PE_LANG_L.name: {torch.bfloat16: 0.05, torch.float32: 1e-5},
     INKLING2_SMALL.name: {torch.bfloat16: 0.05},
