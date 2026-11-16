@@ -47,6 +47,7 @@ ROSTER: tuple[Tower, ...] = (
     Tower("qwen38_flash_next", "Qwen3.8 Flash-Next", "immanuelpeter/Qwen3.8-Flash-Next-Vision", "vtb.adapters.qwen3_5:Qwen38FlashNextAdapter", "#a55194", 8),
     Tower("mistral_large4", "Mistral Large 4", "immanuelpeter/PixtralViT-Large-4", "vtb.adapters.mistral_large4:MistralLarge4Adapter", "#7b4173", 8),
     Tower("pe_lang_l", "PE-Lang L", "timm/vit_pe_lang_large_patch14_448.fb", "vtb.adapters.pe:PELangLAdapter", "#e6550d", 16),
+    Tower("inkling2_small", "Inkling 2 Small", "immanuelpeter/Inkling-2-Small-Vision", "vtb.adapters.pe:Inkling2SmallAdapter", "#fd8d3c", 8),
 )
 SLUGS: tuple[str, ...] = tuple(tower.slug for tower in ROSTER)
 BY_SLUG: dict[str, Tower] = {tower.slug: tower for tower in ROSTER}

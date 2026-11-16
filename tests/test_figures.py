@@ -44,6 +44,7 @@ def test_roster_covers_the_registered_tower_suite():
         "qwen38_flash_next",
         "mistral_large4",
         "pe_lang_l",
+        "inkling2_small",
     )
     assert set(FIGURE_SCRIPT.COLOUR) == set(FIGURE_SCRIPT.TOWERS)
     assert set(FIGURE_SCRIPT.DISPLAY) == set(FIGURE_SCRIPT.TOWERS)

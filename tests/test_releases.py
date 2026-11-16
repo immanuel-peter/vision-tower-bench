@@ -57,6 +57,7 @@ def load_example(path):
     ("MiMoViT-2.6-Pro", "modeling_mimo_vision.py", "mimo26.py"),
     ("MiMoViT-2.6-Flash", "modeling_mimo_vision.py", "mimo26.py"),
     ("PixtralViT-Large-4", "modeling_pixtral_large4.py", "pixtral_large4.py"),
+    ("Inkling-2-Small-Vision", "inkling2_vision.py", "inkling2.py"),
 ])
 def test_shipped_modeling_code_is_a_byte_copy_of_vtb(bundle, shipped, source):
     assert (HF / bundle / shipped).read_bytes() == (ROOT / "vtb/models" / source).read_bytes()

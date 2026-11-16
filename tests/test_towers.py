@@ -17,6 +17,7 @@ from transformers import AutoImageProcessor, DINOv3ViTModel, PixtralImageProcess
 
 from vtb.adapters import dinov3, mimo26, minimax_m3, mistral_large4, moonvit_v2, nemotron35, pe
 from vtb.adapters.common import IMAGENET_MEAN, IMAGENET_STD
+from vtb.models import inkling2
 from vtb.parity import fixed_images
 from vtb.roster import BY_SLUG, SLUGS
 
@@ -27,7 +28,8 @@ DTYPE = torch.bfloat16 if DEVICE.startswith("cuda") else torch.float32
 
 def preprocess_for(slug: str, resolution: int | None = None):
     adapter_class = BY_SLUG[slug].adapter()
-    return sys.modules[adapter_class.__module__].Preprocess(resolution or adapter_class.default_resolution)
+    preprocess = getattr(adapter_class, "Preprocess", sys.modules[adapter_class.__module__].Preprocess)
+    return preprocess(resolution or adapter_class.default_resolution)
 
 
 def noise(height: int, width: int, seed: int = 7) -> Image.Image:
@@ -47,7 +49,7 @@ def bench_crop(image: Image.Image, resolution: int) -> Image.Image:
 PREPROCESSED = {
     "dinov2": (3, 448, 448), "siglip2": (3, 448, 448), "dinov3": (3, 512, 512),
     "nemotron_omni": (3, 448, 448), "nemotron35_super": (3, 448, 448), "nemotron35_bolt": (3, 448, 448), "mistral_large4": (3, 448, 448),
-    "pe_lang_l": (3, 448, 448),
+    "pe_lang_l": (3, 448, 448), "inkling2_small": (3, 640, 640),
     "kimi_k26": (1024, 3, 14, 14), "moonvit_v2": (1024, 3, 14, 14), "kimi_k31_pro": (1024, 3, 14, 14), "deepseek_v41": (1024, 3, 14, 14),
     "muse_glimmer": (1024, 1176), "glm5": (1024, 1176), "minimax_m3": (1024, 1176), "minimax_m31_flash": (1024, 1176),
     "qwen3_5": (784, 1536), "qwen38_flash_next": (784, 1536), "mimo26_pro": (784, 1536), "mimo26_flash": (784, 1536),
@@ -67,6 +69,7 @@ REJECTED_RESOLUTIONS = {
     "mistral_large4": [440],
     "nemotron35_super": [0, 16, 33, 447],
     "pe_lang_l": [0, 224, 434, 462],
+    "inkling2_small": [0, 448, 600, 680],
 }
 
 
@@ -220,6 +223,70 @@ def test_pe_tower_rejects_mismatched_pixels_and_ids():
         list(adapter.extract({"pixel_values": torch.randn(1, 3, 112, 112)}, ["a"]))
     with pytest.raises(ValueError, match="same length"):
         list(adapter.extract({"pixel_values": torch.randn(2, 3, 96, 96)}, ["a"]))
+
+
+def tiny_inkling_weights(width: int = 8, layers: int = 2, patch: int = 2) -> dict[str, torch.Tensor]:
+    torch.manual_seed(0)
+    shapes = {
+        "embeddings.patch_embedding.weight": (width, patch * patch * 3), "embeddings.position_embedding": (16, width),
+        "embeddings.class_embedding": (width,), "embeddings.cls_position_embedding": (width,), "ln_pre.weight": (width,), "ln_pre.bias": (width,),
+    }
+    for index in range(layers):
+        for name, shape in {
+            "ln_1.weight": (width,), "ln_1.bias": (width,), "ln_2.weight": (width,), "ln_2.bias": (width,), "ls_1.gamma": (width,), "ls_2.gamma": (width,),
+            "mlp.c_fc.weight": (4 * width, width), "mlp.c_fc.bias": (4 * width,), "mlp.c_proj.weight": (width, 4 * width), "mlp.c_proj.bias": (width,),
+            **{f"self_attn.{p}_proj.{kind}": (width, width) if kind == "weight" else (width,) for p in ("q", "k", "v", "out") for kind in ("weight", "bias")},
+        }.items():
+            shapes[f"layers.{index}.{name}"] = shape
+    return {"backbone." + name: torch.randn(shape) for name, shape in shapes.items()}
+
+
+def test_inkling_remap_uses_every_tensor_once_and_names_every_timm_tensor():
+    weights = tiny_inkling_weights()
+    mapped = inkling2.to_timm(weights)
+    assert len(weights) == 6 + 2 * 18 and len(mapped) == 5 + 2 * 14
+    assert mapped["pos_embed"].shape == (1, 17, 8) and torch.equal(mapped["pos_embed"][0, 0], weights["backbone.embeddings.cls_position_embedding"])
+    qkv = mapped["blocks.1.attn.qkv.weight"]
+    assert torch.equal(qkv, torch.cat([weights[f"backbone.layers.1.self_attn.{p}_proj.weight"] for p in "qkv"]))
+    assert torch.equal(mapped["blocks.0.gamma_2"], weights["backbone.layers.0.ls_2.gamma"])
+    with pytest.raises(KeyError, match="unmapped"):
+        inkling2.to_timm({**weights, "backbone.extra.weight": torch.zeros(1)})
+    with pytest.raises(KeyError):
+        inkling2.to_timm({name: tensor for name, tensor in weights.items() if not name.endswith("v_proj.bias")})
+
+
+def test_inkling_patch_kernel_reads_patches_flattened_row_column_channel():
+    weights = tiny_inkling_weights(patch=3)
+    linear = weights["backbone.embeddings.patch_embedding.weight"]
+    kernel = inkling2.to_timm(weights)["patch_embed.proj.weight"]
+    image = torch.randn(1, 3, 6, 9)
+    patches = image.permute(0, 2, 3, 1).reshape(1, 2, 3, 3, 3, 3).permute(0, 1, 3, 2, 4, 5).reshape(1, 6, 27)
+    torch.testing.assert_close(torch.nn.functional.conv2d(image, kernel, stride=3).flatten(2).transpose(1, 2), patches @ linear.T)
+
+
+def test_inkling_merge_concatenates_each_block_row_major():
+    side, width = 4, 2
+    ids = torch.arange(side * side, dtype=torch.float32)
+    merged = inkling2.merge(ids.view(1, -1, 1).expand(1, -1, width), side)
+    assert merged.shape == (1, 4, 4 * width)
+    assert merged[0, :, ::width].tolist() == [[0, 1, 4, 5], [2, 3, 6, 7], [8, 9, 12, 13], [10, 11, 14, 15]]
+
+
+def test_inkling_preprocess_rounds_like_the_parent_and_stays_near_half_normalization():
+    image = noise(480, 640)
+    pixels = preprocess_for("inkling2_small")(image)
+    assert pixels.shape == (3, 640, 640) and pixels.dtype == torch.float32
+    assert torch.equal(pixels, pixels.bfloat16().float())
+    half = (transforms.ToTensor()(bench_crop(image, 640)) - 0.5) / 0.5
+    assert (pixels - half).abs().max() < 0.02
+
+
+def test_inkling_projector_uses_exact_gelu():
+    projector = inkling2.Projector(8, 6, 4)
+    tokens = torch.randn(2, 3, 8)
+    hidden = projector.proj_in(tokens)
+    expected = projector.proj_out(hidden * 0.5 * (1 + torch.erf(hidden / 2**0.5)))
+    torch.testing.assert_close(projector(tokens), expected)
 
 
 def test_mistral_release_packs_mixed_image_sizes_like_stock_pixtral():

@@ -122,18 +122,25 @@ def module_for(slug: str):
     return import_module(module_name(slug)), getattr(BY_SLUG[slug].adapter(), "checkpoint", None)
 
 
+def setting(slug: str, name: str, default):
+    """A parity module's setting, given once or per checkpoint name when one module serves several."""
+    module, checkpoint = module_for(slug)
+    value = getattr(module, name, default)
+    return value.get(checkpoint.name, default) if isinstance(value, dict) else value
+
+
 def requires_cuda(slug: str) -> bool:
-    return getattr(module_for(slug)[0], "REQUIRES_CUDA", False)
+    return setting(slug, "REQUIRES_CUDA", False)
 
 
-def default_dtype(module, device: str) -> torch.dtype:
+def default_dtype(slug: str) -> torch.dtype:
     """FP32 on every device, so a release that rounds a parent tensor fails; some references only run in BF16."""
-    return getattr(module, "DTYPE", torch.float32)
+    return setting(slug, "DTYPE", torch.float32)
 
 
 def validate(slug: str, device: str = "cpu", dtype: torch.dtype | None = None) -> dict:
     module, checkpoint = module_for(slug)
-    dtype = dtype or default_dtype(module, device)
+    dtype = dtype or default_dtype(slug)
     args = (checkpoint,) if checkpoint is not None else ()
     report = module.validate(*args, device=device, dtype=dtype)
     return {"tower": slug, "device": str(device), "dtype": str(dtype), **report}

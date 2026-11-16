@@ -12,6 +12,7 @@ from vtb.adapters import common, mimo26, nemotron35
 from vtb.adapters.base import TowerAdapter
 from vtb.adapters.common import PatchPreprocess, depth_points, make_batch, raster
 from vtb.adapters.dinov3 import DINOv3Adapter
+from vtb.adapters.pe import Inkling2SmallAdapter
 from vtb.feature_batch import STAGES, FeatureBatch
 
 ADAPTER_CLASSES = sorted(set(extract.ADAPTERS.values()), key=lambda c: c.__name__)
@@ -90,7 +91,7 @@ def test_default_device_prefers_cuda_then_mps(monkeypatch, cuda, mps, expected):
 
 @pytest.mark.parametrize("adapter_class", ADAPTER_CLASSES, ids=lambda c: c.__name__)
 def test_every_adapter_declares_the_contract_and_collates_to_a_dict(adapter_class):
-    assert adapter_class.default_resolution == (512 if adapter_class is DINOv3Adapter else 448)
+    assert adapter_class.default_resolution == {DINOv3Adapter: 512, Inkling2SmallAdapter: 640}.get(adapter_class, 448)
     module = sys.modules[adapter_class.__module__]
     sample = module.Preprocess(adapter_class.default_resolution)(Image.new("RGB", (600, 480), "gray"))
     inputs = adapter_class.collate([sample, sample])
