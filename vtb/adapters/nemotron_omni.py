@@ -124,13 +124,13 @@ def load_source_parts(dtype: torch.dtype = torch.bfloat16):
 
 
 def export(out: Path) -> None:
-    expect_tensors(load_prefixed(SOURCE_REPO, [VISION_SHARD], TOWER_PREFIX, revision=SOURCE_REVISION), TOWER_TENSORS, "Tower")
-    expect_tensors(load_prefixed(SOURCE_REPO, [VISION_SHARD], PROJECTOR_PREFIX, revision=SOURCE_REVISION), PROJECTOR_TENSORS, "Projector")
-
-    radio, projector = load_source_parts()
+    """Write the parent's tensors in their own dtypes; the conditioner statistics stay FP32."""
+    tower = expect_tensors(load_prefixed(SOURCE_REPO, [VISION_SHARD], TOWER_PREFIX, revision=SOURCE_REVISION), TOWER_TENSORS, "Tower")
+    projector = expect_tensors(load_prefixed(SOURCE_REPO, [VISION_SHARD], PROJECTOR_PREFIX, revision=SOURCE_REVISION), PROJECTOR_TENSORS, "Projector")
+    radio, _ = load_source_parts()
     write_bundle(
         out,
-        weights={"model.safetensors": radio.state_dict(), "projector.safetensors": projector.state_dict()},
+        weights={"model.safetensors": {**radio.state_dict(), **tower}, "projector.safetensors": projector},
         configs={
             "config.json": {"architectures": ["RADIOModel"], "source": SOURCE_REPO, "revision": SOURCE_REVISION},
             "projector_config.json": {"type": "internvl_mlp1", "vit_hidden": VIT_WIDTH, "projector_hidden": PROJECTOR_HIDDEN, "llm_hidden": LLM_WIDTH},

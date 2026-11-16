@@ -127,8 +127,8 @@ def requires_cuda(slug: str) -> bool:
 
 
 def default_dtype(module, device: str) -> torch.dtype:
-    """BF16 on CUDA, FP32 elsewhere, unless the module's reference only runs in one dtype."""
-    return getattr(module, "DTYPE", torch.bfloat16 if str(device).startswith("cuda") else torch.float32)
+    """FP32 on every device, so a release that rounds a parent tensor fails; some references only run in BF16."""
+    return getattr(module, "DTYPE", torch.float32)
 
 
 def validate(slug: str, device: str = "cpu", dtype: torch.dtype | None = None) -> dict:
