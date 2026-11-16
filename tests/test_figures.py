@@ -43,6 +43,7 @@ def test_roster_covers_the_registered_tower_suite():
         "mimo26_flash",
         "qwen38_flash_next",
         "mistral_large4",
+        "pe_lang_l",
     )
     assert set(FIGURE_SCRIPT.COLOUR) == set(FIGURE_SCRIPT.TOWERS)
     assert set(FIGURE_SCRIPT.DISPLAY) == set(FIGURE_SCRIPT.TOWERS)
@@ -52,7 +53,7 @@ def test_roster_covers_the_registered_tower_suite():
     assert FIGURE_SCRIPT.DISPLAY["deepseek_v41"] == "DeepSeek V4.1"
     assert FIGURE_SCRIPT.DISPLAY["minimax_m3"] == "MiniMax M3"
     assert len(set(FIGURE_SCRIPT.COLOUR.values())) == len(FIGURE_SCRIPT.TOWERS)
-    assert "dinov3" not in FIGURE_SCRIPT.PROJECTORS
+    assert "dinov3" not in FIGURE_SCRIPT.PROJECTORS and "pe_lang_l" not in FIGURE_SCRIPT.PROJECTORS
     assert "nemotron35_bolt" not in FIGURE_SCRIPT.TOWER_STAGE
     assert not FIGURE_SCRIPT.OUTLIER_CHANNEL & set(FIGURE_SCRIPT.OCCLUSION)
     assert "qwen38_flash_next" not in FIGURE_SCRIPT.OCCLUSION
