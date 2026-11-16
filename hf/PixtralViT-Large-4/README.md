@@ -45,7 +45,7 @@ See [`examples/inference.py`](examples/inference.py) for image feature extractio
 
 ## Validation
 
-The release tests compare all 276 tensors with the pinned parent checkpoint using
+The [parity check](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/parity/mistral_large4.py) compares all 276 tensors with the pinned parent checkpoint using
 `torch.equal`. Fixed-image Tower, merged and projected outputs also match the parent
 implementation bit-for-bit in FP32 and BF16 at 448 and 1540 pixels.
 

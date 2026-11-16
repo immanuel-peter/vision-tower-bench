@@ -1,6 +1,5 @@
 """Run the archived channel-standardized label-budget diagnostic without changing primary probes."""
 import json
-from dataclasses import dataclass
 
 import torch
 
@@ -10,7 +9,6 @@ PATCH_SOURCE = "r2:vtb/backups/v3/2026-10-19/proposed/reducer-channel-standardiz
 PATCH_SHA256 = "f5a2bc1dcda0e6be9a2d6abea9c1bcc9cb5817282ff6406489b5022dc65e330a"
 
 
-from vtb.probe import StandardizedReducer
 from vtb.probe_run import fit_reducer
 
 def main():

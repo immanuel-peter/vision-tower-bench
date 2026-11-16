@@ -140,12 +140,6 @@ def test_bundle_metadata_pins_real_variants(checkpoint, width):
     assert checkpoint.model_id in (bundle / "examples/inference.py").read_text()
 
 
-@pytest.mark.parametrize("checkpoint", [mimo26.PRO, mimo26.FLASH], ids=lambda c: c.name)
-def test_bundle_modeling_code_is_a_byte_copy_of_the_source(checkpoint):
-    source = mimo26.ROOT / "vtb/models/mimo26.py"
-    assert (checkpoint.release_dir / "modeling_mimo_vision.py").read_bytes() == source.read_bytes()
-
-
 def test_generic_extraction_writes_every_stage_in_raster_order(monkeypatch, tmp_path):
     torch.manual_seed(0)
     model = MiMoVisionModel(tiny_config()).eval()

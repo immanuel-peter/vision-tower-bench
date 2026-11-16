@@ -5,12 +5,10 @@ not build_parts or the local release implementation. Explicit key conversion
 reproduces the conversion rules shipped in the pinned parent modeling_radio.py.
 """
 
-import argparse
 import ast
 import gc
 import hashlib
 import importlib.util
-import json
 import os
 from pathlib import Path
 
@@ -24,12 +22,14 @@ from transformers.activations import ACT2FN
 from transformers.dynamic_module_utils import get_class_from_dynamic_module
 from transformers.integrations import use_kernel_forward_from_hub
 
-from vtb.parity import compare
+from vtb.parity import compare, weights_match
 from vtb.adapters.nemotron35 import (
-    BOLT, CHECKPOINTS, SUPER, Nemotron35BoltAdapter, Nemotron35SuperAdapter, Preprocess, source_weights,
+    BOLT, SUPER, Nemotron35BoltAdapter, Nemotron35SuperAdapter, Preprocess, source_weights,
 )
 
 ADAPTERS = {SUPER.name: Nemotron35SuperAdapter, BOLT.name: Nemotron35BoltAdapter}
+# The parent's RADIO stem casts its patch projection to BF16, so the reference only runs in BF16.
+DTYPE = torch.bfloat16
 TOLERANCE = {torch.bfloat16: (1e-3, 0.999999), torch.float32: (1e-3, 0.99999)}
 
 
@@ -92,14 +92,13 @@ def load_reference(checkpoint, dtype, device):
     return radio, projector.to(device, dtype).eval(), conditioner.to(device).float()
 
 
-def validate(name, bundle, device, resolution=448, dtype=torch.bfloat16, image_path=None):
-    checkpoint = CHECKPOINTS[name]
+def validate(checkpoint, device="cpu", dtype=torch.float32, resolution=448, bundle=None, image_path=None):
+    name, bundle = checkpoint.name, bundle or checkpoint.bundle
     weights = source_weights(checkpoint)
-    for part, filename in (("tower", "model.safetensors"), ("projector", "projector.safetensors"), ("final_norm", "final_norm.safetensors")):
-        actual = load_file(bundle / filename) if weights[part] else {}
-        assert set(actual) == set(weights[part])
-        for key, value in actual.items():
-            assert value.dtype == weights[part][key].dtype and torch.equal(value, weights[part][key]), key
+    identity = {
+        part: weights_match(load_file(bundle / filename) if weights[part] else {}, weights[part])
+        for part, filename in (("tower", "model.safetensors"), ("projector", "projector.safetensors"), ("final_norm", "final_norm.safetensors"))
+    }
     y, x = np.mgrid[:480, :640]
     image = Image.fromarray(np.stack((x % 256, y % 256, ((x // 7 + y // 9) % 2) * 255), axis=-1).astype(np.uint8))
     samples = [Preprocess(resolution)(image)]
@@ -133,7 +132,7 @@ def validate(name, bundle, device, resolution=448, dtype=torch.bfloat16, image_p
         "torch": torch.__version__, "device": str(device), "dtype": str(dtype), "resolution": resolution,
         "images": ["nonuniform synthetic raster"] + ([str(image_path)] if image_path else []),
         "raster_sha256": hashlib.sha256(pixels.cpu().numpy().tobytes()).hexdigest(),
-        "weights_bit_exact": True, "tensor_counts": {key: len(value) for key, value in weights.items()},
+        "weights": identity, "weights_bit_exact": all(cell["bit_exact"] for cell in identity.values()), "tensor_counts": {key: len(value) for key, value in weights.items()},
         "reference": "pinned parent RadioModel and unmodified VisionProjector class ASTs; explicit checkpoint conversion; no parent LLM",
         "reference_code_sha256": {
             filename: hashlib.sha256(Path(hf_hub_download(checkpoint.repo, filename, revision=checkpoint.revision)).read_bytes()).hexdigest()
@@ -154,33 +153,10 @@ def validate(name, bundle, device, resolution=448, dtype=torch.bfloat16, image_p
     released = module.load_vision(bundle, dtype=dtype).to(device)
     output = released(pixels)
     report["release_cells"] = {stage: compare(value.cpu(), expected[(stage, 32)]) for stage, value in output.items()}
-    return report
+    return {**report, "passed": passes(report, dtype)}
 
 
-def assert_parity(report, dtype):
+def passes(report: dict, dtype: torch.dtype) -> bool:
     relative_l2, cosine = TOLERANCE[dtype]
     cells = [*report["cells"].values(), *report["release_cells"].values()]
-    assert all(cell["relative_l2"] < relative_l2 and cell["cosine"] > cosine for cell in cells), "parent forward parity failed"
-
-
-def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--model", choices=CHECKPOINTS, required=True)
-    parser.add_argument("--bundle", type=Path, default=None, help="defaults to the tracked hf/ release directory")
-    parser.add_argument("--device", default="cuda:0")
-    parser.add_argument("--resolution", type=int, default=448)
-    parser.add_argument("--dtype", choices=("bfloat16", "float32"), default="bfloat16")
-    parser.add_argument("--image", type=Path, help="include this natural image alongside the synthetic raster")
-    parser.add_argument("--out", type=Path, required=True)
-    args = parser.parse_args()
-    torch.set_float32_matmul_precision("highest")
-    bundle = args.bundle or CHECKPOINTS[args.model].release_dir
-    report = validate(args.model, bundle, torch.device(args.device), args.resolution, getattr(torch, args.dtype), args.image)
-    args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(report, indent=2) + "\n")
-    print(json.dumps(report, indent=2))
-    assert_parity(report, getattr(torch, args.dtype))
-
-
-if __name__ == "__main__":
-    main()
+    return report["weights_bit_exact"] and all(cell["relative_l2"] < relative_l2 and cell["cosine"] > cosine for cell in cells)

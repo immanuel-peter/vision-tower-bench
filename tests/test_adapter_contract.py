@@ -1,6 +1,5 @@
 """Weight-free checks of the shared adapter helpers and the TowerAdapter contract."""
 
-import json
 import sys
 
 import pytest
@@ -14,6 +13,7 @@ from vtb.adapters.base import TowerAdapter
 from vtb.adapters.common import PatchPreprocess, depth_points, make_batch, raster
 from vtb.adapters.dinov3 import DINOv3Adapter
 from vtb.feature_batch import STAGES, FeatureBatch
+from vtb.roster import BY_SLUG, SLUGS
 
 ADAPTER_CLASSES = sorted(set(extract.ADAPTERS.values()), key=lambda c: c.__name__)
 
@@ -126,38 +126,19 @@ def test_nemotron35_stage_selection_is_per_instance_and_read_only(monkeypatch):
         nemotron35.Nemotron35SuperAdapter(device="cpu", stages=["pooled"])
 
 
-def test_extract_uses_the_adapter_default_resolution(monkeypatch, tmp_path):
-    images = tmp_path / "images"
-    images.mkdir()
-    Image.new("RGB", (32, 32)).save(images / "sample.png")
-    seen = {}
+# A 600x480 image at each adapter's default resolution: pixels for whole-image towers, one row per patch otherwise.
+PREPROCESSED = {
+    "dinov2": (3, 448, 448), "siglip2": (3, 448, 448), "dinov3": (3, 512, 512),
+    "nemotron_omni": (3, 448, 448), "nemotron35_super": (3, 448, 448), "nemotron35_bolt": (3, 448, 448), "mistral_large4": (3, 448, 448),
+    "kimi_k26": (1024, 3, 14, 14), "moonvit_v2": (1024, 3, 14, 14), "kimi_k31_pro": (1024, 3, 14, 14), "deepseek_v41": (1024, 3, 14, 14),
+    "muse_glimmer": (1024, 1176), "glm5": (1024, 1176), "minimax_m3": (1024, 1176), "minimax_m31_flash": (1024, 1176),
+    "qwen3_5": (784, 1536), "qwen38_flash_next": (784, 1536), "mimo26_pro": (784, 1536), "mimo26_flash": (784, 1536),
+    "gemma4": (900, 768),
+}
 
-    class Adapter:
-        default_resolution = 512
-        model_id = "test/default-resolution"
-        stages = ("tower",)
-        num_layers = 1
 
-        def __init__(self, resolution, device):
-            seen.update(resolution=resolution, device=device)
-            self.resolution, self.device = resolution, device
-
-        def depth_points(self):
-            return [1]
-
-        def preprocess(self):
-            return lambda _image: torch.zeros(3, 4, 4)
-
-        def collate(self, rows):
-            return {"pixel_values": torch.stack(rows)}
-
-        def extract(self, inputs, ids):
-            yield FeatureBatch(tokens=torch.zeros(len(ids), 4, 8), image_ids=ids, model_id=self.model_id, stage="tower", layer_index=1, num_layers=1, resolution=self.resolution)
-
-    monkeypatch.setitem(extract.ADAPTERS, "test-default-resolution", Adapter)
-    monkeypatch.setattr(extract, "default_device", lambda: "cpu")
-    monkeypatch.setattr(sys, "argv", ["extract", "--model", "test-default-resolution", "--images", str(images), "--out", str(tmp_path / "features"), "--workers", "0"])
-    extract.main()
-    assert seen == {"resolution": 512, "device": "cpu"}
-    summary = json.loads((tmp_path / "features/test-default-resolution_512_full/summary.json").read_text())
-    assert summary["resolution"] == 512 and summary["device"] == "cpu"
+@pytest.mark.parametrize("slug", SLUGS)
+def test_preprocess_produces_the_expected_patch_grid(slug):
+    adapter_class = BY_SLUG[slug].adapter()
+    preprocess = sys.modules[adapter_class.__module__].Preprocess(adapter_class.default_resolution)
+    assert tuple(preprocess(Image.new("RGB", (600, 480), "gray")).shape) == PREPROCESSED[slug]

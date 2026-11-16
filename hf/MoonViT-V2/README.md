@@ -39,6 +39,13 @@ publishes the Tower alone.
 See [`examples/inference.py`](examples/inference.py) for a complete image-to-projected-features
 example.
 
+## Validation
+
+The [parity check](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/parity/moonvit_v2.py)
+compares all 165 Tower tensors and three Projector tensors with the pinned Kimi K3
+parent using `torch.equal`. Fixed-image Tower, merged and projected outputs also match
+pinned official vLLM vision source in FP32 under vLLM's own TORCH_SDPA.
+
 ## Reproduction
 
 The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/adapters/moonvit_v2.py)

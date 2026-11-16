@@ -12,7 +12,7 @@ mistral-inference imports xformers for ``memory_efficient_attention``, which
 is not installed. This script registers a substitute module. By default it
 calls PyTorch's memory-efficient SDPA kernel, which PyTorch adapted from the
 xformers kernel, in the input dtype and the reference's own (batch, sequence,
-head, dim) layout. ``--reference-attention explicit`` instead computes
+head, dim) layout. ``run(..., reference_attention="explicit")`` instead computes
 softmax(q k^T / sqrt(d)) v in float32, head by head. ``BlockDiagonalMask``
 keeps the xformers semantics. ``tests/test_mistral_large4.py`` checks both against
 direct formulas. Only one image is packed per reference call, and the
@@ -20,6 +20,7 @@ reference ``TransformerBlock`` does not forward the mask to attention anyway.
 """
 
 import argparse
+import os
 import importlib
 import json
 import platform
@@ -41,12 +42,14 @@ from safetensors import safe_open
 
 from vtb.adapters import mistral_large4 as ml4
 from vtb.parity import compare, file_sha256
+from vtb.shards import cache_root
 
 REFERENCE_PACKAGE = "mistral-inference"
 REFERENCE_VERSION = "1.6.0"
 REFERENCE_WHEEL = "mistral_inference-1.6.0-py3-none-any.whl"
 REFERENCE_SHA256 = "ab55f27381836d81e67b323eea21bc0f5f483a9eff8c603d04d9fabde925e836"
 SHARD = "consolidated-00053-of-00054.safetensors"
+REQUIRES_CUDA = True
 # Decided before the first comparison. FP32 runs disable TF32, so any layout
 # mistake shows up far above this bound.
 FP32_RELATIVE_TOLERANCE = 1e-4
@@ -608,7 +611,7 @@ def case_passes(case: dict) -> bool:
     return bool(fp32_ok and bf16_ok and finite and packed_ok)
 
 
-def validate(
+def run(
     out: Path,
     reference_root: Path,
     bundle: Path | None = None,
@@ -658,29 +661,16 @@ def validate(
     return report
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--out", type=Path, required=True)
-    parser.add_argument("--reference-root", type=Path, required=True, help="where to keep the pinned wheel")
-    parser.add_argument("--bundle", type=Path, default=None, help="release directory to check instead of convert()")
-    parser.add_argument("--images", nargs="*", default=[], help="real images added to the two synthetic ones")
-    parser.add_argument("--resolutions", nargs="+", type=int, default=[448, 1540])
-    parser.add_argument("--device", default="cuda")
-    parser.add_argument("--identity-only", action="store_true")
-    parser.add_argument(
-        "--reference-attention", choices=sorted(REFERENCE_ATTENTION), default="efficient",
-        help="stand-in for the reference's xformers memory_efficient_attention",
+def validate(device: str = "cuda", dtype: torch.dtype | None = None) -> dict:
+    """The FP32 reference at 1540 px needs a GPU, so parity runs on CUDA only."""
+    root = Path(os.environ.get("VTB_MISTRAL_REFERENCE", cache_root().parent / "vtb-mistral-reference"))
+    bundle = ml4.bundle_dir() if (ml4.bundle_dir() / "model.safetensors").is_file() else None
+    report = run(root / "report.json", root, bundle=bundle, resolutions=[448, 1540], device=str(device))
+    release = report["identity"].get("release", {})
+    report["passed"] = bool(
+        report["identity"]["shard_sha256"] == report["identity"]["shard_lfs_sha256"]
+        and (bundle is None or (release.get("bit_exact_after_inverse_permutation") and release.get("tensors") == 276))
+        and all(case["adapter_fp32"]["relative_l2"] <= FP32_RELATIVE_TOLERANCE for case in report["cases"])
+        and report["all_direct_bf16_bit_exact"] and report["release_equals_adapter_all"] and report["all_controls_detected"]
     )
-    args = parser.parse_args()
-    report = validate(
-        args.out, args.reference_root, args.bundle, args.images, args.resolutions, args.device,
-        args.identity_only, args.reference_attention,
-    )
-    summary = {key: report.get(key) for key in ("all_cases_pass", "all_controls_detected", "seconds")}
-    print(json.dumps(summary, indent=2))
-    if not args.identity_only and not (report["all_cases_pass"] and report["all_controls_detected"]):
-        raise SystemExit("parity failed")
-
-
-if __name__ == "__main__":
-    main()
+    return report

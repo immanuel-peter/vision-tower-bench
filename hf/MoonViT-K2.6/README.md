@@ -46,7 +46,7 @@ inference.
 
 ## Validation
 
-The release tests compare all 335 packaged tensors with shards 63 and 64 of the pinned
+The [parity check](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/parity/kimi_k26.py) compares all 335 packaged tensors with shards 63 and 64 of the pinned
 Moonshot checkpoint using `torch.equal`. Fixed-image merged and projected outputs also
 match the parent implementation bit-for-bit on CPU and in BF16 on an NVIDIA A100.
 

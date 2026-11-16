@@ -1,14 +1,16 @@
 import ast
 import inspect
 import re
+import sys
 from pathlib import Path
 
 import pytest
 
 from vtb import provenance
 from vtb.adapters import deepseek_v41, dinov2, gemma4, glm5, kimi_k26, mimo26, minimax_m3, moonvit_v2, muse_glimmer, nemotron35, nemotron_omni, qwen3_5, siglip2
+from vtb.roster import ROSTER
 
-MODULES = (dinov2, siglip2, qwen3_5, muse_glimmer, kimi_k26, moonvit_v2, gemma4, glm5, minimax_m3, nemotron_omni, mimo26, nemotron35, provenance)
+MODULES = (*dict.fromkeys(sys.modules[tower.adapter().__module__] for tower in ROSTER), provenance)
 SHA = re.compile(r"[0-9a-f]{40}")
 
 

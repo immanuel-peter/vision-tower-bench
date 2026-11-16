@@ -44,7 +44,7 @@ example. Use batch size 1 for reproducible attention.
 
 ## Validation
 
-The release tests compare all 165 Tower tensors and three Projector tensors with
+The [parity check](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/parity/moonvit_v2.py) compares all 165 Tower tensors and three Projector tensors with
 the pinned parent checkpoint using `torch.equal`. Fixed-image Tower, merged and
 projected outputs also match the parent implementation bit-for-bit in FP32 and
 in BF16 with mathematical attention. Under production vLLM BF16 attention they

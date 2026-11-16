@@ -46,7 +46,7 @@ See [`examples/inference.py`](examples/inference.py) for image feature extractio
 
 ## Validation
 
-The release tests compare all 333 tensors with the pinned parent checkpoint using
+The [parity check](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/parity/qwen3_5.py) compares all 333 tensors with the pinned parent checkpoint using
 `torch.equal`. Fixed-image Tower and merged outputs also match the parent implementation
 bit-for-bit on CPU and in BF16 on an NVIDIA RTX PRO 6000 Blackwell.
 

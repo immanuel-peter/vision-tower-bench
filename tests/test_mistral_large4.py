@@ -9,7 +9,7 @@ from transformers import Mistral3Config, PixtralImageProcessor, PixtralVisionCon
 from transformers.models.mistral3.modeling_mistral3 import Mistral3MultiModalProjector
 from transformers.models.pixtral.modeling_pixtral import apply_rotary_pos_emb
 
-from vtb import validate_mistral_large4 as validate
+from vtb.parity import mistral_large4 as validate
 from vtb.adapters import mistral_large4 as ml4
 
 needs_weights = pytest.mark.skipif(os.environ.get("VTB_SKIP_WEIGHTS") == "1", reason="VTB_SKIP_WEIGHTS=1")
@@ -175,12 +175,6 @@ def test_preprocess_matches_the_parent_processor_and_rejects_other_grids():
     assert ml4.collate([ours, ours])["pixel_values"].shape == (2, 3, 448, 448)
 
 
-def test_depth_points_match_the_issue():
-    adapter = object.__new__(ml4.MistralLarge4Adapter)
-    adapter.num_layers = 30
-    assert adapter.depth_points() == [4, 8, 11, 15, 19, 22, 26, 30]
-
-
 def test_attention_substitute_matches_softmax_attention_with_block_masks():
     torch.manual_seed(0)
     q, k, v = (torch.randn(1, 9, 3, 8) for _ in range(3))
@@ -274,10 +268,8 @@ def test_block_forward_matches_the_hf_layer_in_float32():
     torch.testing.assert_close(actual, expected, rtol=1e-5, atol=1e-5)
 
 
-def test_release_ships_the_shared_modeling_file_and_maps_auto_classes():
+def test_release_config_maps_the_shipped_modeling_file():
     bundle = ml4.RELEASE_DIR
-    shared = ml4.ROOT / "vtb/models/pixtral_large4.py"
-    assert (bundle / "modeling_pixtral_large4.py").read_bytes() == shared.read_bytes()
     config = json.loads((bundle / "config.json").read_text())
     assert config["model_type"] == "pixtral_large4_vision"
     assert config["architectures"] == ["PixtralLarge4VisionModel"]

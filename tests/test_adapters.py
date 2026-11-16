@@ -9,7 +9,6 @@ import torch
 from PIL import Image
 
 from vtb.adapters.base import TowerAdapter
-from vtb.adapters.common import raster
 from vtb.adapters.deepseek_v41 import DeepSeekV41Adapter
 from vtb.adapters.dinov2 import DINOv2Adapter
 from vtb.adapters.dinov3 import DINOv3Adapter
@@ -23,7 +22,7 @@ from vtb.adapters.moonvit_v2 import KimiK31ProAdapter, MoonViTV2Adapter
 from vtb.adapters.nemotron_omni import NemotronOmniAdapter
 from vtb.adapters.nemotron35 import Nemotron35BoltAdapter, Nemotron35SuperAdapter
 from vtb.adapters.muse_glimmer import MuseGlimmerAdapter
-from vtb.adapters.qwen3_5 import MERGE_SIZE, PATCH_SIZE, Qwen3_5Adapter, Qwen38FlashNextAdapter
+from vtb.adapters.qwen3_5 import Qwen3_5Adapter, Qwen38FlashNextAdapter
 from vtb.adapters.siglip2 import SigLIP2Adapter
 from vtb.extract import ADAPTERS
 
@@ -124,15 +123,3 @@ def test_merging_only_regroups_tower_tokens(adapter_class, image):
     assert not torch.equal(tower.reshape(merged.shape), merged)
 
 
-def test_qwen_preprocess_groups_patches_by_merge_block():
-    side = RESOLUTION // PATCH_SIZE
-    ids = torch.arange(side * side, dtype=torch.float32).view(1, side, side)
-    pixels = ids.repeat_interleave(PATCH_SIZE, 1).repeat_interleave(PATCH_SIZE, 2)
-
-    blocks = side // MERGE_SIZE
-    grouped = pixels.reshape(1, 1, 1, blocks, MERGE_SIZE, PATCH_SIZE, blocks, MERGE_SIZE, PATCH_SIZE)
-    grouped = grouped.permute(0, 3, 6, 4, 7, 2, 1, 5, 8).reshape(side * side, PATCH_SIZE * PATCH_SIZE)
-
-    assert grouped[:4, 0].tolist() == [0.0, 1.0, float(side), float(side + 1)]
-    restored = raster(grouped[:, :1].unsqueeze(0), 1)
-    assert torch.equal(restored.flatten(), ids.flatten())

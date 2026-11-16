@@ -36,7 +36,7 @@ See [`examples/inference.py`](examples/inference.py) for image feature extractio
 
 ## Validation
 
-The [parity script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/tests/test_parity.py)
+The [parity check](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/parity/glm5.py)
 compares all 347 tensors with the pinned parent checkpoint using `torch.equal`.
 
 ## Reproduction

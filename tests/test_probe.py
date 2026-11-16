@@ -1,11 +1,13 @@
 import argparse
 import json
+from types import SimpleNamespace
 
 import pytest
 import torch
 
 from vtb import cache, geometry_run, probe, probe_run
 from vtb.feature_batch import FeatureBatch
+from vtb.probe_run import run_cell, split_indices
 
 
 def test_cache_round_trips_tokens_and_image_ids(tmp_path):
@@ -313,7 +315,7 @@ def test_geometry_runner_trains_a_depth_cell_end_to_end(tmp_path):
 
 
 def test_geometry_runner_can_select_only_final_tower_and_projected(tmp_path):
-    from vtb import cache, geometry_run
+    from vtb import geometry_run
 
     for name in ("tower_L03_00000.safetensors", "tower_L06_00000.safetensors",
                  "merged_L06_00000.safetensors", "projected_L06_00000.safetensors"):
@@ -521,3 +523,38 @@ def test_perturbation_runner_keeps_the_primary_reducer_by_default():
             "--transform-manifest", "e", "--out", "f"]
     assert parser().parse_args(base).standardize_channels is False
     assert parser().parse_args(base + ["--standardize-channels"]).standardize_channels is True
+
+
+def test_learning_rate_search_uses_seed_zero_then_reruns_the_best_rate(monkeypatch):
+    calls = []
+    def train(features, labels, split, classes, readout, rate, seed, device, epochs, batch_size):
+        calls.append((rate, seed))
+        return None, 1.0 if rate == .003 else 0.0, .5 + .01 * seed
+    monkeypatch.setattr(probe_run, "train_once", train)
+    args = SimpleNamespace(learning_rates=probe_run.LEARNING_RATES, readout="attention",
+                           device="cpu", epochs=20, batch_size=256, seeds=3)
+    result = probe_run.run_cell(None, None, None, 100, args)
+    assert calls[:11] == [(rate, 0) for rate in probe_run.LEARNING_RATES]
+    assert calls[11:] == [(.003, seed) for seed in range(3)]
+    assert result["learning_rate_search_seed"] == 0
+    assert result["seed_ids"] == [0, 1, 2]
+    assert result["test_accuracy_by_seed"] == [.5, .51, .52]
+
+
+@pytest.mark.parametrize("readout", ("mean", "attention"))
+def test_prediction_retention_preserves_fit_scores_and_random_state(readout):
+    features = torch.arange(40 * 3 * 5, dtype=torch.float32).reshape(40, 3, 5) / 100
+    labels = torch.arange(40) % 2
+    split = split_indices(40)
+    args = SimpleNamespace(learning_rates=[.001, .01], readout=readout, device="cpu",
+                           epochs=1, batch_size=8, seeds=3, save_predictions=False)
+    baseline = run_cell(features, labels, split, 2, args)
+    state = torch.random.get_rng_state()
+    args.save_predictions = True
+    saved = run_cell(features, labels, split, 2, args)
+    assert torch.equal(state, torch.random.get_rng_state())
+    assert baseline == {key: saved[key] for key in baseline}
+    assert saved["test_labels"] == labels[split.test].tolist()
+    for index, predictions in enumerate(saved["test_predictions_by_seed"]):
+        actual = sum(x == y for x, y in zip(predictions, saved["test_labels"], strict=True)) / len(predictions)
+        assert actual == saved["test_accuracy_by_seed"][index]

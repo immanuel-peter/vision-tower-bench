@@ -39,7 +39,7 @@ See [`examples/inference.py`](examples/inference.py) for image feature extractio
 
 ## Validation
 
-The release tests compare all 806 Tower tensors and three Projector tensors with the
+The [parity check](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/parity/muse_glimmer.py) compares all 806 Tower tensors and three Projector tensors with the
 pinned parent checkpoint using `torch.equal`. Fixed-image merged and projected outputs
 also match the parent implementation bit-for-bit on CPU and in BF16 on an NVIDIA A100.
 

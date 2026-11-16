@@ -6,23 +6,22 @@ load its own checkpoint: it creates three merger biases the checkpoint lacks.
 The reference sets only those biases to zero and leaves the forward untouched.
 """
 
-import argparse
 import gc
 import hashlib
 import inspect
-import json
 from pathlib import Path
 from types import SimpleNamespace
 
 import numpy as np
 import torch
 from PIL import Image
+from safetensors.torch import load_file
 from transformers import AutoConfig, AutoImageProcessor, AutoModel
 from transformers.dynamic_module_utils import get_class_from_dynamic_module
 
-from vtb.adapters.mimo26 import CHECKPOINTS, FLASH, PRO, MiMo26FlashAdapter, MiMo26ProAdapter, source_weights
+from vtb.adapters.mimo26 import FLASH, PRO, VISUAL_TENSORS, MiMo26FlashAdapter, MiMo26ProAdapter, source_weights
 from vtb.images import square_crop
-from vtb.parity import compare, reference_raster
+from vtb.parity import compare, reference_raster, weights_match
 
 ADAPTERS = {PRO.name: MiMo26ProAdapter, FLASH.name: MiMo26FlashAdapter}
 ABSENT_BIASES = {"merger.ln_q.bias", "merger.mlp.0.bias", "merger.mlp.2.bias"}
@@ -54,17 +53,16 @@ def load_reference(checkpoint, weights, device, dtype):
     return config, cls, parent
 
 
-def validate(name, bundle, device, resolutions=(96, 448), dtype=torch.bfloat16):
-    checkpoint = CHECKPOINTS[name]
+def validate(checkpoint, device="cpu", dtype=torch.float32, resolutions=(96, 448), bundle=None):
+    name, bundle = checkpoint.name, bundle or checkpoint.bundle
     weights = source_weights(checkpoint)
+    identity = {"tower": weights_match(load_file(bundle / "model.safetensors"), {"visual." + key: value for key, value in weights.items()}, VISUAL_TENSORS)}
     config, cls, parent = load_reference(checkpoint, weights, device, dtype)
     adapter = ADAPTERS[name](resolution=resolutions[0], device=device, dtype=dtype, bundle=bundle)
-    state = adapter.model.state_dict()
-    exact = all(torch.equal(state["visual." + key].cpu(), tensor.to(dtype)) for key, tensor in weights.items())
-    del weights, state
+    del weights
     report = {
         "model": name, "source": checkpoint.repo, "revision": checkpoint.revision,
-        "torch": torch.__version__, "device": str(device), "dtype": str(dtype), "weights_bit_exact": exact,
+        "torch": torch.__version__, "device": str(device), "dtype": str(dtype), "weights": identity, "weights_bit_exact": identity["tower"]["bit_exact"],
         "parent_source_sha256": hashlib.sha256(Path(inspect.getfile(cls)).read_bytes()).hexdigest(),
         "reference": "pinned parent MiMoVisionTransformer; only the three absent merger biases set to zero",
         "zero_completed_biases": sorted(ABSENT_BIASES), "cases": [],
@@ -119,33 +117,10 @@ def validate(name, bundle, device, resolutions=(96, 448), dtype=torch.bfloat16):
     gc.collect()
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
-    return report
+    return {**report, "passed": passes(report)}
 
 
-def assert_parity(report, dtype):
-    tolerance = TOLERANCE[dtype]
-    for case in report["cases"]:
-        for cell in (*case["features"], case["auto_model_projected"]):
-            assert cell["max_abs"] <= tolerance, (case["resolution"], cell)
-
-
-def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--model", choices=CHECKPOINTS, required=True)
-    parser.add_argument("--bundle", type=Path, default=None, help="defaults to the tracked hf/ release directory")
-    parser.add_argument("--resolutions", nargs="+", type=int, default=[96, 448])
-    parser.add_argument("--device", default="cuda")
-    parser.add_argument("--dtype", choices=("bfloat16", "float32"), default="bfloat16")
-    parser.add_argument("--out", type=Path, required=True)
-    args = parser.parse_args()
-    dtype = getattr(torch, args.dtype)
-    bundle = args.bundle or CHECKPOINTS[args.model].release_dir
-    report = validate(args.model, bundle, torch.device(args.device), args.resolutions, dtype)
-    args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(report, indent=2) + "\n")
-    print(json.dumps(report, indent=2))
-    assert_parity(report, dtype)
-
-
-if __name__ == "__main__":
-    main()
+def passes(report: dict) -> bool:
+    tolerance = TOLERANCE[torch.bfloat16 if report["dtype"] == str(torch.bfloat16) else torch.float32]
+    cells = [cell for case in report["cases"] for cell in (*case["features"], case["auto_model_projected"])]
+    return report["weights_bit_exact"] and all(cell["max_abs"] <= tolerance for cell in cells)

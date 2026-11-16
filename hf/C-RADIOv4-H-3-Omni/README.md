@@ -47,7 +47,7 @@ from the Omni `vision_config` (`trust_remote_code=True`) and loads the weights h
 
 ## Validation
 
-The [`parity script`](https://github.com/immanuel-peter/vision-tower-bench/blob/main/tests/test_parity.py)
+The [parity check](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/parity/nemotron_omni.py)
 compares all 390 Tower tensors and three Projector tensors with the pinned Omni
 parent using `torch.equal`. That is bit-identity with Omni `vision_model.*` and
 `mlp1.*`, not with [nvidia/C-RADIOv4-H](https://huggingface.co/nvidia/C-RADIOv4-H).
