@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render the blog figures from the fetched result JSON. No GPU, no feature cache."""
+"""Render the blog figures from the result JSON in results/. No GPU, no feature cache."""
 
 import argparse
 import json
@@ -17,8 +17,53 @@ from matplotlib.patches import Patch
 from vtb.roster import ROSTER, SLUGS
 
 RESULTS = Path(__file__).resolve().parents[1] / "results"
-INDEX = json.loads((RESULTS / "index.json").read_text())
-SOURCES = INDEX["figure_sources"]
+SOURCES = {
+    "recognition": "recognition/{model}_probe_{readout}_{arm}.json",
+    "geometry_layer_sweep": "geometry/{model}_geometry_depth_matched.json",
+    "geometry_stage_levels": {
+        "dinov2": "geometry/deterministic/dinov2_geometry_depth_matched.json",
+        "siglip2": "geometry/deterministic/siglip2_geometry_depth_matched.json",
+        "muse_glimmer": "geometry/deterministic/muse_glimmer_geometry_depth_matched.json",
+        "glm5": "geometry/glm5_geometry_depth_matched.json",
+        "nemotron_omni": "geometry/nemotron_omni_geometry_depth_matched.json",
+        "kimi_k26": "geometry/deterministic/kimi_k26_geometry_depth_matched.json",
+        "qwen3_5": "geometry/deterministic/qwen3_5_geometry_depth_matched.json",
+        "deepseek_v41": "geometry/deepseek_v41_geometry_depth_matched.json",
+        "gemma4": "geometry/gemma4_geometry_depth_matched.json",
+        "moonvit_v2": "geometry/deterministic/moonvit_v2_geometry_depth_matched.json",
+        "minimax_m3": "diagnostics/minimax-m31-flash/m3-image-isolation/geometry/minimax_m3_geometry_depth_matched.json",
+        "nemotron35_super": "geometry/nemotron35_super_geometry_depth_matched.json",
+        "nemotron35_bolt": "geometry/nemotron35_bolt_geometry_depth_matched.json",
+        "mimo26_pro": "geometry/mimo26_pro_geometry_depth_matched.json",
+        "mimo26_flash": "geometry/mimo26_flash_geometry_depth_matched.json",
+        "qwen38_flash_next": "geometry/qwen38_flash_next_geometry_depth_matched.json",
+        "minimax_m31_flash": "geometry/minimax_m31_flash_geometry_depth_matched.json",
+        "mistral_large4": "geometry/mistral_large4_geometry_depth_matched.json",
+        "kimi_k31_pro": "geometry/kimi_k31_pro_geometry_depth_matched.json",
+    },
+    "label_budget": "diagnostics/mimo26-tower-outlier-channel/label_budget_standardized.json",
+    "label_budget_additional": [
+        "diagnostics/minimax-m31-flash/label_budget_standardized.json",
+    ],
+    "label_budget_overrides": {
+        "minimax_m3": "diagnostics/minimax-m31-flash/m3-image-isolation/label_budget_standardized.json",
+    },
+    "model_overrides": {
+        "minimax_m3": {
+            "recognition": "diagnostics/minimax-m31-flash/m3-image-isolation/recognition/{model}_probe_{readout}_{arm}.json",
+            "geometry_layer_sweep": "diagnostics/minimax-m31-flash/m3-image-isolation/geometry/{model}_geometry_depth_matched.json",
+            "geometry": "diagnostics/minimax-m31-flash/m3-image-isolation/geometry/{model}_geometry_{task}_{arm}.json",
+            "correspondence": "diagnostics/minimax-m31-flash/m3-image-isolation/correspondence/{model}_correspondence_{dataset}.json",
+            "perturbation": "diagnostics/minimax-m31-flash/m3-image-isolation/perturbation/{model}_perturbation.json",
+            "projector_intervals": "diagnostics/minimax-m31-flash/m3-image-isolation/bootstrap/*-projected-vs-tower.json",
+        },
+    },
+    "semantic_checkpoint_comparisons": [
+        "bootstrap/007-recognition-kimi_k31_pro-minus-moonvit_v2-tower-L27.json",
+        "bootstrap/008-recognition-kimi_k31_pro-minus-moonvit_v2-merged-L27.json",
+        "bootstrap/009-recognition-kimi_k31_pro-minus-moonvit_v2-projected-L27.json",
+    ],
+}
 TOWERS: tuple[str, ...] = SLUGS
 PROJECTORS: tuple[str, ...] = tuple(
     model for model in TOWERS if model not in ("dinov2", "siglip2", "dinov3")
@@ -27,10 +72,7 @@ PROJECTORS: tuple[str, ...] = tuple(
 NO_TOWER_STAGE = frozenset({"nemotron35_bolt"})
 TOWER_STAGE: tuple[str, ...] = tuple(model for model in TOWERS if model not in NO_TOWER_STAGE)
 OUTLIER_CHANNEL = frozenset({"mimo26_pro", "mimo26_flash", "mistral_large4"})
-OUTLIER_NOTE = (
-    "\u2020 outlier channels dominate the final Tower layer; "
-    "see results/diagnostics/mimo26-tower-outlier-channel and mistral-large4-outlier-channels"
-)
+OUTLIER_NOTE = "\u2020 outlier channels dominate the final Tower layer"
 PALETTE: tuple[str, ...] = tuple(tower.colour for tower in ROSTER)
 COLOUR: dict[str, str] = dict(zip(TOWERS, PALETTE, strict=True))
 
@@ -615,9 +657,8 @@ def main() -> None:
     parser.add_argument("--format", dest="formats", nargs="+", default=["svg"],
                         choices=("svg", "pdf", "png"))
     args = parser.parse_args()
-    marker = RESULTS / "payload-revision.txt"
-    if not marker.is_file() or marker.read_text().strip() != INDEX["payloads"]["revision"]:
-        parser.exit(1, "result payloads are missing; run: uv run python scripts/fetch_results.py results/\n")
+    if not (RESULTS / "bootstrap").is_dir():
+        parser.exit(1, "results/ is missing; run: hf download immanuelpeter/vision-tower-bench-results --repo-type dataset --include 'results/*' --local-dir .\n")
     args.out.mkdir(parents=True, exist_ok=True)
 
     for name, draw in FIGURES.items():

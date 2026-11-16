@@ -61,27 +61,7 @@ The multimodal Towers are standalone extracts of their parents. The model cards 
 
 ## Results
 
-The [results index](results/README.md) links each experiment, its evidence, and
-its correction status. Recognition and geometry matrices are grouped by task;
-diagnostics and historical run notes are separate. The measurement payloads live on the Hugging Face Dataset [immanuelpeter/vision-tower-bench-results](https://huggingface.co/datasets/immanuelpeter/vision-tower-bench-results); `results/index.json` pins its revision, and `uv run python scripts/fetch_results.py` downloads them into `results/`.
-
-The [machine-readable index](results/index.json) records the v1 six-Tower,
-v2 eleven-Tower, v3 five-Tower and v4 four-Tower cohorts. It selects
-corrected geometry and M3 controls that forward each image separately.
-Full layer sweeps and paired-bootstrap reruns remain separate records.
-
-## Reproducing the figures
-
-```bash
-uv sync --group figures
-uv run --group figures python scripts/figures.py
-```
-
-This renders all twenty Towers. The label-budget figure and the Capability Profile's semantic
-axes use channel-standardized readouts, and MiMo 2.6, Qwen3.8 Flash-Next and
-Mistral Large 4 are left out of the occlusion figure. See the
-[source-selection notes](results/README.md#choose-the-right-source) for the
-scope of the geometry corrections and the historical layer sweeps.
+Findings are in the [report](https://ipeter.dev/blog/vision-tower-bench) and the paper (coming soon). The measurements behind them are kept in a private Hugging Face Dataset.
 
 ## Evaluating a new Tower
 
@@ -97,7 +77,6 @@ scope of the geometry corrections and the historical layer sweeps.
 vtb/          # adapters, feature cache, probes, geometry and correspondence scoring
 scripts/      # export, extraction matrices, bootstraps, figures
 tests/        # parity, preprocessing, probe and merge-layout tests
-results/      # published measurements
 hf/           # model cards and configs for the published towers
 CONTEXT.md    # project vocabulary
 ```
@@ -111,4 +90,4 @@ VTB_SKIP_WEIGHTS=1 uv run pytest -q   # skip weight-dependent tests
 
 ## License
 
-MIT covers code and results here, not weights. Published Towers keep parent terms. Apache-2.0 for Qwen3.8-27B, Muse Glimmer, and Gemma 4. Qwen Community License 1.0 for Qwen3.8 Flash-Next. MIT for GLM-5.3 Flash and DeepSeek-ViT. Kimi License for Kimi K2.6 and K3, and the custom Kimi K3.1-Pro License for K3.1 Pro. NVIDIA Open Model Agreement for C-RADIOv4-H-3-Omni. OpenMDW-1.1 for C-RADIOv4-H-3.5 Super and Bolt. MIT for MiMoViT-2.6 Pro and Flash. MiniMax Community License for MiniMax M3 and M3.1 Flash. Mistral Ecosystem Open-Weight License for Mistral Large 4. Each release ships its license.
+MIT covers code here, not weights. Published Towers keep parent terms. Apache-2.0 for Qwen3.8-27B, Muse Glimmer, and Gemma 4. Qwen Community License 1.0 for Qwen3.8 Flash-Next. MIT for GLM-5.3 Flash and DeepSeek-ViT. Kimi License for Kimi K2.6 and K3, and the custom Kimi K3.1-Pro License for K3.1 Pro. NVIDIA Open Model Agreement for C-RADIOv4-H-3-Omni. OpenMDW-1.1 for C-RADIOv4-H-3.5 Super and Bolt. MIT for MiMoViT-2.6 Pro and Flash. MiniMax Community License for MiniMax M3 and M3.1 Flash. Mistral Ecosystem Open-Weight License for Mistral Large 4. Each release ships its license.

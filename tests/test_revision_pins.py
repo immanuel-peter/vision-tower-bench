@@ -45,8 +45,3 @@ def test_checkpoint_revisions_are_commit_shas():
     for module in (minimax_m3, mimo26, nemotron35):
         for checkpoint in module.CHECKPOINTS.values():
             assert SHA.fullmatch(checkpoint.revision) and SHA.fullmatch(checkpoint.release_revision)
-
-
-def test_dinov2_matches_results_readme():
-    readme = (Path(__file__).parents[1] / "results" / "README.md").read_text()
-    assert f"`{dinov2.MODEL_ID}` at revision\n`{dinov2.REVISION}`" in readme

@@ -1,4 +1,3 @@
-import hashlib
 import importlib.util
 import json
 from pathlib import Path
@@ -32,12 +31,3 @@ def test_maintained_bundle_manifests_record_counts_and_shards():
         assert isinstance(m['source_shards'],list) and m['source_shards']
         assert m['dtype'] in {'mixed','bfloat16'}
     assert checked
-
-
-def test_relocated_sidecars_keep_their_original_bytes():
-    root=Path(__file__).parents[1]
-    path=root/'results/diagnostics/kimi-k31-pro-checkpoint/execution-sidecars/relocations.json'
-    if not path.exists():pytest.skip('Kimi-only evidence')
-    for old,record in json.loads(path.read_text()).items():
-        assert not (root/old).exists()
-        assert hashlib.sha256((root/record['new']).read_bytes()).hexdigest()==record['sha256']

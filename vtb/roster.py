@@ -1,6 +1,6 @@
 """Every Tower under its canonical results slug. Slugs are frozen even where they
 name an older release than the weights they hold (`qwen3_5` is Qwen3.8,
-`moonvit_v2` is Kimi K3); see results/README.md.
+`moonvit_v2` is Kimi K3).
 """
 
 from dataclasses import dataclass

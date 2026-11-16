@@ -18,22 +18,8 @@ jobs:
 
       - run: uv sync --group dev --group figures
 
-      - uses: actions/cache@v4
-        with:
-          path: |
-            results/**
-            !results/**/*.md
-            !results/index.json
-            .cache/huggingface/download/results/**
-          key: results-${{ hashFiles('results/index.json') }}
-
-      - name: Fetch result payloads
-        run: uv run python scripts/fetch_results.py results/
-
       - name: Run suite
         env:
           VTB_SKIP_WEIGHTS: "1"
         run: uv run pytest -q
 
-      - name: Figures regenerate from fetched results
-        run: uv run --group figures python scripts/figures.py --out "${{ runner.temp }}/figures"
