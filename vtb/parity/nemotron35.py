@@ -122,7 +122,8 @@ def validate(checkpoint, device="cpu", dtype=torch.float32, resolution=448, bund
         expected[("projected", 32)] = expected_projected.cpu()
     for handle in handles:
         handle.remove()
-    del ref, projector, conditioner, ref_output, capture
+    capture.clear()
+    del ref, projector, conditioner, ref_output
     gc.collect()
     torch.cuda.empty_cache()
     os.environ[f"VTB_{name.upper()}_BUNDLE"] = str(bundle)

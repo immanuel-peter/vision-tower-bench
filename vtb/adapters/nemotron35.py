@@ -29,7 +29,7 @@ from vtb.adapters.nemotron_omni import (
     SOURCE_REVISION as CODE_CONFIG_REVISION,
     VIT_WIDTH,
     NemotronOmniAdapter,
-    Preprocess,
+    Preprocess as Preprocess,
     RMSNorm,
     SquaredReLU,
     attach_video_embedder,
