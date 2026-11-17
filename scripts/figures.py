@@ -66,7 +66,7 @@ SOURCES = {
 }
 TOWERS: tuple[str, ...] = SLUGS
 PROJECTORS: tuple[str, ...] = tuple(
-    model for model in TOWERS if model not in ("dinov2", "siglip2", "dinov3")
+    model for model in TOWERS if model not in ("dinov2", "siglip2", "dinov3", "pe_lang_l")
 )
 # Bolt is released without its Tower Stage, so it appears only where merged or projected cells count.
 NO_TOWER_STAGE = frozenset({"nemotron35_bolt"})

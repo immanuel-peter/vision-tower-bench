@@ -9,12 +9,13 @@ from types import SimpleNamespace
 
 import numpy as np
 import pytest
+import timm
 import torch
 from PIL import Image
 from torchvision import transforms
 from transformers import AutoImageProcessor, DINOv3ViTModel, PixtralImageProcessor, PixtralVisionConfig, PixtralVisionModel, Qwen2VLImageProcessor
 
-from vtb.adapters import dinov3, mimo26, minimax_m3, mistral_large4, moonvit_v2, nemotron35
+from vtb.adapters import dinov3, mimo26, minimax_m3, mistral_large4, moonvit_v2, nemotron35, pe
 from vtb.adapters.common import IMAGENET_MEAN, IMAGENET_STD
 from vtb.parity import fixed_images
 from vtb.roster import BY_SLUG, SLUGS
@@ -46,6 +47,7 @@ def bench_crop(image: Image.Image, resolution: int) -> Image.Image:
 PREPROCESSED = {
     "dinov2": (3, 448, 448), "siglip2": (3, 448, 448), "dinov3": (3, 512, 512),
     "nemotron_omni": (3, 448, 448), "nemotron35_super": (3, 448, 448), "nemotron35_bolt": (3, 448, 448), "mistral_large4": (3, 448, 448),
+    "pe_lang_l": (3, 448, 448),
     "kimi_k26": (1024, 3, 14, 14), "moonvit_v2": (1024, 3, 14, 14), "kimi_k31_pro": (1024, 3, 14, 14), "deepseek_v41": (1024, 3, 14, 14),
     "muse_glimmer": (1024, 1176), "glm5": (1024, 1176), "minimax_m3": (1024, 1176), "minimax_m31_flash": (1024, 1176),
     "qwen3_5": (784, 1536), "qwen38_flash_next": (784, 1536), "mimo26_pro": (784, 1536), "mimo26_flash": (784, 1536),
@@ -64,6 +66,7 @@ REJECTED_RESOLUTIONS = {
     "qwen3_5": [0, -32, 447, 16],
     "mistral_large4": [440],
     "nemotron35_super": [0, 16, 33, 447],
+    "pe_lang_l": [0, 224, 434, 462],
 }
 
 
@@ -101,6 +104,12 @@ def nemotron_reference(image: Image.Image, resolution: int) -> torch.Tensor:
     return torch.from_numpy(np.array(bench_crop(image, resolution))).permute(2, 0, 1).float() / 255
 
 
+def pe_reference(image: Image.Image, resolution: int) -> torch.Tensor:
+    config = timm.data.resolve_data_config(pretrained_cfg=timm.models.get_pretrained_cfg(pe.PE_LANG_L.repo.removeprefix("timm/")).to_dict())
+    assert config["input_size"] == (3, resolution, resolution) and config["crop_pct"] == 1.0
+    return timm.data.create_transform(**config)(image)
+
+
 def kimi_reference(checkpoint):
     def reference(image: Image.Image, resolution: int) -> torch.Tensor:
         processor = AutoImageProcessor.from_pretrained(checkpoint.model_id, trust_remote_code=True)
@@ -114,6 +123,7 @@ PARENT_PREPROCESSING = [
     pytest.param("mimo26_pro", mimo_reference, 5e-7, id="mimo26"),
     pytest.param("mistral_large4", mistral_reference, 1e-5, id="mistral_large4"),
     pytest.param("nemotron35_super", nemotron_reference, 0, id="nemotron35"),
+    pytest.param("pe_lang_l", pe_reference, 0, id="pe_lang_l"),
     *(pytest.param(slug, kimi_reference(checkpoint), 1e-6, id=slug, marks=needs_weights)
       for slug, checkpoint in moonvit_v2.CHECKPOINTS.items()),
 ]
@@ -163,6 +173,53 @@ def test_minimax_keeps_unrelated_images_out_of_each_others_attention(adapter_cla
     for single, batch, reversed_batch in zip(alone, paired, reversed_pair):
         assert torch.equal(single.tokens[0], batch.tokens[0])
         assert torch.equal(single.tokens[0], reversed_batch.tokens[1])
+
+
+def tiny_pe_adapter(resolution: int = 96) -> pe.PELangLAdapter:
+    """PE-Lang L's trunk at width 32, so raster order and isolation are checked without its weights."""
+    torch.manual_seed(0)
+    adapter = object.__new__(pe.PELangLAdapter)
+    patch = resolution // pe.POSITION_GRID
+    adapter.model = timm.create_model(pe.ARCHITECTURE, pretrained=False, patch_size=patch, img_size=resolution, embed_dim=32, num_heads=2).eval()
+    adapter.num_layers, adapter.resolution = len(adapter.model.blocks), resolution
+    adapter.device, adapter.dtype, adapter.model_id = "cpu", torch.float32, pe.PE_LANG_L.model_id
+    return adapter
+
+
+def test_pe_tower_drops_the_class_token_and_keeps_raster_order():
+    """With LayerScale zeroed every block is the identity, so each token is its own patch's embedding."""
+    adapter = tiny_pe_adapter()
+    for block in adapter.model.blocks:
+        block.gamma_1.data.zero_()
+        block.gamma_2.data.zero_()
+    pixels = torch.randn(2, 3, 96, 96)
+    batches = list(adapter.extract({"pixel_values": pixels}, ["a", "b"]))
+    assert [batch.layer_index for batch in batches] == [3, 6, 9, 12, 14, 17, 20, 23]
+    assert {batch.stage for batch in batches} == {"tower"}
+    patches = pixels.unfold(2, 3, 3).unfold(3, 3, 3)
+    weight = adapter.model.patch_embed.proj.weight
+    embedded = torch.einsum("bchwyx,dcyx->bhwd", patches, weight).reshape(2, 1024, 32)
+    expected = adapter.model.norm_pre(embedded + adapter.model.pos_embed[:, 1:])
+    for batch in batches:
+        assert batch.tokens.shape == (2, 1024, 32)
+        torch.testing.assert_close(batch.tokens, expected, rtol=0, atol=1e-5)
+
+
+def test_pe_tower_keeps_images_out_of_each_others_features():
+    adapter = tiny_pe_adapter()
+    first, second = torch.randn(1, 3, 96, 96), torch.randn(1, 3, 96, 96)
+    alone = list(adapter.extract({"pixel_values": first}, ["first"]))
+    paired = list(adapter.extract({"pixel_values": torch.cat([second, first])}, ["second", "first"]))
+    for single, batch in zip(alone, paired, strict=True):
+        torch.testing.assert_close(single.tokens[0], batch.tokens[1], rtol=0, atol=1e-5)
+
+
+def test_pe_tower_rejects_mismatched_pixels_and_ids():
+    adapter = tiny_pe_adapter()
+    with pytest.raises(ValueError, match="pixels"):
+        list(adapter.extract({"pixel_values": torch.randn(1, 3, 112, 112)}, ["a"]))
+    with pytest.raises(ValueError, match="same length"):
+        list(adapter.extract({"pixel_values": torch.randn(2, 3, 96, 96)}, ["a"]))
 
 
 def test_mistral_release_packs_mixed_image_sizes_like_stock_pixtral():

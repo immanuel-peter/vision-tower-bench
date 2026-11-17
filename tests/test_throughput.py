@@ -14,6 +14,11 @@ def test_configured_patch_size_accepts_scalar_and_square_pair():
     assert configured_patch_size(adapter_with_patch_size((16, 16))) == 16
 
 
+def test_configured_patch_size_reads_a_timm_patch_embedding():
+    adapter = SimpleNamespace(model=SimpleNamespace(patch_embed=SimpleNamespace(patch_size=(14, 14))))
+    assert configured_patch_size(adapter) == 14
+
+
 def test_configured_patch_size_rejects_rectangular_patches():
     with pytest.raises(ValueError, match="non-square"):
         configured_patch_size(adapter_with_patch_size((14, 16)))
