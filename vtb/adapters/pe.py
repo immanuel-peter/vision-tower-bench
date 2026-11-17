@@ -173,7 +173,7 @@ class PEAdapter:
     default_resolution = 448
     stages = ("tower",)
     collate = staticmethod(collate)
-    Preprocess = Preprocess
+    Preprocess = staticmethod(Preprocess)
 
     def __init__(self, resolution: int | None = None, dtype: torch.dtype = torch.bfloat16, device: str | None = None):
         self.resolution = self.default_resolution if resolution is None else resolution
@@ -221,7 +221,7 @@ class Inkling2SmallAdapter(PEAdapter):
     checkpoint = INKLING2_SMALL
     default_resolution = INKLING2_SMALL.native_resolution
     stages = ("tower", "merged", "projected")
-    Preprocess = partial(InklingPreprocess, rgb=True)
+    Preprocess = staticmethod(partial(InklingPreprocess, rgb=True))
 
     def __init__(self, resolution: int | None = None, dtype: torch.dtype = torch.bfloat16, device: str | None = None):
         super().__init__(resolution, dtype, device)
