@@ -63,6 +63,9 @@ def test_roster_covers_the_registered_tower_suite():
         "dinov3" not in FIGURE_SCRIPT.PROJECTORS
         and "pe_lang_l" not in FIGURE_SCRIPT.PROJECTORS
     )
+    assert set(FIGURE_SCRIPT.PROJECTORS) == set(
+        FIGURE_SCRIPT.SOURCES["geometry_stage_levels"]
+    ) - {"dinov2", "siglip2"}
     assert "nemotron35_bolt" not in FIGURE_SCRIPT.TOWER_STAGE
     assert not FIGURE_SCRIPT.OUTLIER_CHANNEL & set(FIGURE_SCRIPT.OCCLUSION)
     assert "qwen38_flash_next" not in FIGURE_SCRIPT.OCCLUSION
