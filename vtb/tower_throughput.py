@@ -13,7 +13,9 @@ from vtb.images import ImageFolder
 
 
 def configured_patch_size(adapter) -> int:
-    value = adapter.model.config.patch_size
+    config = getattr(adapter.model, "config", None)
+    # timm trunks carry no Hugging Face config; their patch size lives on the patch embedding.
+    value = config.patch_size if config is not None else adapter.model.patch_embed.patch_size
     if isinstance(value, (list, tuple)):
         if len(set(value)) != 1:
             raise ValueError(f"non-square patch size {value}")
