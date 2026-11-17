@@ -25,33 +25,27 @@ This repository packages the vision Tower and Projector from [Inkling 2 Small](h
 | `export_manifest.json` | | Source pin, tensor counts and the vision reference |
 | `LICENSE` | | Apache-2.0 |
 
-All tensors are the parent's BF16 values, unchanged.
-
 ## Architecture
 
 | Component | Details |
 |---|---|
-| Tower | 23 blocks, width 1024, 16 heads, MLP ratio 4, exact GELU, LayerScale, class token, `ln_pre`, no `ln_post`, no pooling head |
-| Patches | 20 x 20 pixels, flattened (row, column, channel) by a bias-free linear layer |
-| Positions | Learned 32 x 32 grid plus a class-token embedding, and 2D RoPE (theta 10000, interleaved pairs, x then y, patches offset by one, class token at 0) |
-| Merge | 2x2 neighbouring patch tokens concatenated top-left, top-right, bottom-left, bottom-right, class token excluded, 4096 wide |
+| Tower | 23 blocks, 1024 hidden, 16 heads, patch size 20, 2D RoPE, exact GELU, LayerScale |
+| Token compression | 2x2 spatial grouping of 1024-wide patches to 4096, no learned parameters |
 | Projector | `Linear(4096, 4096)`, exact GELU, `Linear(4096, 4608)`, no biases |
 
 The native resolution is 640 px, a 32 x 32 patch grid. There the Tower gives 1024 patch tokens of width 1024, the merge 256 tokens of width 4096, and the Projector 256 tokens of width 4608, the language model's hidden size.
 
-The parent normalizes pixels with the CLIP mean and standard deviation, rounds to BF16, maps the result to [-1, 1] and rounds to BF16 again. `normalize` in `inkling2_vision.py` does the same.
-
 ## Usage
 
-See [`examples/inference.py`](examples/inference.py), which needs `timm`, `torch`, `torchvision` and `huggingface_hub`.
+See [`examples/inference.py`](examples/inference.py) for image feature extraction.
 
 ## Validation
 
-The [parity check](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/parity/pe.py) compares every released tensor with the pinned parent using `torch.equal`. It then compares the Tower depths, the merge and the Projector with the eager per-image reference in vLLM's Inkling 2 vision test (`tests/models/inkling2/test_vision.py`, [vllm-project/vllm#67325](https://github.com/vllm-project/vllm/pull/67325)), run on the parent's tensors.
+The [parity check](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/parity/pe.py) compares every released tensor with the pinned parent using `torch.equal`. It then compares the Tower depths, the merge and the Projector with the eager per-image reference in vLLM's Inkling 2 vision [test](https://github.com/vllm-project/vllm/pull/67325), run on the parent's tensors.
 
 ## Reproduction
 
-The [export](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/adapters/pe.py) range-reads only the `model.visual.*` tensors from the shard that the pinned `model.safetensors.index.json` names. Before writing, it checks that the remap uses all 422 tensors exactly once, that the reshaped shapes are as listed above, and that no Tower tensor equals PE-Lang L's.
+The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/adapters/pe.py) reads the `model.visual.*` tensors from the pinned parent and writes the original BF16 tensors.
 
 ## Credits
 
