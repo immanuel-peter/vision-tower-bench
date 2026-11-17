@@ -66,11 +66,15 @@ SOURCES = {
 }
 TOWERS: tuple[str, ...] = SLUGS
 PROJECTORS: tuple[str, ...] = tuple(
-    model for model in TOWERS if model not in ("dinov2", "siglip2", "dinov3", "pe_lang_l")
+    model
+    for model in TOWERS
+    if model not in ("dinov2", "siglip2", "dinov3", "pe_lang_l")
 )
 # Bolt is released without its Tower Stage, so it appears only where merged or projected cells count.
 NO_TOWER_STAGE = frozenset({"nemotron35_bolt"})
-TOWER_STAGE: tuple[str, ...] = tuple(model for model in TOWERS if model not in NO_TOWER_STAGE)
+TOWER_STAGE: tuple[str, ...] = tuple(
+    model for model in TOWERS if model not in NO_TOWER_STAGE
+)
 OUTLIER_CHANNEL = frozenset({"mimo26_pro", "mimo26_flash", "mistral_large4"})
 OUTLIER_NOTE = "\u2020 outlier channels dominate the final Tower layer"
 PALETTE: tuple[str, ...] = tuple(tower.colour for tower in ROSTER)
@@ -84,7 +88,9 @@ def flagged(model: str) -> str:
 
 
 def tower_name(label: str) -> str:
-    matches = [tower for tower in TOWERS if label == tower or label.startswith(tower + "_")]
+    matches = [
+        tower for tower in TOWERS if label == tower or label.startswith(tower + "_")
+    ]
     if len(matches) != 1:
         raise ValueError(f"cannot map {label!r} to one Tower")
     return matches[0]
@@ -98,8 +104,11 @@ def measurement_path(kind: str, model: str, **fields) -> Path:
         "correspondence": "correspondence/{model}_correspondence_{dataset}.json",
         "perturbation": "perturbation/{model}_perturbation.json",
     }
-    template = SOURCES.get("model_overrides", {}).get(model, {}).get(kind, defaults[kind])
+    template = (
+        SOURCES.get("model_overrides", {}).get(model, {}).get(kind, defaults[kind])
+    )
     return RESULTS / template.format(model=model, **fields)
+
 
 # Panel order and axis label for every Projector comparison, keyed by the slug that sits
 # between "geometry-"/"correspondence-" and the model name in results/bootstrap.
@@ -129,7 +138,10 @@ def projector_intervals() -> dict[str, list[tuple[str, float, float, float]]]:
         if len(matches) != 1:
             raise ValueError(f"cannot map {path} to one Projector")
         model = matches[0]
-        if "projector_intervals" in overrides.get(model, {}) and path.parent == RESULTS / "bootstrap":
+        if (
+            "projector_intervals" in overrides.get(model, {})
+            and path.parent == RESULTS / "bootstrap"
+        ):
             continue
         slug = rest.removesuffix(f"-{model}").rstrip("-")
         advantage = json.loads(path.read_text())["first_advantage"]
@@ -145,10 +157,7 @@ def projector_matrix(out: Path) -> None:
     keys = [k for k in PANELS if k in panels]
     by_panel = {key: {row[0]: row[1:] for row in panels[key]} for key in keys}
     missing = [
-        (key, model)
-        for key in keys
-        for model in rows
-        if model not in by_panel[key]
+        (key, model) for key in keys for model in rows if model not in by_panel[key]
     ]
     if missing:
         raise ValueError(f"missing Projector intervals: {missing}")
@@ -223,19 +232,27 @@ def label_budget_series() -> dict[str, dict[float, float]]:
         additional = json.loads((RESULTS / source).read_text())["runs"]
         overlap = runs.keys() & additional.keys()
         if overlap:
-            raise ValueError(f"duplicate standardized label-budget runs: {sorted(overlap)}")
+            raise ValueError(
+                f"duplicate standardized label-budget runs: {sorted(overlap)}"
+            )
         runs.update(additional)
     for model, source in SOURCES.get("label_budget_overrides", {}).items():
         additional = json.loads((RESULTS / source).read_text())["runs"]
         if any(not name.startswith(model + "_probe_") for name in additional):
             raise ValueError(f"standardized override contains another model: {source}")
-        runs = {name: payload for name, payload in runs.items() if not name.startswith(model + "_probe_")}
+        runs = {
+            name: payload
+            for name, payload in runs.items()
+            if not name.startswith(model + "_probe_")
+        }
         runs.update(additional)
     series = defaultdict(dict)
     for name, payload in runs.items():
         model, cell = name.split("_probe_")
         if cell.startswith("attention_matched_f"):
-            series[model][payload["label_fraction"]] = payload["cells"][0]["test_accuracy"]
+            series[model][payload["label_fraction"]] = payload["cells"][0][
+                "test_accuracy"
+            ]
     return series
 
 
@@ -246,8 +263,12 @@ def label_budget(out: Path) -> None:
     for model in TOWERS:
         points = sorted(series[model].items())
         axis.plot(
-            [f for f, _ in points], [a for _, a in points],
-            marker="o", markersize=4, color=COLOUR[model], label=DISPLAY[model],
+            [f for f, _ in points],
+            [a for _, a in points],
+            marker="o",
+            markersize=4,
+            color=COLOUR[model],
+            label=DISPLAY[model],
         )
     axis.set_xscale("log")
     axis.set_xticks([0.01, 0.05, 0.20, 1.0], ["1%", "5%", "20%", "100%"])
@@ -265,11 +286,17 @@ def relative_depth(out: Path, readout: str = "attention", arm: str = "matched") 
     figure, axis = plt.subplots(figsize=(6, 4))
     for model in TOWER_STAGE:
         path = measurement_path("recognition", model, readout=readout, arm=arm)
-        cells = [c for c in json.loads(path.read_text())["cells"] if c["stage"] == "tower"]
+        cells = [
+            c for c in json.loads(path.read_text())["cells"] if c["stage"] == "tower"
+        ]
         cells.sort(key=lambda c: c["relative_depth"])
         axis.plot(
-            [c["relative_depth"] for c in cells], [c["test_accuracy"] for c in cells],
-            marker="o", markersize=3, color=COLOUR[model], label=DISPLAY[model],
+            [c["relative_depth"] for c in cells],
+            [c["test_accuracy"] for c in cells],
+            marker="o",
+            markersize=3,
+            color=COLOUR[model],
+            label=DISPLAY[model],
         )
     axis.set_xlabel("Relative Depth")
     axis.set_ylabel(f"top-1 accuracy, {readout} readout, {arm}")
@@ -282,7 +309,9 @@ def relative_depth(out: Path, readout: str = "attention", arm: str = "matched") 
 
 
 NO_ROBUSTNESS_CLAIM = OUTLIER_CHANNEL | {"qwen38_flash_next"}
-OCCLUSION: tuple[str, ...] = tuple(model for model in TOWER_STAGE if model not in NO_ROBUSTNESS_CLAIM)
+OCCLUSION: tuple[str, ...] = tuple(
+    model for model in TOWER_STAGE if model not in NO_ROBUSTNESS_CLAIM
+)
 
 
 def occlusion(out: Path) -> None:
@@ -294,14 +323,19 @@ def occlusion(out: Path) -> None:
         cell = next(c for c in payload["cells"] if c["stage"] == "tower")
         points = sorted((c["value"], c["accuracy"]) for c in occlusion_conditions(cell))
         axis.plot(
-            [v for v, _ in points], [a for _, a in points],
-            marker="o", markersize=4, color=COLOUR[model], label=DISPLAY[model],
+            [v for v, _ in points],
+            [a for _, a in points],
+            marker="o",
+            markersize=4,
+            color=COLOUR[model],
+            label=DISPLAY[model],
         )
     axis.set_xlabel("occluded fraction of the image")
     axis.set_ylabel("top-1 accuracy")
     axis.set_title(
         "Recognition under occlusion\n"
-        "MiMo V2.6, Mistral Large 4 and Flash-Next Tower readouts are omitted after clean-readout failures", fontsize=10,
+        "MiMo V2.6, Mistral Large 4 and Flash-Next Tower readouts are omitted after clean-readout failures",
+        fontsize=10,
     )
     axis.grid(alpha=0.25)
     axis.legend(fontsize=7, ncol=2)
@@ -311,7 +345,14 @@ def occlusion(out: Path) -> None:
 
 
 def capability_profile(out: Path) -> None:
-    axes_names = ["semantic 1%", "semantic 100%", "NAVI", "ScanNet", "SPair", "occlusion 50%"]
+    axes_names = [
+        "semantic 1%",
+        "semantic 100%",
+        "NAVI",
+        "ScanNet",
+        "SPair",
+        "occlusion 50%",
+    ]
     scores: dict[str, list[float]] = {m: [] for m in TOWER_STAGE}
 
     budget = label_budget_series()
@@ -319,9 +360,15 @@ def capability_profile(out: Path) -> None:
         for model in TOWER_STAGE:
             scores[model].append(budget[model][fraction])
 
-    for dataset, metric in (("navi", "recall_2cm"), ("scannet", "recall_10px"), ("spair", "pck_0.1")):
+    for dataset, metric in (
+        ("navi", "recall_2cm"),
+        ("scannet", "recall_10px"),
+        ("spair", "pck_0.1"),
+    ):
         for model in TOWER_STAGE:
-            payload = json.loads(measurement_path("correspondence", model, dataset=dataset).read_text())
+            payload = json.loads(
+                measurement_path("correspondence", model, dataset=dataset).read_text()
+            )
             tower = next(c for c in payload["cells"] if c["stage"] == "tower")
             scores[model].append(tower[metric])
 
@@ -337,19 +384,28 @@ def capability_profile(out: Path) -> None:
     ranks: dict[str, list[float]] = {m: [np.nan] * len(axes_names) for m in TOWER_STAGE}
     for column in range(len(axes_names)):
         ranked = [m for m in TOWER_STAGE if not np.isnan(scores[m][column])]
-        for position, model in enumerate(sorted(ranked, key=lambda m: -scores[m][column]), start=1):
+        for position, model in enumerate(
+            sorted(ranked, key=lambda m: -scores[m][column]), start=1
+        ):
             ranks[model][column] = position
 
     figure, axis = plt.subplots(figsize=(7.4, 5))
     for model in TOWER_STAGE:
-        axis.plot(range(len(axes_names)), ranks[model], marker="o", color=COLOUR[model], label=DISPLAY[model])
+        axis.plot(
+            range(len(axes_names)),
+            ranks[model],
+            marker="o",
+            color=COLOUR[model],
+            label=DISPLAY[model],
+        )
     axis.set_xticks(range(len(axes_names)), axes_names, fontsize=8)
     axis.set_yticks(range(1, len(TOWER_STAGE) + 1))
     axis.invert_yaxis()
     axis.set_ylabel("rank (1 is best)")
     axis.set_title(
         "Capability Profile ranks\n"
-        "Semantic axes standardize channels; failed clean readouts have no occlusion rank", fontsize=10,
+        "Semantic axes standardize channels; failed clean readouts have no occlusion rank",
+        fontsize=10,
     )
     axis.grid(alpha=0.25)
     axis.legend(fontsize=7, loc="upper left", bbox_to_anchor=(1.01, 1.0), frameon=False)
@@ -364,23 +420,43 @@ def peaks(out: Path) -> None:
     for model in TOWER_STAGE:
         path = measurement_path("geometry_layer_sweep", model)
         cells = [
-            c for c in json.loads(path.read_text())["cells"]
-            if c["stage"] == "tower"
+            c for c in json.loads(path.read_text())["cells"] if c["stage"] == "tower"
         ]
         cells.sort(key=lambda c: c["relative_depth"])
         depths = [c["relative_depth"] for c in cells]
         scores = [c["d1"] for c in cells]
-        axis.plot(depths, scores, marker="o", markersize=3, color=COLOUR[model], label=DISPLAY[model])
-        axis.plot([depths[scores.index(max(scores))]], [max(scores)], "*", markersize=15,
-                  color=COLOUR[model], markeredgecolor="white", markeredgewidth=0.6, zorder=5)
+        axis.plot(
+            depths,
+            scores,
+            marker="o",
+            markersize=3,
+            color=COLOUR[model],
+            label=DISPLAY[model],
+        )
+        axis.plot(
+            [depths[scores.index(max(scores))]],
+            [max(scores)],
+            "*",
+            markersize=15,
+            color=COLOUR[model],
+            markeredgecolor="white",
+            markeredgewidth=0.6,
+            zorder=5,
+        )
 
     axis.set_ylabel("DIODE depth (d1)")
     axis.set_xlabel("Relative Depth")
     axis.axvline(1.0, color="0.45", linewidth=1, linestyle=":")
     axis.grid(alpha=0.25)
     figure.tight_layout()
-    figure.legend(*axis.get_legend_handles_labels(), loc="upper center", bbox_to_anchor=(0.5, 0.0),
-                  ncol=4, fontsize=7, frameon=False)
+    figure.legend(
+        *axis.get_legend_handles_labels(),
+        loc="upper center",
+        bbox_to_anchor=(0.5, 0.0),
+        ncol=4,
+        fontsize=7,
+        frameon=False,
+    )
     figure.savefig(out, bbox_inches="tight")
     plt.close(figure)
 
@@ -397,7 +473,10 @@ def tower_vs_projector(out: Path) -> None:
         for model in rows:
             path = measurement_path("geometry", model, task=task, arm="matched")
             cells = json.loads(path.read_text())["cells"]
-            tower = sorted((c for c in cells if c["stage"] == "tower"), key=lambda c: c["relative_depth"])
+            tower = sorted(
+                (c for c in cells if c["stage"] == "tower"),
+                key=lambda c: c["relative_depth"],
+            )
             best = (min if lower else max)(c[key] for c in tower)
             projected = next(c[key] for c in cells if c["stage"] == "projected")
             levels[task][model] = (best, tower[-1][key], projected)
@@ -409,20 +488,48 @@ def tower_vs_projector(out: Path) -> None:
             best, final, projected = levels[task][model]
             first = y == 0
             axis.plot([final, best], [y, y], color="#c6cbd2", linewidth=2, zorder=1)
-            axis.scatter(final, y, s=34, facecolor="white", edgecolor="#6b7280", zorder=2,
-                         label="final Tower layer" if first else None)
-            axis.scatter(best, y, s=34, color="#161a20", zorder=3,
-                         label="best Tower layer" if first else None)
-            axis.scatter(projected, y, s=46, marker="D", color="#9c5a17", zorder=4,
-                         label="Projector output" if first else None)
+            axis.scatter(
+                final,
+                y,
+                s=34,
+                facecolor="white",
+                edgecolor="#6b7280",
+                zorder=2,
+                label="final Tower layer" if first else None,
+            )
+            axis.scatter(
+                best,
+                y,
+                s=34,
+                color="#161a20",
+                zorder=3,
+                label="best Tower layer" if first else None,
+            )
+            axis.scatter(
+                projected,
+                y,
+                s=46,
+                marker="D",
+                color="#9c5a17",
+                zorder=4,
+                label="Projector output" if first else None,
+            )
         axis.set_xlabel(xlabel, fontsize=9)
         if lower:
             axis.invert_xaxis()
         axis.grid(axis="x", alpha=0.25)
-    axes[0].set_yticks(range(len(order)), [DISPLAY[model] for model in order], fontsize=8)
+    axes[0].set_yticks(
+        range(len(order)), [DISPLAY[model] for model in order], fontsize=8
+    )
     figure.tight_layout()
-    figure.legend(*axes[0].get_legend_handles_labels(), loc="upper center",
-                  bbox_to_anchor=(0.5, 0.0), ncol=3, frameon=False, fontsize=8)
+    figure.legend(
+        *axes[0].get_legend_handles_labels(),
+        loc="upper center",
+        bbox_to_anchor=(0.5, 0.0),
+        ncol=3,
+        frameon=False,
+        fontsize=8,
+    )
     figure.savefig(out, bbox_inches="tight")
     plt.close(figure)
 
@@ -430,12 +537,18 @@ def tower_vs_projector(out: Path) -> None:
 def semantic_forest(out: Path) -> None:
     rows = []
     paths = set(RESULTS.glob("bootstrap/semantic-*-vs-*.json"))
-    paths.update(RESULTS / path for path in SOURCES.get("semantic_checkpoint_comparisons", []))
+    paths.update(
+        RESULTS / path for path in SOURCES.get("semantic_checkpoint_comparisons", [])
+    )
     for path in sorted(paths):
         payload = json.loads(path.read_text())
         protocol, difference = payload["protocol"], payload["difference"]
         stage_name = protocol.get("stage")
-        if stage_name is None and "stage" in payload["first"] and "stage" in payload["second"]:
+        if (
+            stage_name is None
+            and "stage" in payload["first"]
+            and "stage" in payload["second"]
+        ):
             first, second = payload["first"]["stage"], payload["second"]["stage"]
             stage_name = first if first == second else f"{first} vs {second}"
         stage = f", {stage_name}" if stage_name else ""
@@ -443,7 +556,14 @@ def semantic_forest(out: Path) -> None:
             f"{payload['first']['name']} - {payload['second']['name']}\n"
             f"{protocol['readout']}, {protocol['arm']}{stage}"
         )
-        rows.append((label, difference["point_estimate"], difference["lower"], difference["upper"]))
+        rows.append(
+            (
+                label,
+                difference["point_estimate"],
+                difference["lower"],
+                difference["upper"],
+            )
+        )
 
     rows.sort(key=lambda r: r[1])
     figure, axis = plt.subplots(figsize=(6.5, 0.62 * len(rows) + 1.4))
@@ -451,8 +571,14 @@ def semantic_forest(out: Path) -> None:
         resolved = low > 0 or high < 0
         colour = COLOUR["dinov2"] if resolved else "0.55"
         axis.plot([low, high], [y, y], color=colour, linewidth=2)
-        axis.plot([point], [y], "o", color=colour, markersize=6,
-                  markerfacecolor=colour if resolved else "white")
+        axis.plot(
+            [point],
+            [y],
+            "o",
+            color=colour,
+            markersize=6,
+            markerfacecolor=colour if resolved else "white",
+        )
     axis.axvline(0, color="0.3", linewidth=1, linestyle="--")
     axis.set_yticks(range(len(rows)), [r[0] for r in rows], fontsize=7.5)
     axis.set_ylim(-0.6, len(rows) - 0.4)
@@ -480,16 +606,31 @@ def stage_levels(out: Path) -> None:
             if cell["relative_depth"] == 1.0:
                 deepest[cell["stage"]] = cell["d1"]
         present = [index for index, stage in enumerate(stages) if stage in deepest]
-        axis.plot(present, [deepest[stages[index]] for index in present],
-                  marker="o", color=COLOUR[model], label=flagged(model))
+        axis.plot(
+            present,
+            [deepest[stages[index]] for index in present],
+            marker="o",
+            color=COLOUR[model],
+            label=flagged(model),
+        )
 
     axis.set_xticks(range(len(stages)), stages)
     axis.set_xlabel("Stage, at the deepest Relative Depth")
     axis.set_ylabel("DIODE depth (d1), matched")
-    axis.set_title("Deepest-stage DIODE depth\nOriginal six Towers use the deterministic rerun", fontsize=10)
+    axis.set_title(
+        "Deepest-stage DIODE depth\nOriginal six Towers use the deterministic rerun",
+        fontsize=10,
+    )
     axis.grid(alpha=0.25, axis="y")
-    axis.legend(fontsize=7, ncol=3, title=OUTLIER_NOTE, title_fontsize=6,
-                loc="upper center", bbox_to_anchor=(0.5, -0.16), frameon=False)
+    axis.legend(
+        fontsize=7,
+        ncol=3,
+        title=OUTLIER_NOTE,
+        title_fontsize=6,
+        loc="upper center",
+        bbox_to_anchor=(0.5, -0.16),
+        frameon=False,
+    )
     figure.tight_layout()
     figure.savefig(out, bbox_inches="tight")
     plt.close(figure)
@@ -503,40 +644,99 @@ def protocol(out: Path) -> None:
     ink, muted, accent = "#1b1f26", "#6b7280", "#9c5a17"
 
     def box(x, y, width, height, label, sub=None, face="white", edge=ink, dashed=False):
-        axis.add_patch(plt.Rectangle(
-            (x, y), width, height, facecolor=face, edgecolor=edge, linewidth=1.1,
-            linestyle="--" if dashed else "-",
-        ))
-        axis.text(x + width / 2, y + height / 2 + (1.4 if sub else 0), label,
-                  ha="center", va="center", fontsize=8.5, color=ink)
+        axis.add_patch(
+            plt.Rectangle(
+                (x, y),
+                width,
+                height,
+                facecolor=face,
+                edgecolor=edge,
+                linewidth=1.1,
+                linestyle="--" if dashed else "-",
+            )
+        )
+        axis.text(
+            x + width / 2,
+            y + height / 2 + (1.4 if sub else 0),
+            label,
+            ha="center",
+            va="center",
+            fontsize=8.5,
+            color=ink,
+        )
         if sub:
-            axis.text(x + width / 2, y + height / 2 - 2.6, sub,
-                      ha="center", va="center", fontsize=7, color=muted)
+            axis.text(
+                x + width / 2,
+                y + height / 2 - 2.6,
+                sub,
+                ha="center",
+                va="center",
+                fontsize=7,
+                color=muted,
+            )
 
     def arrow(x1, y1, x2, y2, colour=ink):
-        axis.annotate("", xy=(x2, y2), xytext=(x1, y1),
-                      arrowprops=dict(arrowstyle="-|>", color=colour, linewidth=1.0))
+        axis.annotate(
+            "",
+            xy=(x2, y2),
+            xytext=(x1, y1),
+            arrowprops=dict(arrowstyle="-|>", color=colour, linewidth=1.0),
+        )
 
-    axis.text(12, 52.5, "Tower (frozen)", ha="center", fontsize=9.5, color=ink, weight="bold")
+    axis.text(
+        12, 52.5, "Tower (frozen)", ha="center", fontsize=9.5, color=ink, weight="bold"
+    )
     for index in range(8):
         y = 6 + index * 5.4
         shade = 0.93 - 0.045 * (7 - index)
-        axis.add_patch(plt.Rectangle((4, y), 16, 4.2, facecolor=str(shade), edgecolor=ink, linewidth=0.8))
-        axis.text(12, y + 2.1, f"Relative Depth {(8 - index) / 8:.3f}", ha="center", va="center",
-                  fontsize=6.8, color=ink)
+        axis.add_patch(
+            plt.Rectangle(
+                (4, y), 16, 4.2, facecolor=str(shade), edgecolor=ink, linewidth=0.8
+            )
+        )
+        axis.text(
+            12,
+            y + 2.1,
+            f"Relative Depth {(8 - index) / 8:.3f}",
+            ha="center",
+            va="center",
+            fontsize=6.8,
+            color=ink,
+        )
         arrow(20.4, y + 2.1, 33.5, y + 2.1, muted)
 
     box(34, 5, 15, 44, "tower", "8 Stages cached", face="#f2f3f5")
 
-    axis.text(61.5, 52.5, "Connector (frozen)", ha="center", fontsize=9.5, color=ink, weight="bold")
-    axis.text(61.5, 49.6, "dashed where a Tower has no Projector",
-              ha="center", fontsize=6.6, color=muted)
+    axis.text(
+        61.5,
+        52.5,
+        "Connector (frozen)",
+        ha="center",
+        fontsize=9.5,
+        color=ink,
+        weight="bold",
+    )
+    axis.text(
+        61.5,
+        49.6,
+        "dashed where a Tower has no Projector",
+        ha="center",
+        fontsize=6.6,
+        color=muted,
+    )
     box(54, 30, 15, 8, "merged", "2x2 regrouping", face="#f2f3f5", dashed=True)
     box(54, 15, 15, 8, "projected", "learned Projector", face="#f2f3f5", dashed=True)
     arrow(49.2, 27, 54, 34)
     arrow(49.2, 27, 54, 19)
-    axis.text(61.5, 26.5, "from the deepest layer", ha="center", fontsize=6.6,
-              color=muted, style="italic")
+    axis.text(
+        61.5,
+        26.5,
+        "from the deepest layer",
+        ha="center",
+        fontsize=6.6,
+        color=muted,
+        style="italic",
+    )
 
     # A bus so all three Stages visibly feed the same readouts.
     axis.plot([72, 72], [12, 44], color=accent, linewidth=1.0)
@@ -544,7 +744,15 @@ def protocol(out: Path) -> None:
     arrow(69.2, 34, 72, 34, accent)
     arrow(69.2, 19, 72, 19, accent)
 
-    axis.text(85, 52.5, "Readouts (trained)", ha="center", fontsize=9.5, color=ink, weight="bold")
+    axis.text(
+        85,
+        52.5,
+        "Readouts (trained)",
+        ha="center",
+        fontsize=9.5,
+        color=ink,
+        weight="bold",
+    )
     for label, sub, y in (
         ("attention / mean pool", "semantic, 1.6M params", 36),
         ("Probe3D decoder", "depth and normals", 24),
@@ -553,24 +761,41 @@ def protocol(out: Path) -> None:
         box(75, y, 22, 9, label, sub, edge=accent)
         arrow(72, y + 4.5, 75, y + 4.5, accent)
 
-    axis.text(50, 3, "Every cell caches frozen features once, then trains only the readout.",
-              ha="center", fontsize=8, color=muted, style="italic")
+    axis.text(
+        50,
+        3,
+        "Every cell caches frozen features once, then trains only the readout.",
+        ha="center",
+        fontsize=8,
+        color=muted,
+        style="italic",
+    )
     figure.tight_layout()
     figure.savefig(out, bbox_inches="tight")
     plt.close(figure)
 
 
 def qwen_weight_drift(out: Path) -> None:
-    tensors = json.loads((RESULTS / "evidence/qwen38-flash-next/drift.json").read_text())["tensors"]
+    tensors = json.loads(
+        (RESULTS / "evidence/qwen38-flash-next/drift.json").read_text()
+    )["tensors"]
     groups = [
         [row for name, row in tensors.items() if name.startswith(f"blocks.{layer}.")]
         for layer in range(27)
     ]
     layers = np.arange(1, 28)
     figure, axes = plt.subplots(1, 2, figsize=(9, 3.3))
-    axes[0].plot(layers, [min(row["cosine"] for row in group) for group in groups], color=COLOUR["qwen38_flash_next"])
+    axes[0].plot(
+        layers,
+        [min(row["cosine"] for row in group) for group in groups],
+        color=COLOUR["qwen38_flash_next"],
+    )
     axes[0].set_ylabel("minimum tensor cosine")
-    axes[1].plot(layers, [np.mean([row["relative_l2"] for row in group]) for group in groups], color=COLOUR["qwen38_flash_next"])
+    axes[1].plot(
+        layers,
+        [np.mean([row["relative_l2"] for row in group]) for group in groups],
+        color=COLOUR["qwen38_flash_next"],
+    )
     axes[1].set_ylabel("mean tensor relative L2")
     for axis in axes:
         axis.set_xlabel("Tower block")
@@ -585,20 +810,55 @@ def qwen_weight_drift(out: Path) -> None:
 def qwen_sibling_intervals(out: Path) -> None:
     model = "qwen38_flash_next"
     panels = [
-        ("Recognition, attention matched", f"semantic-{model}-vs-qwen3_5-{{stage}}", "difference", 100,
-         "Flash-Next − 27B top-1 (pp)"),
-        ("DIODE depth, matched", f"depth-{model}-sibling-{{stage}}", "first_advantage", 100,
-         "Flash-Next − 27B d1 (pp)"),
-        ("DIODE normals, matched", f"normal-{model}-sibling-{{stage}}", "first_advantage", 1,
-         "27B − Flash-Next mean angle (°)"),
-        ("KITTI depth, matched", f"kitti-{model}-sibling-{{stage}}", "first_advantage", 100,
-         "Flash-Next − 27B d1 (pp)"),
-        ("NAVI", "correspondence-navi-flash-next-vs-27b-{stage}", "difference", 100,
-         "Flash-Next − 27B recall at 2 cm (pp)"),
-        ("ScanNet", "correspondence-scannet-flash-next-vs-27b-{stage}", "difference", 100,
-         "Flash-Next − 27B recall at 10 px (pp)"),
-        ("SPair", "correspondence-spair-flash-next-vs-27b-{stage}", "class_macro_difference", 100,
-         "Flash-Next − 27B macro PCK at 0.1 (pp)"),
+        (
+            "Recognition, attention matched",
+            f"semantic-{model}-vs-qwen3_5-{{stage}}",
+            "difference",
+            100,
+            "Flash-Next − 27B top-1 (pp)",
+        ),
+        (
+            "DIODE depth, matched",
+            f"depth-{model}-sibling-{{stage}}",
+            "first_advantage",
+            100,
+            "Flash-Next − 27B d1 (pp)",
+        ),
+        (
+            "DIODE normals, matched",
+            f"normal-{model}-sibling-{{stage}}",
+            "first_advantage",
+            1,
+            "27B − Flash-Next mean angle (°)",
+        ),
+        (
+            "KITTI depth, matched",
+            f"kitti-{model}-sibling-{{stage}}",
+            "first_advantage",
+            100,
+            "Flash-Next − 27B d1 (pp)",
+        ),
+        (
+            "NAVI",
+            "correspondence-navi-flash-next-vs-27b-{stage}",
+            "difference",
+            100,
+            "Flash-Next − 27B recall at 2 cm (pp)",
+        ),
+        (
+            "ScanNet",
+            "correspondence-scannet-flash-next-vs-27b-{stage}",
+            "difference",
+            100,
+            "Flash-Next − 27B recall at 10 px (pp)",
+        ),
+        (
+            "SPair",
+            "correspondence-spair-flash-next-vs-27b-{stage}",
+            "class_macro_difference",
+            100,
+            "Flash-Next − 27B macro PCK at 0.1 (pp)",
+        ),
     ]
     stages = ["tower", "merged", "projected"]
     figure, axes = plt.subplots(4, 2, figsize=(11, 10.8), layout="constrained")
@@ -606,21 +866,40 @@ def qwen_sibling_intervals(out: Path) -> None:
         for position, stage in enumerate(stages):
             if title.startswith("KITTI") and stage == "merged":
                 continue
-            payload = json.loads((RESULTS / "bootstrap" / (pattern.format(stage=stage) + ".json")).read_text())
+            payload = json.loads(
+                (
+                    RESULTS / "bootstrap" / (pattern.format(stage=stage) + ".json")
+                ).read_text()
+            )
             interval = payload[key]
-            assert interval["confidence"] == .95 and interval["resamples"] == 10000
-            low, high, point = [scale * interval[k] for k in ["lower", "upper", "point_estimate"]]
+            assert interval["confidence"] == 0.95 and interval["resamples"] == 10000
+            low, high, point = [
+                scale * interval[k] for k in ["lower", "upper", "point_estimate"]
+            ]
             colour = COLOUR[model]
             resolved = low > 0 or high < 0
             axis.plot([low, high], [position, position], color=colour, linewidth=2)
-            axis.plot(point, position, "o", color=colour, markersize=6,
-                      markerfacecolor=colour if resolved else "white")
-        axis.axvline(0, color=".4", linestyle="--", linewidth=.8)
-        axis.set(yticks=range(3), yticklabels=[stage.capitalize() for stage in stages],
-                 ylim=(2.5, -.5), title=title, xlabel=xlabel)
-        axis.grid(axis="x", alpha=.2)
+            axis.plot(
+                point,
+                position,
+                "o",
+                color=colour,
+                markersize=6,
+                markerfacecolor=colour if resolved else "white",
+            )
+        axis.axvline(0, color=".4", linestyle="--", linewidth=0.8)
+        axis.set(
+            yticks=range(3),
+            yticklabels=[stage.capitalize() for stage in stages],
+            ylim=(2.5, -0.5),
+            title=title,
+            xlabel=xlabel,
+        )
+        axis.grid(axis="x", alpha=0.2)
     axes.flat[-1].axis("off")
-    axes.flat[-1].text(0, .9,
+    axes.flat[-1].text(
+        0,
+        0.9,
         "Positive values favor Flash-Next.\n"
         "Hollow markers include zero.\n\n"
         "Each interval uses its own paired rerun.\n"
@@ -628,7 +907,10 @@ def qwen_sibling_intervals(out: Path) -> None:
         "SPair retains declared zero-keypoint exclusions.\n\n"
         "Primary Tower/merged perturbation scores\n"
         "do not support intrinsic robustness claims.",
-        va="top", fontsize=10, linespacing=1.5)
+        va="top",
+        fontsize=10,
+        linespacing=1.5,
+    )
     figure.suptitle("Qwen3.8 Flash-Next versus 27B: paired 95% intervals", fontsize=14)
     figure.savefig(out, bbox_inches="tight")
     plt.close(figure)
@@ -654,11 +936,19 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=Path, default=Path("docs/figures"))
     # SVG for the web report, PDF for pdflatex, which cannot embed SVG.
-    parser.add_argument("--format", dest="formats", nargs="+", default=["svg"],
-                        choices=("svg", "pdf", "png"))
+    parser.add_argument(
+        "--format",
+        dest="formats",
+        nargs="+",
+        default=["svg"],
+        choices=("svg", "pdf", "png"),
+    )
     args = parser.parse_args()
     if not (RESULTS / "bootstrap").is_dir():
-        parser.exit(1, "results/ is missing; run: hf download immanuelpeter/vision-tower-bench-results --repo-type dataset --include 'results/*' --local-dir .\n")
+        parser.exit(
+            1,
+            "results/ is missing; run: hf download immanuelpeter/vision-tower-bench-results --repo-type dataset --include 'results/*' --local-dir .\n",
+        )
     args.out.mkdir(parents=True, exist_ok=True)
 
     for name, draw in FIGURES.items():

@@ -8,7 +8,16 @@ from huggingface_hub import hf_hub_download
 from transformers import AutoConfig, AutoModel, Glm5NextVisionModel
 
 from vtb.adapters.base import Inputs
-from vtb.adapters.common import CLIP_MEAN, CLIP_STD, PatchPreprocess, default_device, depth_points, make_batch, pack_patches, raster
+from vtb.adapters.common import (
+    CLIP_MEAN,
+    CLIP_STD,
+    PatchPreprocess,
+    default_device,
+    depth_points,
+    make_batch,
+    pack_patches,
+    raster,
+)
 from vtb.bundle import expect_tensors, write_bundle
 from vtb.feature_batch import FeatureBatch
 from vtb.provenance import open_release
@@ -25,7 +34,14 @@ PATCH_SIZE = 14
 TEMPORAL_PATCH_SIZE = 2
 MERGE_SIZE = 2
 
-Preprocess = partial(PatchPreprocess, mean=CLIP_MEAN, std=CLIP_STD, patch_size=PATCH_SIZE, merge_size=MERGE_SIZE, temporal_patch_size=TEMPORAL_PATCH_SIZE)
+Preprocess = partial(
+    PatchPreprocess,
+    mean=CLIP_MEAN,
+    std=CLIP_STD,
+    patch_size=PATCH_SIZE,
+    merge_size=MERGE_SIZE,
+    temporal_patch_size=TEMPORAL_PATCH_SIZE,
+)
 collate = partial(pack_patches, key="hidden_states")
 
 
@@ -40,8 +56,20 @@ def load_source_tower(dtype: torch.dtype = torch.bfloat16) -> Glm5NextVisionMode
 
 
 def export(out: Path) -> None:
-    expect_tensors(load_prefixed(SOURCE_REPO, [VISION_SHARD], VISION_PREFIX, revision=SOURCE_REVISION), TOWER_TENSORS, "Tower")
-    processor = loads(Path(hf_hub_download(SOURCE_REPO, "processor_config.json", revision=SOURCE_REVISION)).read_text())
+    expect_tensors(
+        load_prefixed(
+            SOURCE_REPO, [VISION_SHARD], VISION_PREFIX, revision=SOURCE_REVISION
+        ),
+        TOWER_TENSORS,
+        "Tower",
+    )
+    processor = loads(
+        Path(
+            hf_hub_download(
+                SOURCE_REPO, "processor_config.json", revision=SOURCE_REVISION
+            )
+        ).read_text()
+    )
     write_bundle(
         out,
         tower=load_source_tower(),
@@ -62,7 +90,12 @@ class GLM5Adapter:
     stages = ("tower", "merged", "projected")
     collate = staticmethod(collate)
 
-    def __init__(self, resolution: int | None = None, dtype: torch.dtype = torch.bfloat16, device: str | None = None):
+    def __init__(
+        self,
+        resolution: int | None = None,
+        dtype: torch.dtype = torch.bfloat16,
+        device: str | None = None,
+    ):
         self.resolution = self.default_resolution if resolution is None else resolution
         self.device = default_device() if device is None else device
         self.dtype = dtype
@@ -89,7 +122,9 @@ class GLM5Adapter:
             return hook
 
         for layer in points:
-            handles.append(self.model.blocks[layer - 1].register_forward_hook(capture(layer)))
+            handles.append(
+                self.model.blocks[layer - 1].register_forward_hook(capture(layer))
+            )
 
         try:
             out = self.model(
@@ -108,4 +143,10 @@ class GLM5Adapter:
 
         merged = out.last_hidden_state.view(rows, -1, self.model.config.out_hidden_size)
         yield make_batch(self, merged, image_ids, "merged", self.num_layers)
-        yield make_batch(self, out.pooler_output.view(rows, merged.shape[1], -1), image_ids, "projected", self.num_layers)
+        yield make_batch(
+            self,
+            out.pooler_output.view(rows, merged.shape[1], -1),
+            image_ids,
+            "projected",
+            self.num_layers,
+        )

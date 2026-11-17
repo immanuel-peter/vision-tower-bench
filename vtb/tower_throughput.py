@@ -15,7 +15,11 @@ from vtb.images import ImageFolder
 def configured_patch_size(adapter) -> int:
     config = getattr(adapter.model, "config", None)
     # timm trunks carry no Hugging Face config; their patch size lives on the patch embedding.
-    value = config.patch_size if config is not None else adapter.model.patch_embed.patch_size
+    value = (
+        config.patch_size
+        if config is not None
+        else adapter.model.patch_embed.patch_size
+    )
     if isinstance(value, (list, tuple)):
         if len(set(value)) != 1:
             raise ValueError(f"non-square patch size {value}")
@@ -38,7 +42,12 @@ def parser() -> argparse.ArgumentParser:
     ap.add_argument("--count", type=int, default=768)
     ap.add_argument("--batch-size", type=int, required=True)
     ap.add_argument("--workers", type=int, default=8)
-    ap.add_argument("--resolution", type=int, default=None, help="defaults to the adapter's default_resolution")
+    ap.add_argument(
+        "--resolution",
+        type=int,
+        default=None,
+        help="defaults to the adapter's default_resolution",
+    )
     ap.add_argument("--warmup-batches", type=int, default=2)
     ap.add_argument("--device", default="cuda")
     return ap
@@ -54,7 +63,9 @@ def main() -> None:
     adapter = ADAPTERS[args.model](resolution=args.resolution, device=args.device)
     patch_size = configured_patch_size(adapter)
     if args.resolution % patch_size:
-        raise ValueError(f"resolution {args.resolution} is not divisible by patch size {patch_size}")
+        raise ValueError(
+            f"resolution {args.resolution} is not divisible by patch size {patch_size}"
+        )
     tokens = (args.resolution // patch_size) ** 2
 
     dataset = ImageFolder(args.images, adapter.preprocess(), args.count)

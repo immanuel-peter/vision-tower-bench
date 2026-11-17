@@ -38,11 +38,19 @@ def parser() -> argparse.ArgumentParser:
     ap.add_argument("--batch-size", type=int, default=256)
     ap.add_argument("--seeds", type=int, default=3)
     ap.add_argument("--device", default="cuda")
-    ap.add_argument("--learning-rates", type=float, nargs="+", default=list(probe_run.LEARNING_RATES))
+    ap.add_argument(
+        "--learning-rates",
+        type=float,
+        nargs="+",
+        default=list(probe_run.LEARNING_RATES),
+    )
     ap.add_argument("--resamples", type=int, default=10_000)
-    ap.add_argument("--standardize-channels", action="store_true", help="Diagnostic only: channel-standardized PCA")
+    ap.add_argument(
+        "--standardize-channels",
+        action="store_true",
+        help="Diagnostic only: channel-standardized PCA",
+    )
     return ap
-
 
 
 def output_protocol(args, num_classes=None):
@@ -62,14 +70,19 @@ def output_protocol(args, num_classes=None):
         "batch_size": args.batch_size,
         "standardize_channels": args.standardize_channels,
         "pairing": "seed-mean correctness, paired over test images",
-        "method": probe_run.reducer_method(standardize_channels=args.standardize_channels),
+        "method": probe_run.reducer_method(
+            standardize_channels=args.standardize_channels
+        ),
     }
+
 
 def main() -> None:
     args = parser().parse_args()
     transform_manifest = json.loads(args.transform_manifest.read_text())
     details = condition_details(transform_manifest)
-    conditions = [name for name in transform_manifest["conditions"] if name != "identity"]
+    conditions = [
+        name for name in transform_manifest["conditions"] if name != "identity"
+    ]
     label_map = json.loads(args.labels.read_text())["labels"]
     num_classes = len(set(label_map.values()))
 
@@ -80,19 +93,36 @@ def main() -> None:
     for stage, layer in selected:
         started = time.perf_counter()
         tokens, image_ids, meta = cache.load(args.clean_run, stage, layer)
-        if len(image_ids) != transform_manifest["images"] or len(set(image_ids)) != len(image_ids):
-            raise ValueError("clean cache does not cover the complete selected image manifest")
+        if len(image_ids) != transform_manifest["images"] or len(set(image_ids)) != len(
+            image_ids
+        ):
+            raise ValueError(
+                "clean cache does not cover the complete selected image manifest"
+            )
         labels = torch.tensor([label_map[image_id] for image_id in image_ids])
         split = probe_run.split_indices(len(image_ids))
-        reducer = probe_run.fit_reducer(tokens.float(), split, args.width, standardize_channels=args.standardize_channels)
+        reducer = probe_run.fit_reducer(
+            tokens.float(),
+            split,
+            args.width,
+            standardize_channels=args.standardize_channels,
+        )
         clean = reducer(tokens.float())
 
         search = {}
         best_rate, best_val = None, -1.0
         for rate in args.learning_rates:
             _, val, _ = probe_run.train_once(
-                clean, labels, split, num_classes, args.readout, rate, 0,
-                args.device, args.epochs, args.batch_size,
+                clean,
+                labels,
+                split,
+                num_classes,
+                args.readout,
+                rate,
+                0,
+                args.device,
+                args.epochs,
+                args.batch_size,
             )
             search[f"{rate:g}"] = round(val, 4)
             if val > best_val:
@@ -102,24 +132,40 @@ def main() -> None:
         clean_correct = []
         for seed in range(args.seeds):
             model, _, _ = probe_run.train_once(
-                clean, labels, split, num_classes, args.readout, best_rate, seed,
-                args.device, args.epochs, args.batch_size,
+                clean,
+                labels,
+                split,
+                num_classes,
+                args.readout,
+                best_rate,
+                seed,
+                args.device,
+                args.epochs,
+                args.batch_size,
             )
             models.append(model)
-            clean_correct.append(correctness(model, clean, labels, split.test, args.device))
+            clean_correct.append(
+                correctness(model, clean, labels, split.test, args.device)
+            )
         clean_correct = torch.stack(clean_correct)
 
-        condition_results = [{
-            **details["identity"],
-            "condition": "identity",
-            "accuracy": clean_correct.mean().item(),
-            "accuracy_by_seed": clean_correct.mean(dim=1).tolist(),
-            "clean_minus_condition": {
-                "point_estimate": 0.0, "lower": 0.0, "upper": 0.0,
-                "confidence": 0.95, "resamples": args.resamples,
-                "bootstrap_seed": 0, "difference": "first_minus_second",
-            },
-        }]
+        condition_results = [
+            {
+                **details["identity"],
+                "condition": "identity",
+                "accuracy": clean_correct.mean().item(),
+                "accuracy_by_seed": clean_correct.mean(dim=1).tolist(),
+                "clean_minus_condition": {
+                    "point_estimate": 0.0,
+                    "lower": 0.0,
+                    "upper": 0.0,
+                    "confidence": 0.95,
+                    "resamples": args.resamples,
+                    "bootstrap_seed": 0,
+                    "difference": "first_minus_second",
+                },
+            }
+        ]
         measurements = {}
         test_ids = [image_ids[index] for index in split.test.tolist()]
         for condition in conditions:
@@ -128,21 +174,26 @@ def main() -> None:
             if perturbed_ids != image_ids:
                 raise ValueError(f"image order differs for {condition_run}")
             perturbed = reducer(perturbed_tokens.float())
-            perturbed_correct = torch.stack([
-                correctness(model, perturbed, labels, split.test, args.device)
-                for model in models
-            ])
+            perturbed_correct = torch.stack(
+                [
+                    correctness(model, perturbed, labels, split.test, args.device)
+                    for model in models
+                ]
+            )
             interval = paired_bootstrap(
-                clean_correct.mean(dim=0), perturbed_correct.mean(dim=0),
+                clean_correct.mean(dim=0),
+                perturbed_correct.mean(dim=0),
                 resamples=args.resamples,
             )
-            condition_results.append({
-                **details[condition],
-                "condition": condition,
-                "accuracy": perturbed_correct.mean().item(),
-                "accuracy_by_seed": perturbed_correct.mean(dim=1).tolist(),
-                "clean_minus_condition": interval,
-            })
+            condition_results.append(
+                {
+                    **details[condition],
+                    "condition": condition,
+                    "accuracy": perturbed_correct.mean().item(),
+                    "accuracy_by_seed": perturbed_correct.mean(dim=1).tolist(),
+                    "clean_minus_condition": interval,
+                }
+            )
             measurements[condition] = [
                 {
                     "image_id": image_id,
@@ -152,41 +203,58 @@ def main() -> None:
                 for position, image_id in enumerate(test_ids)
             ]
 
-        cells.append({
-            "model_id": meta["model_id"],
-            "stage": stage,
-            "layer_index": layer,
-            "relative_depth": float(meta["relative_depth"]),
-            "capacity_matched": True,
-            "readout": args.readout,
-            "classes": num_classes,
-            "learning_rate": best_rate,
-            "learning_rate_search": search,
-            "validation_accuracy": best_val,
-            "train_images": len(split.train),
-            "validation_images": len(split.val),
-            "test_images": len(split.test),
-            "seed_ids": list(range(args.seeds)),
-            "learning_rate_search_seed": 0,
-            "sample_ids_sha256": hashlib.sha256(json.dumps(image_ids).encode()).hexdigest(),
-            "split_ids_sha256": {
-                name: hashlib.sha256(json.dumps([image_ids[i] for i in getattr(split, name).tolist()]).encode()).hexdigest()
-                for name in ("train", "val", "test")
-            },
-            "conditions": condition_results,
-            "measurements": measurements,
-            "seconds": round(time.perf_counter() - started, 1),
-        })
-        print(f"{stage}:{layer} clean {clean_correct.mean().item():.4f} across {len(conditions)} perturbations", flush=True)
+        cells.append(
+            {
+                "model_id": meta["model_id"],
+                "stage": stage,
+                "layer_index": layer,
+                "relative_depth": float(meta["relative_depth"]),
+                "capacity_matched": True,
+                "readout": args.readout,
+                "classes": num_classes,
+                "learning_rate": best_rate,
+                "learning_rate_search": search,
+                "validation_accuracy": best_val,
+                "train_images": len(split.train),
+                "validation_images": len(split.val),
+                "test_images": len(split.test),
+                "seed_ids": list(range(args.seeds)),
+                "learning_rate_search_seed": 0,
+                "sample_ids_sha256": hashlib.sha256(
+                    json.dumps(image_ids).encode()
+                ).hexdigest(),
+                "split_ids_sha256": {
+                    name: hashlib.sha256(
+                        json.dumps(
+                            [image_ids[i] for i in getattr(split, name).tolist()]
+                        ).encode()
+                    ).hexdigest()
+                    for name in ("train", "val", "test")
+                },
+                "conditions": condition_results,
+                "measurements": measurements,
+                "seconds": round(time.perf_counter() - started, 1),
+            }
+        )
+        print(
+            f"{stage}:{layer} clean {clean_correct.mean().item():.4f} across {len(conditions)} perturbations",
+            flush=True,
+        )
 
     output = {
         "model": args.model_dir,
         "images": transform_manifest["images"],
         "feature_provenance": {
-            condition: probe_run.feature_provenance(args.clean_run if condition == "identity" else args.features_root / condition / args.model_dir)
+            condition: probe_run.feature_provenance(
+                args.clean_run
+                if condition == "identity"
+                else args.features_root / condition / args.model_dir
+            )
             for condition in transform_manifest["conditions"]
         },
-        "transform_manifest_sha256": hashlib.sha256(args.transform_manifest.read_bytes()).hexdigest(),
+        "transform_manifest_sha256": hashlib.sha256(
+            args.transform_manifest.read_bytes()
+        ).hexdigest(),
         "protocol": output_protocol(args, num_classes),
         "cells": cells,
     }

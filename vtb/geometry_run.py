@@ -64,14 +64,16 @@ def centre_square(target):
     height, width = target.shape[-2:]
     side = min(height, width)
     top, left = (height - side) // 2, (width - side) // 2
-    return target[..., top:top + side, left:left + side]
+    return target[..., top : top + side, left : left + side]
 
 
 def load_targets(path: Path, image_ids: list[str], task: str):
     store = np.load(path)
 
     def stack(suffix: str) -> torch.Tensor:
-        return torch.from_numpy(np.stack([centre_square(store[f"{i}{suffix}"]) for i in image_ids])).float()
+        return torch.from_numpy(
+            np.stack([centre_square(store[f"{i}{suffix}"]) for i in image_ids])
+        ).float()
 
     if task == "normal":
         return stack("_normal"), stack("_valid").unsqueeze(1)
@@ -86,14 +88,16 @@ def coverage_of(targets: torch.Tensor, valid: torch.Tensor | None) -> torch.Tens
 def train_cell(features, targets, valid, split, task, args, learning_rate, seed):
     torch.manual_seed(seed)
     model = build_head(features.shape[1], task, args).to(args.device)
-    optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=1e-4)
+    optimizer = torch.optim.AdamW(
+        model.parameters(), lr=learning_rate, weight_decay=1e-4
+    )
     schedule = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, args.epochs)
 
     for _ in range(args.epochs):
         model.train()
         order = split.train[torch.randperm(len(split.train))]
         for start in range(0, len(order), args.batch_size):
-            index = order[start:start + args.batch_size]
+            index = order[start : start + args.batch_size]
             loss = _loss(model, features, targets, valid, index, task, args.device)
             optimizer.zero_grad()
             loss.backward()
@@ -117,17 +121,23 @@ def _loss(model, features, targets, valid, index, task, device):
 
 
 @torch.inference_mode()
-def score(model, features, targets, valid, index, task, args) -> dict[str, torch.Tensor]:
+def score(
+    model, features, targets, valid, index, task, args
+) -> dict[str, torch.Tensor]:
     model.eval()
     totals: dict[str, list[torch.Tensor]] = {}
     for start in range(0, len(index), args.batch_size):
-        chunk = index[start:start + args.batch_size]
+        chunk = index[start : start + args.batch_size]
         batch = targets[chunk].to(args.device)
         prediction = _predict(model, features, chunk, args.device, batch.shape[-2:])
         if task == "depth":
-            metrics = evaluate_depth(prediction, batch, scale_invariant=args.scale_invariant)
+            metrics = evaluate_depth(
+                prediction, batch, scale_invariant=args.scale_invariant
+            )
         else:
-            metrics = evaluate_surface_normal(prediction, batch, valid[chunk].to(args.device))
+            metrics = evaluate_surface_normal(
+                prediction, batch, valid[chunk].to(args.device)
+            )
         for key, value in metrics.items():
             totals.setdefault(key, []).append(value.cpu())
     return {key: torch.cat(v) for key, v in totals.items()}
@@ -140,24 +150,39 @@ def summarise(metrics, coverage, image_ids, index, scenes) -> dict:
     coverage = coverage[index]
 
     def block(chosen: torch.Tensor) -> dict:
-        out = {key: round(value[chosen].mean().item(), 4) for key, value in metrics.items()}
-        return out | {"images": len(chosen), "coverage": round(coverage[chosen].mean().item(), 4)}
+        out = {
+            key: round(value[chosen].mean().item(), 4) for key, value in metrics.items()
+        }
+        return out | {
+            "images": len(chosen),
+            "coverage": round(coverage[chosen].mean().item(), 4),
+        }
 
     everything = block(torch.arange(len(index)))
     return everything | {
-        "by_scene": {name: block(torch.tensor(sorted(r))) for name, r in sorted(rows.items())}
+        "by_scene": {
+            name: block(torch.tensor(sorted(r))) for name, r in sorted(rows.items())
+        }
     }
 
 
-def select_learning_rate(features, targets, valid, split, task, args) -> tuple[float, dict]:
+def select_learning_rate(
+    features, targets, valid, split, task, args
+) -> tuple[float, dict]:
     metric, higher_is_better = SELECTION[task]
     searched: dict[str, float] = {}
     best_rate, best_score = None, None
     for rate in args.learning_rates:
         model = train_cell(features, targets, valid, split, task, args, rate, seed=0)
-        value = score(model, features, targets, valid, split.val, task, args)[metric].mean().item()
+        value = (
+            score(model, features, targets, valid, split.val, task, args)[metric]
+            .mean()
+            .item()
+        )
         searched[f"{rate:g}"] = round(value, 4)
-        if best_score is None or (value > best_score if higher_is_better else value < best_score):
+        if best_score is None or (
+            value > best_score if higher_is_better else value < best_score
+        ):
             best_rate, best_score = rate, value
     return best_rate, {
         "learning_rate": best_rate,
@@ -176,7 +201,9 @@ def aggregate(runs: list[dict]) -> dict:
     out: dict = {}
     for key, value in runs[0].items():
         if key == "by_scene":
-            out[key] = {name: aggregate([r["by_scene"][name] for r in runs]) for name in value}
+            out[key] = {
+                name: aggregate([r["by_scene"][name] for r in runs]) for name in value
+            }
         elif key in ("images", "coverage"):
             out[key] = value
         else:
@@ -195,28 +222,53 @@ def match_capacity(batch, split, width: int):
     return batch.with_tokens(reducer(batch.tokens.float()))
 
 
-def run_cell(features, targets, valid, split, task, coverage, image_ids, scenes, args) -> dict:
-    best_rate, selection = select_learning_rate(features, targets, valid, split, task, args)
+def run_cell(
+    features, targets, valid, split, task, coverage, image_ids, scenes, args
+) -> dict:
+    best_rate, selection = select_learning_rate(
+        features, targets, valid, split, task, args
+    )
     per_seed = []
     for seed in range(args.seeds):
         model = train_cell(features, targets, valid, split, task, args, best_rate, seed)
         metrics = score(model, features, targets, valid, split.test, task, args)
         per_seed.append(summarise(metrics, coverage, image_ids, split.test, scenes))
-    return aggregate(per_seed) | selection | {
-        "seeds": args.seeds, "seed_ids": list(range(args.seeds)),
-        "learning_rate_search_seed": 0, "per_seed": per_seed,
-        "sample_ids_sha256": hashlib.sha256(json.dumps(image_ids).encode()).hexdigest(),
-        "split_ids_sha256": {
-            name: hashlib.sha256(json.dumps([image_ids[i] for i in getattr(split, name).tolist()]).encode()).hexdigest()
-            for name in ("train", "val", "test")
-        },
-    }
+    return (
+        aggregate(per_seed)
+        | selection
+        | {
+            "seeds": args.seeds,
+            "seed_ids": list(range(args.seeds)),
+            "learning_rate_search_seed": 0,
+            "per_seed": per_seed,
+            "sample_ids_sha256": hashlib.sha256(
+                json.dumps(image_ids).encode()
+            ).hexdigest(),
+            "split_ids_sha256": {
+                name: hashlib.sha256(
+                    json.dumps(
+                        [image_ids[i] for i in getattr(split, name).tolist()]
+                    ).encode()
+                ).hexdigest()
+                for name in ("train", "val", "test")
+            },
+        }
+    )
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description="Train the dense readouts on a cached run.")
-    ap.add_argument("--run", type=Path, required=True, help="full-token cache from vtb.extract")
-    ap.add_argument("--targets", type=Path, required=True, help="npz written by the dataset prep step")
+    ap = argparse.ArgumentParser(
+        description="Train the dense readouts on a cached run."
+    )
+    ap.add_argument(
+        "--run", type=Path, required=True, help="full-token cache from vtb.extract"
+    )
+    ap.add_argument(
+        "--targets",
+        type=Path,
+        required=True,
+        help="npz written by the dataset prep step",
+    )
     ap.add_argument("--task", default="depth", choices=TASKS)
     ap.add_argument("--out", type=Path, default=None)
     ap.add_argument("--head", default="multiscale", choices=("multiscale", "linear"))
@@ -290,7 +342,9 @@ def main() -> None:
         # The cache holds bfloat16; the heads are float32.
         features = geometry.batch_dense_maps(batch).float()
 
-        parameters = probe.parameter_count(build_head(features.shape[1], args.task, args))
+        parameters = probe.parameter_count(
+            build_head(features.shape[1], args.task, args)
+        )
         result = run_cell(
             features, targets, valid, split, args.task, coverage, order, scenes, args
         )
@@ -320,12 +374,20 @@ def main() -> None:
 
     out.write_text(
         json.dumps(
-            {"task": args.task, "images": len(order), "train_images": len(split.train),
-             "feature_provenance": feature_provenance(args.run), "device": args.device,
-             "batch_size": args.batch_size,
-             "capacity_matched": args.match_capacity, "head": args.head,
-             "epochs": args.epochs, "seeds": args.seeds,
-             "learning_rates": args.learning_rates, "cells": cells},
+            {
+                "task": args.task,
+                "images": len(order),
+                "train_images": len(split.train),
+                "feature_provenance": feature_provenance(args.run),
+                "device": args.device,
+                "batch_size": args.batch_size,
+                "capacity_matched": args.match_capacity,
+                "head": args.head,
+                "epochs": args.epochs,
+                "seeds": args.seeds,
+                "learning_rates": args.learning_rates,
+                "cells": cells,
+            },
             indent=2,
         )
         + "\n"

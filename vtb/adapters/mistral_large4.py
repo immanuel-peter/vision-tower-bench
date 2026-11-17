@@ -20,7 +20,13 @@ from transformers import Mistral3Config, PixtralVisionConfig, PixtralVisionModel
 from transformers.models.mistral3.modeling_mistral3 import Mistral3MultiModalProjector
 
 from vtb.adapters.base import Inputs
-from vtb.adapters.common import ImagePreprocess, default_device, depth_points, make_batch, stack_pixels
+from vtb.adapters.common import (
+    ImagePreprocess,
+    default_device,
+    depth_points,
+    make_batch,
+    stack_pixels,
+)
 from vtb.bundle import write_bundle
 from vtb.bundle_manifest import copy_assets, write_manifest
 from vtb.feature_batch import FeatureBatch
@@ -44,7 +50,11 @@ SOURCE_REPO = "mistralai/Mistral-Large-4-1T-A52B"
 SOURCE_REVISION = "f12dabdc0c1e99e7f7924461a6f308859b05af4d"
 SOURCE_INDEX = "consolidated.safetensors.index.json"
 TOWER_PREFIX = "vision_encoder."
-PROJECTOR_PREFIXES = ("pre_mm_projector_norm.", "patch_merger.", "vision_language_adapter.")
+PROJECTOR_PREFIXES = (
+    "pre_mm_projector_norm.",
+    "patch_merger.",
+    "vision_language_adapter.",
+)
 SOURCE_PREFIXES = (TOWER_PREFIX, *PROJECTOR_PREFIXES)
 TOWER_TENSORS = 272
 PROJECTOR_TENSORS = 4
@@ -60,19 +70,55 @@ _LAYER = r"vision_encoder\.transformer\.layers\.(\d+)\."
 _RULES = (
     (r"^vision_encoder\.patch_conv\.weight$", "vision_tower.patch_conv.weight"),
     (r"^vision_encoder\.ln_pre\.weight$", "vision_tower.ln_pre.weight"),
-    (_LAYER + r"attention\.wq\.weight$", r"vision_tower.transformer.layers.\1.attention.q_proj.weight"),
-    (_LAYER + r"attention\.wk\.weight$", r"vision_tower.transformer.layers.\1.attention.k_proj.weight"),
-    (_LAYER + r"attention\.wv\.weight$", r"vision_tower.transformer.layers.\1.attention.v_proj.weight"),
-    (_LAYER + r"attention\.wo\.weight$", r"vision_tower.transformer.layers.\1.attention.o_proj.weight"),
-    (_LAYER + r"feed_forward\.w1\.weight$", r"vision_tower.transformer.layers.\1.feed_forward.gate_proj.weight"),
-    (_LAYER + r"feed_forward\.w2\.weight$", r"vision_tower.transformer.layers.\1.feed_forward.down_proj.weight"),
-    (_LAYER + r"feed_forward\.w3\.weight$", r"vision_tower.transformer.layers.\1.feed_forward.up_proj.weight"),
-    (_LAYER + r"attention_norm\.weight$", r"vision_tower.transformer.layers.\1.attention_norm.weight"),
-    (_LAYER + r"ffn_norm\.weight$", r"vision_tower.transformer.layers.\1.ffn_norm.weight"),
+    (
+        _LAYER + r"attention\.wq\.weight$",
+        r"vision_tower.transformer.layers.\1.attention.q_proj.weight",
+    ),
+    (
+        _LAYER + r"attention\.wk\.weight$",
+        r"vision_tower.transformer.layers.\1.attention.k_proj.weight",
+    ),
+    (
+        _LAYER + r"attention\.wv\.weight$",
+        r"vision_tower.transformer.layers.\1.attention.v_proj.weight",
+    ),
+    (
+        _LAYER + r"attention\.wo\.weight$",
+        r"vision_tower.transformer.layers.\1.attention.o_proj.weight",
+    ),
+    (
+        _LAYER + r"feed_forward\.w1\.weight$",
+        r"vision_tower.transformer.layers.\1.feed_forward.gate_proj.weight",
+    ),
+    (
+        _LAYER + r"feed_forward\.w2\.weight$",
+        r"vision_tower.transformer.layers.\1.feed_forward.down_proj.weight",
+    ),
+    (
+        _LAYER + r"feed_forward\.w3\.weight$",
+        r"vision_tower.transformer.layers.\1.feed_forward.up_proj.weight",
+    ),
+    (
+        _LAYER + r"attention_norm\.weight$",
+        r"vision_tower.transformer.layers.\1.attention_norm.weight",
+    ),
+    (
+        _LAYER + r"ffn_norm\.weight$",
+        r"vision_tower.transformer.layers.\1.ffn_norm.weight",
+    ),
     (r"^pre_mm_projector_norm\.weight$", "multi_modal_projector.norm.weight"),
-    (r"^patch_merger\.merging_layer\.weight$", "multi_modal_projector.patch_merger.merging_layer.weight"),
-    (r"^vision_language_adapter\.w_in\.weight$", "multi_modal_projector.linear_1.weight"),
-    (r"^vision_language_adapter\.w_out\.weight$", "multi_modal_projector.linear_2.weight"),
+    (
+        r"^patch_merger\.merging_layer\.weight$",
+        "multi_modal_projector.patch_merger.merging_layer.weight",
+    ),
+    (
+        r"^vision_language_adapter\.w_in\.weight$",
+        "multi_modal_projector.linear_1.weight",
+    ),
+    (
+        r"^vision_language_adapter\.w_out\.weight$",
+        "multi_modal_projector.linear_2.weight",
+    ),
 )
 ROTARY_TARGETS = (".attention.q_proj.weight", ".attention.k_proj.weight")
 
@@ -108,7 +154,9 @@ def halves_to_interleaved(weight: torch.Tensor, heads: int = NUM_HEADS) -> torch
     return weight.view(heads, 2, half, cols).transpose(1, 2).reshape(rows, cols)
 
 
-def convert(native: dict[str, torch.Tensor]) -> tuple[dict[str, torch.Tensor], dict[str, torch.Tensor]]:
+def convert(
+    native: dict[str, torch.Tensor],
+) -> tuple[dict[str, torch.Tensor], dict[str, torch.Tensor]]:
     """Split native tensors into HF Tower and Projector state dicts."""
     tower, projector = {}, {}
     for name, tensor in native.items():
@@ -120,18 +168,28 @@ def convert(native: dict[str, torch.Tensor]) -> tuple[dict[str, torch.Tensor], d
         else:
             projector[hf_name.removeprefix("multi_modal_projector.")] = tensor
     if len(tower) != TOWER_TENSORS or len(projector) != PROJECTOR_TENSORS:
-        raise ValueError(f"expected {TOWER_TENSORS} + {PROJECTOR_TENSORS} tensors, got {len(tower)} + {len(projector)}")
+        raise ValueError(
+            f"expected {TOWER_TENSORS} + {PROJECTOR_TENSORS} tensors, got {len(tower)} + {len(projector)}"
+        )
     return tower, projector
 
 
 def source_json(filename: str) -> dict:
-    return json.loads(Path(hf_hub_download(SOURCE_REPO, filename, revision=SOURCE_REVISION)).read_text())
+    return json.loads(
+        Path(
+            hf_hub_download(SOURCE_REPO, filename, revision=SOURCE_REVISION)
+        ).read_text()
+    )
 
 
 def source_index() -> dict[str, str]:
     """Vision tensor name to shard, discovered from the pinned index by prefix."""
     weight_map = source_json(SOURCE_INDEX)["weight_map"]
-    return {name: shard for name, shard in weight_map.items() if name.startswith(SOURCE_PREFIXES)}
+    return {
+        name: shard
+        for name, shard in weight_map.items()
+        if name.startswith(SOURCE_PREFIXES)
+    }
 
 
 def source_weights() -> dict[str, torch.Tensor]:
@@ -139,11 +197,17 @@ def source_weights() -> dict[str, torch.Tensor]:
     index = source_index()
     native = {}
     for prefix in SOURCE_PREFIXES:
-        shards = sorted({shard for name, shard in index.items() if name.startswith(prefix)})
-        for name, tensor in load_prefixed(SOURCE_REPO, shards, prefix, revision=SOURCE_REVISION).items():
+        shards = sorted(
+            {shard for name, shard in index.items() if name.startswith(prefix)}
+        )
+        for name, tensor in load_prefixed(
+            SOURCE_REPO, shards, prefix, revision=SOURCE_REVISION
+        ).items():
             native[prefix + name] = tensor
     if set(native) != set(index):
-        raise ValueError(f"vision tensors differ from the pinned index: {sorted(set(index) ^ set(native))[:5]}")
+        raise ValueError(
+            f"vision tensors differ from the pinned index: {sorted(set(index) ^ set(native))[:5]}"
+        )
     if any(tensor.dtype != torch.bfloat16 for tensor in native.values()):
         raise ValueError("every Mistral Large 4 vision tensor should be BF16")
     return native
@@ -159,10 +223,16 @@ def vision_config(source: dict | None = None) -> PixtralLarge4VisionConfig:
 def projector_config(source: dict | None = None) -> Mistral3Config:
     source = source or source_json("config.json")
     text = source["text_config"]
-    vision = PixtralVisionConfig(**{k: v for k, v in source["vision_config"].items() if k != "model_type"})
+    vision = PixtralVisionConfig(
+        **{k: v for k, v in source["vision_config"].items() if k != "model_type"}
+    )
     return Mistral3Config(
         vision_config=vision.to_dict(),
-        text_config={"model_type": "mistral", "hidden_size": text["hidden_size"], "rms_norm_eps": text["rms_norm_eps"]},
+        text_config={
+            "model_type": "mistral",
+            "hidden_size": text["hidden_size"],
+            "rms_norm_eps": text["rms_norm_eps"],
+        },
         spatial_merge_size=source["spatial_merge_size"],
         projector_hidden_act=source["projector_hidden_act"],
         multimodal_projector_bias=source["multimodal_projector_bias"],
@@ -178,9 +248,14 @@ def build_parts(
     dtype: torch.dtype,
 ) -> tuple[PixtralLarge4VisionModel, Mistral3MultiModalProjector]:
     tower = PixtralLarge4VisionModel._from_config(tower_config, dtype=dtype)
-    tower.load_state_dict({name: tensor.to(dtype) for name, tensor in tower_state.items()}, strict=True)
+    tower.load_state_dict(
+        {name: tensor.to(dtype) for name, tensor in tower_state.items()}, strict=True
+    )
     projector = Mistral3MultiModalProjector(mm_config).to(dtype)
-    projector.load_state_dict({name: tensor.to(dtype) for name, tensor in projector_state.items()}, strict=True)
+    projector.load_state_dict(
+        {name: tensor.to(dtype) for name, tensor in projector_state.items()},
+        strict=True,
+    )
     # RoPE frequencies stay float32 under BF16 weights, as HF from_pretrained keeps them.
     rotary = tower.patch_positional_embedding
     inv_freq, _ = rotary.compute_axial_rope_parameters(tower_config)
@@ -189,10 +264,18 @@ def build_parts(
     return tower.eval(), projector.eval()
 
 
-def load_source_parts(dtype: torch.dtype = torch.bfloat16) -> tuple[PixtralVisionModel, Mistral3MultiModalProjector]:
+def load_source_parts(
+    dtype: torch.dtype = torch.bfloat16,
+) -> tuple[PixtralVisionModel, Mistral3MultiModalProjector]:
     source = source_json("config.json")
     tower_state, projector_state = convert(source_weights())
-    return build_parts(tower_state, projector_state, vision_config(source), projector_config(source), dtype)
+    return build_parts(
+        tower_state,
+        projector_state,
+        vision_config(source),
+        projector_config(source),
+        dtype,
+    )
 
 
 def bundle_dir() -> Path:
@@ -200,10 +283,16 @@ def bundle_dir() -> Path:
     return Path(override) if override else RELEASE_DIR
 
 
-def load_bundle_parts(bundle: Path, dtype: torch.dtype) -> tuple[PixtralVisionModel, Mistral3MultiModalProjector]:
+def load_bundle_parts(
+    bundle: Path, dtype: torch.dtype
+) -> tuple[PixtralVisionModel, Mistral3MultiModalProjector]:
     check_provenance(bundle, SOURCE_REPO, SOURCE_REVISION)
-    tower_config = PixtralLarge4VisionConfig.from_pretrained(bundle, local_files_only=True)
-    mm_config = Mistral3Config(**json.loads((bundle / "projector_config.json").read_text()))
+    tower_config = PixtralLarge4VisionConfig.from_pretrained(
+        bundle, local_files_only=True
+    )
+    mm_config = Mistral3Config(
+        **json.loads((bundle / "projector_config.json").read_text())
+    )
     return build_parts(
         load_file(bundle / "model.safetensors"),
         load_file(bundle / "projector.safetensors"),
@@ -213,13 +302,19 @@ def load_bundle_parts(bundle: Path, dtype: torch.dtype) -> tuple[PixtralVisionMo
     )
 
 
-def load_bundle_projector(bundle: Path, dtype: torch.dtype) -> Mistral3MultiModalProjector:
-    projector = Mistral3MultiModalProjector(Mistral3Config(**json.loads((bundle / "projector_config.json").read_text())))
+def load_bundle_projector(
+    bundle: Path, dtype: torch.dtype
+) -> Mistral3MultiModalProjector:
+    projector = Mistral3MultiModalProjector(
+        Mistral3Config(**json.loads((bundle / "projector_config.json").read_text()))
+    )
     projector.load_state_dict(load_file(bundle / "projector.safetensors"), strict=True)
     return projector.to(dtype).eval()
 
 
-def load_parts(dtype: torch.dtype) -> tuple[PixtralVisionModel, Mistral3MultiModalProjector]:
+def load_parts(
+    dtype: torch.dtype,
+) -> tuple[PixtralVisionModel, Mistral3MultiModalProjector]:
     bundle = bundle_dir()
     if (bundle / "model.safetensors").is_file():
         log_loaded(MODEL_ID, str(bundle))
@@ -233,7 +328,11 @@ def projector_settings(source: dict) -> dict:
     text = source["text_config"]
     return {
         "vision_config": projector_config(source).vision_config.to_dict(),
-        "text_config": {"model_type": "mistral", "hidden_size": text["hidden_size"], "rms_norm_eps": text["rms_norm_eps"]},
+        "text_config": {
+            "model_type": "mistral",
+            "hidden_size": text["hidden_size"],
+            "rms_norm_eps": text["rms_norm_eps"],
+        },
         "spatial_merge_size": source["spatial_merge_size"],
         "projector_hidden_act": source["projector_hidden_act"],
         "multimodal_projector_bias": source["multimodal_projector_bias"],
@@ -254,7 +353,9 @@ def export_manifest(native: dict[str, torch.Tensor], shards: list[str]) -> dict:
         "bytes": sum(t.nbytes for t in native.values()),
         "dtype": "bfloat16",
         "rope_permutation": {
-            "tensors": sorted(name for name, target in renamed.items() if is_rotary(target)),
+            "tensors": sorted(
+                name for name, target in renamed.items() if is_rotary(target)
+            ),
             "description": "per head, rows (2i, 2i + 1) move to (i, i + head_dim / 2); "
             "w.view(16, 64, 2, 2048).transpose(1, 2).reshape(2048, 2048)",
         },
@@ -268,7 +369,10 @@ def export(out: Path) -> None:
     shards = sorted(set(source_index().values()))
     source = source_json("config.json")
     tower_state, projector_state = convert(native)
-    if any(t.dtype != torch.bfloat16 for t in [*tower_state.values(), *projector_state.values()]):
+    if any(
+        t.dtype != torch.bfloat16
+        for t in [*tower_state.values(), *projector_state.values()]
+    ):
         raise ValueError("expected BF16 tensors")
     out.mkdir(parents=True, exist_ok=True)
     config = vision_config(source)
@@ -283,20 +387,33 @@ def export(out: Path) -> None:
         out,
         weights={
             "model.safetensors": {k: v.contiguous() for k, v in tower_state.items()},
-            "projector.safetensors": {k: v.contiguous() for k, v in projector_state.items()},
+            "projector.safetensors": {
+                k: v.contiguous() for k, v in projector_state.items()
+            },
         },
         configs={"projector_config.json": projector_settings(source)},
         preprocessor=source_json("processor_config.json")["image_processor"],
         license=Path(hf_hub_download(SOURCE_REPO, "LICENSE", revision=SOURCE_REVISION)),
-        files={"modeling_pixtral_large4.py": MODELING_SOURCE, "LICENSE-CODE": ROOT / "LICENSE"},
+        files={
+            "modeling_pixtral_large4.py": MODELING_SOURCE,
+            "LICENSE-CODE": ROOT / "LICENSE",
+        },
     )
     copy_assets(RELEASE_DIR, out)
     base = export_manifest(native, shards)
-    write_manifest(out, base["source_repo"], base["source_revision"], base["source_shards"], extra=base)
+    write_manifest(
+        out,
+        base["source_repo"],
+        base["source_revision"],
+        base["source_shards"],
+        extra=base,
+    )
 
 
 # Square crop with bicubic resize, then CLIP normalization. No padding is needed.
-Preprocess = partial(ImagePreprocess, mean=IMAGE_MEAN, std=IMAGE_STD, rgb=True, multiple=ALIGN)
+Preprocess = partial(
+    ImagePreprocess, mean=IMAGE_MEAN, std=IMAGE_STD, rgb=True, multiple=ALIGN
+)
 
 
 def collate(samples: list[torch.Tensor]) -> Inputs:
@@ -323,7 +440,9 @@ def projector_stages(
     flat = projector.norm(tokens.reshape(-1, width))
     merged = projector.patch_merger(flat, [(pixels, pixels)] * rows)
     projected = projector.linear_2(projector.act(projector.linear_1(merged)))
-    return merged.view(rows, -1, merged.shape[-1]), projected.view(rows, -1, projected.shape[-1])
+    return merged.view(rows, -1, merged.shape[-1]), projected.view(
+        rows, -1, projected.shape[-1]
+    )
 
 
 class MistralLarge4Adapter:
@@ -332,7 +451,12 @@ class MistralLarge4Adapter:
     stages = ("tower", "merged", "projected")
     collate = staticmethod(collate)
 
-    def __init__(self, resolution: int | None = None, dtype: torch.dtype = torch.bfloat16, device: str | None = None):
+    def __init__(
+        self,
+        resolution: int | None = None,
+        dtype: torch.dtype = torch.bfloat16,
+        device: str | None = None,
+    ):
         self.resolution = self.default_resolution if resolution is None else resolution
         self.device = default_device() if device is None else device
         self.dtype = dtype
@@ -357,6 +481,8 @@ class MistralLarge4Adapter:
         final, captured = tower_forward(self.model, pixels, tuple(points))
         for layer in points:
             yield make_batch(self, captured[layer], image_ids, "tower", layer)
-        merged, projected = projector_stages(self.projector, final, pixels.shape[-1] // PATCH_SIZE)
+        merged, projected = projector_stages(
+            self.projector, final, pixels.shape[-1] // PATCH_SIZE
+        )
         yield make_batch(self, merged, image_ids, "merged", self.num_layers)
         yield make_batch(self, projected, image_ids, "projected", self.num_layers)

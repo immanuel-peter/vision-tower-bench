@@ -19,7 +19,16 @@ from transformers.models.minimax_m3_vl.modeling_minimax_m3_vl import (
 )
 
 from vtb.adapters.base import Inputs
-from vtb.adapters.common import CLIP_MEAN, CLIP_STD, PatchPreprocess, default_device, depth_points, make_batch, pack_patches, raster
+from vtb.adapters.common import (
+    CLIP_MEAN,
+    CLIP_STD,
+    PatchPreprocess,
+    default_device,
+    depth_points,
+    make_batch,
+    pack_patches,
+    raster,
+)
 from vtb.bundle import expect_tensors, write_bundle
 from vtb.bundle_manifest import copy_assets, write_manifest
 from vtb.feature_batch import FeatureBatch
@@ -46,17 +55,27 @@ class Checkpoint:
         return Path(override) if override else None
 
     def open(self, bundle: Path | None = None) -> Path:
-        return open_release(self.model_id, self.repo, self.revision, bundle=bundle or self.override)
+        return open_release(
+            self.model_id, self.repo, self.revision, bundle=bundle or self.override
+        )
 
     @property
     def bundle(self) -> Path:
         return self.open()
 
 
-M3 = Checkpoint("minimax_m3", "immanuelpeter/MiniMax-M3-Vision",
-               "MiniMaxAI/MiniMax-M3", "f0e1c1e04d40177e4673a22097036854f536e9c0")
-FLASH = Checkpoint("minimax_m31_flash", "immanuelpeter/MiniMax-M3.1-Flash-Vision",
-                  "MiniMaxAI/MiniMax-M3.1-Flash", "54e4e69dfc452b1e94a426c24a4fdeeaa8e3ad5e")
+M3 = Checkpoint(
+    "minimax_m3",
+    "immanuelpeter/MiniMax-M3-Vision",
+    "MiniMaxAI/MiniMax-M3",
+    "f0e1c1e04d40177e4673a22097036854f536e9c0",
+)
+FLASH = Checkpoint(
+    "minimax_m31_flash",
+    "immanuelpeter/MiniMax-M3.1-Flash-Vision",
+    "MiniMaxAI/MiniMax-M3.1-Flash",
+    "54e4e69dfc452b1e94a426c24a4fdeeaa8e3ad5e",
+)
 CHECKPOINTS = {item.name: item for item in (M3, FLASH)}
 MODEL_ID = M3.model_id
 SOURCE_REPO, SOURCE_REVISION = M3.repo, M3.revision
@@ -79,36 +98,60 @@ def remap_tower(weights: dict[str, torch.Tensor]) -> dict[str, torch.Tensor]:
     return remapped
 
 
-def remap_projector(linear: dict[str, torch.Tensor], merge: dict[str, torch.Tensor]) -> dict[str, torch.Tensor]:
+def remap_projector(
+    linear: dict[str, torch.Tensor], merge: dict[str, torch.Tensor]
+) -> dict[str, torch.Tensor]:
     remapped = dict(linear)
     for name, tensor in merge.items():
         remapped[name.replace("linear_", "merge_linear_")] = tensor
     return remapped
 
 
-Preprocess = partial(PatchPreprocess, mean=CLIP_MEAN, std=CLIP_STD, patch_size=PATCH_SIZE, merge_size=MERGE_SIZE, temporal_patch_size=TEMPORAL_PATCH_SIZE)
+Preprocess = partial(
+    PatchPreprocess,
+    mean=CLIP_MEAN,
+    std=CLIP_STD,
+    patch_size=PATCH_SIZE,
+    merge_size=MERGE_SIZE,
+    temporal_patch_size=TEMPORAL_PATCH_SIZE,
+)
 collate = pack_patches
 
 
 def merge_2x2(tokens: torch.Tensor) -> torch.Tensor:
     rows, count, width = tokens.shape
-    side = int(count ** 0.5)
-    blocks = tokens.view(rows, side // MERGE_SIZE, MERGE_SIZE, side // MERGE_SIZE, MERGE_SIZE, width)
-    return blocks.permute(0, 1, 3, 2, 4, 5).reshape(rows, -1, MERGE_SIZE * MERGE_SIZE * width)
+    side = int(count**0.5)
+    blocks = tokens.view(
+        rows, side // MERGE_SIZE, MERGE_SIZE, side // MERGE_SIZE, MERGE_SIZE, width
+    )
+    return blocks.permute(0, 1, 3, 2, 4, 5).reshape(
+        rows, -1, MERGE_SIZE * MERGE_SIZE * width
+    )
 
 
 def source_json(checkpoint: Checkpoint, filename: str) -> dict:
-    return loads(Path(hf_hub_download(checkpoint.repo, filename, revision=checkpoint.revision)).read_text())
+    return loads(
+        Path(
+            hf_hub_download(checkpoint.repo, filename, revision=checkpoint.revision)
+        ).read_text()
+    )
 
 
 def source_weights(checkpoint: Checkpoint) -> tuple[dict, dict]:
     index = source_json(checkpoint, "model.safetensors.index.json")["weight_map"]
 
     def read(prefix):
-        selected = {name: shard for name, shard in index.items() if name.startswith(prefix)}
+        selected = {
+            name: shard for name, shard in index.items() if name.startswith(prefix)
+        }
         if not selected:
             raise ValueError(f"no {prefix} tensors in pinned index")
-        weights = load_prefixed(checkpoint.repo, sorted(set(selected.values())), prefix, revision=checkpoint.revision)
+        weights = load_prefixed(
+            checkpoint.repo,
+            sorted(set(selected.values())),
+            prefix,
+            revision=checkpoint.revision,
+        )
         if {prefix + name for name in weights} != set(selected):
             raise ValueError(f"incomplete {checkpoint.name} {prefix} state")
         return weights
@@ -121,24 +164,40 @@ def source_weights(checkpoint: Checkpoint) -> tuple[dict, dict]:
 
 
 def load_source_parts(dtype: torch.dtype = torch.bfloat16, checkpoint: Checkpoint = M3):
-    config = MiniMaxM3VLConfig.from_pretrained(checkpoint.repo, revision=checkpoint.revision)
+    config = MiniMaxM3VLConfig.from_pretrained(
+        checkpoint.repo, revision=checkpoint.revision
+    )
     tower_weights, projector_weights = source_weights(checkpoint)
     tower = MiniMaxM3VLVisionModel._from_config(config.vision_config, dtype=dtype)
-    tower.load_state_dict({name: tensor.to(dtype) for name, tensor in tower_weights.items()}, strict=True)
+    tower.load_state_dict(
+        {name: tensor.to(dtype) for name, tensor in tower_weights.items()}, strict=True
+    )
     projector = MiniMaxM3VLMultiModalProjector(config).to(dtype)
-    projector.load_state_dict({name: tensor.to(dtype) for name, tensor in projector_weights.items()}, strict=True)
+    projector.load_state_dict(
+        {name: tensor.to(dtype) for name, tensor in projector_weights.items()},
+        strict=True,
+    )
     return tower.eval(), projector.eval()
 
 
 def write_export_manifest(out: Path, checkpoint: Checkpoint) -> dict:
     index = source_json(checkpoint, "model.safetensors.index.json")["weight_map"]
-    shards = {shard for name, shard in index.items() if name.startswith((TOWER_PREFIX, PROJECTOR_PREFIX, MERGE_MLP_PREFIX))}
-    return write_manifest(out, checkpoint.repo, checkpoint.revision, shards, allow_mixed_source=True)
+    shards = {
+        shard
+        for name, shard in index.items()
+        if name.startswith((TOWER_PREFIX, PROJECTOR_PREFIX, MERGE_MLP_PREFIX))
+    }
+    return write_manifest(
+        out, checkpoint.repo, checkpoint.revision, shards, allow_mixed_source=True
+    )
 
 
 def release_preprocessor(parent: dict) -> dict:
     """The parent's processor maps to remote code the release does not ship; transformers has the class natively."""
-    return {**{key: value for key, value in parent.items() if key != "auto_map"}, "image_processor_type": "MiniMaxM3VLImageProcessor"}
+    return {
+        **{key: value for key, value in parent.items() if key != "auto_map"},
+        "image_processor_type": "MiniMaxM3VLImageProcessor",
+    }
 
 
 def export(out: Path, checkpoint: Checkpoint) -> None:
@@ -148,7 +207,10 @@ def export(out: Path, checkpoint: Checkpoint) -> None:
         out,
         tower=tower,
         architecture="MiniMaxM3VLVisionModel",
-        weights={"model.safetensors": tower_weights, "projector.safetensors": projector_weights},
+        weights={
+            "model.safetensors": tower_weights,
+            "projector.safetensors": projector_weights,
+        },
         configs={
             "projector_config.json": {
                 "input_size": projector.linear_1.in_features,
@@ -157,8 +219,12 @@ def export(out: Path, checkpoint: Checkpoint) -> None:
                 "merged_hidden_size": projector.merge_linear_1.in_features,
             }
         },
-        preprocessor=release_preprocessor(source_json(checkpoint, "preprocessor_config.json")),
-        license=Path(hf_hub_download(checkpoint.repo, "LICENSE", revision=checkpoint.revision)),
+        preprocessor=release_preprocessor(
+            source_json(checkpoint, "preprocessor_config.json")
+        ),
+        license=Path(
+            hf_hub_download(checkpoint.repo, "LICENSE", revision=checkpoint.revision)
+        ),
     )
     copy_assets(checkpoint.release_dir, out)
     write_export_manifest(out, checkpoint)
@@ -177,18 +243,26 @@ def projector_from_settings(settings: dict, dtype: torch.dtype) -> nn.Module:
     return projector.to(dtype).eval()
 
 
-def load_parts(dtype: torch.dtype, checkpoint: Checkpoint = M3, bundle: Path | None = None) -> tuple[MiniMaxM3VLVisionModel, nn.Module]:
+def load_parts(
+    dtype: torch.dtype, checkpoint: Checkpoint = M3, bundle: Path | None = None
+) -> tuple[MiniMaxM3VLVisionModel, nn.Module]:
     bundle = checkpoint.open(bundle)
     config = MiniMaxM3VLVisionConfig.from_pretrained(bundle, local_files_only=True)
     tower = MiniMaxM3VLVisionModel._from_config(config, dtype=dtype)
-    tower.load_state_dict({
-        name: tensor.to(dtype) for name, tensor in load_file(bundle / "model.safetensors").items()
-    })
+    tower.load_state_dict(
+        {
+            name: tensor.to(dtype)
+            for name, tensor in load_file(bundle / "model.safetensors").items()
+        }
+    )
     settings = loads((bundle / "projector_config.json").read_text())
     projector = projector_from_settings(settings, dtype)
-    projector.load_state_dict({
-        name: tensor.to(dtype) for name, tensor in load_file(bundle / "projector.safetensors").items()
-    })
+    projector.load_state_dict(
+        {
+            name: tensor.to(dtype)
+            for name, tensor in load_file(bundle / "projector.safetensors").items()
+        }
+    )
     return tower.eval(), projector.to(dtype).eval()
 
 
@@ -198,7 +272,14 @@ class MiniMaxAdapter:
     stages = ("tower", "merged", "projected")
     collate = staticmethod(collate)
 
-    def __init__(self, resolution: int | None = None, dtype: torch.dtype = torch.bfloat16, device: str | None = None, *, bundle: Path | None = None):
+    def __init__(
+        self,
+        resolution: int | None = None,
+        dtype: torch.dtype = torch.bfloat16,
+        device: str | None = None,
+        *,
+        bundle: Path | None = None,
+    ):
         self.resolution = self.default_resolution if resolution is None else resolution
         self.device = default_device() if device is None else device
         self.dtype = dtype
@@ -236,16 +317,20 @@ class MiniMaxAdapter:
         if sum(counts) != len(inputs["pixel_values"]):
             raise ValueError("grid does not describe the input patch count")
         for layer in points:
-            handles.append(self.model.layers[layer - 1].register_forward_hook(capture(layer)))
+            handles.append(
+                self.model.layers[layer - 1].register_forward_hook(capture(layer))
+            )
         outputs = []
         try:
             # The native HF model packs all inputs into one attention sequence.
             # Isolate unrelated images so cached features cannot depend on peers.
             for pixels, image_grid in zip(inputs["pixel_values"].split(counts), grid):
-                outputs.append(self.model(
-                    pixels.to(self.device, self.dtype),
-                    image_grid.unsqueeze(0).to(self.device),
-                ).last_hidden_state)
+                outputs.append(
+                    self.model(
+                        pixels.to(self.device, self.dtype),
+                        image_grid.unsqueeze(0).to(self.device),
+                    ).last_hidden_state
+                )
         finally:
             for handle in handles:
                 handle.remove()
@@ -259,10 +344,16 @@ class MiniMaxAdapter:
             return tokens.view(rows, -1, width)
 
         for layer in points:
-            tokens = torch.cat([value.reshape(1, -1, width) for value in captured[layer]], dim=1)
-            yield make_batch(self, raster(packed(tokens), rows), image_ids, "tower", layer)
+            tokens = torch.cat(
+                [value.reshape(1, -1, width) for value in captured[layer]], dim=1
+            )
+            yield make_batch(
+                self, raster(packed(tokens), rows), image_ids, "tower", layer
+            )
 
-        last_packed = packed(torch.cat([value.reshape(1, -1, width) for value in outputs], dim=1))
+        last_packed = packed(
+            torch.cat([value.reshape(1, -1, width) for value in outputs], dim=1)
+        )
         merged = merge_2x2(raster(last_packed, rows))
         yield make_batch(self, merged, image_ids, "merged", self.num_layers)
         projected = torch.stack([self.projector(tokens) for tokens in last_packed])

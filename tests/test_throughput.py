@@ -6,7 +6,9 @@ from vtb.tower_throughput import configured_patch_size, parser
 
 
 def adapter_with_patch_size(value):
-    return SimpleNamespace(model=SimpleNamespace(config=SimpleNamespace(patch_size=value)))
+    return SimpleNamespace(
+        model=SimpleNamespace(config=SimpleNamespace(patch_size=value))
+    )
 
 
 def test_configured_patch_size_accepts_scalar_and_square_pair():
@@ -15,7 +17,9 @@ def test_configured_patch_size_accepts_scalar_and_square_pair():
 
 
 def test_configured_patch_size_reads_a_timm_patch_embedding():
-    adapter = SimpleNamespace(model=SimpleNamespace(patch_embed=SimpleNamespace(patch_size=(14, 14))))
+    adapter = SimpleNamespace(
+        model=SimpleNamespace(patch_embed=SimpleNamespace(patch_size=(14, 14)))
+    )
     assert configured_patch_size(adapter) == 14
 
 
@@ -25,9 +29,17 @@ def test_configured_patch_size_rejects_rectangular_patches():
 
 
 def test_throughput_default_measures_768_images():
-    args = parser().parse_args([
-        "--model", "dinov2", "--images", "images", "--out", "result.json",
-        "--batch-size", "16",
-    ])
+    args = parser().parse_args(
+        [
+            "--model",
+            "dinov2",
+            "--images",
+            "images",
+            "--out",
+            "result.json",
+            "--batch-size",
+            "16",
+        ]
+    )
 
     assert args.count == 768

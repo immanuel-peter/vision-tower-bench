@@ -68,7 +68,9 @@ def test_every_roster_adapter_is_registered_for_extraction():
 
 @pytest.mark.parametrize("adapter_class", EXPECTED, ids=lambda c: c.__name__)
 def test_adapter_yields_every_stage_at_the_expected_shape(adapter_class, image):
-    tower_side, merged_side, tower_width, merged_width, projected_width = EXPECTED[adapter_class]
+    tower_side, merged_side, tower_width, merged_width, projected_width = EXPECTED[
+        adapter_class
+    ]
     adapter = adapter_class(resolution=RESOLUTION, device="cpu", dtype=torch.float32)
     assert isinstance(adapter, TowerAdapter)
     batch = adapter.collate([adapter.preprocess()(image)])
@@ -86,7 +88,10 @@ def test_adapter_yields_every_stage_at_the_expected_shape(adapter_class, image):
     for batch_out in towers:
         assert tuple(batch_out.tokens.shape) == (1, tower_side**2, tower_width)
 
-    for stage, side, width in (("merged", merged_side, merged_width), ("projected", merged_side, projected_width)):
+    for stage, side, width in (
+        ("merged", merged_side, merged_width),
+        ("projected", merged_side, projected_width),
+    ):
         if width is None:
             assert stage not in adapter.stages
             continue
@@ -121,5 +126,3 @@ def test_merging_only_regroups_tower_tokens(adapter_class, image):
 
     assert torch.equal(blocks.reshape(merged.shape), merged)
     assert not torch.equal(tower.reshape(merged.shape), merged)
-
-

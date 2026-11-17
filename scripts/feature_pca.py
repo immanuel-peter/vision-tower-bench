@@ -22,7 +22,9 @@ def component_maps(tokens: torch.Tensor) -> torch.Tensor:
 
 
 def align_signs(maps: torch.Tensor, reference: torch.Tensor) -> torch.Tensor:
-    resampled = F.interpolate(reference.unsqueeze(0), size=maps.shape[-2:], mode="area")[0]
+    resampled = F.interpolate(
+        reference.unsqueeze(0), size=maps.shape[-2:], mode="area"
+    )[0]
     for index in range(maps.shape[0]):
         a, b = maps[index].flatten(), resampled[index].flatten()
         if torch.dot(a - a.mean(), b - b.mean()) < 0:
@@ -34,7 +36,9 @@ def to_image(maps: torch.Tensor, side: int) -> Image.Image:
     low = maps.amin(dim=(1, 2), keepdim=True)
     high = maps.amax(dim=(1, 2), keepdim=True)
     rgb = ((maps - low) / (high - low).clamp(min=1e-6) * 255).byte()
-    return Image.fromarray(rgb.permute(1, 2, 0).numpy()).resize((side, side), Image.NEAREST)
+    return Image.fromarray(rgb.permute(1, 2, 0).numpy()).resize(
+        (side, side), Image.NEAREST
+    )
 
 
 def main() -> None:
@@ -42,9 +46,18 @@ def main() -> None:
     parser.add_argument("--model", default="muse_glimmer", choices=sorted(ADAPTERS))
     parser.add_argument("--image", type=Path, required=True)
     parser.add_argument("--out", type=Path, default=Path("docs/figures"))
-    parser.add_argument("--resolution", type=int, default=None, help="defaults to the adapter's default_resolution")
+    parser.add_argument(
+        "--resolution",
+        type=int,
+        default=None,
+        help="defaults to the adapter's default_resolution",
+    )
     parser.add_argument("--device", default="mps")
-    parser.add_argument("--all-depths", action="store_true", help="also render every sampled Tower depth")
+    parser.add_argument(
+        "--all-depths",
+        action="store_true",
+        help="also render every sampled Tower depth",
+    )
     args = parser.parse_args()
     if args.resolution is None:
         args.resolution = ADAPTERS[args.model].default_resolution
@@ -55,17 +68,31 @@ def main() -> None:
     pixels = adapter.collate([adapter.preprocess()(picture)])
 
     batches = list(adapter.extract(pixels, ["sample"]))
-    final = {batch.stage: batch.tokens[0] for batch in batches if batch.layer_index == adapter.num_layers}
+    final = {
+        batch.stage: batch.tokens[0]
+        for batch in batches
+        if batch.layer_index == adapter.num_layers
+    }
 
     stem = f"{args.model}_{args.image.stem}"
     reference = component_maps(final["tower"])
     to_image(reference, args.resolution).save(args.out / f"pca_{stem}_tower.png")
     print(f"tower      {tuple(reference.shape[-2:])}")
 
-    depths = [b for b in batches if b.stage == "tower" and b.layer_index != adapter.num_layers] if args.all_depths else []
+    depths = (
+        [
+            b
+            for b in batches
+            if b.stage == "tower" and b.layer_index != adapter.num_layers
+        ]
+        if args.all_depths
+        else []
+    )
     for batch in depths:
         maps = align_signs(component_maps(batch.tokens[0]), reference)
-        to_image(maps, args.resolution).save(args.out / f"pca_{stem}_tower_L{batch.layer_index:02d}.png")
+        to_image(maps, args.resolution).save(
+            args.out / f"pca_{stem}_tower_L{batch.layer_index:02d}.png"
+        )
 
     for stage in ("merged", "projected"):
         if stage not in final:

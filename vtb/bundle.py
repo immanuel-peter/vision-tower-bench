@@ -10,7 +10,9 @@ from safetensors.torch import save_file
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def expect_tensors(weights: dict[str, torch.Tensor], count: int, label: str) -> dict[str, torch.Tensor]:
+def expect_tensors(
+    weights: dict[str, torch.Tensor], count: int, label: str
+) -> dict[str, torch.Tensor]:
     if len(weights) != count:
         raise SystemExit(f"expected {count} {label} tensors, read {len(weights)}")
     return weights
@@ -40,7 +42,10 @@ def write_bundle(
     for name, config in (configs or {}).items():
         write_json(out / name, config)
     if preprocessor is not None:
-        write_json(out / "preprocessor_config.json", {**preprocessor, "processor_class": "AutoImageProcessor"})
+        write_json(
+            out / "preprocessor_config.json",
+            {**preprocessor, "processor_class": "AutoImageProcessor"},
+        )
     copies = dict(files or {})
     if license is not None:
         copies["LICENSE"] = license

@@ -15,7 +15,15 @@ from vtb.bundle_manifest import copy_assets, write_manifest
 from vtb.shards import load_prefixed
 
 from vtb.adapters.base import Inputs
-from vtb.adapters.common import HALF, PatchPreprocess, default_device, depth_points, make_batch, pack_patches, raster
+from vtb.adapters.common import (
+    HALF,
+    PatchPreprocess,
+    default_device,
+    depth_points,
+    make_batch,
+    pack_patches,
+    raster,
+)
 from vtb.feature_batch import FeatureBatch
 from vtb.provenance import check_provenance, log_loaded
 
@@ -36,37 +44,64 @@ class Checkpoint:
     @property
     def bundle(self) -> Path:
         override = os.environ.get(f"VTB_{self.name.upper()}_BUNDLE")
-        return Path(override) if override else ROOT / "hf" / self.model_id.split("/")[-1]
+        return (
+            Path(override) if override else ROOT / "hf" / self.model_id.split("/")[-1]
+        )
 
 
 QWEN27B = Checkpoint(
-    "qwen3_5", "immanuelpeter/Qwen3.8-27B-Vision", "Qwen/Qwen3.8-27B",
-    "1d4bf0f2ff6012fd82039f2fa52739d0dd7c60c0", 5120, "apache-2.0",
+    "qwen3_5",
+    "immanuelpeter/Qwen3.8-27B-Vision",
+    "Qwen/Qwen3.8-27B",
+    "1d4bf0f2ff6012fd82039f2fa52739d0dd7c60c0",
+    5120,
+    "apache-2.0",
 )
 FLASH_NEXT = Checkpoint(
-    "qwen38_flash_next", "immanuelpeter/Qwen3.8-Flash-Next-Vision", "Qwen/Qwen3.8-Flash-Next",
-    "de4b8e4d43b917e7706784d8bb445c9af86a3540", 2560, "qwen-community-1.0",
+    "qwen38_flash_next",
+    "immanuelpeter/Qwen3.8-Flash-Next-Vision",
+    "Qwen/Qwen3.8-Flash-Next",
+    "de4b8e4d43b917e7706784d8bb445c9af86a3540",
+    2560,
+    "qwen-community-1.0",
 )
 CHECKPOINTS = {c.name: c for c in (QWEN27B, FLASH_NEXT)}
 MODEL_ID, SOURCE_REPO = QWEN27B.model_id, QWEN27B.repo
 
 
 def source_json(checkpoint: Checkpoint, filename: str) -> dict:
-    return json.loads(Path(hf_hub_download(checkpoint.repo, filename, revision=checkpoint.revision)).read_text())
+    return json.loads(
+        Path(
+            hf_hub_download(checkpoint.repo, filename, revision=checkpoint.revision)
+        ).read_text()
+    )
 
 
 def source_weights(checkpoint: Checkpoint) -> dict[str, torch.Tensor]:
     index = source_json(checkpoint, "model.safetensors.index.json")["weight_map"]
     selected = {k: v for k, v in index.items() if k.startswith(VISION_PREFIX)}
-    weights = load_prefixed(checkpoint.repo, sorted(set(selected.values())), VISION_PREFIX, revision=checkpoint.revision)
-    if len(weights) != TOWER_TENSORS or {VISION_PREFIX + k for k in weights} != set(selected):
-        raise ValueError(f"incomplete {checkpoint.name} vision state: {len(weights)} tensors")
+    weights = load_prefixed(
+        checkpoint.repo,
+        sorted(set(selected.values())),
+        VISION_PREFIX,
+        revision=checkpoint.revision,
+    )
+    if len(weights) != TOWER_TENSORS or {VISION_PREFIX + k for k in weights} != set(
+        selected
+    ):
+        raise ValueError(
+            f"incomplete {checkpoint.name} vision state: {len(weights)} tensors"
+        )
     return weights
 
 
-def load_source_tower(checkpoint: Checkpoint, dtype=torch.bfloat16) -> Qwen3_5VisionModel:
+def load_source_tower(
+    checkpoint: Checkpoint, dtype=torch.bfloat16
+) -> Qwen3_5VisionModel:
     config = source_json(checkpoint, "config.json")["vision_config"]
-    config.update(model_type="qwen3_5_vision", out_hidden_size=checkpoint.out_hidden_size)
+    config.update(
+        model_type="qwen3_5_vision", out_hidden_size=checkpoint.out_hidden_size
+    )
     model = Qwen3_5VisionModel._from_config(Qwen3_5VisionConfig(**config), dtype=dtype)
     model.load_state_dict(source_weights(checkpoint), strict=True)
     return model.eval()
@@ -75,8 +110,17 @@ def load_source_tower(checkpoint: Checkpoint, dtype=torch.bfloat16) -> Qwen3_5Vi
 def write_export_manifest(out: Path, checkpoint: Checkpoint) -> None:
     index = source_json(checkpoint, "model.safetensors.index.json")["weight_map"]
     shards = {shard for name, shard in index.items() if name.startswith(VISION_PREFIX)}
-    write_manifest(out, checkpoint.repo, checkpoint.revision, shards, merger_in_model=True,
-                   extra={"out_hidden_size": checkpoint.out_hidden_size, "license": checkpoint.license})
+    write_manifest(
+        out,
+        checkpoint.repo,
+        checkpoint.revision,
+        shards,
+        merger_in_model=True,
+        extra={
+            "out_hidden_size": checkpoint.out_hidden_size,
+            "license": checkpoint.license,
+        },
+    )
 
 
 def export(out: Path, checkpoint: Checkpoint) -> None:
@@ -85,7 +129,9 @@ def export(out: Path, checkpoint: Checkpoint) -> None:
         tower=load_source_tower(checkpoint),
         architecture="Qwen3_5VisionModel",
         preprocessor=source_json(checkpoint, "preprocessor_config.json"),
-        license=Path(hf_hub_download(checkpoint.repo, "LICENSE", revision=checkpoint.revision)),
+        license=Path(
+            hf_hub_download(checkpoint.repo, "LICENSE", revision=checkpoint.revision)
+        ),
     )
     copy_assets(ROOT / "hf" / checkpoint.model_id.split("/")[-1], out)
     write_export_manifest(out, checkpoint)
@@ -96,19 +142,31 @@ TEMPORAL_PATCH_SIZE = 2
 MERGE_SIZE = 2
 
 
-Preprocess = partial(PatchPreprocess, mean=HALF, std=HALF, patch_size=PATCH_SIZE, merge_size=MERGE_SIZE, temporal_patch_size=TEMPORAL_PATCH_SIZE)
+Preprocess = partial(
+    PatchPreprocess,
+    mean=HALF,
+    std=HALF,
+    patch_size=PATCH_SIZE,
+    merge_size=MERGE_SIZE,
+    temporal_patch_size=TEMPORAL_PATCH_SIZE,
+)
 collate = partial(pack_patches, key="hidden_states")
 
 
-def load_tower(dtype: torch.dtype, checkpoint: Checkpoint = QWEN27B) -> Qwen3_5VisionModel:
+def load_tower(
+    dtype: torch.dtype, checkpoint: Checkpoint = QWEN27B
+) -> Qwen3_5VisionModel:
     if (checkpoint.bundle / "model.safetensors").is_file():
         check_provenance(checkpoint.bundle, checkpoint.repo, checkpoint.revision)
         log_loaded(checkpoint.model_id, str(checkpoint.bundle))
-        model = AutoModel.from_pretrained(checkpoint.bundle, dtype=dtype, local_files_only=True).eval()
+        model = AutoModel.from_pretrained(
+            checkpoint.bundle, dtype=dtype, local_files_only=True
+        ).eval()
     else:
         log_loaded(checkpoint.model_id, checkpoint.model_id)
         model = AutoModel.from_pretrained(
-            checkpoint.model_id, dtype=dtype,
+            checkpoint.model_id,
+            dtype=dtype,
         ).eval()
     if model.config.out_hidden_size != checkpoint.out_hidden_size:
         raise ValueError(f"wrong Projector width for {checkpoint.name}")
@@ -121,7 +179,12 @@ class QwenAdapter:
     stages = ("tower", "merged", "projected")
     collate = staticmethod(collate)
 
-    def __init__(self, resolution: int | None = None, dtype: torch.dtype = torch.bfloat16, device: str | None = None):
+    def __init__(
+        self,
+        resolution: int | None = None,
+        dtype: torch.dtype = torch.bfloat16,
+        device: str | None = None,
+    ):
         self.resolution = self.default_resolution if resolution is None else resolution
         self.device = default_device() if device is None else device
         self.dtype = dtype
@@ -149,7 +212,9 @@ class QwenAdapter:
             return hook
 
         for layer in points:
-            handles.append(self.model.blocks[layer - 1].register_forward_hook(capture(layer)))
+            handles.append(
+                self.model.blocks[layer - 1].register_forward_hook(capture(layer))
+            )
 
         try:
             out = self.model(
@@ -168,7 +233,13 @@ class QwenAdapter:
 
         deepest = out.last_hidden_state.view(rows, -1, width * MERGE_SIZE**2)
         yield make_batch(self, deepest, image_ids, "merged", self.num_layers)
-        yield make_batch(self, out.pooler_output.view(rows, deepest.shape[1], -1), image_ids, "projected", self.num_layers)
+        yield make_batch(
+            self,
+            out.pooler_output.view(rows, deepest.shape[1], -1),
+            image_ids,
+            "projected",
+            self.num_layers,
+        )
 
 
 class Qwen3_5Adapter(QwenAdapter):

@@ -13,7 +13,14 @@ from transformers.dynamic_module_utils import get_class_from_dynamic_module
 from transformers.utils import import_utils
 
 from vtb.adapters.base import Inputs
-from vtb.adapters.common import HALF, PatchPreprocess, default_device, depth_points, make_batch, pack_patches
+from vtb.adapters.common import (
+    HALF,
+    PatchPreprocess,
+    default_device,
+    depth_points,
+    make_batch,
+    pack_patches,
+)
 from vtb.bundle import expect_tensors, write_bundle
 from vtb.feature_batch import FeatureBatch
 from vtb.provenance import log_loaded
@@ -24,13 +31,18 @@ PROJECTOR_CONFIG = "projector_config.json"
 
 # Kimi K2.6 is where export reads both halves from.
 SOURCE_REPO = "moonshotai/Kimi-K2.6"
-SOURCE_SHARDS = ("model-00063-of-000064.safetensors", "model-00064-of-000064.safetensors")
+SOURCE_SHARDS = (
+    "model-00063-of-000064.safetensors",
+    "model-00064-of-000064.safetensors",
+)
 TOWER_PREFIX = "vision_tower."
 PROJECTOR_PREFIX = "mm_projector."
 PATCH_SIZE = 14
 
 
-Preprocess = partial(PatchPreprocess, mean=HALF, std=HALF, patch_size=PATCH_SIZE, flatten=False)
+Preprocess = partial(
+    PatchPreprocess, mean=HALF, std=HALF, patch_size=PATCH_SIZE, flatten=False
+)
 collate = partial(pack_patches, grid_key="grid_thws")
 
 
@@ -64,7 +76,12 @@ class KimiK26Adapter:
     stages = ("tower", "merged", "projected")
     collate = staticmethod(collate)
 
-    def __init__(self, resolution: int | None = None, dtype: torch.dtype = torch.bfloat16, device: str | None = None):
+    def __init__(
+        self,
+        resolution: int | None = None,
+        dtype: torch.dtype = torch.bfloat16,
+        device: str | None = None,
+    ):
         self.resolution = self.default_resolution if resolution is None else resolution
         self.device = default_device() if device is None else device
         self.dtype = dtype
@@ -93,7 +110,11 @@ class KimiK26Adapter:
 
         for layer in points:
             # Use the encoder output at the final layer to retain its norm.
-            target = self.model.encoder if layer == self.num_layers else self.model.encoder.blocks[layer - 1]
+            target = (
+                self.model.encoder
+                if layer == self.num_layers
+                else self.model.encoder.blocks[layer - 1]
+            )
             handles.append(target.register_forward_hook(capture(layer)))
 
         try:
@@ -108,12 +129,16 @@ class KimiK26Adapter:
         rows = len(image_ids)
         width = self.model.config.hidden_size
         for layer in points:
-            yield make_batch(self, captured[layer].view(rows, -1, width), image_ids, "tower", layer)
+            yield make_batch(
+                self, captured[layer].view(rows, -1, width), image_ids, "tower", layer
+            )
 
         stacked = torch.stack(merged)
         yield make_batch(self, stacked.flatten(2), image_ids, "merged", self.num_layers)
         grouped = self.projector.pre_norm(stacked).flatten(2)
-        yield make_batch(self, self.projector.proj(grouped), image_ids, "projected", self.num_layers)
+        yield make_batch(
+            self, self.projector.proj(grouped), image_ids, "projected", self.num_layers
+        )
 
 
 SOURCE_MODULE = "modeling_kimi_k25"
@@ -139,7 +164,7 @@ BUNDLE_FILES = (
     "THIRD_PARTY_NOTICES.md",
 )
 
-CONFIGURATION_SOURCE = '''from transformers.configuration_utils import PretrainedConfig
+CONFIGURATION_SOURCE = """from transformers.configuration_utils import PretrainedConfig
 
 
 class MoonViTConfig(PretrainedConfig):
@@ -176,7 +201,7 @@ class MoonViTConfig(PretrainedConfig):
         self.video_attn_type = video_attn_type
         self.merge_type = merge_type
         self._attn_implementation = _attn_implementation
-'''
+"""
 
 
 def split(weights: dict[str, torch.Tensor], prefix: str) -> dict[str, torch.Tensor]:
@@ -198,13 +223,19 @@ def remote_class(name: str):
 
 def load_source_parts(dtype: torch.dtype = torch.bfloat16, attention: str = "eager"):
     settings = loads(
-        Path(hf_hub_download(SOURCE_REPO, "config.json", revision=SOURCE_REVISION)).read_text()
+        Path(
+            hf_hub_download(SOURCE_REPO, "config.json", revision=SOURCE_REVISION)
+        ).read_text()
     )["vision_config"]
     settings["_attn_implementation"] = attention
     source = SimpleNamespace(**settings)
 
-    weights = load_file(hf_hub_download(WEIGHT_REPO, WEIGHT_FILE, revision=WEIGHT_REVISION))
-    tower = remote_class("MoonViT3dPretrainedModel")(remote_class("VisionTowerConfig")(source))
+    weights = load_file(
+        hf_hub_download(WEIGHT_REPO, WEIGHT_FILE, revision=WEIGHT_REVISION)
+    )
+    tower = remote_class("MoonViT3dPretrainedModel")(
+        remote_class("VisionTowerConfig")(source)
+    )
     tower.load_state_dict(split(weights, TOWER_PREFIX))
     projector = remote_class("PatchMergerMLP")(remote_class("ProjectorConfig")(source))
     projector.load_state_dict(split(weights, PROJECTOR_PREFIX))
@@ -242,7 +273,7 @@ def standalone_media_utils_source(source: str) -> str:
     source = source.replace("from pydantic import BaseModel, Field\n", "")
     start = source.index("class VideoSpec")
     end = source.index("class ImageInput")
-    video_spec = '''@dataclass
+    video_spec = """@dataclass
 class VideoSpec:
     media_type: str
     height: int
@@ -253,7 +284,7 @@ class VideoSpec:
     frame_time_info: dict | None = None
 
 
-'''
+"""
     return source[:start] + video_spec + source[end:]
 
 
@@ -315,9 +346,13 @@ def projector_config(projector: dict[str, torch.Tensor]) -> dict:
 
 
 def export(out: Path) -> None:
-    weights = load_file(hf_hub_download(WEIGHT_REPO, WEIGHT_FILE, revision=WEIGHT_REVISION))
+    weights = load_file(
+        hf_hub_download(WEIGHT_REPO, WEIGHT_FILE, revision=WEIGHT_REVISION)
+    )
     tower = expect_tensors(split(weights, TOWER_PREFIX), TOWER_TENSORS, "Tower")
-    projector = expect_tensors(split(weights, PROJECTOR_PREFIX), PROJECTOR_TENSORS, "Projector")
+    projector = expect_tensors(
+        split(weights, PROJECTOR_PREFIX), PROJECTOR_TENSORS, "Projector"
+    )
 
     source_files = {
         name: Path(hf_hub_download(SOURCE_REPO, name, revision=SOURCE_REVISION))
@@ -345,8 +380,14 @@ def export(out: Path) -> None:
         files={"THIRD_PARTY_NOTICES.md": source_files["THIRD_PARTY_NOTICES.md"]},
     )
     (out / "configuration_moonvit.py").write_text(CONFIGURATION_SOURCE)
-    (out / "modeling_moonvit.py").write_text(standalone_modeling_source(source_files["modeling_kimi_k25.py"].read_text()))
-    (out / "media_utils.py").write_text(standalone_media_utils_source(source_files["media_utils.py"].read_text()))
+    (out / "modeling_moonvit.py").write_text(
+        standalone_modeling_source(source_files["modeling_kimi_k25.py"].read_text())
+    )
+    (out / "media_utils.py").write_text(
+        standalone_media_utils_source(source_files["media_utils.py"].read_text())
+    )
     (out / "kimi_k25_vision_processing.py").write_text(
-        standalone_processor_source(source_files["kimi_k25_vision_processing.py"].read_text())
+        standalone_processor_source(
+            source_files["kimi_k25_vision_processing.py"].read_text()
+        )
     )

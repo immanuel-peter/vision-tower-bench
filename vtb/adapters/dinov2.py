@@ -5,7 +5,15 @@ import torch
 from transformers import AutoModel
 
 from vtb.adapters.base import Inputs
-from vtb.adapters.common import IMAGENET_MEAN, IMAGENET_STD, ImagePreprocess, default_device, depth_points, make_batch, stack_pixels
+from vtb.adapters.common import (
+    IMAGENET_MEAN,
+    IMAGENET_STD,
+    ImagePreprocess,
+    default_device,
+    depth_points,
+    make_batch,
+    stack_pixels,
+)
 from vtb.feature_batch import FeatureBatch
 from vtb.provenance import log_loaded
 
@@ -24,11 +32,20 @@ class DINOv2Adapter:
     stages = ("tower",)
     collate = staticmethod(collate)
 
-    def __init__(self, resolution: int | None = None, dtype: torch.dtype = torch.bfloat16, device: str | None = None):
+    def __init__(
+        self,
+        resolution: int | None = None,
+        dtype: torch.dtype = torch.bfloat16,
+        device: str | None = None,
+    ):
         self.resolution = self.default_resolution if resolution is None else resolution
         self.device = default_device() if device is None else device
         log_loaded(self.model_id, f"{MODEL_ID}@{REVISION}")
-        self.model = AutoModel.from_pretrained(self.model_id, revision=REVISION, dtype=dtype).to(self.device).eval()
+        self.model = (
+            AutoModel.from_pretrained(self.model_id, revision=REVISION, dtype=dtype)
+            .to(self.device)
+            .eval()
+        )
         self.num_layers = self.model.config.num_hidden_layers
 
     def preprocess(self) -> ImagePreprocess:
@@ -46,6 +63,10 @@ class DINOv2Adapter:
         )
         for layer in self.depth_points():
             # Use the model output at the final layer to retain its norm.
-            source = out.last_hidden_state if layer == self.num_layers else out.hidden_states[layer]
+            source = (
+                out.last_hidden_state
+                if layer == self.num_layers
+                else out.hidden_states[layer]
+            )
             # Drop the CLS token.
             yield make_batch(self, source[:, 1:, :], image_ids, "tower", layer)

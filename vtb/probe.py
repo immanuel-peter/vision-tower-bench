@@ -31,7 +31,6 @@ class MeanPool(nn.Module):
 
 @dataclass(frozen=True)
 class Reducer:
-
     basis: torch.Tensor
     mean: torch.Tensor
 
@@ -43,7 +42,9 @@ class Reducer:
         flat = tokens.reshape(-1, tokens.shape[-1]).float()
         mean = flat.mean(dim=0, keepdim=True)
         # Randomized SVD keeps the largest reduction tractable.
-        _, _, v = torch.svd_lowrank(flat - mean, q=min(width + oversample, min(flat.shape)))
+        _, _, v = torch.svd_lowrank(
+            flat - mean, q=min(width + oversample, min(flat.shape))
+        )
         return cls(basis=v[:, :width].contiguous(), mean=mean)
 
 
@@ -59,11 +60,15 @@ class StandardizedReducer:
         return ((tokens - self.mean) / self.scale) @ self.basis
 
     @classmethod
-    def fit(cls, tokens: torch.Tensor, width: int, oversample: int = 16) -> "StandardizedReducer":
+    def fit(
+        cls, tokens: torch.Tensor, width: int, oversample: int = 16
+    ) -> "StandardizedReducer":
         flat = tokens.reshape(-1, tokens.shape[-1]).float()
         mean = flat.mean(dim=0, keepdim=True)
         scale = flat.std(dim=0, keepdim=True, correction=1).clamp_min(1e-6)
-        _, _, v = torch.svd_lowrank((flat - mean) / scale, q=min(width + oversample, min(flat.shape)))
+        _, _, v = torch.svd_lowrank(
+            (flat - mean) / scale, q=min(width + oversample, min(flat.shape))
+        )
         return cls(basis=v[:, :width].contiguous(), mean=mean, scale=scale)
 
 

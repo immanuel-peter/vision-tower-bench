@@ -8,7 +8,13 @@ from huggingface_hub import hf_hub_download
 from safetensors.torch import load_file
 
 from vtb.adapters.base import Inputs
-from vtb.adapters.common import HALF, PatchPreprocess, default_device, depth_points, make_batch
+from vtb.adapters.common import (
+    HALF,
+    PatchPreprocess,
+    default_device,
+    depth_points,
+    make_batch,
+)
 from vtb.bundle import expect_tensors, write_bundle
 from vtb.feature_batch import FeatureBatch
 from vtb.models.deepseek_v41 import ARGS, PATCH_SIZE, Aligner, ViT
@@ -25,7 +31,9 @@ ALIGNER_PREFIX = "aligner."
 TOWER_TENSORS = 259
 PROJECTOR_TENSORS = 4
 
-Preprocess = partial(PatchPreprocess, mean=HALF, std=HALF, patch_size=PATCH_SIZE, flatten=False)
+Preprocess = partial(
+    PatchPreprocess, mean=HALF, std=HALF, patch_size=PATCH_SIZE, flatten=False
+)
 
 
 def collate(samples: list[torch.Tensor]) -> Inputs:
@@ -35,26 +43,45 @@ def collate(samples: list[torch.Tensor]) -> Inputs:
 
 def load_source_parts(dtype: torch.dtype = torch.bfloat16) -> tuple[ViT, Aligner]:
     tower = ViT()
-    weights = load_prefixed(SOURCE_REPO, [VISION_SHARD], TOWER_PREFIX, revision=SOURCE_REVISION)
+    weights = load_prefixed(
+        SOURCE_REPO, [VISION_SHARD], TOWER_PREFIX, revision=SOURCE_REVISION
+    )
     tower.load_state_dict({name: tensor.to(dtype) for name, tensor in weights.items()})
     aligner = Aligner()
-    aligner.load_state_dict({
-        name: tensor.to(dtype)
-        for name, tensor in load_prefixed(
-            SOURCE_REPO, [VISION_SHARD], ALIGNER_PREFIX, revision=SOURCE_REVISION
-        ).items()
-    })
+    aligner.load_state_dict(
+        {
+            name: tensor.to(dtype)
+            for name, tensor in load_prefixed(
+                SOURCE_REPO, [VISION_SHARD], ALIGNER_PREFIX, revision=SOURCE_REVISION
+            ).items()
+        }
+    )
     return tower.to(dtype).eval(), aligner.to(dtype).eval()
 
 
 def export(out: Path) -> None:
-    expect_tensors(load_prefixed(SOURCE_REPO, [VISION_SHARD], TOWER_PREFIX, revision=SOURCE_REVISION), TOWER_TENSORS, "Tower")
-    expect_tensors(load_prefixed(SOURCE_REPO, [VISION_SHARD], ALIGNER_PREFIX, revision=SOURCE_REVISION), PROJECTOR_TENSORS, "Aligner")
+    expect_tensors(
+        load_prefixed(
+            SOURCE_REPO, [VISION_SHARD], TOWER_PREFIX, revision=SOURCE_REVISION
+        ),
+        TOWER_TENSORS,
+        "Tower",
+    )
+    expect_tensors(
+        load_prefixed(
+            SOURCE_REPO, [VISION_SHARD], ALIGNER_PREFIX, revision=SOURCE_REVISION
+        ),
+        PROJECTOR_TENSORS,
+        "Aligner",
+    )
 
     tower, aligner = load_source_parts()
     write_bundle(
         out,
-        weights={"model.safetensors": tower.state_dict(), "projector.safetensors": aligner.state_dict()},
+        weights={
+            "model.safetensors": tower.state_dict(),
+            "projector.safetensors": aligner.state_dict(),
+        },
         configs={
             "config.json": {
                 "architectures": ["DeepSeekV41ViT"],
@@ -72,13 +99,19 @@ def export(out: Path) -> None:
 def load_parts(dtype: torch.dtype) -> tuple[ViT, Aligner]:
     bundle = open_release(MODEL_ID, SOURCE_REPO, SOURCE_REVISION)
     tower = ViT()
-    tower.load_state_dict({
-        name: tensor.to(dtype) for name, tensor in load_file(bundle / "model.safetensors").items()
-    })
+    tower.load_state_dict(
+        {
+            name: tensor.to(dtype)
+            for name, tensor in load_file(bundle / "model.safetensors").items()
+        }
+    )
     aligner = Aligner()
-    aligner.load_state_dict({
-        name: tensor.to(dtype) for name, tensor in load_file(bundle / "projector.safetensors").items()
-    })
+    aligner.load_state_dict(
+        {
+            name: tensor.to(dtype)
+            for name, tensor in load_file(bundle / "projector.safetensors").items()
+        }
+    )
     return tower.to(dtype).eval(), aligner.to(dtype).eval()
 
 
@@ -88,7 +121,12 @@ class DeepSeekV41Adapter:
     stages = ("tower", "merged", "projected")
     collate = staticmethod(collate)
 
-    def __init__(self, resolution: int | None = None, dtype: torch.dtype = torch.bfloat16, device: str | None = None):
+    def __init__(
+        self,
+        resolution: int | None = None,
+        dtype: torch.dtype = torch.bfloat16,
+        device: str | None = None,
+    ):
         self.resolution = self.default_resolution if resolution is None else resolution
         self.device = default_device() if device is None else device
         self.dtype = dtype
@@ -126,7 +164,9 @@ class DeepSeekV41Adapter:
                 return hook
 
             for layer in points:
-                handles.append(self.model.blocks[layer - 1].register_forward_hook(capture(layer)))
+                handles.append(
+                    self.model.blocks[layer - 1].register_forward_hook(capture(layer))
+                )
             try:
                 tokens = self.model(patches.to(self.device, self.dtype), n_h, n_w)
             finally:
@@ -139,6 +179,16 @@ class DeepSeekV41Adapter:
             projected.append(self.aligner(tokens, n_h, n_w))
 
         for layer in points:
-            yield make_batch(self, torch.stack(towers[layer]).view(rows, -1, width), image_ids, "tower", layer)
-        yield make_batch(self, torch.stack(merged), image_ids, "merged", self.num_layers)
-        yield make_batch(self, torch.stack(projected), image_ids, "projected", self.num_layers)
+            yield make_batch(
+                self,
+                torch.stack(towers[layer]).view(rows, -1, width),
+                image_ids,
+                "tower",
+                layer,
+            )
+        yield make_batch(
+            self, torch.stack(merged), image_ids, "merged", self.num_layers
+        )
+        yield make_batch(
+            self, torch.stack(projected), image_ids, "projected", self.num_layers
+        )

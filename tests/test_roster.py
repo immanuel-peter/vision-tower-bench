@@ -13,7 +13,9 @@ def test_roster_model_ids_match_their_adapters():
     for tower in ROSTER:
         adapter = tower.adapter()
         checkpoint = getattr(adapter, "checkpoint", None)
-        assert tower.model_id == (checkpoint.model_id if checkpoint else adapter.model_id), tower.slug
+        assert tower.model_id == (
+            checkpoint.model_id if checkpoint else adapter.model_id
+        ), tower.slug
 
 
 def test_public_api_exposes_the_roster():

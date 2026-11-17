@@ -4,7 +4,10 @@ import argparse
 import json
 from pathlib import Path
 
-HEADLINE = {"depth": ("d1", "d2", "d3", "rmse"), "normal": ("mean_deg", "d1", "d2", "d3", "rmse")}
+HEADLINE = {
+    "depth": ("d1", "d2", "d3", "rmse"),
+    "normal": ("mean_deg", "d1", "d2", "d3", "rmse"),
+}
 
 
 def rows(cells: list[dict]) -> list[dict]:
@@ -36,8 +39,14 @@ def table(cells: list[dict], task: str) -> str:
 
 def scene_table(cells: list[dict], task: str) -> str:
     metric = HEADLINE[task][0]
-    head = ["Stage", "Rel. Depth", f"indoors {metric}", f"outdoor {metric}",
-            "indoors coverage", "outdoor coverage"]
+    head = [
+        "Stage",
+        "Rel. Depth",
+        f"indoors {metric}",
+        f"outdoor {metric}",
+        "indoors coverage",
+        "outdoor coverage",
+    ]
     lines = ["| " + " | ".join(head) + " |", "|" + "---|" * len(head)]
     for cell in rows(cells):
         scenes = cell["by_scene"]
@@ -60,7 +69,11 @@ def main() -> None:
         cells = payload["cells"]
         arm = "capacity-matched" if payload["capacity_matched"] else "unmatched"
         print(f"\n### {cells[0]['model_id']}, {payload['task']}, {arm}\n")
-        print(scene_table(cells, payload["task"]) if args.scenes else table(cells, payload["task"]))
+        print(
+            scene_table(cells, payload["task"])
+            if args.scenes
+            else table(cells, payload["task"])
+        )
 
 
 if __name__ == "__main__":

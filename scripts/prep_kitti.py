@@ -6,7 +6,6 @@ import shutil
 from pathlib import Path
 
 import numpy as np
-from PIL import Image
 
 from vtb.kitti import DEPTH_DIVISOR, paired_samples, read_depth
 
@@ -18,7 +17,9 @@ def main() -> None:
     ap.add_argument("--raw", type=Path, required=True)
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--split", default="val")
-    ap.add_argument("--cap", type=int, default=0, help="0 keeps all 1,000 public validation images")
+    ap.add_argument(
+        "--cap", type=int, default=0, help="0 keeps all 1,000 public validation images"
+    )
     args = ap.parse_args()
 
     rows = paired_samples(args.raw)
@@ -60,7 +61,9 @@ def main() -> None:
         "scenes": {image_id: "driving" for image_id in targets},
         "source_ids": source_ids,
     }
-    (args.out / f"{args.split}_manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
+    (args.out / f"{args.split}_manifest.json").write_text(
+        json.dumps(manifest, indent=2) + "\n"
+    )
     print(
         f"{len(rows)} samples -> {images}, depth reaches {depth_max:.3f} m, "
         f"mean valid fraction {np.mean(values):.4f}"

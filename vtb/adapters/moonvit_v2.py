@@ -11,7 +11,14 @@ from torch import nn
 from transformers import AutoModel
 
 from vtb.adapters.base import Inputs
-from vtb.adapters.common import HALF, PatchPreprocess, default_device, depth_points, make_batch, pack_patches
+from vtb.adapters.common import (
+    HALF,
+    PatchPreprocess,
+    default_device,
+    depth_points,
+    make_batch,
+    pack_patches,
+)
 from vtb.bundle import ROOT, expect_tensors, write_bundle
 from vtb.bundle_manifest import copy_assets, write_manifest
 from vtb.feature_batch import FeatureBatch
@@ -39,20 +46,30 @@ class Checkpoint:
     bundle: str
 
 
-K3 = Checkpoint(SOURCE_REPO, "f831ab66814297da540d832a5235f8e904f29d06", MODEL_ID, "MoonViT-V2")
-K31_PRO = Checkpoint("moonshotai/Kimi-K3.1-Pro", "6d0a0202956796543364d666ab19c6ad1a494ee1",
-                     "immanuelpeter/MoonViT-K3.1-Pro", "MoonViT-K3.1-Pro")
+K3 = Checkpoint(
+    SOURCE_REPO, "f831ab66814297da540d832a5235f8e904f29d06", MODEL_ID, "MoonViT-V2"
+)
+K31_PRO = Checkpoint(
+    "moonshotai/Kimi-K3.1-Pro",
+    "6d0a0202956796543364d666ab19c6ad1a494ee1",
+    "immanuelpeter/MoonViT-K3.1-Pro",
+    "MoonViT-K3.1-Pro",
+)
 CHECKPOINTS = {"moonvit_v2": K3, "kimi_k31_pro": K31_PRO}
 
 
-Preprocess = partial(PatchPreprocess, mean=HALF, std=HALF, patch_size=PATCH_SIZE, flatten=False)
+Preprocess = partial(
+    PatchPreprocess, mean=HALF, std=HALF, patch_size=PATCH_SIZE, flatten=False
+)
 collate = partial(pack_patches, grid_key="grid_thws")
 
 
 def load_projector_weights(dtype: torch.dtype, model_id: str = MODEL_ID) -> nn.Module:
     """Build Kimi K3's patch merger from its published weights."""
     local = Path(model_id) / PROJECTOR_FILE
-    weights = load_file(local if local.is_file() else hf_hub_download(model_id, PROJECTOR_FILE))
+    weights = load_file(
+        local if local.is_file() else hf_hub_download(model_id, PROJECTOR_FILE)
+    )
     width, merged_width = weights["proj.2.weight"].shape
 
     projector = nn.Module()
@@ -75,13 +92,20 @@ class MoonViTV2Adapter:
     stages = ("tower", "merged", "projected")
     collate = staticmethod(collate)
 
-    def __init__(self, resolution: int | None = None, dtype: torch.dtype = torch.bfloat16, device: str | None = None):
+    def __init__(
+        self,
+        resolution: int | None = None,
+        dtype: torch.dtype = torch.bfloat16,
+        device: str | None = None,
+    ):
         self.resolution = self.default_resolution if resolution is None else resolution
         self.device = default_device() if device is None else device
         self.dtype = dtype
         log_loaded(self.model_id, self.model_id)
         self.model = (
-            AutoModel.from_pretrained(self.model_id, dtype=dtype, trust_remote_code=True)
+            AutoModel.from_pretrained(
+                self.model_id, dtype=dtype, trust_remote_code=True
+            )
             .to(self.device)
             .eval()
         )
@@ -97,7 +121,9 @@ class MoonViTV2Adapter:
     @torch.inference_mode()
     def extract(self, inputs: Inputs, image_ids: list[str]) -> Iterator[FeatureBatch]:
         if len(image_ids) != 1:
-            raise ValueError("Kimi extraction requires batch size 1 for reproducible attention")
+            raise ValueError(
+                "Kimi extraction requires batch size 1 for reproducible attention"
+            )
         points = self.depth_points()
         captured: dict[int, torch.Tensor] = {}
         handles = []
@@ -110,7 +136,11 @@ class MoonViTV2Adapter:
 
         for layer in points:
             # Use the encoder output at the final layer to retain its norm.
-            target = self.model.encoder if layer == self.num_layers else self.model.encoder.blocks[layer - 1]
+            target = (
+                self.model.encoder
+                if layer == self.num_layers
+                else self.model.encoder.blocks[layer - 1]
+            )
             handles.append(target.register_forward_hook(capture(layer)))
 
         try:
@@ -124,12 +154,24 @@ class MoonViTV2Adapter:
 
         rows = len(image_ids)
         for layer in points:
-            yield make_batch(self, captured[layer].view(rows, -1, self.model.config.hidden_size), image_ids, "tower", layer)
+            yield make_batch(
+                self,
+                captured[layer].view(rows, -1, self.model.config.hidden_size),
+                image_ids,
+                "tower",
+                layer,
+            )
 
         # Merge each 2x2 patch group.
         stacked = torch.stack(merged).flatten(2)
         yield make_batch(self, stacked, image_ids, "merged", self.num_layers)
-        yield make_batch(self, self.projector.post_norm(self.projector.proj(stacked)), image_ids, "projected", self.num_layers)
+        yield make_batch(
+            self,
+            self.projector.post_norm(self.projector.proj(stacked)),
+            image_ids,
+            "projected",
+            self.num_layers,
+        )
 
 
 class KimiK31ProAdapter(MoonViTV2Adapter):
@@ -153,23 +195,35 @@ VENDORED = (
 
 
 def discover_shards(checkpoint) -> dict[str, list[str]]:
-    path = hf_hub_download(checkpoint.repo, "model.safetensors.index.json", revision=checkpoint.revision)
+    path = hf_hub_download(
+        checkpoint.repo, "model.safetensors.index.json", revision=checkpoint.revision
+    )
     mapping = loads(Path(path).read_text())["weight_map"]
-    result = {prefix: sorted({shard for name, shard in mapping.items() if name.startswith(prefix)})
-              for prefix in (TOWER_PREFIX, PROJECTOR_PREFIX)}
+    result = {
+        prefix: sorted(
+            {shard for name, shard in mapping.items() if name.startswith(prefix)}
+        )
+        for prefix in (TOWER_PREFIX, PROJECTOR_PREFIX)
+    }
     if not all(result.values()):
         raise ValueError("source index lacks Tower or Projector tensors")
     selected = {shard for group in result.values() for shard in group}
-    if any(shard in selected and not name.startswith((TOWER_PREFIX, PROJECTOR_PREFIX))
-           for name, shard in mapping.items()):
-        raise ValueError("vision shards contain non-vision tensors; refusing a full LM download")
+    if any(
+        shard in selected and not name.startswith((TOWER_PREFIX, PROJECTOR_PREFIX))
+        for name, shard in mapping.items()
+    ):
+        raise ValueError(
+            "vision shards contain non-vision tensors; refusing a full LM download"
+        )
     return result
 
 
 def read_parent(checkpoint, shards: list[str], prefix: str) -> dict[str, torch.Tensor]:
     combined = {}
     for shard in shards:
-        weights = load_prefixed(checkpoint.repo, [shard], prefix, revision=checkpoint.revision)
+        weights = load_prefixed(
+            checkpoint.repo, [shard], prefix, revision=checkpoint.revision
+        )
         if combined.keys() & weights.keys():
             raise ValueError("duplicate source tensor")
         combined.update(weights)
@@ -177,10 +231,14 @@ def read_parent(checkpoint, shards: list[str], prefix: str) -> dict[str, torch.T
 
 
 def check_against_standalone(tower: dict[str, torch.Tensor]) -> None:
-    standalone = load_file(hf_hub_download(TOWER_REPO, "model.safetensors", revision=CODE_REVISION))
+    standalone = load_file(
+        hf_hub_download(TOWER_REPO, "model.safetensors", revision=CODE_REVISION)
+    )
     if set(standalone) != set(tower):
         missing = set(standalone) ^ set(tower)
-        raise SystemExit(f"tensor names differ from {TOWER_REPO}: {sorted(missing)[:5]}")
+        raise SystemExit(
+            f"tensor names differ from {TOWER_REPO}: {sorted(missing)[:5]}"
+        )
     for name, weight in standalone.items():
         if not torch.equal(weight, tower[name]):
             raise SystemExit(f"{name} differs from {TOWER_REPO}")
@@ -204,8 +262,16 @@ def projector_config(projector: dict[str, torch.Tensor]) -> dict:
 
 def export(out: Path, checkpoint: Checkpoint) -> None:
     shards = discover_shards(checkpoint)
-    tower = expect_tensors(read_parent(checkpoint, shards[TOWER_PREFIX], TOWER_PREFIX), TOWER_TENSORS, "Tower")
-    projector = expect_tensors(read_parent(checkpoint, shards[PROJECTOR_PREFIX], PROJECTOR_PREFIX), PROJECTOR_TENSORS, "Projector")
+    tower = expect_tensors(
+        read_parent(checkpoint, shards[TOWER_PREFIX], TOWER_PREFIX),
+        TOWER_TENSORS,
+        "Tower",
+    )
+    projector = expect_tensors(
+        read_parent(checkpoint, shards[PROJECTOR_PREFIX], PROJECTOR_PREFIX),
+        PROJECTOR_TENSORS,
+        "Projector",
+    )
 
     if any(t.dtype != torch.bfloat16 for t in (*tower.values(), *projector.values())):
         raise ValueError("expected BF16 source tensors")
@@ -216,20 +282,42 @@ def export(out: Path, checkpoint: Checkpoint) -> None:
         out,
         weights={"model.safetensors": tower, "projector.safetensors": projector},
         configs={"projector_config.json": projector_config(projector)},
-        license=Path(hf_hub_download(checkpoint.repo, "LICENSE", revision=checkpoint.revision)),
+        license=Path(
+            hf_hub_download(checkpoint.repo, "LICENSE", revision=checkpoint.revision)
+        ),
         files={
-            **{name: Path(hf_hub_download(TOWER_REPO, name, revision=CODE_REVISION)) for name in VENDORED},
-            "LICENSE-CODE": Path(hf_hub_download(TOWER_REPO, "LICENSE", revision=CODE_REVISION)),
+            **{
+                name: Path(hf_hub_download(TOWER_REPO, name, revision=CODE_REVISION))
+                for name in VENDORED
+            },
+            "LICENSE-CODE": Path(
+                hf_hub_download(TOWER_REPO, "LICENSE", revision=CODE_REVISION)
+            ),
         },
     )
-    for filename, prefix in (("model.safetensors", TOWER_PREFIX), ("projector.safetensors", PROJECTOR_PREFIX)):
+    for filename, prefix in (
+        ("model.safetensors", TOWER_PREFIX),
+        ("projector.safetensors", PROJECTOR_PREFIX),
+    ):
         exported = load_file(out / filename)
         parent = read_parent(checkpoint, shards[prefix], prefix)
-        if exported.keys() != parent.keys() or any(not torch.equal(exported[k], parent[k]) for k in parent):
+        if exported.keys() != parent.keys() or any(
+            not torch.equal(exported[k], parent[k]) for k in parent
+        ):
             raise ValueError(f"export differs from pinned parent: {filename}")
     copy_assets(ROOT / "hf" / checkpoint.bundle, out)
-    write_manifest(out, checkpoint.repo, checkpoint.revision,
-                   [name for group in shards.values() for name in group],
-                   extra={"exact_parent_identity": True, "code_repo": TOWER_REPO, "code_revision": CODE_REVISION,
-                          "forward_parity": "Independent math-reference BF16 exact; production official SDPA BF16 disagreement retained."})
-    print(f"Bundle: {checkpoint.model_id}. Publish only after independent forward parity.")
+    write_manifest(
+        out,
+        checkpoint.repo,
+        checkpoint.revision,
+        [name for group in shards.values() for name in group],
+        extra={
+            "exact_parent_identity": True,
+            "code_repo": TOWER_REPO,
+            "code_revision": CODE_REVISION,
+            "forward_parity": "Independent math-reference BF16 exact; production official SDPA BF16 disagreement retained.",
+        },
+    )
+    print(
+        f"Bundle: {checkpoint.model_id}. Publish only after independent forward parity."
+    )

@@ -73,9 +73,16 @@ def fetch_reference(root: Path) -> Path:
     wheel = root / REFERENCE_WHEEL
     if not wheel.is_file():
         root.mkdir(parents=True, exist_ok=True)
-        release = requests.get(f"https://pypi.org/pypi/{REFERENCE_PACKAGE}/{REFERENCE_VERSION}/json", timeout=60)
+        release = requests.get(
+            f"https://pypi.org/pypi/{REFERENCE_PACKAGE}/{REFERENCE_VERSION}/json",
+            timeout=60,
+        )
         release.raise_for_status()
-        url = next(item["url"] for item in release.json()["urls"] if item["filename"] == REFERENCE_WHEEL)
+        url = next(
+            item["url"]
+            for item in release.json()["urls"]
+            if item["filename"] == REFERENCE_WHEEL
+        )
         response = requests.get(url, timeout=300)
         response.raise_for_status()
         wheel.write_bytes(response.content)
@@ -104,7 +111,7 @@ class BlockDiagonalMask:
         mask = torch.full((total, total), float("-inf"), dtype=dtype, device=device)
         start = 0
         for length in self.seqlens:
-            mask[start:start + length, start:start + length] = 0
+            mask[start : start + length, start : start + length] = 0
             start += length
         return mask.expand(shape)
 
@@ -117,7 +124,9 @@ def memory_efficient_attention(query, key, value, attn_bias=None, p=0.0, scale=N
     scale = dim**-0.5 if scale is None else scale
     bias = None
     if attn_bias is not None:
-        bias = attn_bias.materialize((length, key.shape[1]), dtype=torch.float32, device=query.device)
+        bias = attn_bias.materialize(
+            (length, key.shape[1]), dtype=torch.float32, device=query.device
+        )
     out = torch.empty_like(query)
     for b in range(batch):
         for h in range(heads):
@@ -140,15 +149,24 @@ def efficient_attention(query, key, value, attn_bias=None, p=0.0, scale=None):
     mask = None
     if attn_bias is not None:
         length = query.shape[1]
-        mask = attn_bias.materialize((length, key.shape[1]), dtype=query.dtype, device=query.device)
+        mask = attn_bias.materialize(
+            (length, key.shape[1]), dtype=query.dtype, device=query.device
+        )
     with sdpa_kernel(SDPBackend.EFFICIENT_ATTENTION):
         out = torch.nn.functional.scaled_dot_product_attention(
-            query.transpose(1, 2), key.transpose(1, 2), value.transpose(1, 2), attn_mask=mask, scale=scale
+            query.transpose(1, 2),
+            key.transpose(1, 2),
+            value.transpose(1, 2),
+            attn_mask=mask,
+            scale=scale,
         )
     return out.transpose(1, 2)
 
 
-REFERENCE_ATTENTION = {"efficient": efficient_attention, "explicit": memory_efficient_attention}
+REFERENCE_ATTENTION = {
+    "efficient": efficient_attention,
+    "explicit": memory_efficient_attention,
+}
 
 
 class _Placeholder:
@@ -159,7 +177,11 @@ def install_reference_substitutes() -> None:
     """Register the xformers and simple_parsing names mistral_inference imports."""
     attn_bias = types.ModuleType("xformers.ops.fmha.attn_bias")
     attn_bias.BlockDiagonalMask = BlockDiagonalMask
-    for name in ("AttentionBias", "BlockDiagonalCausalMask", "BlockDiagonalCausalWithOffsetPaddedKeysMask"):
+    for name in (
+        "AttentionBias",
+        "BlockDiagonalCausalMask",
+        "BlockDiagonalCausalWithOffsetPaddedKeysMask",
+    ):
         setattr(attn_bias, name, type(name, (_Placeholder,), {}))
     fmha = types.ModuleType("xformers.ops.fmha")
     fmha.memory_efficient_attention = memory_efficient_attention
@@ -172,14 +194,16 @@ def install_reference_substitutes() -> None:
     helpers.Serializable = type("Serializable", (), {})
     simple_parsing = types.ModuleType("simple_parsing")
     simple_parsing.helpers = helpers
-    sys.modules.update({
-        "xformers": xformers,
-        "xformers.ops": ops,
-        "xformers.ops.fmha": fmha,
-        "xformers.ops.fmha.attn_bias": attn_bias,
-        "simple_parsing": simple_parsing,
-        "simple_parsing.helpers": helpers,
-    })
+    sys.modules.update(
+        {
+            "xformers": xformers,
+            "xformers.ops": ops,
+            "xformers.ops.fmha": fmha,
+            "xformers.ops.fmha.attn_bias": attn_bias,
+            "simple_parsing": simple_parsing,
+            "simple_parsing.helpers": helpers,
+        }
+    )
 
 
 def import_reference(unpacked: Path):
@@ -189,7 +213,9 @@ def import_reference(unpacked: Path):
     vision = importlib.import_module("mistral_inference.vision_encoder")
     layers = importlib.import_module("mistral_inference.transformer_layers")
     if not Path(vision.__file__).resolve().is_relative_to(unpacked.resolve()):
-        raise ImportError(f"mistral_inference resolved outside the pinned wheel: {vision.__file__}")
+        raise ImportError(
+            f"mistral_inference resolved outside the pinned wheel: {vision.__file__}"
+        )
     return vision, layers
 
 
@@ -200,17 +226,28 @@ class Reference(torch.nn.Module):
         super().__init__()
         encoder = params["vision_encoder"]
         names = {item.name for item in fields(vision.VisionEncoderArgs)}
-        args = vision.VisionEncoderArgs(**{key: value for key, value in encoder.items() if key in names})
+        args = vision.VisionEncoderArgs(
+            **{key: value for key, value in encoder.items() if key in names}
+        )
         self.args = args
         self.vision_encoder = vision.VisionTransformer(args)
         # transformer.py, Transformer.__init__: the same constructors and eps.
-        self.vision_language_adapter = vision.VisionLanguageAdapter(args.hidden_size, params["dim"], args.adapter_bias)
-        if not args.add_pre_mm_projector_layer_norm or args.mm_projector_id != "patch_merge":
+        self.vision_language_adapter = vision.VisionLanguageAdapter(
+            args.hidden_size, params["dim"], args.adapter_bias
+        )
+        if (
+            not args.add_pre_mm_projector_layer_norm
+            or args.mm_projector_id != "patch_merge"
+        ):
             raise ValueError("expected the pre-projector norm and the patch merger")
         self.pre_mm_projector_norm = layers.RMSNorm(args.hidden_size, eps=1e-5)
-        self.patch_merger = vision.PatchMerger(args.hidden_size, args.spatial_merge_size)
+        self.patch_merger = vision.PatchMerger(
+            args.hidden_size, args.spatial_merge_size
+        )
 
-    def forward(self, image: torch.Tensor, depths: tuple[int, ...]) -> dict[str, torch.Tensor]:
+    def forward(
+        self, image: torch.Tensor, depths: tuple[int, ...]
+    ) -> dict[str, torch.Tensor]:
         captured = {}
         handles = [
             self.vision_encoder.transformer.layers[depth - 1].register_forward_hook(
@@ -235,12 +272,16 @@ class Reference(torch.nn.Module):
         return stages
 
 
-def build_reference(vision, layers, params: dict, native: dict[str, torch.Tensor], dtype, device) -> Reference:
+def build_reference(
+    vision, layers, params: dict, native: dict[str, torch.Tensor], dtype, device
+) -> Reference:
     reference = Reference(vision, layers, params)
     state = {}
     for name, tensor in native.items():
         state[name] = tensor
-    missing = reference.load_state_dict({k: v.to(dtype) for k, v in state.items()}, strict=True)
+    missing = reference.load_state_dict(
+        {k: v.to(dtype) for k, v in state.items()}, strict=True
+    )
     assert not missing.missing_keys and not missing.unexpected_keys
     return reference.to(dtype=dtype, device=device).eval()
 
@@ -248,24 +289,33 @@ def build_reference(vision, layers, params: dict, native: dict[str, torch.Tensor
 # ---------------------------------------------------------------- candidate
 
 
-def candidate_stages(tower, projector, pixels: torch.Tensor, depths: tuple[int, ...]) -> dict[str, torch.Tensor]:
+def candidate_stages(
+    tower, projector, pixels: torch.Tensor, depths: tuple[int, ...]
+) -> dict[str, torch.Tensor]:
     """The bench adapter's path: batched Tower forward, then the HF Projector."""
     final, captured = ml4.tower_forward(tower, pixels, depths)
-    merged, projected = ml4.projector_stages(projector, final, pixels.shape[-1] // ml4.PATCH_SIZE)
+    merged, projected = ml4.projector_stages(
+        projector, final, pixels.shape[-1] // ml4.PATCH_SIZE
+    )
     stages = {f"tower_L{depth}": captured[depth][0] for depth in depths}
     stages["merged"] = merged[0]
     stages["projected"] = projected[0]
     return stages
 
 
-def release_stages(tower, projector, pixels: torch.Tensor, depths: tuple[int, ...]) -> dict[str, torch.Tensor]:
+def release_stages(
+    tower, projector, pixels: torch.Tensor, depths: tuple[int, ...]
+) -> dict[str, torch.Tensor]:
     """The release's own path: the bundle's modeling code through its forward, then the Projector."""
     out = tower(pixels, output_hidden_states=True)
     batch, side = len(pixels), pixels.shape[-1] // ml4.PATCH_SIZE
     width = out.last_hidden_state.shape[-1]
     final = out.last_hidden_state.view(batch, side * side, width)
     merged, projected = ml4.projector_stages(projector, final, side)
-    stages = {f"tower_L{d}": out.hidden_states[d - 1].view(batch, side * side, width) for d in depths}
+    stages = {
+        f"tower_L{d}": out.hidden_states[d - 1].view(batch, side * side, width)
+        for d in depths
+    }
     stages["merged"] = merged
     stages["projected"] = projected
     if batch == 1:
@@ -276,7 +326,9 @@ def release_stages(tower, projector, pixels: torch.Tensor, depths: tuple[int, ..
 def load_release(bundle: Path, dtype: torch.dtype):
     from transformers import AutoModel
 
-    tower = AutoModel.from_pretrained(bundle, dtype=dtype, trust_remote_code=True, local_files_only=True).eval()
+    tower = AutoModel.from_pretrained(
+        bundle, dtype=dtype, trust_remote_code=True, local_files_only=True
+    ).eval()
     if type(tower).__module__.startswith("vtb."):
         raise RuntimeError("the release must run its own modeling file")
     return tower, ml4.load_bundle_projector(bundle, dtype)
@@ -286,7 +338,9 @@ def hf_packed_stages(tower, projector, pixels: torch.Tensor) -> dict[str, torch.
     """HF's own packed PixtralVisionModel.forward and Mistral3MultiModalProjector.forward."""
     sizes = [tuple(pixels.shape[-2:])] * len(pixels)
     # Stock transformers forward, bypassing the release's corrected subclass.
-    final = PixtralVisionModel.forward(tower, pixels, image_sizes=sizes).last_hidden_state.squeeze(0)
+    final = PixtralVisionModel.forward(
+        tower, pixels, image_sizes=sizes
+    ).last_hidden_state.squeeze(0)
     projected = projector(final, sizes)
     return {f"tower_L{tower.config.num_hidden_layers}": final, "projected": projected}
 
@@ -294,12 +348,16 @@ def hf_packed_stages(tower, projector, pixels: torch.Tensor) -> dict[str, torch.
 # ---------------------------------------------------------------- controls
 
 
-def control_parts(native: dict[str, torch.Tensor], source: dict, dtype, device, name: str):
+def control_parts(
+    native: dict[str, torch.Tensor], source: dict, dtype, device, name: str
+):
     """Build deliberately wrong candidates; each must miss the reference."""
     tower_state, projector_state = ml4.convert(native)
     if name == "plain_rename_without_rope_permutation":
         tower_state = {
-            key: ml4.halves_to_interleaved(value) if ml4.is_rotary("vision_tower." + key) else value
+            key: ml4.halves_to_interleaved(value)
+            if ml4.is_rotary("vision_tower." + key)
+            else value
             for key, value in tower_state.items()
         }
     elif name == "merger_kernel_major_input":
@@ -308,12 +366,19 @@ def control_parts(native: dict[str, torch.Tensor], source: dict, dtype, device, 
         # Read the 8192 inputs as kernel-major (k * D + c) instead of channel-major (c * 4 + k).
         projector_state = dict(projector_state)
         projector_state["patch_merger.merging_layer.weight"] = (
-            weight.view(out, 4, width).transpose(1, 2).reshape(out, 4 * width).contiguous()
+            weight.view(out, 4, width)
+            .transpose(1, 2)
+            .reshape(out, 4 * width)
+            .contiguous()
         )
     elif name not in {"final_norm_on_tower", "norm_eps_1e-6"}:
         raise KeyError(name)
     tower, projector = ml4.build_parts(
-        tower_state, projector_state, ml4.vision_config(source), ml4.projector_config(source), dtype
+        tower_state,
+        projector_state,
+        ml4.vision_config(source),
+        ml4.projector_config(source),
+        dtype,
     )
     if name == "norm_eps_1e-6":
         for module in [*tower.modules(), *projector.modules()]:
@@ -324,7 +389,9 @@ def control_parts(native: dict[str, torch.Tensor], source: dict, dtype, device, 
 
 def final_rms_norm(tokens: torch.Tensor, eps: float = 1e-5) -> torch.Tensor:
     flat = tokens.float()
-    return (flat * torch.rsqrt(flat.square().mean(-1, keepdim=True) + eps)).to(tokens.dtype)
+    return (flat * torch.rsqrt(flat.square().mean(-1, keepdim=True) + eps)).to(
+        tokens.dtype
+    )
 
 
 # ---------------------------------------------------------------- inputs
@@ -336,11 +403,18 @@ def synthetic_images(out: Path) -> list[Path]:
     rng = np.random.default_rng(23)
     noise = rng.integers(0, 256, size=(640, 640, 3), dtype=np.uint8)
     ys, xs = np.mgrid[0:600, 0:800].astype(np.float32)
-    pattern = np.stack([
-        127 + 120 * np.sin(xs / 37.0),
-        127 + 120 * np.cos(ys / 23.0),
-        ((xs // 80 + ys // 80) % 2) * 200 + 25,
-    ], axis=-1).clip(0, 255).astype(np.uint8)
+    pattern = (
+        np.stack(
+            [
+                127 + 120 * np.sin(xs / 37.0),
+                127 + 120 * np.cos(ys / 23.0),
+                ((xs // 80 + ys // 80) % 2) * 200 + 25,
+            ],
+            axis=-1,
+        )
+        .clip(0, 255)
+        .astype(np.uint8)
+    )
     paths = []
     for name, array in (("seeded_noise.png", noise), ("pattern.png", pattern)):
         path = out / name
@@ -351,12 +425,20 @@ def synthetic_images(out: Path) -> list[Path]:
 
 def native_from_shard(shard: Path) -> dict[str, torch.Tensor]:
     with safe_open(str(shard), framework="pt") as handle:
-        return {name: handle.get_tensor(name) for name in handle.keys() if name.startswith(ml4.SOURCE_PREFIXES)}
+        return {
+            name: handle.get_tensor(name)
+            for name in handle.keys()
+            if name.startswith(ml4.SOURCE_PREFIXES)
+        }
 
 
-def identity_report(shard: Path, bundle: Path | None) -> tuple[dict, dict[str, torch.Tensor]]:
+def identity_report(
+    shard: Path, bundle: Path | None
+) -> tuple[dict, dict[str, torch.Tensor]]:
     started = time.time()
-    metadata = HfApi().model_info(ml4.SOURCE_REPO, revision=ml4.SOURCE_REVISION, files_metadata=True)
+    metadata = HfApi().model_info(
+        ml4.SOURCE_REPO, revision=ml4.SOURCE_REVISION, files_metadata=True
+    )
     lfs = next(item.lfs.sha256 for item in metadata.siblings if item.rfilename == SHARD)
     digest = file_sha256(shard)
     if digest != lfs:
@@ -375,22 +457,36 @@ def identity_report(shard: Path, bundle: Path | None) -> tuple[dict, dict[str, t
         "shard_lfs_sha256": lfs,
         "vision_tensors": len(native),
         "tower_tensors": sum(name.startswith(ml4.TOWER_PREFIX) for name in native),
-        "projector_tensors": sum(not name.startswith(ml4.TOWER_PREFIX) for name in native),
+        "projector_tensors": sum(
+            not name.startswith(ml4.TOWER_PREFIX) for name in native
+        ),
         "parameters": sum(t.numel() for t in native.values()),
-        "tower_parameters": sum(t.numel() for n, t in native.items() if n.startswith(ml4.TOWER_PREFIX)),
-        "projector_parameters": sum(t.numel() for n, t in native.items() if not n.startswith(ml4.TOWER_PREFIX)),
+        "tower_parameters": sum(
+            t.numel() for n, t in native.items() if n.startswith(ml4.TOWER_PREFIX)
+        ),
+        "projector_parameters": sum(
+            t.numel() for n, t in native.items() if not n.startswith(ml4.TOWER_PREFIX)
+        ),
         "dtypes": sorted({str(t.dtype) for t in native.values()}),
-        "range_fetch_bit_exact": all(torch.equal(ranged[name], tensor) for name, tensor in native.items()),
+        "range_fetch_bit_exact": all(
+            torch.equal(ranged[name], tensor) for name, tensor in native.items()
+        ),
         "range_fetch_names_equal": set(ranged) == set(native),
     }
     tower_state, projector_state = ml4.convert(native)
     if bundle is not None and (bundle / "model.safetensors").is_file():
         from safetensors.torch import load_file
 
-        released = {"vision_tower." + k: v for k, v in load_file(bundle / "model.safetensors").items()}
-        released.update({
-            "multi_modal_projector." + k: v for k, v in load_file(bundle / "projector.safetensors").items()
-        })
+        released = {
+            "vision_tower." + k: v
+            for k, v in load_file(bundle / "model.safetensors").items()
+        }
+        released.update(
+            {
+                "multi_modal_projector." + k: v
+                for k, v in load_file(bundle / "projector.safetensors").items()
+            }
+        )
         drift = {}
         exact = True
         for name, tensor in native.items():
@@ -410,7 +506,8 @@ def identity_report(shard: Path, bundle: Path | None) -> tuple[dict, dict[str, t
         report["release"] = {
             "bundle": str(bundle),
             "tensors": len(released),
-            "names_cover_source_once": sorted(released) == sorted(ml4.remap_key(n) for n in native),
+            "names_cover_source_once": sorted(released)
+            == sorted(ml4.remap_key(n) for n in native),
             "bit_exact_after_inverse_permutation": exact,
             "max_relative_l2": max(item["relative_l2"] for item in drift.values()),
             "min_cosine": min(item["cosine"] for item in drift.values()),
@@ -420,15 +517,26 @@ def identity_report(shard: Path, bundle: Path | None) -> tuple[dict, dict[str, t
     report["rope_permutation"] = {
         "tensors": len(rotary),
         "round_trip_bit_exact": all(
-            torch.equal(ml4.halves_to_interleaved(ml4.interleaved_to_halves(native[name])), native[name])
+            torch.equal(
+                ml4.halves_to_interleaved(ml4.interleaved_to_halves(native[name])),
+                native[name],
+            )
             for name in rotary
         ),
         "min_relative_l2_permuted_vs_native": min(
-            ((ml4.interleaved_to_halves(native[n]).double() - native[n].double()).norm() / native[n].double().norm()).item()
+            (
+                (
+                    ml4.interleaved_to_halves(native[n]).double() - native[n].double()
+                ).norm()
+                / native[n].double().norm()
+            ).item()
             for n in rotary
         ),
     }
-    report["converted_tensors"] = {"tower": len(tower_state), "projector": len(projector_state)}
+    report["converted_tensors"] = {
+        "tower": len(tower_state),
+        "projector": len(projector_state),
+    }
     report["seconds"] = round(time.time() - started, 1)
     return report, native
 
@@ -458,20 +566,29 @@ def run_parity(native, args, report) -> None:
         "params_vision_encoder": params["vision_encoder"],
     }
 
-    images = synthetic_images(args.out.parent / "parity-images") + [Path(p) for p in args.images]
+    images = synthetic_images(args.out.parent / "parity-images") + [
+        Path(p) for p in args.images
+    ]
     report["images"] = [{"path": str(p), "sha256": file_sha256(p)} for p in images]
     depths = tuple(round(30 * (k + 1) / 8) for k in range(8))
     report["depths"] = list(depths)
     if args.bundle is not None and (args.bundle / "model.safetensors").is_file():
-        candidate_source = f"release bundle {args.bundle}, AutoModel with trust_remote_code"
+        candidate_source = (
+            f"release bundle {args.bundle}, AutoModel with trust_remote_code"
+        )
         load_candidate = lambda dtype: load_release(args.bundle, dtype)  # noqa: E731
         stage_fn = release_stages
         modeling = args.bundle / "modeling_pixtral_large4.py"
-        report["candidate_modeling_sha256"] = file_sha256(modeling) if modeling.is_file() else None
+        report["candidate_modeling_sha256"] = (
+            file_sha256(modeling) if modeling.is_file() else None
+        )
     else:
         candidate_source = "convert() of the SHA256-verified shard tensors"
         load_candidate = lambda dtype: ml4.build_parts(  # noqa: E731
-            *ml4.convert(native), ml4.vision_config(source), ml4.projector_config(source), dtype
+            *ml4.convert(native),
+            ml4.vision_config(source),
+            ml4.projector_config(source),
+            dtype,
         )
         stage_fn = candidate_stages
     report["candidate"] = candidate_source
@@ -490,18 +607,27 @@ def run_parity(native, args, report) -> None:
             if not report["eps"]:
                 report["eps"]["reference"] = {
                     "ln_pre": reference.vision_encoder.ln_pre.eps,
-                    "block_norms": sorted({
-                        m.eps for m in reference.vision_encoder.transformer.modules() if isinstance(m, layers.RMSNorm)
-                    }),
+                    "block_norms": sorted(
+                        {
+                            m.eps
+                            for m in reference.vision_encoder.transformer.modules()
+                            if isinstance(m, layers.RMSNorm)
+                        }
+                    ),
                     "pre_mm_projector_norm": reference.pre_mm_projector_norm.eps,
                     "final_norm_modules_after_last_block": [
-                        name for name, _ in reference.vision_encoder.named_children()
+                        name
+                        for name, _ in reference.vision_encoder.named_children()
                         if name not in {"patch_conv", "ln_pre", "transformer"}
                     ],
                 }
             with torch.inference_mode():
                 outputs[f"reference_{label}"] = [
-                    {k: v.cpu() for k, v in reference(x.to(device, dtype), depths).items()} for x in pixels
+                    {
+                        k: v.cpu()
+                        for k, v in reference(x.to(device, dtype), depths).items()
+                    }
+                    for x in pixels
                 ]
             del reference
             torch.cuda.empty_cache()
@@ -509,28 +635,55 @@ def run_parity(native, args, report) -> None:
             tower, projector = tower.to(device), projector.to(device)
             if "candidate" not in report["eps"]:
                 report["eps"]["candidate"] = {
-                    "tower": sorted({m.variance_epsilon for m in tower.modules() if hasattr(m, "variance_epsilon")}),
+                    "tower": sorted(
+                        {
+                            m.variance_epsilon
+                            for m in tower.modules()
+                            if hasattr(m, "variance_epsilon")
+                        }
+                    ),
                     "projector_norm": projector.norm.variance_epsilon,
-                    "rope_inv_freq_dtype": str(tower.patch_positional_embedding.inv_freq.dtype),
+                    "rope_inv_freq_dtype": str(
+                        tower.patch_positional_embedding.inv_freq.dtype
+                    ),
                 }
             with torch.inference_mode():
                 outputs[f"adapter_{label}"] = [
-                    {k: v.cpu() for k, v in stage_fn(tower, projector, x[None].to(device, dtype), depths).items()}
+                    {
+                        k: v.cpu()
+                        for k, v in stage_fn(
+                            tower, projector, x[None].to(device, dtype), depths
+                        ).items()
+                    }
                     for x in pixels
                 ]
                 for x, released in zip(pixels, outputs[f"adapter_{label}"]):
-                    shared = candidate_stages(tower, projector, x[None].to(device, dtype), depths)
-                    report["release_equals_adapter"].append({
-                        "resolution": resolution, "dtype": label,
-                        "bit_exact": all(torch.equal(shared[k].cpu(), released[k]) for k in released),
-                    })
+                    shared = candidate_stages(
+                        tower, projector, x[None].to(device, dtype), depths
+                    )
+                    report["release_equals_adapter"].append(
+                        {
+                            "resolution": resolution,
+                            "dtype": label,
+                            "bit_exact": all(
+                                torch.equal(shared[k].cpu(), released[k])
+                                for k in released
+                            ),
+                        }
+                    )
                 outputs[f"hf_packed_{label}"] = [
-                    {k: v.cpu() for k, v in hf_packed_stages(tower, projector, x[None].to(device, dtype)).items()}
+                    {
+                        k: v.cpu()
+                        for k, v in hf_packed_stages(
+                            tower, projector, x[None].to(device, dtype)
+                        ).items()
+                    }
                     for x in pixels
                 ]
                 batch = torch.stack(pixels).to(device, dtype)
                 batched = (
-                    release_stages(tower, projector, batch, depths) if stage_fn is release_stages
+                    release_stages(tower, projector, batch, depths)
+                    if stage_fn is release_stages
                     else candidate_stages_batch(tower, projector, batch, depths)
                 )
             outputs[f"adapter_batch_{label}"] = batched
@@ -545,20 +698,32 @@ def run_parity(native, args, report) -> None:
                     "resolution": resolution,
                     "image": path.name,
                     "stage": stage,
-                    "adapter_fp32": compare(outputs["adapter_float32"][index][stage], ref32[stage]),
-                    "adapter_bf16": compare(outputs["adapter_bfloat16"][index][stage], ref32[stage]),
+                    "adapter_fp32": compare(
+                        outputs["adapter_float32"][index][stage], ref32[stage]
+                    ),
+                    "adapter_bf16": compare(
+                        outputs["adapter_bfloat16"][index][stage], ref32[stage]
+                    ),
                     "reference_bf16_floor": compare(ref16[stage], ref32[stage]),
-                    "adapter_bf16_vs_reference_bf16": compare(outputs["adapter_bfloat16"][index][stage], ref16[stage]),
+                    "adapter_bf16_vs_reference_bf16": compare(
+                        outputs["adapter_bfloat16"][index][stage], ref16[stage]
+                    ),
                     "batched_equals_single_bf16": torch.equal(
-                        outputs["adapter_batch_bfloat16"][stage][index], outputs["adapter_bfloat16"][index][stage]
+                        outputs["adapter_batch_bfloat16"][stage][index],
+                        outputs["adapter_bfloat16"][index][stage],
                     ),
                     "batched_vs_single_fp32": compare(
-                        outputs["adapter_batch_float32"][stage][index], outputs["adapter_float32"][index][stage]
+                        outputs["adapter_batch_float32"][stage][index],
+                        outputs["adapter_float32"][index][stage],
                     ),
                 }
                 if stage in outputs["hf_packed_float32"][index]:
-                    case["hf_packed_fp32"] = compare(outputs["hf_packed_float32"][index][stage], ref32[stage])
-                    case["hf_packed_bf16"] = compare(outputs["hf_packed_bfloat16"][index][stage], ref32[stage])
+                    case["hf_packed_fp32"] = compare(
+                        outputs["hf_packed_float32"][index][stage], ref32[stage]
+                    )
+                    case["hf_packed_bf16"] = compare(
+                        outputs["hf_packed_bfloat16"][index][stage], ref32[stage]
+                    )
                 case["pass"] = case_passes(case)
                 report["cases"].append(case)
 
@@ -569,31 +734,50 @@ def run_parity(native, args, report) -> None:
             "norm_eps_1e-6",
         ]
         for name in controls:
-            tower, projector = control_parts(native, source, torch.float32, device, name)
+            tower, projector = control_parts(
+                native, source, torch.float32, device, name
+            )
             with torch.inference_mode():
-                stages = candidate_stages(tower, projector, pixels[0][None].to(device), depths)
+                stages = candidate_stages(
+                    tower, projector, pixels[0][None].to(device), depths
+                )
             if name == "final_norm_on_tower":
-                stages = {f"tower_L{depths[-1]}": final_rms_norm(stages[f"tower_L{depths[-1]}"])}
+                stages = {
+                    f"tower_L{depths[-1]}": final_rms_norm(
+                        stages[f"tower_L{depths[-1]}"]
+                    )
+                }
             del tower, projector
             torch.cuda.empty_cache()
             ref32 = outputs["reference_float32"][0]
-            measured = {stage: compare(value.cpu(), ref32[stage]) for stage, value in stages.items()}
+            measured = {
+                stage: compare(value.cpu(), ref32[stage])
+                for stage, value in stages.items()
+            }
             worst = max(item["relative_l2"] for item in measured.values())
-            report["controls"].append({
-                "resolution": resolution,
-                "image": images[0].name,
-                "control": name,
-                "worst_stage": max(measured, key=lambda s: measured[s]["relative_l2"]),
-                "worst_relative": worst,
-                "stages": measured,
-                # The eps control is a sensitivity measurement, not a required failure.
-                "detected": worst >= CONTROL_MIN_RELATIVE if name != "norm_eps_1e-6" else None,
-            })
+            report["controls"].append(
+                {
+                    "resolution": resolution,
+                    "image": images[0].name,
+                    "control": name,
+                    "worst_stage": max(
+                        measured, key=lambda s: measured[s]["relative_l2"]
+                    ),
+                    "worst_relative": worst,
+                    "stages": measured,
+                    # The eps control is a sensitivity measurement, not a required failure.
+                    "detected": worst >= CONTROL_MIN_RELATIVE
+                    if name != "norm_eps_1e-6"
+                    else None,
+                }
+            )
 
 
 def candidate_stages_batch(tower, projector, pixels, depths) -> dict[str, torch.Tensor]:
     final, captured = ml4.tower_forward(tower, pixels, depths)
-    merged, projected = ml4.projector_stages(projector, final, pixels.shape[-1] // ml4.PATCH_SIZE)
+    merged, projected = ml4.projector_stages(
+        projector, final, pixels.shape[-1] // ml4.PATCH_SIZE
+    )
     stages = {f"tower_L{depth}": captured[depth].cpu() for depth in depths}
     stages["merged"] = merged.cpu()
     stages["projected"] = projected.cpu()
@@ -604,10 +788,18 @@ def case_passes(case: dict) -> bool:
     fp32_ok = case["adapter_fp32"]["relative_l2"] <= FP32_RELATIVE_TOLERANCE
     floor = case["reference_bf16_floor"]["relative_l2"]
     bf16 = case["adapter_bf16"]
-    bf16_ok = bf16["relative_l2"] <= BF16_FLOOR_FACTOR * floor + BF16_FLOOR_SLACK and bf16["cosine"] >= BF16_MIN_COSINE
-    case["direct_bf16_cosine_ok"] = case["adapter_bf16_vs_reference_bf16"]["cosine"] >= BF16_MIN_COSINE
+    bf16_ok = (
+        bf16["relative_l2"] <= BF16_FLOOR_FACTOR * floor + BF16_FLOOR_SLACK
+        and bf16["cosine"] >= BF16_MIN_COSINE
+    )
+    case["direct_bf16_cosine_ok"] = (
+        case["adapter_bf16_vs_reference_bf16"]["cosine"] >= BF16_MIN_COSINE
+    )
     finite = all(item["finite"] for item in case.values() if isinstance(item, dict))
-    packed_ok = "hf_packed_fp32" not in case or case["hf_packed_fp32"]["relative_l2"] <= FP32_RELATIVE_TOLERANCE
+    packed_ok = (
+        "hf_packed_fp32" not in case
+        or case["hf_packed_fp32"]["relative_l2"] <= FP32_RELATIVE_TOLERANCE
+    )
     return bool(fp32_ok and bf16_ok and finite and packed_ok)
 
 
@@ -622,8 +814,13 @@ def run(
     reference_attention: str = "efficient",
 ) -> dict:
     args = argparse.Namespace(
-        out=out, reference_root=reference_root, bundle=bundle, images=images or [],
-        resolutions=resolutions or [448, 1540], device=device, reference_attention=reference_attention,
+        out=out,
+        reference_root=reference_root,
+        bundle=bundle,
+        images=images or [],
+        resolutions=resolutions or [448, 1540],
+        device=device,
+        reference_attention=reference_attention,
     )
     started = time.time()
     shard = Path(hf_hub_download(ml4.SOURCE_REPO, SHARD, revision=ml4.SOURCE_REVISION))
@@ -633,7 +830,9 @@ def run(
             "python": platform.python_version(),
             "torch": torch.__version__,
             "transformers": transformers.__version__,
-            "device": torch.cuda.get_device_name(0) if device.startswith("cuda") else device,
+            "device": torch.cuda.get_device_name(0)
+            if device.startswith("cuda")
+            else device,
         },
         "tolerances": {
             "fp32_relative": FP32_RELATIVE_TOLERANCE,
@@ -649,12 +848,19 @@ def run(
     if not identity_only:
         run_parity(native, args, report)
         report["all_cases_pass"] = all(case["pass"] for case in report["cases"])
-        report["all_direct_bf16_cosine_ok"] = all(case["direct_bf16_cosine_ok"] for case in report["cases"])
-        report["all_direct_bf16_bit_exact"] = all(
-            case["adapter_bf16_vs_reference_bf16"]["max_abs"] == 0 for case in report["cases"]
+        report["all_direct_bf16_cosine_ok"] = all(
+            case["direct_bf16_cosine_ok"] for case in report["cases"]
         )
-        report["release_equals_adapter_all"] = all(item["bit_exact"] for item in report["release_equals_adapter"])
-        report["all_controls_detected"] = all(c["detected"] for c in report["controls"] if c["detected"] is not None)
+        report["all_direct_bf16_bit_exact"] = all(
+            case["adapter_bf16_vs_reference_bf16"]["max_abs"] == 0
+            for case in report["cases"]
+        )
+        report["release_equals_adapter_all"] = all(
+            item["bit_exact"] for item in report["release_equals_adapter"]
+        )
+        report["all_controls_detected"] = all(
+            c["detected"] for c in report["controls"] if c["detected"] is not None
+        )
     report["seconds"] = round(time.time() - started, 1)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(report, indent=2) + "\n")
@@ -663,14 +869,37 @@ def run(
 
 def validate(device: str = "cuda", dtype: torch.dtype | None = None) -> dict:
     """The FP32 reference at 1540 px needs a GPU, so parity runs on CUDA only."""
-    root = Path(os.environ.get("VTB_MISTRAL_REFERENCE", cache_root().parent / "vtb-mistral-reference"))
-    bundle = ml4.bundle_dir() if (ml4.bundle_dir() / "model.safetensors").is_file() else None
-    report = run(root / "report.json", root, bundle=bundle, resolutions=[448, 1540], device=str(device))
+    root = Path(
+        os.environ.get(
+            "VTB_MISTRAL_REFERENCE", cache_root().parent / "vtb-mistral-reference"
+        )
+    )
+    bundle = (
+        ml4.bundle_dir() if (ml4.bundle_dir() / "model.safetensors").is_file() else None
+    )
+    report = run(
+        root / "report.json",
+        root,
+        bundle=bundle,
+        resolutions=[448, 1540],
+        device=str(device),
+    )
     release = report["identity"].get("release", {})
     report["passed"] = bool(
         report["identity"]["shard_sha256"] == report["identity"]["shard_lfs_sha256"]
-        and (bundle is None or (release.get("bit_exact_after_inverse_permutation") and release.get("tensors") == 276))
-        and all(case["adapter_fp32"]["relative_l2"] <= FP32_RELATIVE_TOLERANCE for case in report["cases"])
-        and report["all_direct_bf16_bit_exact"] and report["release_equals_adapter_all"] and report["all_controls_detected"]
+        and (
+            bundle is None
+            or (
+                release.get("bit_exact_after_inverse_permutation")
+                and release.get("tensors") == 276
+            )
+        )
+        and all(
+            case["adapter_fp32"]["relative_l2"] <= FP32_RELATIVE_TOLERANCE
+            for case in report["cases"]
+        )
+        and report["all_direct_bf16_bit_exact"]
+        and report["release_equals_adapter_all"]
+        and report["all_controls_detected"]
     )
     return report

@@ -10,7 +10,9 @@ def test_kitti_sample_keys_pair_image_and_ground_truth_names():
     image = "2011_09_26_drive_0002_sync_image_0000000005_image_02.png"
     depth = "2011_09_26_drive_0002_sync_groundtruth_depth_0000000005_image_02.png"
 
-    assert sample_key(Path(image), "image") == sample_key(Path(depth), "groundtruth_depth")
+    assert sample_key(Path(image), "image") == sample_key(
+        Path(depth), "groundtruth_depth"
+    )
 
 
 def test_kitti_depth_is_metric_and_keeps_sparse_zeroes(tmp_path):
