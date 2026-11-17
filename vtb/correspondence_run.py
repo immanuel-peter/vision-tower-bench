@@ -49,7 +49,10 @@ class Frame:
         resized = nn_F.interpolate(
             values[None, None].float(), (height, width), mode="nearest"
         )[0, 0]
-        return resized[self.top:self.top + self.resolution, self.left:self.left + self.resolution]
+        return resized[
+            self.top : self.top + self.resolution,
+            self.left : self.left + self.resolution,
+        ]
 
 
 def canonical(image: Image.Image, resolution: int) -> tuple[Image.Image, Frame]:
@@ -95,11 +98,25 @@ def quaternion_matrix(q) -> torch.Tensor:
     q = torch.as_tensor(q, dtype=torch.float32)
     w, x, y, z = q
     scale = 2.0 / q.square().sum()
-    rotation = torch.tensor([
-        [1 - scale * (y*y + z*z), scale * (x*y - z*w), scale * (x*z + y*w)],
-        [scale * (x*y + z*w), 1 - scale * (x*x + z*z), scale * (y*z - x*w)],
-        [scale * (x*z - y*w), scale * (y*z + x*w), 1 - scale * (x*x + y*y)],
-    ])
+    rotation = torch.tensor(
+        [
+            [
+                1 - scale * (y * y + z * z),
+                scale * (x * y - z * w),
+                scale * (x * z + y * w),
+            ],
+            [
+                scale * (x * y + z * w),
+                1 - scale * (x * x + z * z),
+                scale * (y * z - x * w),
+            ],
+            [
+                scale * (x * z - y * w),
+                scale * (y * z + x * w),
+                1 - scale * (x * x + y * y),
+            ],
+        ]
+    )
     out = torch.eye(4)
     out[:3, :3] = rotation
     return out
@@ -116,7 +133,9 @@ def angle_degrees(rotation: torch.Tensor) -> float:
     return torch.rad2deg(value.acos()).item()
 
 
-def square_object_crop(image: Image.Image, depth: torch.Tensor) -> tuple[Image.Image, torch.Tensor, tuple[int, int]]:
+def square_object_crop(
+    image: Image.Image, depth: torch.Tensor
+) -> tuple[Image.Image, torch.Tensor, tuple[int, int]]:
     positions = (depth > 0).nonzero()
     if len(positions) == 0:
         raise ValueError("NAVI depth has no object pixels")
@@ -128,7 +147,7 @@ def square_object_crop(image: Image.Image, depth: torch.Tensor) -> tuple[Image.I
     left = max(0, min(centre_x - side // 2, depth.shape[1] - side))
     return (
         image.crop((left, top, left + side, top + side)),
-        depth[top:top + side, left:left + side],
+        depth[top : top + side, left : left + side],
         (left, top),
     )
 
@@ -143,7 +162,14 @@ class ScanNetPairs:
         self.rows = []
         for room, sequence, first, second in names:
             scene = f"scene{room:04d}_{sequence:02d}"
-            self.rows.append((scene, int(first), int(second), torch.tensor(intrinsics[scene]).float()))
+            self.rows.append(
+                (
+                    scene,
+                    int(first),
+                    int(second),
+                    torch.tensor(intrinsics[scene]).float(),
+                )
+            )
 
     def __len__(self):
         return len(self.rows)
@@ -154,14 +180,20 @@ class ScanNetPairs:
         for frame_id in (first, second):
             depth = read_depth(self.root / scene / "depth" / f"{frame_id}.png")
             with Image.open(self.root / scene / "color" / f"{frame_id}.jpg") as raw:
-                aligned = align_rgb_to_depth(ImageOps.exif_transpose(raw).convert("RGB"), depth)
+                aligned = align_rgb_to_depth(
+                    ImageOps.exif_transpose(raw).convert("RGB"), depth
+                )
                 image, frame = canonical(aligned, self.resolution)
             depth = frame.target(depth)
             images.append(image)
             depths.append(depth)
             frames.append(frame)
-        pose_0 = torch.tensor(np.loadtxt(self.root / scene / "pose" / f"{first}.txt")).float()
-        pose_1 = torch.tensor(np.loadtxt(self.root / scene / "pose" / f"{second}.txt")).float()
+        pose_0 = torch.tensor(
+            np.loadtxt(self.root / scene / "pose" / f"{first}.txt")
+        ).float()
+        pose_1 = torch.tensor(
+            np.loadtxt(self.root / scene / "pose" / f"{second}.txt")
+        ).float()
         target_from_source = pose_1.inverse() @ pose_0
         return {
             "id": f"{scene}-{first}-{second}",
@@ -187,10 +219,13 @@ class NAVIPairs:
             annotations = json.loads((wild / "annotations.json").read_text())
             annotations = {row["filename"].split(".")[0]: row for row in annotations}
             ids = sorted(
-                path.stem for path in (wild / "images").glob("*.jpg")
+                path.stem
+                for path in (wild / "images").glob("*.jpg")
                 if "_" not in path.stem
             )
-            rotations = torch.stack([navi_pose(annotations[image_id])[:3, :3] for image_id in ids])
+            rotations = torch.stack(
+                [navi_pose(annotations[image_id])[:3, :3] for image_id in ids]
+            )
             for position, image_id in enumerate(ids):
                 relative = rotations[position][None] @ rotations.transpose(1, 2)
                 trace = relative[:, 0, 0] + relative[:, 1, 1] + relative[:, 2, 2]
@@ -199,7 +234,15 @@ class NAVIPairs:
                 if weight.sum() == 0:
                     continue
                 pair = torch.multinomial(weight, 1, generator=generator).item()
-                rows.append((object_dir.name, image_id, ids[pair], annotations[image_id], annotations[ids[pair]]))
+                rows.append(
+                    (
+                        object_dir.name,
+                        image_id,
+                        ids[pair],
+                        annotations[image_id],
+                        annotations[ids[pair]],
+                    )
+                )
         self.rows = rows[::4]
 
     def __len__(self):
@@ -213,14 +256,21 @@ class NAVIPairs:
         image, depth, (crop_left, crop_top) = square_object_crop(image, depth)
         canonical_image, frame = canonical(image, self.resolution)
         focal = float(annotation["camera"]["focal_length"])
-        matrix = torch.tensor([
-            [focal, 0.0, annotation["image_size"][1] / 2],
-            [0.0, focal, annotation["image_size"][0] / 2],
-            [0.0, 0.0, 1.0],
-        ])
+        matrix = torch.tensor(
+            [
+                [focal, 0.0, annotation["image_size"][1] / 2],
+                [0.0, focal, annotation["image_size"][0] / 2],
+                [0.0, 0.0, 1.0],
+            ]
+        )
         matrix[0, 2] -= crop_left
         matrix[1, 2] -= crop_top
-        return canonical_image, frame.target(depth), frame.intrinsics(matrix), navi_pose(annotation)
+        return (
+            canonical_image,
+            frame.target(depth),
+            frame.intrinsics(matrix),
+            navi_pose(annotation),
+        )
 
     def __getitem__(self, index):
         object_name, first, second, annotation_0, annotation_1 = self.rows[index]
@@ -242,7 +292,10 @@ class SPairPairs:
 
     def __init__(self, root: Path, resolution: int):
         self.root, self.resolution = root, resolution
-        annotations = [json.loads(path.read_text()) for path in sorted((root / "PairAnnotation" / "test").glob("*.json"))]
+        annotations = [
+            json.loads(path.read_text())
+            for path in sorted((root / "PairAnnotation" / "test").glob("*.json"))
+        ]
         grouped = defaultdict(list)
         for row in annotations:
             grouped[row["category"]].append(row)
@@ -258,8 +311,13 @@ class SPairPairs:
 
     def _annotations(self, category: str) -> dict:
         if category not in self.image_annotations:
-            rows = [json.loads(path.read_text()) for path in (self.root / "ImageAnnotation" / category).glob("*.json")]
-            self.image_annotations[category] = {row["filename"].split(".")[0]: row for row in rows}
+            rows = [
+                json.loads(path.read_text())
+                for path in (self.root / "ImageAnnotation" / category).glob("*.json")
+            ]
+            self.image_annotations[category] = {
+                row["filename"].split(".")[0]: row for row in rows
+            }
         return self.image_annotations[category]
 
     def __getitem__(self, index):
@@ -268,19 +326,27 @@ class SPairPairs:
         _, first, second = pair["filename"].split(":")[0].split("-")
         frames, images = [], []
         for image_id in (first, second):
-            with Image.open(self.root / "JPEGImages" / category / f"{image_id}.jpg") as raw:
+            with Image.open(
+                self.root / "JPEGImages" / category / f"{image_id}.jpg"
+            ) as raw:
                 image, frame = canonical(raw, self.resolution)
             images.append(image)
             frames.append(frame)
         annotations = self._annotations(category)
-        keys = sorted(set(annotations[first]["kps"]) | set(annotations[second]["kps"]), key=int)
+        keys = sorted(
+            set(annotations[first]["kps"]) | set(annotations[second]["kps"]), key=int
+        )
         points, visibility = [], []
         for image_id, frame in zip((first, second), frames):
             raw = annotations[image_id]["kps"]
-            values = torch.tensor([raw.get(key) or [0, 0] for key in keys], dtype=torch.float32)
+            values = torch.tensor(
+                [raw.get(key) or [0, 0] for key in keys], dtype=torch.float32
+            )
             visible = torch.tensor([bool(raw.get(key)) for key in keys])
             transformed = frame.points(values)
-            visible &= (transformed >= 0).all(dim=1) & (transformed < self.resolution).all(dim=1)
+            visible &= (transformed >= 0).all(dim=1) & (
+                transformed < self.resolution
+            ).all(dim=1)
             points.append(transformed)
             visibility.append(visible)
         bbox = pair["trg_bndbox"]
@@ -307,11 +373,13 @@ def extract_pair(adapter, images, model_name: str):
         sides = []
         for position, image in enumerate(images):
             inputs = adapter.collate([preprocess(image)])
-            sides.append({
-                (batch.stage, batch.layer_index): batch.tokens[0]
-                for batch in adapter.extract(inputs, [str(position)])
-                if batch.stage != "tower" or batch.layer_index == adapter.num_layers
-            })
+            sides.append(
+                {
+                    (batch.stage, batch.layer_index): batch.tokens[0]
+                    for batch in adapter.extract(inputs, [str(position)])
+                    if batch.stage != "tower" or batch.layer_index == adapter.num_layers
+                }
+            )
         return {key: (sides[0][key], sides[1][key]) for key in sides[0]}
     inputs = adapter.collate([preprocess(image) for image in images])
     return {
@@ -336,7 +404,10 @@ def score_pair(dataset_name: str, instance: dict, pair_features: dict, args) -> 
                 instance["threshold_scale"],
                 resolution=args.resolution,
             )
-            metrics = {"pck_0.1": correspondence.recall(errors, 0.1), "keypoints": len(errors)}
+            metrics = {
+                "pck_0.1": correspondence.recall(errors, 0.1),
+                "keypoints": len(errors),
+            }
         else:
             error_3d, error_2d = correspondence.geometric_errors(
                 features_0,
@@ -376,16 +447,21 @@ def summarise(dataset_name: str, rows: list[dict]) -> list[dict]:
         metrics = rows[0]["cells"][cell]
         aggregate = {
             key: finite_mean([row["cells"][cell][key] for row in rows])
-            for key, value in metrics.items() if isinstance(value, float)
+            for key, value in metrics.items()
+            if isinstance(value, float)
         }
         stage, layer = cell.split(":")
         result = {"stage": stage, "layer_index": int(layer), **aggregate}
         if dataset_name == "spair":
             by_class = {}
             for category in sorted({row["class"] for row in rows}):
-                by_class[category] = finite_mean([
-                    row["cells"][cell]["pck_0.1"] for row in rows if row["class"] == category
-                ])
+                by_class[category] = finite_mean(
+                    [
+                        row["cells"][cell]["pck_0.1"]
+                        for row in rows
+                        if row["class"] == category
+                    ]
+                )
             result["macro_pck_0.1"] = finite_mean(list(by_class.values()))
             result["by_class"] = by_class
         cells.append(result)
@@ -399,7 +475,12 @@ def parser() -> argparse.ArgumentParser:
     ap.add_argument("--root", type=Path, required=True)
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--limit", type=int, default=None)
-    ap.add_argument("--resolution", type=int, default=None, help="defaults to the adapter's default_resolution")
+    ap.add_argument(
+        "--resolution",
+        type=int,
+        default=None,
+        help="defaults to the adapter's default_resolution",
+    )
     ap.add_argument("--evaluation-side", type=int, default=64)
     ap.add_argument("--num-correspondences", type=int, default=1000)
     ap.add_argument("--device", default="cuda")
@@ -416,7 +497,12 @@ def main() -> None:
     rows, started = [], time.perf_counter()
     for index in range(count):
         instance = dataset[index]
-        cells = score_pair(args.dataset, instance, extract_pair(adapter, instance["images"], args.model), args)
+        cells = score_pair(
+            args.dataset,
+            instance,
+            extract_pair(adapter, instance["images"], args.model),
+            args,
+        )
         row = {"pair_id": instance["id"], "cells": cells}
         for key in ("angle", "class", "viewpoint"):
             if key in instance:
@@ -424,7 +510,10 @@ def main() -> None:
         rows.append(row)
         if (index + 1) % 10 == 0 or index + 1 == count:
             elapsed = time.perf_counter() - started
-            print(f"{index + 1}/{count} pairs  {(index + 1) / elapsed:.2f} pair/s", flush=True)
+            print(
+                f"{index + 1}/{count} pairs  {(index + 1) / elapsed:.2f} pair/s",
+                flush=True,
+            )
 
     payload = {
         "dataset": args.dataset,
@@ -440,7 +529,12 @@ def main() -> None:
     }
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(payload, indent=2, allow_nan=True) + "\n")
-    print(json.dumps({key: value for key, value in payload.items() if key != "measurements"}, indent=2))
+    print(
+        json.dumps(
+            {key: value for key, value in payload.items() if key != "measurements"},
+            indent=2,
+        )
+    )
     print(f"wrote {args.out}")
 
 

@@ -28,7 +28,9 @@ def depth_points(num_layers: int, n: int = 8) -> list[int]:
     return [round(num_layers * (k + 1) / n) for k in range(n)]
 
 
-def make_batch(adapter, tokens: torch.Tensor, image_ids: list[str], stage: str, layer: int) -> FeatureBatch:
+def make_batch(
+    adapter, tokens: torch.Tensor, image_ids: list[str], stage: str, layer: int
+) -> FeatureBatch:
     return FeatureBatch(
         tokens=tokens.cpu(),
         image_ids=image_ids,
@@ -40,14 +42,21 @@ def make_batch(adapter, tokens: torch.Tensor, image_ids: list[str], stage: str, 
     )
 
 
-def raster(tokens: torch.Tensor, rows: int, merge_size: int = 2, grid: tuple[int, int] | None = None) -> torch.Tensor:
+def raster(
+    tokens: torch.Tensor,
+    rows: int,
+    merge_size: int = 2,
+    grid: tuple[int, int] | None = None,
+) -> torch.Tensor:
     """Reorder (rows, h * w, width) tokens from merge-block order to raster order."""
     width = tokens.shape[-1]
     if grid is None:
         side = isqrt(tokens.numel() // (rows * width))
         grid = (side, side)
     height, wide = grid
-    blocks = tokens.reshape(rows, height // merge_size, wide // merge_size, merge_size, merge_size, width)
+    blocks = tokens.reshape(
+        rows, height // merge_size, wide // merge_size, merge_size, merge_size, width
+    )
     return blocks.permute(0, 1, 3, 2, 4, 5).reshape(rows, height * wide, width)
 
 
@@ -55,9 +64,14 @@ def stack_pixels(samples: list[torch.Tensor]) -> dict[str, torch.Tensor]:
     return {"pixel_values": torch.stack(samples)}
 
 
-def pack_patches(samples: list[torch.Tensor], key: str = "pixel_values", grid_key: str = "grid_thw") -> dict[str, torch.Tensor]:
+def pack_patches(
+    samples: list[torch.Tensor], key: str = "pixel_values", grid_key: str = "grid_thw"
+) -> dict[str, torch.Tensor]:
     side = isqrt(samples[0].shape[0])
-    return {key: torch.cat(samples), grid_key: torch.tensor([[1, side, side]] * len(samples))}
+    return {
+        key: torch.cat(samples),
+        grid_key: torch.tensor([[1, side, side]] * len(samples)),
+    }
 
 
 @dataclass(frozen=True)

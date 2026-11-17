@@ -23,7 +23,10 @@ def label(run: dict) -> str:
 
 
 def towers(run: dict) -> list[dict]:
-    return sorted((c for c in run["cells"] if c["stage"] == "tower"), key=lambda c: c["relative_depth"])
+    return sorted(
+        (c for c in run["cells"] if c["stage"] == "tower"),
+        key=lambda c: c["relative_depth"],
+    )
 
 
 def deepest(run: dict, stage: str) -> dict | None:
@@ -44,7 +47,9 @@ def peaks(runs: list[dict]) -> None:
         rows = towers(run)
         best = (max if higher else min)(rows, key=lambda c: c[metric])
         last = rows[-1]
-        runner = (max if higher else min)((c for c in rows if c is not best), key=lambda c: c[metric])
+        runner = (max if higher else min)(
+            (c for c in rows if c is not best), key=lambda c: c[metric]
+        )
         margin, margin_sd = gap(runner, best, metric)
         drop, drop_sd = gap(best, last, metric)
         print(
@@ -62,10 +67,16 @@ def stages(runs: list[dict]) -> None:
     print("\n== Stage steps at the deepest point ==")
     for run in runs:
         metric = HEADLINE[run["task"]][0]
-        tower, merged, projected = (deepest(run, s) for s in ("tower", "merged", "projected"))
+        tower, merged, projected = (
+            deepest(run, s) for s in ("tower", "merged", "projected")
+        )
         if not merged or not projected:
             continue
-        for name, cell in (("tower", tower), ("merged", merged), ("projected", projected)):
+        for name, cell in (
+            ("tower", tower),
+            ("merged", merged),
+            ("projected", projected),
+        ):
             print(
                 f"{label(run)} {name:>9} {metric} {cell[metric]:.4f} +- {cell[f'{metric}_std']:.4f} "
                 f"lr {cell['learning_rate']:g} width {cell['token_width']} "
@@ -87,9 +98,14 @@ def rates(runs: list[dict]) -> None:
         for cell in run["cells"]:
             key = (cell["grid"], run["task"])
             rate = f"{cell['learning_rate']:g}"
-            counts.setdefault(key, {})[rate] = counts.setdefault(key, {}).get(rate, 0) + 1
+            counts.setdefault(key, {})[rate] = (
+                counts.setdefault(key, {}).get(rate, 0) + 1
+            )
     for (grid, task), tally in sorted(counts.items()):
-        chosen = ", ".join(f"{rate} x{n}" for rate, n in sorted(tally.items(), key=lambda kv: float(kv[0])))
+        chosen = ", ".join(
+            f"{rate} x{n}"
+            for rate, n in sorted(tally.items(), key=lambda kv: float(kv[0]))
+        )
         print(f"{grid}x{grid} {task:6s} {chosen}")
 
 

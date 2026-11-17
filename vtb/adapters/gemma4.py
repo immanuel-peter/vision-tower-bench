@@ -12,7 +12,12 @@ from transformers import AutoConfig, AutoModel, Gemma4VisionModel
 from transformers.models.gemma4.modeling_gemma4 import Gemma4RMSNorm
 
 from vtb.adapters.base import Inputs
-from vtb.adapters.common import ImagePreprocess, default_device, depth_points, make_batch
+from vtb.adapters.common import (
+    ImagePreprocess,
+    default_device,
+    depth_points,
+    make_batch,
+)
 from vtb.bundle import ROOT, expect_tensors, write_bundle
 from vtb.feature_batch import FeatureBatch
 from vtb.provenance import open_release
@@ -94,14 +99,32 @@ def projector_settings(vision_config, text_hidden: int) -> dict:
     }
 
 
-def load_source_parts(dtype: torch.dtype = torch.bfloat16) -> tuple[Gemma4VisionModel, Projector]:
+def load_source_parts(
+    dtype: torch.dtype = torch.bfloat16,
+) -> tuple[Gemma4VisionModel, Projector]:
     config = AutoConfig.from_pretrained(SOURCE_REPO, revision=SOURCE_REVISION)
     tower = Gemma4VisionModel._from_config(config.vision_config, dtype=dtype)
-    weights = expect_tensors(load_prefixed(SOURCE_REPO, [VISION_SHARD], TOWER_PREFIX, revision=SOURCE_REVISION), TOWER_TENSORS, "Tower")
+    weights = expect_tensors(
+        load_prefixed(
+            SOURCE_REPO, [VISION_SHARD], TOWER_PREFIX, revision=SOURCE_REVISION
+        ),
+        TOWER_TENSORS,
+        "Tower",
+    )
     tower.load_state_dict({name: tensor.to(dtype) for name, tensor in weights.items()})
-    projector = Projector(projector_settings(config.vision_config, config.text_config.hidden_size))
-    weights = expect_tensors(load_prefixed(SOURCE_REPO, [VISION_SHARD], PROJECTOR_PREFIX, revision=SOURCE_REVISION), PROJECTOR_TENSORS, "Projector")
-    projector.load_state_dict({name: tensor.to(dtype) for name, tensor in weights.items()})
+    projector = Projector(
+        projector_settings(config.vision_config, config.text_config.hidden_size)
+    )
+    weights = expect_tensors(
+        load_prefixed(
+            SOURCE_REPO, [VISION_SHARD], PROJECTOR_PREFIX, revision=SOURCE_REVISION
+        ),
+        PROJECTOR_TENSORS,
+        "Projector",
+    )
+    projector.load_state_dict(
+        {name: tensor.to(dtype) for name, tensor in weights.items()}
+    )
     return tower.eval(), projector.to(dtype).eval()
 
 
@@ -110,13 +133,21 @@ def projector_config(projector: Projector) -> dict:
         "input_size": projector.embedding_projection.in_features,
         "output_size": projector.embedding_projection.out_features,
         "norm_eps": projector.embedding_pre_projection_norm.eps,
-        "torch_dtype": str(projector.embedding_projection.weight.dtype).removeprefix("torch."),
+        "torch_dtype": str(projector.embedding_projection.weight.dtype).removeprefix(
+            "torch."
+        ),
     }
 
 
 def export(out: Path) -> None:
     tower, projector = load_source_parts()
-    processor = loads(Path(hf_hub_download(SOURCE_REPO, "processor_config.json", revision=SOURCE_REVISION)).read_text())
+    processor = loads(
+        Path(
+            hf_hub_download(
+                SOURCE_REPO, "processor_config.json", revision=SOURCE_REVISION
+            )
+        ).read_text()
+    )
     write_bundle(
         out,
         tower=tower,
@@ -147,7 +178,12 @@ class Gemma4Adapter:
     stages = ("tower", "merged", "projected")
     collate = staticmethod(collate)
 
-    def __init__(self, resolution: int | None = None, dtype: torch.dtype = torch.bfloat16, device: str | None = None):
+    def __init__(
+        self,
+        resolution: int | None = None,
+        dtype: torch.dtype = torch.bfloat16,
+        device: str | None = None,
+    ):
         self.resolution = self.default_resolution if resolution is None else resolution
         self.device = default_device() if device is None else device
         self.dtype = dtype
@@ -176,7 +212,11 @@ class Gemma4Adapter:
             return hook
 
         for layer in points:
-            handles.append(self.model.encoder.layers[layer - 1].register_forward_hook(capture(layer)))
+            handles.append(
+                self.model.encoder.layers[layer - 1].register_forward_hook(
+                    capture(layer)
+                )
+            )
 
         try:
             out = self.model(
@@ -190,10 +230,14 @@ class Gemma4Adapter:
         rows = len(image_ids)
         width = self.model.config.hidden_size
         for layer in points:
-            yield make_batch(self, captured[layer].view(rows, -1, width), image_ids, "tower", layer)
+            yield make_batch(
+                self, captured[layer].view(rows, -1, width), image_ids, "tower", layer
+            )
 
         merged = out.last_hidden_state
         if merged.ndim == 2:
             merged = merged.view(rows, -1, width)
         yield make_batch(self, merged, image_ids, "merged", self.num_layers)
-        yield make_batch(self, self.projector(merged), image_ids, "projected", self.num_layers)
+        yield make_batch(
+            self, self.projector(merged), image_ids, "projected", self.num_layers
+        )

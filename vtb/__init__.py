@@ -7,4 +7,12 @@ def load(slug: str, **kwargs) -> TowerAdapter:
     return BY_SLUG[slug].adapter()(**kwargs)
 
 
-__all__ = ["BY_SLUG", "ROSTER", "SLUGS", "FeatureBatch", "Tower", "TowerAdapter", "load"]
+__all__ = [
+    "BY_SLUG",
+    "ROSTER",
+    "SLUGS",
+    "FeatureBatch",
+    "Tower",
+    "TowerAdapter",
+    "load",
+]

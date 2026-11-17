@@ -14,7 +14,16 @@ from huggingface_hub import hf_hub_download
 from safetensors.torch import load_file
 
 from vtb.adapters.base import Inputs
-from vtb.adapters.common import IMAGENET_MEAN as IMAGE_MEAN, IMAGENET_STD as IMAGE_STD, PatchPreprocess, default_device, depth_points, make_batch, pack_patches, raster as merge_raster
+from vtb.adapters.common import (
+    IMAGENET_MEAN as IMAGE_MEAN,
+    IMAGENET_STD as IMAGE_STD,
+    PatchPreprocess,
+    default_device,
+    depth_points,
+    make_batch,
+    pack_patches,
+    raster as merge_raster,
+)
 from vtb.bundle import write_bundle, write_json
 from vtb.feature_batch import FeatureBatch
 from vtb.images import square_crop  # noqa: F401  re-exported for tests
@@ -45,7 +54,9 @@ class Checkpoint:
         return Path(override) if override else None
 
     def open(self, bundle: Path | None = None) -> Path:
-        return open_release(self.model_id, self.repo, self.revision, bundle=bundle or self.override)
+        return open_release(
+            self.model_id, self.repo, self.revision, bundle=bundle or self.override
+        )
 
     @property
     def bundle(self) -> Path:
@@ -68,34 +79,60 @@ CHECKPOINTS = {item.name: item for item in (PRO, FLASH)}
 
 
 def source_json(checkpoint: Checkpoint, filename: str) -> dict:
-    return json.loads(Path(hf_hub_download(checkpoint.repo, filename, revision=checkpoint.revision)).read_text())
+    return json.loads(
+        Path(
+            hf_hub_download(checkpoint.repo, filename, revision=checkpoint.revision)
+        ).read_text()
+    )
 
 
 def source_weights(checkpoint: Checkpoint) -> dict[str, torch.Tensor]:
     """Discover shards from the pinned index and fetch only the visual tensors."""
     index = source_json(checkpoint, "model.safetensors.index.json")["weight_map"]
-    selected = {name: shard for name, shard in index.items() if name.startswith("visual.")}
+    selected = {
+        name: shard for name, shard in index.items() if name.startswith("visual.")
+    }
     shards = sorted(set(selected.values()))
-    weights = load_prefixed(checkpoint.repo, shards, "visual.", revision=checkpoint.revision)
-    if {"visual." + name for name in weights} != set(selected) or len(weights) != VISUAL_TENSORS:
-        raise ValueError(f"incomplete {checkpoint.name} visual state: {len(weights)} tensors")
+    weights = load_prefixed(
+        checkpoint.repo, shards, "visual.", revision=checkpoint.revision
+    )
+    if {"visual." + name for name in weights} != set(selected) or len(
+        weights
+    ) != VISUAL_TENSORS:
+        raise ValueError(
+            f"incomplete {checkpoint.name} visual state: {len(weights)} tensors"
+        )
     return weights
 
 
 # Qwen2-VL processor order: merge block, within-block row/col, C/T/H/W.
-Preprocess = partial(PatchPreprocess, mean=IMAGE_MEAN, std=IMAGE_STD, rgb=True, patch_size=PATCH_SIZE, merge_size=MERGE_SIZE, temporal_patch_size=TEMPORAL_PATCH_SIZE)
+Preprocess = partial(
+    PatchPreprocess,
+    mean=IMAGE_MEAN,
+    std=IMAGE_STD,
+    rgb=True,
+    patch_size=PATCH_SIZE,
+    merge_size=MERGE_SIZE,
+    temporal_patch_size=TEMPORAL_PATCH_SIZE,
+)
 
 
 def collate(samples: list[torch.Tensor]) -> Inputs:
     if not samples:
         raise ValueError("empty MiMo batch")
     side = isqrt(samples[0].shape[0])
-    if side % 2 or side**2 != samples[0].shape[0] or any(s.shape != samples[0].shape for s in samples):
+    if (
+        side % 2
+        or side**2 != samples[0].shape[0]
+        or any(s.shape != samples[0].shape for s in samples)
+    ):
         raise ValueError("MiMo batches require equal, even-sided square patch grids")
     return pack_patches(samples)
 
 
-def raster(tokens: torch.Tensor, grid_thw: torch.Tensor, column_major: bool) -> list[torch.Tensor]:
+def raster(
+    tokens: torch.Tensor, grid_thw: torch.Tensor, column_major: bool
+) -> list[torch.Tensor]:
     """Undo the current block permutation, then undo each 2x2 merge block.
 
     Handle each image independently. Transposing a whole packed batch would mix
@@ -107,7 +144,7 @@ def raster(tokens: torch.Tensor, grid_thw: torch.Tensor, column_major: bool) -> 
         if t != 1 or h % 2 or w % 2:
             raise ValueError("the image adapter requires t=1 and even spatial grids")
         count, width = h * w, tokens.shape[-1]
-        sample = tokens[offset:offset + count]
+        sample = tokens[offset : offset + count]
         if column_major:
             sample = sample.reshape(w // 2, h // 2, 4, width).transpose(0, 1)
         restored.append(merge_raster(sample, 1, MERGE_SIZE, (h, w))[0])
@@ -117,15 +154,25 @@ def raster(tokens: torch.Tensor, grid_thw: torch.Tensor, column_major: bool) -> 
     return restored
 
 
-def load_model(checkpoint: Checkpoint, dtype: torch.dtype, bundle: Path | None = None) -> MiMoVisionModel:
+def load_model(
+    checkpoint: Checkpoint, dtype: torch.dtype, bundle: Path | None = None
+) -> MiMoVisionModel:
     if bundle is None or (bundle / "model.safetensors").is_file():
         bundle = checkpoint.open(bundle)
         config = MiMoVisionConfig.from_pretrained(bundle, local_files_only=True)
         weights = load_file(bundle / "model.safetensors")
     else:
-        log_loaded(checkpoint.model_id, f"parent checkpoint {checkpoint.repo}@{checkpoint.revision}")
-        config = MiMoVisionConfig(**source_json(checkpoint, "config.json")["vision_config"])
-        weights = {"visual." + name: tensor for name, tensor in source_weights(checkpoint).items()}
+        log_loaded(
+            checkpoint.model_id,
+            f"parent checkpoint {checkpoint.repo}@{checkpoint.revision}",
+        )
+        config = MiMoVisionConfig(
+            **source_json(checkpoint, "config.json")["vision_config"]
+        )
+        weights = {
+            "visual." + name: tensor
+            for name, tensor in source_weights(checkpoint).items()
+        }
     with torch.device("meta"):
         model = MiMoVisionModel(config)
     model.load_state_dict(weights, strict=True, assign=True)
@@ -133,7 +180,9 @@ def load_model(checkpoint: Checkpoint, dtype: torch.dtype, bundle: Path | None =
     # when parameters are BF16. Preserve that policy; rounding the frequencies
     # to BF16 before building positions changes the features appreciably.
     head_dim = getattr(config, "qk_channels", 64)
-    frequencies = 1.0 / (10000.0 ** (torch.arange(0, head_dim // 2, 2).float() / (head_dim // 2)))
+    frequencies = 1.0 / (
+        10000.0 ** (torch.arange(0, head_dim // 2, 2).float() / (head_dim // 2))
+    )
     model = model.to(dtype=dtype)
     model.visual.rotary_pos_emb.inv_freq = frequencies
     return model.eval()
@@ -141,14 +190,21 @@ def load_model(checkpoint: Checkpoint, dtype: torch.dtype, bundle: Path | None =
 
 def export(out: Path, checkpoint: Checkpoint) -> None:
     source = checkpoint.release_dir
-    model = load_model(checkpoint, torch.bfloat16, bundle=Path("/nonexistent-mimo-bundle"))
+    model = load_model(
+        checkpoint, torch.bfloat16, bundle=Path("/nonexistent-mimo-bundle")
+    )
     original = source_weights(checkpoint)
     for key, tensor in original.items():
         if not torch.equal(model.state_dict()["visual." + key], tensor):
             raise ValueError(f"export changed {key}")
     out.mkdir(parents=True, exist_ok=True)
     if out.resolve() != source.resolve():
-        shutil.copytree(source, out, ignore=shutil.ignore_patterns("*.safetensors"), dirs_exist_ok=True)
+        shutil.copytree(
+            source,
+            out,
+            ignore=shutil.ignore_patterns("*.safetensors"),
+            dirs_exist_ok=True,
+        )
     model.config.architectures = ["MiMoVisionModel"]
     model.config.dtype = torch.bfloat16
     model.config.auto_map = {
@@ -162,10 +218,15 @@ def export(out: Path, checkpoint: Checkpoint) -> None:
         preprocessor=source_json(checkpoint, "preprocessor_config.json"),
         files={"modeling_mimo_vision.py": MODELING_SOURCE},
     )
-    write_json(out / "export_manifest.json", {
-        "source_repo": checkpoint.repo, "source_revision": checkpoint.revision,
-        "tensors": len(original), "bytes": sum(t.nbytes for t in original.values()),
-    })
+    write_json(
+        out / "export_manifest.json",
+        {
+            "source_repo": checkpoint.repo,
+            "source_revision": checkpoint.revision,
+            "tensors": len(original),
+            "bytes": sum(t.nbytes for t in original.values()),
+        },
+    )
 
 
 class MiMo26Adapter:
@@ -174,7 +235,14 @@ class MiMo26Adapter:
     stages = ("tower", "merged", "projected")
     collate = staticmethod(collate)
 
-    def __init__(self, resolution: int | None = None, dtype: torch.dtype = torch.bfloat16, device: str | None = None, *, bundle: Path | None = None):
+    def __init__(
+        self,
+        resolution: int | None = None,
+        dtype: torch.dtype = torch.bfloat16,
+        device: str | None = None,
+        *,
+        bundle: Path | None = None,
+    ):
         self.resolution = self.default_resolution if resolution is None else resolution
         self.device = default_device() if device is None else device
         self.dtype = dtype
@@ -201,14 +269,19 @@ class MiMo26Adapter:
         def capture(key):
             def hook(_module, _args, output):
                 captured[key] = output.detach()
+
             return hook
 
         for layer in self.depth_points():
-            handles.append(visual.blocks[layer - 1].register_forward_hook(capture(layer)))
+            handles.append(
+                visual.blocks[layer - 1].register_forward_hook(capture(layer))
+            )
         # merged includes the parent's LayerNorm, immediately before merger MLP.
         handles.append(visual.merger.ln_q.register_forward_hook(capture("merged")))
         try:
-            projected = self.model(inputs["pixel_values"].to(self.device, self.dtype), grid)
+            projected = self.model(
+                inputs["pixel_values"].to(self.device, self.dtype), grid
+            )
         finally:
             for handle in handles:
                 handle.remove()
@@ -225,7 +298,13 @@ class MiMo26Adapter:
         rows = len(image_ids)
         merged = captured["merged"].reshape(rows, -1, self.model.config.hidden_size * 4)
         yield make_batch(self, merged, image_ids, "merged", self.num_layers)
-        yield make_batch(self, projected.reshape(rows, merged.shape[1], -1), image_ids, "projected", self.num_layers)
+        yield make_batch(
+            self,
+            projected.reshape(rows, merged.shape[1], -1),
+            image_ids,
+            "projected",
+            self.num_layers,
+        )
 
 
 class MiMo26ProAdapter(MiMo26Adapter):

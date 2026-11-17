@@ -16,7 +16,14 @@ from transformers.models.muse_glimmer.modeling_muse_glimmer import (
 from transformers.vision_utils import get_vision_window_index
 
 from vtb.adapters.base import Inputs
-from vtb.adapters.common import HALF, ImagePreprocess, default_device, depth_points, make_batch, pack_patches
+from vtb.adapters.common import (
+    HALF,
+    ImagePreprocess,
+    default_device,
+    depth_points,
+    make_batch,
+    pack_patches,
+)
 from vtb.bundle import expect_tensors, write_bundle
 from vtb.feature_batch import FeatureBatch
 from vtb.provenance import log_loaded
@@ -53,7 +60,9 @@ class Preprocess(ImagePreprocess):
         # Each flattened patch is laid out (temporal, channel), not (channel, temporal).
         patches = patches.permute(0, 2, 4, 1, 3, 5).unsqueeze(3)
         patches = patches.expand(-1, -1, -1, TEMPORAL_PATCH_SIZE, -1, -1, -1)
-        return patches.reshape(rows * cols, TEMPORAL_PATCH_SIZE * channels * PATCH_SIZE * PATCH_SIZE)
+        return patches.reshape(
+            rows * cols, TEMPORAL_PATCH_SIZE * channels * PATCH_SIZE * PATCH_SIZE
+        )
 
 
 collate = pack_patches
@@ -63,8 +72,12 @@ class Projector(nn.Module):
     def __init__(self, config):
         super().__init__()
         self.adapter = MuseGlimmerVisionAdapter(config)
-        self.projection = nn.Linear(config.projector_hidden_size, config.text_config.hidden_size, bias=False)
-        self.norm = MuseGlimmerRMSNorm(eps=config.text_config.rms_norm_eps, with_scale=False)
+        self.projection = nn.Linear(
+            config.projector_hidden_size, config.text_config.hidden_size, bias=False
+        )
+        self.norm = MuseGlimmerRMSNorm(
+            eps=config.text_config.rms_norm_eps, with_scale=False
+        )
 
     def forward(self, tokens: torch.Tensor) -> torch.Tensor:
         return self.norm(self.projection(self.adapter(tokens)))
@@ -82,13 +95,25 @@ def projector_shapes(settings: dict) -> SimpleNamespace:
     )
 
 
-def load_source_parts(dtype: torch.dtype = torch.bfloat16) -> tuple[MuseGlimmerVisionModel, Projector]:
+def load_source_parts(
+    dtype: torch.dtype = torch.bfloat16,
+) -> tuple[MuseGlimmerVisionModel, Projector]:
     config = AutoConfig.from_pretrained(SOURCE_REPO, revision=SOURCE_REVISION)
     tower = MuseGlimmerVisionModel._from_config(config.vision_config, dtype=dtype)
-    tower.load_state_dict(expect_tensors(load_prefixed(SOURCE_REPO, SHARDS, TOWER_PREFIX, revision=SOURCE_REVISION), TOWER_TENSORS, "Tower"))
+    tower.load_state_dict(
+        expect_tensors(
+            load_prefixed(SOURCE_REPO, SHARDS, TOWER_PREFIX, revision=SOURCE_REVISION),
+            TOWER_TENSORS,
+            "Tower",
+        )
+    )
     projector = Projector(config)
-    projector.adapter.load_state_dict(load_prefixed(SOURCE_REPO, SHARDS, ADAPTER_PREFIX, revision=SOURCE_REVISION))
-    projector.projection.load_state_dict(load_prefixed(SOURCE_REPO, SHARDS, PROJECTION_PREFIX, revision=SOURCE_REVISION))
+    projector.adapter.load_state_dict(
+        load_prefixed(SOURCE_REPO, SHARDS, ADAPTER_PREFIX, revision=SOURCE_REVISION)
+    )
+    projector.projection.load_state_dict(
+        load_prefixed(SOURCE_REPO, SHARDS, PROJECTION_PREFIX, revision=SOURCE_REVISION)
+    )
     expect_tensors(projector.state_dict(), PROJECTOR_TENSORS, "Projector")
     return tower.eval(), projector.to(dtype).eval()
 
@@ -118,7 +143,9 @@ def export(out: Path) -> None:
         architecture="MuseGlimmerVisionModel",
         weights={"projector.safetensors": projector.state_dict()},
         configs={"projector_config.json": projector_config(projector)},
-        preprocessor=loads(files["processor_config.json"].read_text())["image_processor"],
+        preprocessor=loads(files["processor_config.json"].read_text())[
+            "image_processor"
+        ],
         license=files["LICENSE"],
         files={"USAGE_POLICY.md": files["USAGE_POLICY.md"]},
     )
@@ -139,7 +166,12 @@ class MuseGlimmerAdapter:
     stages = ("tower", "merged", "projected")
     collate = staticmethod(collate)
 
-    def __init__(self, resolution: int | None = None, dtype: torch.dtype = torch.bfloat16, device: str | None = None):
+    def __init__(
+        self,
+        resolution: int | None = None,
+        dtype: torch.dtype = torch.bfloat16,
+        device: str | None = None,
+    ):
         self.resolution = self.default_resolution if resolution is None else resolution
         self.device = default_device() if device is None else device
         self.dtype = dtype
@@ -178,12 +210,18 @@ class MuseGlimmerAdapter:
 
         for layer in points:
             # ln_post runs after the window order is undone, so the deepest point keeps its norm.
-            target = self.model.ln_post if layer == self.num_layers else self.model.layers[layer - 1]
+            target = (
+                self.model.ln_post
+                if layer == self.num_layers
+                else self.model.layers[layer - 1]
+            )
             handles.append(target.register_forward_hook(capture(layer)))
 
         grid_thw = inputs["grid_thw"].to(self.device)
         try:
-            out = self.model(inputs["pixel_values"].to(self.device, self.dtype), grid_thw)
+            out = self.model(
+                inputs["pixel_values"].to(self.device, self.dtype), grid_thw
+            )
         finally:
             for handle in handles:
                 handle.remove()
@@ -192,10 +230,16 @@ class MuseGlimmerAdapter:
         width = self.model.config.hidden_size
         order = self._unwindow(grid_thw)
         for layer in points:
-            tokens = captured[layer] if layer == self.num_layers else captured[layer][order]
-            yield make_batch(self, tokens.view(rows, -1, width), image_ids, "tower", layer)
+            tokens = (
+                captured[layer] if layer == self.num_layers else captured[layer][order]
+            )
+            yield make_batch(
+                self, tokens.view(rows, -1, width), image_ids, "tower", layer
+            )
 
         # The tower already merges each 2x2 block, so its output is the merged Stage.
         merged = out.last_hidden_state.view(rows, -1, width * MERGE_SIZE**2)
         yield make_batch(self, merged, image_ids, "merged", self.num_layers)
-        yield make_batch(self, self.projector(merged), image_ids, "projected", self.num_layers)
+        yield make_batch(
+            self, self.projector(merged), image_ids, "projected", self.num_layers
+        )

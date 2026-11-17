@@ -19,7 +19,6 @@ def concat(batches: list["FeatureBatch"]) -> "FeatureBatch":
 
 @dataclass(frozen=True)
 class FeatureBatch:
-
     tokens: torch.Tensor
     image_ids: list[str]
     model_id: str
@@ -33,9 +32,13 @@ class FeatureBatch:
         if self.stage not in STAGES:
             raise ValueError(f"stage {self.stage!r} not in {STAGES}")
         if self.tokens.ndim != 3:
-            raise ValueError(f"tokens must be (batch, token, dim), got {tuple(self.tokens.shape)}")
+            raise ValueError(
+                f"tokens must be (batch, token, dim), got {tuple(self.tokens.shape)}"
+            )
         if self.tokens.shape[0] != len(self.image_ids):
-            raise ValueError(f"{self.tokens.shape[0]} rows but {len(self.image_ids)} image ids")
+            raise ValueError(
+                f"{self.tokens.shape[0]} rows but {len(self.image_ids)} image ids"
+            )
 
     @property
     def relative_depth(self) -> float:
@@ -74,4 +77,6 @@ class FeatureBatch:
         }
 
     def save(self, path) -> None:
-        save_file({"tokens": self.tokens.contiguous()}, str(path), metadata=self.metadata())
+        save_file(
+            {"tokens": self.tokens.contiguous()}, str(path), metadata=self.metadata()
+        )

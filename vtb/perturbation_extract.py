@@ -22,7 +22,12 @@ def parser() -> argparse.ArgumentParser:
     ap.add_argument("--count", type=int, default=2_000)
     ap.add_argument("--batch-size", type=int, required=True)
     ap.add_argument("--workers", type=int, default=8)
-    ap.add_argument("--resolution", type=int, default=None, help="defaults to the adapter's default_resolution")
+    ap.add_argument(
+        "--resolution",
+        type=int,
+        default=None,
+        help="defaults to the adapter's default_resolution",
+    )
     ap.add_argument("--device", default="cuda")
     ap.add_argument("--images-per-shard", type=int, default=512)
     return ap
@@ -34,12 +39,18 @@ def main() -> None:
         args.resolution = ADAPTERS[args.model].default_resolution
     protocol = json.loads(args.transform_manifest.read_text())
     if args.count != protocol["images"]:
-        raise SystemExit(f"requested {args.count} images but manifest has {protocol['images']}")
+        raise SystemExit(
+            f"requested {args.count} images but manifest has {protocol['images']}"
+        )
 
     adapter = ADAPTERS[args.model](resolution=args.resolution, device=args.device)
     summaries = []
     for condition in protocol["conditions"]:
-        image_root = args.identity_images if condition == "identity" else args.condition_images / condition
+        image_root = (
+            args.identity_images
+            if condition == "identity"
+            else args.condition_images / condition
+        )
         dataset = ImageFolder(image_root, adapter.preprocess(), args.count)
         loader = DataLoader(
             dataset,
@@ -78,10 +89,15 @@ def main() -> None:
         }
         (run_dir / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
         summaries.append(summary)
-        print(f"{condition}: {image_count} images at {image_count / seconds:.2f} img/s", flush=True)
+        print(
+            f"{condition}: {image_count} images at {image_count / seconds:.2f} img/s",
+            flush=True,
+        )
 
     report = args.out / f"{args.model}_extraction.json"
-    report.write_text(json.dumps({"model": args.model, "conditions": summaries}, indent=2) + "\n")
+    report.write_text(
+        json.dumps({"model": args.model, "conditions": summaries}, indent=2) + "\n"
+    )
     print(f"wrote {report}")
 
 

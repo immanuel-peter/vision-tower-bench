@@ -34,17 +34,25 @@ def occlude(
     )
     return transformed, {
         "requested_area_fraction": area_fraction,
-        "actual_area_fraction": round((rectangle_width * rectangle_height) / (width * height), 6),
+        "actual_area_fraction": round(
+            (rectangle_width * rectangle_height) / (width * height), 6
+        ),
         "rectangle_pixels": list(box),
         "fill_rgb": [127, 127, 127],
     }
 
 
-def directional_blur(image: Image.Image, radius: int, angle_degrees: float) -> Image.Image:
+def directional_blur(
+    image: Image.Image, radius: int, angle_degrees: float
+) -> Image.Image:
     values = np.asarray(image, dtype=np.float32)
-    aligned = rotate(values, -angle_degrees, axes=(1, 0), reshape=False, order=1, mode="reflect")
+    aligned = rotate(
+        values, -angle_degrees, axes=(1, 0), reshape=False, order=1, mode="reflect"
+    )
     blurred = uniform_filter1d(aligned, size=2 * radius + 1, axis=1, mode="nearest")
-    restored = rotate(blurred, angle_degrees, axes=(1, 0), reshape=False, order=1, mode="reflect")
+    restored = rotate(
+        blurred, angle_degrees, axes=(1, 0), reshape=False, order=1, mode="reflect"
+    )
     return Image.fromarray(np.clip(restored, 0, 255).astype(np.uint8), "RGB")
 
 

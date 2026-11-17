@@ -27,7 +27,12 @@ def main() -> None:
         labels[image_id] = example["label"]
         names.setdefault(example["label"], example["text"])
 
-    payload = {"repo": REPO, "split": args.split, "labels": labels, "class_names": names}
+    payload = {
+        "repo": REPO,
+        "split": args.split,
+        "labels": labels,
+        "class_names": names,
+    }
     (args.out / f"{args.split}_labels.json").write_text(json.dumps(payload) + "\n")
     print(f"{len(labels)} images, {len(names)} classes -> {out}")
 

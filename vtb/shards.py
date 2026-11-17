@@ -36,7 +36,9 @@ def _get(url: str, start: int, end: int) -> bytes:
     for attempt in range(ATTEMPTS):
         last = attempt == ATTEMPTS - 1
         try:
-            response = requests.get(url, headers={"Range": f"bytes={start}-{end - 1}"}, timeout=300)
+            response = requests.get(
+                url, headers={"Range": f"bytes={start}-{end - 1}"}, timeout=300
+            )
         except requests.RequestException:
             if last:
                 raise
@@ -60,7 +62,9 @@ def _range(url: str, start: int, end: int) -> bytes:
     return b"".join(pieces)
 
 
-def _runs(entries: list[tuple[str, dict]]) -> list[tuple[int, int, list[tuple[str, dict]]]]:
+def _runs(
+    entries: list[tuple[str, dict]],
+) -> list[tuple[int, int, list[tuple[str, dict]]]]:
     spans: list[tuple[int, int, list[tuple[str, dict]]]] = []
     for name, entry in sorted(entries, key=lambda pair: pair[1]["data_offsets"][0]):
         start, end = entry["data_offsets"]
@@ -85,7 +89,9 @@ def _header_at(url: str) -> tuple[dict, int]:
     return header, HEADER_SIZE_BYTES + size
 
 
-def read_header(repo: str, filename: str, revision: str | None = None) -> tuple[dict, str, int]:
+def read_header(
+    repo: str, filename: str, revision: str | None = None
+) -> tuple[dict, str, int]:
     url, _ = resolve(repo, filename, revision)
     header, data_start = _header_at(url)
     return header, url, data_start
@@ -95,12 +101,17 @@ def cache_root() -> Path:
     if override := os.environ.get("VTB_SHARD_CACHE"):
         return Path(override)
     home = os.environ.get("HF_HOME")
-    return (Path(home) if home else Path.home() / ".cache" / "huggingface") / "vtb-shards"
+    return (
+        Path(home) if home else Path.home() / ".cache" / "huggingface"
+    ) / "vtb-shards"
 
 
 def cache_path(repo: str, prefix: str, etags: Iterable[tuple[str, str]]) -> Path:
     identity = json.dumps([repo, prefix, sorted(etags)], sort_keys=True)
-    return cache_root() / f"{hashlib.sha256(identity.encode()).hexdigest()[:32]}.safetensors"
+    return (
+        cache_root()
+        / f"{hashlib.sha256(identity.encode()).hexdigest()[:32]}.safetensors"
+    )
 
 
 def load_prefixed(
@@ -112,7 +123,9 @@ def load_prefixed(
 ) -> dict[str, torch.Tensor]:
     filenames = list(filenames)
     resolved = {name: resolve(repo, name, revision) for name in filenames}
-    path = cache_path(repo, prefix, ((name, etag) for name, (_, etag) in resolved.items()))
+    path = cache_path(
+        repo, prefix, ((name, etag) for name, (_, etag) in resolved.items())
+    )
     if path.exists():
         return load_file(path)
 
@@ -120,7 +133,9 @@ def load_prefixed(
     for filename in filenames:
         url = resolved[filename][0]
         header, data_start = _header_at(url)
-        matches = [(name, entry) for name, entry in header.items() if name.startswith(prefix)]
+        matches = [
+            (name, entry) for name, entry in header.items() if name.startswith(prefix)
+        ]
         for span_start, span_end, members in _runs(matches):
             raw = _range(url, data_start + span_start, data_start + span_end)
             for name, entry in members:

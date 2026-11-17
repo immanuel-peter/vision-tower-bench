@@ -20,11 +20,15 @@ def parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser()
     ap.add_argument("--first-run", type=Path, required=True)
     ap.add_argument("--first-name", required=True)
-    ap.add_argument("--first-stage", choices=("tower", "merged", "projected"), required=True)
+    ap.add_argument(
+        "--first-stage", choices=("tower", "merged", "projected"), required=True
+    )
     ap.add_argument("--first-layer", type=int, required=True)
     ap.add_argument("--second-run", type=Path, required=True)
     ap.add_argument("--second-name", required=True)
-    ap.add_argument("--second-stage", choices=("tower", "merged", "projected"), required=True)
+    ap.add_argument(
+        "--second-stage", choices=("tower", "merged", "projected"), required=True
+    )
     ap.add_argument("--second-layer", type=int, required=True)
     ap.add_argument("--targets", type=Path, required=True)
     ap.add_argument("--out", type=Path, required=True)
@@ -38,10 +42,17 @@ def parser() -> argparse.ArgumentParser:
     ap.add_argument("--scale-invariant", action="store_true")
     ap.add_argument("--max-depth", type=float, default=None)
     ap.add_argument("--device", default="cuda")
-    ap.add_argument("--cell-cache", type=Path, default=os.environ.get("VTB_GEOMETRY_PAIRED_CACHE"),
-                    help="optional cache of verified paired-rerun cells; primary training protocol is unchanged")
     ap.add_argument(
-        "--learning-rates", type=float, nargs="+", default=list(geometry_run.LEARNING_RATES)
+        "--cell-cache",
+        type=Path,
+        default=os.environ.get("VTB_GEOMETRY_PAIRED_CACHE"),
+        help="optional cache of verified paired-rerun cells; primary training protocol is unchanged",
+    )
+    ap.add_argument(
+        "--learning-rates",
+        type=float,
+        nargs="+",
+        default=list(geometry_run.LEARNING_RATES),
     )
     ap.add_argument("--resamples", type=int, default=10_000)
     ap.add_argument("--confidence", type=float, default=0.95)
@@ -99,16 +110,39 @@ def train_cell(run: Path, stage: str, layer: int, args) -> dict:
 def cached_train_cell(run: Path, stage: str, layer: int, args) -> dict:
     if args.cell_cache is None:
         return train_cell(run, stage, layer, args)
-    protocol = {key: getattr(args, key) for key in (
-        "task", "arm", "head", "width", "epochs", "batch_size", "seeds",
-        "scale_invariant", "max_depth", "learning_rates", "device",
-    )}
+    protocol = {
+        key: getattr(args, key)
+        for key in (
+            "task",
+            "arm",
+            "head",
+            "width",
+            "epochs",
+            "batch_size",
+            "seeds",
+            "scale_invariant",
+            "max_depth",
+            "learning_rates",
+            "device",
+        )
+    }
     paths = [args.targets] + list(cache.shards(run, stage, layer))
-    manifest = args.targets.with_name(args.targets.name.replace("_targets.npz", "_manifest.json"))
+    manifest = args.targets.with_name(
+        args.targets.name.replace("_targets.npz", "_manifest.json")
+    )
     if manifest.is_file():
         paths.append(manifest)
-    inputs = {str(path.resolve()): hashlib.sha256(path.read_bytes()).hexdigest() for path in paths}
-    identity = {"version": CELL_CACHE_VERSION, "stage": stage, "layer": layer, "protocol": protocol, "inputs": inputs}
+    inputs = {
+        str(path.resolve()): hashlib.sha256(path.read_bytes()).hexdigest()
+        for path in paths
+    }
+    identity = {
+        "version": CELL_CACHE_VERSION,
+        "stage": stage,
+        "layer": layer,
+        "protocol": protocol,
+        "inputs": inputs,
+    }
     key = hashlib.sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()
     args.cell_cache.mkdir(parents=True, exist_ok=True)
     path = args.cell_cache / f"{key}.pt"
@@ -147,14 +181,20 @@ def cell_summary(cell: dict, name: str) -> dict:
         "validation_score": cell["validation_score"],
         "seed_metrics": seed_metrics.tolist(),
         "mean_metric": seed_metrics.mean().item(),
-    } | ({"paired_cache_key": cell["paired_cache_key"]} if "paired_cache_key" in cell else {})
+    } | (
+        {"paired_cache_key": cell["paired_cache_key"]}
+        if "paired_cache_key" in cell
+        else {}
+    )
 
 
 def main() -> None:
     args = parser().parse_args()
     args.max_depth = geometry_run.depth_range(args.targets, args.max_depth)
     first = cached_train_cell(args.first_run, args.first_stage, args.first_layer, args)
-    second = cached_train_cell(args.second_run, args.second_stage, args.second_layer, args)
+    second = cached_train_cell(
+        args.second_run, args.second_stage, args.second_layer, args
+    )
 
     if first["image_ids"] != second["image_ids"]:
         raise ValueError("the two cells do not have the same paired test images")
@@ -166,7 +206,9 @@ def main() -> None:
     all_positions = torch.arange(len(first["image_ids"]))
     by_scene = {}
     for scene in sorted(set(first["scenes"])):
-        positions = torch.tensor([i for i, value in enumerate(first["scenes"]) if value == scene])
+        positions = torch.tensor(
+            [i for i, value in enumerate(first["scenes"]) if value == scene]
+        )
         by_scene[scene] = interval(first, second, positions, args) | {
             "test_images": len(positions)
         }

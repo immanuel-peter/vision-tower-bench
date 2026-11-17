@@ -16,11 +16,15 @@ def parser() -> argparse.ArgumentParser:
     ap.add_argument("--first-run", type=Path, required=True)
     ap.add_argument("--first-name", required=True)
     ap.add_argument("--first-layer", type=int, required=True)
-    ap.add_argument("--first-stage", choices=("tower", "merged", "projected"), default="tower")
+    ap.add_argument(
+        "--first-stage", choices=("tower", "merged", "projected"), default="tower"
+    )
     ap.add_argument("--second-run", type=Path, required=True)
     ap.add_argument("--second-name", required=True)
     ap.add_argument("--second-layer", type=int, required=True)
-    ap.add_argument("--second-stage", choices=("tower", "merged", "projected"), default="tower")
+    ap.add_argument(
+        "--second-stage", choices=("tower", "merged", "projected"), default="tower"
+    )
     ap.add_argument("--labels", type=Path, required=True)
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--readout", choices=("attention", "mean"), default="attention")
@@ -31,7 +35,10 @@ def parser() -> argparse.ArgumentParser:
     ap.add_argument("--width", type=int, default=512)
     ap.add_argument("--device", default="cuda")
     ap.add_argument(
-        "--learning-rates", type=float, nargs="+", default=list(probe_run.LEARNING_RATES)
+        "--learning-rates",
+        type=float,
+        nargs="+",
+        default=list(probe_run.LEARNING_RATES),
     )
     ap.add_argument("--resamples", type=int, default=10_000)
     ap.add_argument("--confidence", type=float, default=0.95)
@@ -114,8 +121,12 @@ def train_cell(run, stage, layer, labels_by_id, args):
 def main() -> None:
     args = parser().parse_args()
     labels_by_id = json.loads(args.labels.read_text())["labels"]
-    first = train_cell(args.first_run, args.first_stage, args.first_layer, labels_by_id, args)
-    second = train_cell(args.second_run, args.second_stage, args.second_layer, labels_by_id, args)
+    first = train_cell(
+        args.first_run, args.first_stage, args.first_layer, labels_by_id, args
+    )
+    second = train_cell(
+        args.second_run, args.second_stage, args.second_layer, labels_by_id, args
+    )
     require_same(first, second)
     if first["image_ids"] != second["image_ids"]:
         raise ValueError("the two cells do not have the same paired test images")

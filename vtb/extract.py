@@ -18,17 +18,30 @@ IMAGENET_100 = 130_000
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Extract frozen vision features and measure cache growth.")
+    parser = argparse.ArgumentParser(
+        description="Extract frozen vision features and measure cache growth."
+    )
     parser.add_argument("--model", default="dinov2", choices=sorted(ADAPTERS))
     parser.add_argument("--images", type=Path, required=True)
     parser.add_argument("--out", type=Path, default=Path("cache"))
-    parser.add_argument("--limit", type=int, default=None, help="default is every image under --images")
     parser.add_argument(
-        "--batch-size", type=int, default=None,
+        "--limit", type=int, default=None, help="default is every image under --images"
+    )
+    parser.add_argument(
+        "--batch-size",
+        type=int,
+        default=None,
         help="defaults to 1 for Kimi K3 and K3.1 Pro, 16 for other models",
     )
-    parser.add_argument("--resolution", type=int, default=None, help="defaults to the adapter's default_resolution")
-    parser.add_argument("--device", default=None, help="defaults to cuda, then mps, then cpu")
+    parser.add_argument(
+        "--resolution",
+        type=int,
+        default=None,
+        help="defaults to the adapter's default_resolution",
+    )
+    parser.add_argument(
+        "--device", default=None, help="defaults to cuda, then mps, then cpu"
+    )
     parser.add_argument(
         "--workers",
         type=int,
@@ -92,7 +105,9 @@ def main() -> None:
     tag = f"pool{args.pool}" if args.pool is not None else "full"
     run_dir = args.out / f"{args.model}_{args.resolution}_{tag}"
     run_dir.mkdir(parents=True, exist_ok=True)
-    print(f"{len(dataset)} images, {adapter.num_layers} layers, depth points {adapter.depth_points()}")
+    print(
+        f"{len(dataset)} images, {adapter.num_layers} layers, depth points {adapter.depth_points()}"
+    )
     print(f"grid: {tag}")
 
     writer = ShardWriter(run_dir, args.images_per_shard)
@@ -101,7 +116,8 @@ def main() -> None:
     for inputs, image_ids in loader:
         for batch in adapter.extract(inputs, image_ids):
             if args.final_stages and (
-                batch.layer_index != adapter.num_layers or batch.stage not in args.final_stages
+                batch.layer_index != adapter.num_layers
+                or batch.stage not in args.final_stages
             ):
                 continue
             if args.pool is not None:
@@ -129,13 +145,15 @@ def main() -> None:
         written_bytes,
         time.perf_counter() - start,
         args.final_stages or list(adapter.stages),
-        batch_size=args.batch_size, workers=args.workers, device=args.device, dtype=str(batch.tokens.dtype),
+        batch_size=args.batch_size,
+        workers=args.workers,
+        device=args.device,
+        dtype=str(batch.tokens.dtype),
     )
 
 
 @dataclass(frozen=True)
 class Collate:
-
     batch: Callable
 
     def __call__(self, samples):
@@ -143,8 +161,22 @@ class Collate:
         return self.batch(list(values)), list(image_ids)
 
 
-def report(run_dir, adapter, pool, tokens, slice_count, images, written_bytes, elapsed, stages,
-           *, batch_size=None, workers=None, device=None, dtype=None) -> None:
+def report(
+    run_dir,
+    adapter,
+    pool,
+    tokens,
+    slice_count,
+    images,
+    written_bytes,
+    elapsed,
+    stages,
+    *,
+    batch_size=None,
+    workers=None,
+    device=None,
+    dtype=None,
+) -> None:
     per_image = written_bytes / images
     on_disk = sum(p.stat().st_size for p in run_dir.glob("*.safetensors"))
 
@@ -152,8 +184,14 @@ def report(run_dir, adapter, pool, tokens, slice_count, images, written_bytes, e
         "model_id": adapter.model_id,
         "device": device or str(getattr(adapter, "device", "unknown")),
         "dtype": dtype or str(getattr(adapter, "dtype", "unknown")),
-        "batch_size": batch_size, "workers": workers, "torch_threads": torch.get_num_threads(),
-        "model_revision": getattr(getattr(getattr(adapter, "model", None), "config", None), "_commit_hash", None),
+        "batch_size": batch_size,
+        "workers": workers,
+        "torch_threads": torch.get_num_threads(),
+        "model_revision": getattr(
+            getattr(getattr(adapter, "model", None), "config", None),
+            "_commit_hash",
+            None,
+        ),
         "resolution": adapter.resolution,
         "pooled_to": pool,
         "tokens_per_image": tokens,
@@ -170,7 +208,9 @@ def report(run_dir, adapter, pool, tokens, slice_count, images, written_bytes, e
     print("\n" + json.dumps(summary, indent=2))
 
     total = per_image * IMAGENET_100
-    print(f"\nImageNet-100 at {tokens} tokens per image: {scale(total)} for this model.")
+    print(
+        f"\nImageNet-100 at {tokens} tokens per image: {scale(total)} for this model."
+    )
     print("  Measure each model. Token width and stage count both vary.")
 
     if pool is None:

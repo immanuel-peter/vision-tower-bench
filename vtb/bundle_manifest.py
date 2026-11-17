@@ -1,4 +1,5 @@
 """Record which parent checkpoint a vision bundle was exported from."""
+
 import json
 import shutil
 from pathlib import Path
@@ -8,17 +9,35 @@ from safetensors import safe_open
 
 def copy_assets(source, out):
     source, out = Path(source), Path(out)
-    for name in ("README.md", "NOTICE", "LICENSE-CODE", "projector.py", "examples/inference.py"):
+    for name in (
+        "README.md",
+        "NOTICE",
+        "LICENSE-CODE",
+        "projector.py",
+        "examples/inference.py",
+    ):
         src, dst = source / name, out / name
         if src.is_file() and src.resolve() != dst.resolve():
             dst.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(src, dst)
 
 
-def write_manifest(out, source_repo, source_revision, source_shards, *, merger_in_model=False, extra=None, allow_mixed_source=False):
+def write_manifest(
+    out,
+    source_repo,
+    source_revision,
+    source_shards,
+    *,
+    merger_in_model=False,
+    extra=None,
+    allow_mixed_source=False,
+):
     out = Path(out)
     counts, dtypes = {}, {}
-    for part, name in (("tower", "model.safetensors"), ("projector", "projector.safetensors")):
+    for part, name in (
+        ("tower", "model.safetensors"),
+        ("projector", "projector.safetensors"),
+    ):
         path = out / name
         if not path.exists():
             if part == "projector" and merger_in_model:

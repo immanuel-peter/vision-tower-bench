@@ -14,7 +14,9 @@ def sample_key(path: Path, kind: str) -> str:
 
 
 def paired_samples(root: Path) -> list[tuple[str, Path, Path]]:
-    images = {sample_key(path, "image"): path for path in (root / "image").glob("*.png")}
+    images = {
+        sample_key(path, "image"): path for path in (root / "image").glob("*.png")
+    }
     depths = {
         sample_key(path, "groundtruth_depth"): path
         for path in (root / "groundtruth_depth").glob("*.png")

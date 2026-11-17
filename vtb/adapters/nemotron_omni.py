@@ -8,7 +8,13 @@ from transformers import AutoConfig
 from transformers.dynamic_module_utils import get_class_from_dynamic_module
 
 from vtb.adapters.base import Inputs
-from vtb.adapters.common import ImagePreprocess, default_device, depth_points, make_batch, stack_pixels
+from vtb.adapters.common import (
+    ImagePreprocess,
+    default_device,
+    depth_points,
+    make_batch,
+    stack_pixels,
+)
 from vtb.bundle import ROOT, expect_tensors, write_bundle
 from vtb.feature_batch import FeatureBatch
 from vtb.provenance import open_release
@@ -55,7 +61,9 @@ class RMSNorm(nn.Module):
 def pixel_shuffle(tokens: torch.Tensor, scale_factor: float = 0.5) -> torch.Tensor:
     # InternVL v2 shuffle used by Nemotron Omni extract_feature.
     batch, width, height, channels = tokens.size()
-    tokens = tokens.view(batch, width, int(height * scale_factor), int(channels / scale_factor))
+    tokens = tokens.view(
+        batch, width, int(height * scale_factor), int(channels / scale_factor)
+    )
     tokens = tokens.permute(0, 2, 1, 3).contiguous()
     tokens = tokens.view(
         batch,
@@ -100,39 +108,75 @@ def attach_video_embedder(radio) -> None:
 
 
 def build_radio(vision_config):
-    return get_class_from_dynamic_module("hf_model.RADIOModel", RADIO_CODE_REPO, revision=RADIO_CODE_REVISION)(vision_config)
+    return get_class_from_dynamic_module(
+        "hf_model.RADIOModel", RADIO_CODE_REPO, revision=RADIO_CODE_REVISION
+    )(vision_config)
 
 
 def load_source_parts(dtype: torch.dtype = torch.bfloat16):
-    config = AutoConfig.from_pretrained(SOURCE_REPO, trust_remote_code=True, revision=SOURCE_REVISION)
+    config = AutoConfig.from_pretrained(
+        SOURCE_REPO, trust_remote_code=True, revision=SOURCE_REVISION
+    )
     radio = build_radio(config.vision_config)
     attach_video_embedder(radio)
-    weights = load_prefixed(SOURCE_REPO, [VISION_SHARD], TOWER_PREFIX, revision=SOURCE_REVISION)
-    result = radio.load_state_dict({name: tensor.to(dtype) for name, tensor in weights.items()}, strict=False)
+    weights = load_prefixed(
+        SOURCE_REPO, [VISION_SHARD], TOWER_PREFIX, revision=SOURCE_REVISION
+    )
+    result = radio.load_state_dict(
+        {name: tensor.to(dtype) for name, tensor in weights.items()}, strict=False
+    )
     if set(result.missing_keys) != SOURCE_MISSING_KEYS or result.unexpected_keys:
-        raise ValueError(f"unexpected Omni source keys: missing {result.missing_keys}, unexpected {result.unexpected_keys}")
+        raise ValueError(
+            f"unexpected Omni source keys: missing {result.missing_keys}, unexpected {result.unexpected_keys}"
+        )
     radio = _cast_radio(radio, dtype)
     projector = make_projector()
-    projector.load_state_dict({
-        name: tensor.to(dtype)
-        for name, tensor in load_prefixed(
-            SOURCE_REPO, [VISION_SHARD], PROJECTOR_PREFIX, revision=SOURCE_REVISION
-        ).items()
-    })
+    projector.load_state_dict(
+        {
+            name: tensor.to(dtype)
+            for name, tensor in load_prefixed(
+                SOURCE_REPO, [VISION_SHARD], PROJECTOR_PREFIX, revision=SOURCE_REVISION
+            ).items()
+        }
+    )
     return radio.eval(), projector.to(dtype).eval()
 
 
 def export(out: Path) -> None:
     """Write the parent's tensors in their own dtypes; the conditioner statistics stay FP32."""
-    tower = expect_tensors(load_prefixed(SOURCE_REPO, [VISION_SHARD], TOWER_PREFIX, revision=SOURCE_REVISION), TOWER_TENSORS, "Tower")
-    projector = expect_tensors(load_prefixed(SOURCE_REPO, [VISION_SHARD], PROJECTOR_PREFIX, revision=SOURCE_REVISION), PROJECTOR_TENSORS, "Projector")
+    tower = expect_tensors(
+        load_prefixed(
+            SOURCE_REPO, [VISION_SHARD], TOWER_PREFIX, revision=SOURCE_REVISION
+        ),
+        TOWER_TENSORS,
+        "Tower",
+    )
+    projector = expect_tensors(
+        load_prefixed(
+            SOURCE_REPO, [VISION_SHARD], PROJECTOR_PREFIX, revision=SOURCE_REVISION
+        ),
+        PROJECTOR_TENSORS,
+        "Projector",
+    )
     radio, _ = load_source_parts()
     write_bundle(
         out,
-        weights={"model.safetensors": {**radio.state_dict(), **tower}, "projector.safetensors": projector},
+        weights={
+            "model.safetensors": {**radio.state_dict(), **tower},
+            "projector.safetensors": projector,
+        },
         configs={
-            "config.json": {"architectures": ["RADIOModel"], "source": SOURCE_REPO, "revision": SOURCE_REVISION},
-            "projector_config.json": {"type": "internvl_mlp1", "vit_hidden": VIT_WIDTH, "projector_hidden": PROJECTOR_HIDDEN, "llm_hidden": LLM_WIDTH},
+            "config.json": {
+                "architectures": ["RADIOModel"],
+                "source": SOURCE_REPO,
+                "revision": SOURCE_REVISION,
+            },
+            "projector_config.json": {
+                "type": "internvl_mlp1",
+                "vit_hidden": VIT_WIDTH,
+                "projector_hidden": PROJECTOR_HIDDEN,
+                "llm_hidden": LLM_WIDTH,
+            },
         },
         license=ROOT / "hf/C-RADIOv4-H-3-Omni/LICENSE",
     )
@@ -140,17 +184,26 @@ def export(out: Path) -> None:
 
 def load_parts(dtype: torch.dtype):
     bundle = open_release(MODEL_ID, SOURCE_REPO, SOURCE_REVISION)
-    config = AutoConfig.from_pretrained(SOURCE_REPO, trust_remote_code=True, revision=SOURCE_REVISION)
+    config = AutoConfig.from_pretrained(
+        SOURCE_REPO, trust_remote_code=True, revision=SOURCE_REVISION
+    )
     radio = build_radio(config.vision_config)
     attach_video_embedder(radio)
-    radio.load_state_dict({
-        name: tensor.to(dtype) for name, tensor in load_file(bundle / "model.safetensors").items()
-    }, strict=True)
+    radio.load_state_dict(
+        {
+            name: tensor.to(dtype)
+            for name, tensor in load_file(bundle / "model.safetensors").items()
+        },
+        strict=True,
+    )
     radio = _cast_radio(radio, dtype)
     projector = make_projector()
-    projector.load_state_dict({
-        name: tensor.to(dtype) for name, tensor in load_file(bundle / "projector.safetensors").items()
-    })
+    projector.load_state_dict(
+        {
+            name: tensor.to(dtype)
+            for name, tensor in load_file(bundle / "projector.safetensors").items()
+        }
+    )
     return radio.eval(), projector.to(dtype).eval()
 
 
@@ -160,7 +213,12 @@ class NemotronOmniAdapter:
     stages = ("tower", "merged", "projected")
     collate = staticmethod(collate)
 
-    def __init__(self, resolution: int | None = None, dtype: torch.dtype = torch.bfloat16, device: str | None = None):
+    def __init__(
+        self,
+        resolution: int | None = None,
+        dtype: torch.dtype = torch.bfloat16,
+        device: str | None = None,
+    ):
         self.resolution = self.default_resolution if resolution is None else resolution
         self.device = default_device() if device is None else device
         self.dtype = dtype
@@ -217,4 +275,6 @@ class NemotronOmniAdapter:
         merged = pixel_shuffle(tower, DOWNSAMPLE)
         merged = merged.reshape(rows, -1, merged.shape[-1])
         yield make_batch(self, merged, image_ids, "merged", self.num_layers)
-        yield make_batch(self, self.projector(merged), image_ids, "projected", self.num_layers)
+        yield make_batch(
+            self, self.projector(merged), image_ids, "projected", self.num_layers
+        )

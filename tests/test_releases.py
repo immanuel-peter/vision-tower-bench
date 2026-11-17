@@ -53,28 +53,40 @@ def load_example(path):
     return module
 
 
-@pytest.mark.parametrize("bundle,shipped,source", [
-    ("MiMoViT-2.6-Pro", "modeling_mimo_vision.py", "mimo26.py"),
-    ("MiMoViT-2.6-Flash", "modeling_mimo_vision.py", "mimo26.py"),
-    ("PixtralViT-Large-4", "modeling_pixtral_large4.py", "pixtral_large4.py"),
-    ("Inkling-2-Small-Vision", "inkling2_vision.py", "inkling2.py"),
-])
+@pytest.mark.parametrize(
+    "bundle,shipped,source",
+    [
+        ("MiMoViT-2.6-Pro", "modeling_mimo_vision.py", "mimo26.py"),
+        ("MiMoViT-2.6-Flash", "modeling_mimo_vision.py", "mimo26.py"),
+        ("PixtralViT-Large-4", "modeling_pixtral_large4.py", "pixtral_large4.py"),
+        ("Inkling-2-Small-Vision", "inkling2_vision.py", "inkling2.py"),
+    ],
+)
 def test_shipped_modeling_code_is_a_byte_copy_of_vtb(bundle, shipped, source):
-    assert (HF / bundle / shipped).read_bytes() == (ROOT / "vtb/models" / source).read_bytes()
+    assert (HF / bundle / shipped).read_bytes() == (
+        ROOT / "vtb/models" / source
+    ).read_bytes()
 
 
 def test_rendered_templates_are_checked_in():
     rendered = render_hf_templates.render()
     assert rendered
     for path, text in rendered.items():
-        assert path.read_text() == text, f"run scripts/render_hf_templates.py to refresh {path.relative_to(ROOT)}"
+        assert path.read_text() == text, (
+            f"run scripts/render_hf_templates.py to refresh {path.relative_to(ROOT)}"
+        )
 
 
 def test_pixel_shuffle_copies_agree():
     copies = {
         "vtb": nemotron_omni.pixel_shuffle,
-        "omni_example": load_example(HF / "C-RADIOv4-H-3-Omni/examples/inference.py").pixel_shuffle,
-        **{name: runpy.run_path(str(HF / name / "vision.py"))["pixel_shuffle"] for name in ("C-RADIOv4-H-3.5-Bolt", "C-RADIOv4-H-3.5-Super")},
+        "omni_example": load_example(
+            HF / "C-RADIOv4-H-3-Omni/examples/inference.py"
+        ).pixel_shuffle,
+        **{
+            name: runpy.run_path(str(HF / name / "vision.py"))["pixel_shuffle"]
+            for name in ("C-RADIOv4-H-3.5-Bolt", "C-RADIOv4-H-3.5-Super")
+        },
     }
     tokens = torch.randn(2, 6, 4, 8)
     expected = copies.pop("vtb")(tokens)
@@ -91,7 +103,11 @@ def test_examples_do_not_touch_sys_path():
 @pytest.mark.parametrize("bundle,names", SIBLING_EXAMPLES.items())
 def test_examples_load_siblings_from_a_snapshot(bundle, names, tmp_path, monkeypatch):
     snapshot = tmp_path / bundle
-    shutil.copytree(HF / bundle, snapshot, ignore=shutil.ignore_patterns("*.safetensors", "__pycache__"))
+    shutil.copytree(
+        HF / bundle,
+        snapshot,
+        ignore=shutil.ignore_patterns("*.safetensors", "__pycache__"),
+    )
     monkeypatch.chdir(tmp_path)
     module = load_example(snapshot / "examples/inference.py")
     assert module.BUNDLE == snapshot
@@ -112,10 +128,14 @@ def test_qwen_bundle_loads_through_auto_model_without_the_parent_repo(tmp_path):
     )
     tower = Qwen3_5VisionModel(config)
     preprocessor = tmp_path / "source-preprocessor.json"
-    preprocessor.write_text(json.dumps({
-        "image_processor_type": "Qwen2VLImageProcessorFast",
-        "processor_class": "Qwen3VLProcessor",
-    }))
+    preprocessor.write_text(
+        json.dumps(
+            {
+                "image_processor_type": "Qwen2VLImageProcessorFast",
+                "processor_class": "Qwen3VLProcessor",
+            }
+        )
+    )
     license_path = tmp_path / "source-license"
     license_path.write_text("Apache License\n")
     out = tmp_path / "bundle"
@@ -170,13 +190,17 @@ def test_muse_bundle_loads_the_tower_and_keeps_the_projector_separate(tmp_path):
     tower = MuseGlimmerVisionModel(vision_config)
     projector = Projector(config)
     processor_config = tmp_path / "source-processor.json"
-    processor_config.write_text(json.dumps({
-        "image_processor": {
-            "image_processor_type": "MuseGlimmerImageProcessor",
-            "patch_size": 2,
-            "merge_size": 2,
-        }
-    }))
+    processor_config.write_text(
+        json.dumps(
+            {
+                "image_processor": {
+                    "image_processor_type": "MuseGlimmerImageProcessor",
+                    "patch_size": 2,
+                    "merge_size": 2,
+                }
+            }
+        )
+    )
     license_path = tmp_path / "source-license"
     license_path.write_text("Apache License\n")
     usage_policy = tmp_path / "source-usage-policy"
@@ -203,9 +227,9 @@ def test_muse_bundle_loads_the_tower_and_keeps_the_projector_separate(tmp_path):
         "projection.weight",
     }
     assert json.loads((out / "preprocessor_config.json").read_text())["patch_size"] == 2
-    assert json.loads((out / "preprocessor_config.json").read_text())["processor_class"] == (
-        "AutoImageProcessor"
-    )
+    assert json.loads((out / "preprocessor_config.json").read_text())[
+        "processor_class"
+    ] == ("AutoImageProcessor")
     assert (out / "USAGE_POLICY.md").read_text() == "Usage policy\n"
 
 
@@ -246,26 +270,39 @@ def test_kimi_bundle_loads_offline_without_the_parent_repositories():
 
 
 def test_manifest_counts_real_tensor_components(tmp_path):
-    save_file({'tower.weight':torch.ones(2,dtype=torch.bfloat16),'merger.weight':torch.zeros(3,dtype=torch.bfloat16)},tmp_path/'model.safetensors')
-    m=write_manifest(tmp_path,'parent','pinned',['shard-b','shard-a'],merger_in_model=True)
-    assert (m['tower_tensors'],m['projector_tensors'])==(1,1)
-    assert m['source_shards']==['shard-a','shard-b']
-    assert (m['source_repo'],m['source_revision'])==('parent','pinned')
+    save_file(
+        {
+            "tower.weight": torch.ones(2, dtype=torch.bfloat16),
+            "merger.weight": torch.zeros(3, dtype=torch.bfloat16),
+        },
+        tmp_path / "model.safetensors",
+    )
+    m = write_manifest(
+        tmp_path, "parent", "pinned", ["shard-b", "shard-a"], merger_in_model=True
+    )
+    assert (m["tower_tensors"], m["projector_tensors"]) == (1, 1)
+    assert m["source_shards"] == ["shard-a", "shard-b"]
+    assert (m["source_repo"], m["source_revision"]) == ("parent", "pinned")
 
 
 def test_maintained_bundle_manifests_record_counts_and_shards():
-    root=Path(__file__).parents[1]
-    expected={'MiniMax-M3.1-Flash-Vision':(515,8),'Qwen3.8-Flash-Next-Vision':(327,6),
-              'PixtralViT-Large-4':(272,4),'MoonViT-K3.1-Pro':(165,3)}
-    checked=0
-    for name,counts in expected.items():
-        bundle=root/'hf'/name
-        if not bundle.is_dir():continue
-        checked+=1
-        m=json.loads((bundle/'export_manifest.json').read_text())
-        assert (m['tower_tensors'],m['projector_tensors'])==counts
-        assert isinstance(m['source_shards'],list) and m['source_shards']
-        assert m['dtype'] in {'mixed','bfloat16'}
+    root = Path(__file__).parents[1]
+    expected = {
+        "MiniMax-M3.1-Flash-Vision": (515, 8),
+        "Qwen3.8-Flash-Next-Vision": (327, 6),
+        "PixtralViT-Large-4": (272, 4),
+        "MoonViT-K3.1-Pro": (165, 3),
+    }
+    checked = 0
+    for name, counts in expected.items():
+        bundle = root / "hf" / name
+        if not bundle.is_dir():
+            continue
+        checked += 1
+        m = json.loads((bundle / "export_manifest.json").read_text())
+        assert (m["tower_tensors"], m["projector_tensors"]) == counts
+        assert isinstance(m["source_shards"], list) and m["source_shards"]
+        assert m["dtype"] in {"mixed", "bfloat16"}
     assert checked
 
 
@@ -287,23 +324,28 @@ def test_example_keeps_snapshot_root_when_script_is_a_symlink(tmp_path):
     assert module.BUNDLE == tmp_path
 
 
-
 @pytest.mark.parametrize("dtype", [torch.float32, torch.bfloat16])
 def test_kimi_projector_file_matches_adapter_and_exact_gelu(tmp_path, dtype):
     config = dict(input_size=4, hidden_size=4, output_size=6, norm_eps=1e-5)
     weights = {
         "proj.0.weight": torch.eye(4, dtype=dtype),
         "proj.2.weight": torch.arange(24, dtype=dtype).reshape(6, 4) / 24,
-        "post_norm.weight": torch.linspace(.5, 1.5, 6, dtype=dtype),
+        "post_norm.weight": torch.linspace(0.5, 1.5, 6, dtype=dtype),
     }
     save_file(weights, tmp_path / "projector.safetensors")
-    example = load_example(HF / "MoonViT-K3.1-Pro/projector.py").Projector(config).to(dtype).eval()
+    example = (
+        load_example(HF / "MoonViT-K3.1-Pro/projector.py")
+        .Projector(config)
+        .to(dtype)
+        .eval()
+    )
     example.load_state_dict(weights, strict=True)
     adapter = load_projector_weights(dtype, str(tmp_path))
     assert example.proj[1].approximate == adapter.proj[1].approximate == "none"
     assert set(example.state_dict()) == set(adapter.state_dict()) == set(weights)
-    tokens = torch.tensor([[[-2., -.5, .5, 2.], [-1., 0., 1., 3.]]], dtype=dtype)
+    tokens = torch.tensor(
+        [[[-2.0, -0.5, 0.5, 2.0], [-1.0, 0.0, 1.0, 3.0]]], dtype=dtype
+    )
     with torch.inference_mode():
         expected = adapter.post_norm(adapter.proj(tokens))
         torch.testing.assert_close(example(tokens), expected, atol=0, rtol=0)
-

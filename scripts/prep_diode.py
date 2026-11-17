@@ -16,13 +16,21 @@ def samples(root: Path) -> dict[str, dict[str, Path]]:
     found: dict[str, dict[str, Path]] = {}
     for path in root.rglob("*.npy"):
         name = path.name
-        for suffix, key in (("_depth_mask.npy", "mask"), ("_depth.npy", "depth"), ("_normal.npy", "normal")):
+        for suffix, key in (
+            ("_depth_mask.npy", "mask"),
+            ("_depth.npy", "depth"),
+            ("_normal.npy", "normal"),
+        ):
             if name.endswith(suffix):
                 found.setdefault(name[: -len(suffix)], {})[key] = path
                 break
     for path in root.rglob("*.png"):
         found.setdefault(path.stem, {})["image"] = path
-    return {stem: parts for stem, parts in found.items() if {"image", "depth", "mask"} <= parts.keys()}
+    return {
+        stem: parts
+        for stem, parts in found.items()
+        if {"image", "depth", "mask"} <= parts.keys()
+    }
 
 
 def read(parts: dict[str, Path]):
@@ -48,7 +56,12 @@ def copy_image(source: Path, destination: Path) -> None:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--raw", type=Path, required=True, help="directory holding the extracted tarballs")
+    ap.add_argument(
+        "--raw",
+        type=Path,
+        required=True,
+        help="directory holding the extracted tarballs",
+    )
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--split", default="val")
     ap.add_argument("--scene", default="all", choices=("all", "indoors", "outdoor"))
@@ -59,7 +72,9 @@ def main() -> None:
     found = samples(args.raw)
     stems = sorted(s for s in found if args.scene == "all" or f"_{args.scene}_" in s)
     if args.cap and args.cap < len(stems):
-        chosen = np.random.default_rng(args.seed).choice(len(stems), args.cap, replace=False)
+        chosen = np.random.default_rng(args.seed).choice(
+            len(stems), args.cap, replace=False
+        )
         stems = [stems[i] for i in sorted(chosen)]
 
     images = args.out / args.split
@@ -82,11 +97,21 @@ def main() -> None:
 
     np.savez(args.out / f"{args.split}_targets.npz", **targets)
     (args.out / f"{args.split}_manifest.json").write_text(
-        json.dumps({"source": "DIODE", "split": args.split, "scene": args.scene,
-                    "cap": args.cap, "seed": args.seed, "images": len(stems),
-                    "max_depth_metres": round(depth_max, 2),
-                    "has_normals": any(k.endswith("_normal") for k in targets),
-                    "scenes": scenes}, indent=2) + "\n"
+        json.dumps(
+            {
+                "source": "DIODE",
+                "split": args.split,
+                "scene": args.scene,
+                "cap": args.cap,
+                "seed": args.seed,
+                "images": len(stems),
+                "max_depth_metres": round(depth_max, 2),
+                "has_normals": any(k.endswith("_normal") for k in targets),
+                "scenes": scenes,
+            },
+            indent=2,
+        )
+        + "\n"
     )
     print(f"{len(stems)} samples -> {images}, depth reaches {depth_max:.1f} m")
 

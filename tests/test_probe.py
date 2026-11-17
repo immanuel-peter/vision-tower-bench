@@ -14,7 +14,8 @@ def test_cache_round_trips_tokens_and_image_ids(tmp_path):
     for shard in range(2):
         ids = [f"img{shard}{i}" for i in range(4)]
         FeatureBatch(
-            tokens=torch.arange(4 * 16 * 8, dtype=torch.bfloat16).reshape(4, 16, 8) + shard,
+            tokens=torch.arange(4 * 16 * 8, dtype=torch.bfloat16).reshape(4, 16, 8)
+            + shard,
             image_ids=ids,
             model_id="test/model",
             stage="tower",
@@ -69,8 +70,12 @@ def test_semantic_capacity_reducer_is_deterministic_and_preserves_rng_state():
 def test_geometry_capacity_reducer_is_deterministic_and_preserves_rng_state():
     torch.manual_seed(7)
     batch = FeatureBatch(
-        tokens=torch.randn(32, 16, 24), image_ids=[str(i) for i in range(32)],
-        model_id="test/model", stage="tower", layer_index=6, num_layers=12,
+        tokens=torch.randn(32, 16, 24),
+        image_ids=[str(i) for i in range(32)],
+        model_id="test/model",
+        stage="tower",
+        layer_index=6,
+        num_layers=12,
         resolution=56,
     )
     split = probe_run.split_indices(len(batch.image_ids))
@@ -98,7 +103,9 @@ def test_reducer_keeps_a_linearly_separable_signal():
 
 
 def test_capacity_matching_equalizes_trainable_parameters():
-    counts = {probe.parameter_count(probe.build("attention", 512, 100)) for _ in range(3)}
+    counts = {
+        probe.parameter_count(probe.build("attention", 512, 100)) for _ in range(3)
+    }
     assert len(counts) == 1
     wide = probe.parameter_count(probe.build("attention", 7168, 100))
     narrow = probe.parameter_count(probe.build("attention", 1024, 100))
@@ -281,19 +288,31 @@ def test_geometry_runner_trains_a_depth_cell_end_to_end(tmp_path):
     batch = cache.load_batch(tmp_path, "tower", 6)
     assert batch.pooled_to is None
     assert batch.num_layers == 12
-    targets, _ = geometry_run.load_targets(tmp_path / "targets.npz", batch.image_ids, "depth")
+    targets, _ = geometry_run.load_targets(
+        tmp_path / "targets.npz", batch.image_ids, "depth"
+    )
     assert targets.shape == (24, 1, 16, 16)
 
     features = geometry.batch_dense_maps(batch)
     assert features.shape == (24, 32, 8, 8)
 
     args = argparse.Namespace(
-        head="linear", device="cpu", epochs=1, batch_size=4,
-        learning_rates=[1e-3, 3e-3], seeds=2, scale_invariant=False, max_depth=10.0,
+        head="linear",
+        device="cpu",
+        epochs=1,
+        batch_size=4,
+        learning_rates=[1e-3, 3e-3],
+        seeds=2,
+        scale_invariant=False,
+        max_depth=10.0,
     )
     split = split_indices(24)
-    model = geometry_run.train_cell(features, targets, None, split, "depth", args, 1e-3, 0)
-    metrics = geometry_run.score(model, features, targets, None, split.test, "depth", args)
+    model = geometry_run.train_cell(
+        features, targets, None, split, "depth", args, 1e-3, 0
+    )
+    metrics = geometry_run.score(
+        model, features, targets, None, split.test, "depth", args
+    )
     assert set(metrics) == {"d1", "d2", "d3", "rmse"}
     assert metrics["d1"].shape == (len(split.test),)
 
@@ -317,8 +336,12 @@ def test_geometry_runner_trains_a_depth_cell_end_to_end(tmp_path):
 def test_geometry_runner_can_select_only_final_tower_and_projected(tmp_path):
     from vtb import geometry_run
 
-    for name in ("tower_L03_00000.safetensors", "tower_L06_00000.safetensors",
-                 "merged_L06_00000.safetensors", "projected_L06_00000.safetensors"):
+    for name in (
+        "tower_L03_00000.safetensors",
+        "tower_L06_00000.safetensors",
+        "merged_L06_00000.safetensors",
+        "projected_L06_00000.safetensors",
+    ):
         (tmp_path / name).touch()
 
     assert geometry_run.selected_slices(
@@ -347,11 +370,15 @@ def test_learning_rate_selection_runs_the_right_way_per_task():
     geometry_run.score, geometry_run.train_cell = fake_score, fake_train
     try:
         scored = {1e-4: 0.10, 1e-3: 0.90, 1e-2: 0.50}
-        rate, report = geometry_run.select_learning_rate(None, None, None, split, "depth", args)
+        rate, report = geometry_run.select_learning_rate(
+            None, None, None, split, "depth", args
+        )
         assert rate == 1e-3 and report["val_score"] == 0.9
 
         scored = {1e-4: 30.0, 1e-3: 25.0, 1e-2: 40.0}
-        rate, report = geometry_run.select_learning_rate(None, None, None, split, "normal", args)
+        rate, report = geometry_run.select_learning_rate(
+            None, None, None, split, "normal", args
+        )
         assert rate == 1e-3 and report["val_score"] == 25.0
         assert report["val_metric"] == "mean_deg"
     finally:
@@ -362,8 +389,18 @@ def test_aggregate_reports_mean_and_population_deviation():
     from vtb import geometry_run
 
     runs = [
-        {"d1": 0.2, "images": 4, "coverage": 0.5, "by_scene": {"indoors": {"d1": 0.1, "images": 2, "coverage": 0.5}}},
-        {"d1": 0.4, "images": 4, "coverage": 0.5, "by_scene": {"indoors": {"d1": 0.3, "images": 2, "coverage": 0.5}}},
+        {
+            "d1": 0.2,
+            "images": 4,
+            "coverage": 0.5,
+            "by_scene": {"indoors": {"d1": 0.1, "images": 2, "coverage": 0.5}},
+        },
+        {
+            "d1": 0.4,
+            "images": 4,
+            "coverage": 0.5,
+            "by_scene": {"indoors": {"d1": 0.3, "images": 2, "coverage": 0.5}},
+        },
     ]
     out = geometry_run.aggregate(runs)
     assert out["d1"] == 0.3 and out["d1_std"] == 0.1
@@ -422,15 +459,21 @@ def test_targets_are_cropped_to_the_square_the_tower_saw(tmp_path):
     normal = np.tile(depth, (3, 1, 1)).astype("float16")
     np.savez(
         tmp_path / "val_targets.npz",
-        a=depth, a_normal=normal, a_valid=depth.astype("uint8"),
+        a=depth,
+        a_normal=normal,
+        a_valid=depth.astype("uint8"),
     )
 
-    cropped, valid = geometry_run.load_targets(tmp_path / "val_targets.npz", ["a"], "depth")
+    cropped, valid = geometry_run.load_targets(
+        tmp_path / "val_targets.npz", ["a"], "depth"
+    )
     assert cropped.shape == (1, 1, 768, 768)
     assert valid is None
     assert cropped.min().item() == 1.0
 
-    normals, valid = geometry_run.load_targets(tmp_path / "val_targets.npz", ["a"], "normal")
+    normals, valid = geometry_run.load_targets(
+        tmp_path / "val_targets.npz", ["a"], "normal"
+    )
     assert normals.shape == (1, 3, 768, 768)
     assert valid.shape == (1, 1, 768, 768)
     assert geometry_run.coverage_of(normals, valid).item() == 1.0
@@ -445,7 +488,9 @@ def test_depth_range_comes_from_the_manifest(tmp_path):
     np.savez(targets, a=np.zeros((2, 2)))
     assert depth_range(targets, None) == 10.0
 
-    (tmp_path / "val_manifest.json").write_text(json.dumps({"max_depth_metres": 230.64}))
+    (tmp_path / "val_manifest.json").write_text(
+        json.dumps({"max_depth_metres": 230.64})
+    )
     assert depth_range(targets, None) == 230.64
     assert depth_range(targets, 80.0) == 80.0
 
@@ -468,10 +513,18 @@ def test_shard_cache_key_tracks_the_revision_it_read(tmp_path, monkeypatch):
     assert shards.cache_root() == tmp_path
 
     first = shards.cache_path("org/model", "vision.", [("a.safetensors", "etag1")])
-    assert first == shards.cache_path("org/model", "vision.", [("a.safetensors", "etag1")])
-    assert first != shards.cache_path("org/model", "vision.", [("a.safetensors", "etag2")])
-    assert first != shards.cache_path("org/model", "text.", [("a.safetensors", "etag1")])
-    assert first != shards.cache_path("other/model", "vision.", [("a.safetensors", "etag1")])
+    assert first == shards.cache_path(
+        "org/model", "vision.", [("a.safetensors", "etag1")]
+    )
+    assert first != shards.cache_path(
+        "org/model", "vision.", [("a.safetensors", "etag2")]
+    )
+    assert first != shards.cache_path(
+        "org/model", "text.", [("a.safetensors", "etag1")]
+    )
+    assert first != shards.cache_path(
+        "other/model", "vision.", [("a.safetensors", "etag1")]
+    )
 
 
 def test_standardized_reducer_ignores_the_scale_of_any_one_channel():
@@ -519,26 +572,60 @@ def test_primary_reducer_and_flags_stay_unstandardized():
 def test_perturbation_runner_keeps_the_primary_reducer_by_default():
     from vtb.perturbation_run import parser
 
-    base = ["--clean-run", "a", "--features-root", "b", "--model-dir", "c", "--labels", "d",
-            "--transform-manifest", "e", "--out", "f"]
+    base = [
+        "--clean-run",
+        "a",
+        "--features-root",
+        "b",
+        "--model-dir",
+        "c",
+        "--labels",
+        "d",
+        "--transform-manifest",
+        "e",
+        "--out",
+        "f",
+    ]
     assert parser().parse_args(base).standardize_channels is False
-    assert parser().parse_args(base + ["--standardize-channels"]).standardize_channels is True
+    assert (
+        parser().parse_args(base + ["--standardize-channels"]).standardize_channels
+        is True
+    )
 
 
 def test_learning_rate_search_uses_seed_zero_then_reruns_the_best_rate(monkeypatch):
     calls = []
-    def train(features, labels, split, classes, readout, rate, seed, device, epochs, batch_size):
+
+    def train(
+        features,
+        labels,
+        split,
+        classes,
+        readout,
+        rate,
+        seed,
+        device,
+        epochs,
+        batch_size,
+    ):
         calls.append((rate, seed))
-        return None, 1.0 if rate == .003 else 0.0, .5 + .01 * seed
+        return None, 1.0 if rate == 0.003 else 0.0, 0.5 + 0.01 * seed
+
     monkeypatch.setattr(probe_run, "train_once", train)
-    args = SimpleNamespace(learning_rates=probe_run.LEARNING_RATES, readout="attention",
-                           device="cpu", epochs=20, batch_size=256, seeds=3)
+    args = SimpleNamespace(
+        learning_rates=probe_run.LEARNING_RATES,
+        readout="attention",
+        device="cpu",
+        epochs=20,
+        batch_size=256,
+        seeds=3,
+    )
     result = probe_run.run_cell(None, None, None, 100, args)
     assert calls[:11] == [(rate, 0) for rate in probe_run.LEARNING_RATES]
-    assert calls[11:] == [(.003, seed) for seed in range(3)]
+    assert calls[11:] == [(0.003, seed) for seed in range(3)]
     assert result["learning_rate_search_seed"] == 0
     assert result["seed_ids"] == [0, 1, 2]
-    assert result["test_accuracy_by_seed"] == [.5, .51, .52]
+    assert result["test_accuracy_by_seed"] == [0.5, 0.51, 0.52]
 
 
 @pytest.mark.parametrize("readout", ("mean", "attention"))
@@ -546,8 +633,15 @@ def test_prediction_retention_preserves_fit_scores_and_random_state(readout):
     features = torch.arange(40 * 3 * 5, dtype=torch.float32).reshape(40, 3, 5) / 100
     labels = torch.arange(40) % 2
     split = split_indices(40)
-    args = SimpleNamespace(learning_rates=[.001, .01], readout=readout, device="cpu",
-                           epochs=1, batch_size=8, seeds=3, save_predictions=False)
+    args = SimpleNamespace(
+        learning_rates=[0.001, 0.01],
+        readout=readout,
+        device="cpu",
+        epochs=1,
+        batch_size=8,
+        seeds=3,
+        save_predictions=False,
+    )
     baseline = run_cell(features, labels, split, 2, args)
     state = torch.random.get_rng_state()
     args.save_predictions = True
@@ -556,5 +650,7 @@ def test_prediction_retention_preserves_fit_scores_and_random_state(readout):
     assert baseline == {key: saved[key] for key in baseline}
     assert saved["test_labels"] == labels[split.test].tolist()
     for index, predictions in enumerate(saved["test_predictions_by_seed"]):
-        actual = sum(x == y for x, y in zip(predictions, saved["test_labels"], strict=True)) / len(predictions)
+        actual = sum(
+            x == y for x, y in zip(predictions, saved["test_labels"], strict=True)
+        ) / len(predictions)
         assert actual == saved["test_accuracy_by_seed"][index]

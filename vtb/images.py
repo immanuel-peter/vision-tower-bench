@@ -10,14 +10,23 @@ SUFFIXES = {".jpg", ".jpeg", ".png", ".webp"}
 
 
 def square_crop(resolution: int):
-    return transforms.Compose([
-        transforms.Resize(resolution, interpolation=transforms.InterpolationMode.BICUBIC),
-        transforms.CenterCrop(resolution),
-    ])
+    return transforms.Compose(
+        [
+            transforms.Resize(
+                resolution, interpolation=transforms.InterpolationMode.BICUBIC
+            ),
+            transforms.CenterCrop(resolution),
+        ]
+    )
 
 
 class ImageFolder(Dataset):
-    def __init__(self, root: Path, transform: Callable[[Image.Image], Any], limit: int | None = None):
+    def __init__(
+        self,
+        root: Path,
+        transform: Callable[[Image.Image], Any],
+        limit: int | None = None,
+    ):
         paths = sorted(p for p in Path(root).rglob("*") if p.suffix.lower() in SUFFIXES)
         if not paths:
             raise FileNotFoundError(f"no images under {root}")

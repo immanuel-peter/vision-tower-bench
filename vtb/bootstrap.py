@@ -19,7 +19,9 @@ def bootstrap_mean(
     samples = []
     for start in range(0, resamples, batch_size):
         count = min(batch_size, resamples - start)
-        indices = torch.randint(len(differences), (count, len(differences)), generator=generator)
+        indices = torch.randint(
+            len(differences), (count, len(differences)), generator=generator
+        )
         samples.append(differences[indices].mean(dim=1))
     distribution = torch.cat(samples)
     tail = (1.0 - confidence) / 2.0
@@ -49,11 +51,19 @@ def paired_bootstrap(
     if not len(first):
         raise ValueError("cannot bootstrap empty measurements")
     difference = first.float() - second.float()
-    interval = bootstrap_mean(difference, resamples=resamples, confidence=confidence, seed=seed, batch_size=batch_size)
+    interval = bootstrap_mean(
+        difference,
+        resamples=resamples,
+        confidence=confidence,
+        seed=seed,
+        batch_size=batch_size,
+    )
     return interval | {"difference": "first_minus_second"}
 
 
-def seed_mean_differences(first: torch.Tensor, second: torch.Tensor, kind: str) -> torch.Tensor:
+def seed_mean_differences(
+    first: torch.Tensor, second: torch.Tensor, kind: str
+) -> torch.Tensor:
     if first.shape != second.shape or first.ndim != 2:
         raise ValueError(f"{kind} tensors must have the same (seeds, images) shape")
     if first.shape[1] == 0:
@@ -72,7 +82,13 @@ def paired_image_bootstrap(
 ) -> dict[str, float | int]:
     """Paired bootstrap of first-minus-second accuracy over shared test images."""
     differences = seed_mean_differences(first, second, "correctness")
-    return bootstrap_mean(differences, resamples=resamples, confidence=confidence, seed=seed, batch_size=batch_size)
+    return bootstrap_mean(
+        differences,
+        resamples=resamples,
+        confidence=confidence,
+        seed=seed,
+        batch_size=batch_size,
+    )
 
 
 def paired_metric_bootstrap(
@@ -91,5 +107,11 @@ def paired_metric_bootstrap(
     if not higher_is_better:
         differences = -differences
         direction = "second_minus_first"
-    interval = bootstrap_mean(differences, resamples=resamples, confidence=confidence, seed=seed, batch_size=batch_size)
+    interval = bootstrap_mean(
+        differences,
+        resamples=resamples,
+        confidence=confidence,
+        seed=seed,
+        batch_size=batch_size,
+    )
     return interval | {"difference": direction}

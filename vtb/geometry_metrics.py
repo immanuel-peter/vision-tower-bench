@@ -8,7 +8,9 @@ NORMAL_THRESHOLDS = (11.25, 22.5, 30.0)
 NYU_CROP = (slice(45, 471), slice(41, 601))
 
 
-def match_scale_and_shift(prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
+def match_scale_and_shift(
+    prediction: torch.Tensor, target: torch.Tensor
+) -> torch.Tensor:
     valid = (target > 0).float()
     flat_pr = prediction.flatten(1)
     flat_gt = target.flatten(1)
@@ -20,9 +22,13 @@ def match_scale_and_shift(prediction: torch.Tensor, target: torch.Tensor) -> tor
     centered_pr = (flat_pr - mean_pr[:, None]) * flat_valid
     centered_gt = (flat_gt - mean_gt[:, None]) * flat_valid
 
-    scale = (centered_pr * centered_gt).sum(dim=1) / centered_pr.pow(2).sum(dim=1).clamp(min=1e-9)
+    scale = (centered_pr * centered_gt).sum(dim=1) / centered_pr.pow(2).sum(
+        dim=1
+    ).clamp(min=1e-9)
     shift = mean_gt - scale * mean_pr
-    return (prediction * scale[:, None, None] + shift[:, None, None]).reshape(target.shape)
+    return (prediction * scale[:, None, None] + shift[:, None, None]).reshape(
+        target.shape
+    )
 
 
 def evaluate_depth(
@@ -52,7 +58,9 @@ def evaluate_depth(
         f"d{i + 1}": ((ratio < t).float() * valid).sum(dim=(1, 2)) / count
         for i, t in enumerate(DEPTH_THRESHOLDS)
     }
-    metrics["rmse"] = ((target - prediction).pow(2) * valid).sum(dim=(1, 2)).div(count).sqrt()
+    metrics["rmse"] = (
+        ((target - prediction).pow(2) * valid).sum(dim=(1, 2)).div(count).sqrt()
+    )
     return metrics
 
 
@@ -78,7 +86,13 @@ def evaluate_surface_normal(
     return metrics
 
 
-def depth_si_loss(prediction, target, alpha: float = 10.0, lambda_scale: float = 0.85, eps: float = 1e-5):
+def depth_si_loss(
+    prediction,
+    target,
+    alpha: float = 10.0,
+    lambda_scale: float = 0.85,
+    eps: float = 1e-5,
+):
     """Eigen log-space depth loss, Probe3D defaults (lambda 0.85, sqrt per image)."""
     valid = (target > 0).detach().float()
     count = valid.sum(dim=(-1, -2)).clamp(min=1)

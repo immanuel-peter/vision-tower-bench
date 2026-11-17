@@ -29,7 +29,7 @@ from vtb.adapters.nemotron_omni import (
     SOURCE_REVISION as CODE_CONFIG_REVISION,
     VIT_WIDTH,
     NemotronOmniAdapter,
-    Preprocess,
+    Preprocess as Preprocess,
     RMSNorm,
     SquaredReLU,
     attach_video_embedder,
@@ -68,7 +68,9 @@ class Checkpoint:
         return Path(override) if override else None
 
     def open(self, bundle: Path | None = None) -> Path:
-        return open_release(self.model_id, self.repo, self.revision, bundle=bundle or self.override)
+        return open_release(
+            self.model_id, self.repo, self.revision, bundle=bundle or self.override
+        )
 
     @property
     def bundle(self) -> Path:
@@ -93,7 +95,9 @@ CHECKPOINTS = {item.name: item for item in (SUPER, BOLT)}
 
 
 def source_index(checkpoint: Checkpoint) -> dict[str, str]:
-    path = hf_hub_download(checkpoint.repo, "model.safetensors.index.json", revision=checkpoint.revision)
+    path = hf_hub_download(
+        checkpoint.repo, "model.safetensors.index.json", revision=checkpoint.revision
+    )
     return json.loads(Path(path).read_text())["weight_map"]
 
 
@@ -107,11 +111,19 @@ def source_weights(checkpoint: Checkpoint) -> dict[str, dict[str, torch.Tensor]]
     ):
         names = {name for name in index if name.startswith(prefix)}
         if len(names) != count:
-            raise ValueError(f"{checkpoint.name} {part}: expected {count} tensors, found {len(names)}")
+            raise ValueError(
+                f"{checkpoint.name} {part}: expected {count} tensors, found {len(names)}"
+            )
         shards = sorted({index[name] for name in names})
-        weights = load_prefixed(checkpoint.repo, shards, prefix, revision=checkpoint.revision) if shards else {}
+        weights = (
+            load_prefixed(checkpoint.repo, shards, prefix, revision=checkpoint.revision)
+            if shards
+            else {}
+        )
         if set(weights) != {name.removeprefix(prefix) for name in names}:
-            raise ValueError(f"{checkpoint.name} {part}: index/header inventory mismatch")
+            raise ValueError(
+                f"{checkpoint.name} {part}: index/header inventory mismatch"
+            )
         parts[part] = weights
     return parts
 
@@ -127,10 +139,14 @@ def make_projector() -> nn.Sequential:
 
 def build_parts(checkpoint: Checkpoint, weights: dict, dtype: torch.dtype):
     config = AutoConfig.from_pretrained(
-        CODE_CONFIG_REPO, revision=CODE_CONFIG_REVISION, trust_remote_code=True,
+        CODE_CONFIG_REPO,
+        revision=CODE_CONFIG_REVISION,
+        trust_remote_code=True,
     )
     radio_cls = get_class_from_dynamic_module(
-        "hf_model.RADIOModel", "nvidia/C-RADIOv4-H", revision=RADIO_CODE_REVISION,
+        "hf_model.RADIOModel",
+        "nvidia/C-RADIOv4-H",
+        revision=RADIO_CODE_REVISION,
     )
     radio = radio_cls(config.vision_config)
     attach_video_embedder(radio)
@@ -146,14 +162,21 @@ def build_parts(checkpoint: Checkpoint, weights: dict, dtype: torch.dtype):
     # FP32, then the projector casts to BF16. Retaining FP32 buffers here and
     # passing FP32 pixels reproduces that boundary without double normalization.
     conditioner = radio.radio_model.input_conditioner.float()
-    conditioner.load_state_dict({
-        name: tower[f"radio_model.input_conditioner.{name}"]
-        for name in ("norm_mean", "norm_std")
-    }, strict=True)
+    conditioner.load_state_dict(
+        {
+            name: tower[f"radio_model.input_conditioner.{name}"]
+            for name in ("norm_mean", "norm_std")
+        },
+        strict=True,
+    )
     conditioner.dtype = dtype
     projector = make_projector()
     projector.load_state_dict(weights["projector"], strict=True)
-    norm = nn.LayerNorm(VIT_WIDTH, eps=1e-6) if checkpoint.final_layernorm else nn.Identity()
+    norm = (
+        nn.LayerNorm(VIT_WIDTH, eps=1e-6)
+        if checkpoint.final_layernorm
+        else nn.Identity()
+    )
     norm.load_state_dict(weights["final_norm"], strict=True)
     return radio.eval(), projector.to(dtype).eval(), norm.to(dtype).eval()
 
@@ -163,7 +186,9 @@ def load_parts(checkpoint: Checkpoint, dtype: torch.dtype):
     weights = {
         "tower": load_file(bundle / "model.safetensors"),
         "projector": load_file(bundle / "projector.safetensors"),
-        "final_norm": load_file(bundle / "final_norm.safetensors") if checkpoint.final_layernorm else {},
+        "final_norm": load_file(bundle / "final_norm.safetensors")
+        if checkpoint.final_layernorm
+        else {},
     }
     return build_parts(checkpoint, weights, dtype)
 
@@ -173,20 +198,41 @@ def export(out: Path, checkpoint: Checkpoint) -> None:
     weights = source_weights(checkpoint)
     out.mkdir(parents=True, exist_ok=True)
     if out.resolve() != source.resolve():
-        shutil.copytree(source, out, ignore=shutil.ignore_patterns("*.safetensors"), dirs_exist_ok=True)
+        shutil.copytree(
+            source,
+            out,
+            ignore=shutil.ignore_patterns("*.safetensors"),
+            dirs_exist_ok=True,
+        )
     config = {
-        "source": checkpoint.repo, "revision": checkpoint.revision,
-        "code_config_source": CODE_CONFIG_REPO, "code_config_revision": CODE_CONFIG_REVISION,
+        "source": checkpoint.repo,
+        "revision": checkpoint.revision,
+        "code_config_source": CODE_CONFIG_REPO,
+        "code_config_revision": CODE_CONFIG_REVISION,
         "radio_code_revision": RADIO_CODE_REVISION,
         "vision_final_layernorm": checkpoint.final_layernorm,
-        "patch_size": 16, "num_layers": 32, "num_prefix_tokens": 10,
-        "summary_idxs": [0, 1], "vit_hidden": 1280, "downsample_ratio": 0.5,
-        "projector_hidden": 20480, "llm_hidden": 4096,
-        "projector_activation": "relu2", "projector_norm_eps": 1e-5,
+        "patch_size": 16,
+        "num_layers": 32,
+        "num_prefix_tokens": 10,
+        "summary_idxs": [0, 1],
+        "vit_hidden": 1280,
+        "downsample_ratio": 0.5,
+        "projector_hidden": 20480,
+        "llm_hidden": 4096,
+        "projector_activation": "relu2",
+        "projector_norm_eps": 1e-5,
         "vision_final_layernorm_eps": 1e-6,
     }
-    files = (("tower", "model.safetensors"), ("projector", "projector.safetensors"), ("final_norm", "final_norm.safetensors"))
-    write_bundle(out, weights={filename: weights[part] for part, filename in files if weights[part]}, configs={"config.json": config})
+    files = (
+        ("tower", "model.safetensors"),
+        ("projector", "projector.safetensors"),
+        ("final_norm", "final_norm.safetensors"),
+    )
+    write_bundle(
+        out,
+        weights={filename: weights[part] for part, filename in files if weights[part]},
+        configs={"config.json": config},
+    )
 
 
 class Nemotron35Adapter(NemotronOmniAdapter):
@@ -194,17 +240,29 @@ class Nemotron35Adapter(NemotronOmniAdapter):
     default_stages: tuple[str, ...] = STAGES
     collate = staticmethod(collate)
 
-    def __init__(self, resolution: int | None = None, dtype: torch.dtype = torch.bfloat16, device: str | None = None, stages: Sequence[str] | None = None):
+    def __init__(
+        self,
+        resolution: int | None = None,
+        dtype: torch.dtype = torch.bfloat16,
+        device: str | None = None,
+        stages: Sequence[str] | None = None,
+    ):
         self.resolution = self.default_resolution if resolution is None else resolution
         self.device = default_device() if device is None else device
         self.dtype = dtype
         if self.resolution <= 0 or self.resolution % (2 * PATCH_SIZE):
-            raise ValueError("resolution must be a positive multiple of 32 for 2x2 pixel shuffle")
+            raise ValueError(
+                "resolution must be a positive multiple of 32 for 2x2 pixel shuffle"
+            )
         self.selected_stages = tuple(self.default_stages if stages is None else stages)
         if not self.selected_stages or set(self.selected_stages) - set(STAGES):
             raise ValueError(f"unknown or empty stages: {self.selected_stages}")
         radio, projector, norm = load_parts(self.checkpoint, dtype)
-        self.model, self.projector, self.final_norm = radio.to(self.device), projector.to(self.device), norm.to(self.device)
+        self.model, self.projector, self.final_norm = (
+            radio.to(self.device),
+            projector.to(self.device),
+            norm.to(self.device),
+        )
         self.model_id = self.checkpoint.model_id
         self.num_layers = len(self.model.radio_model.model.blocks)
 
@@ -220,13 +278,23 @@ class Nemotron35Adapter(NemotronOmniAdapter):
 
         def capture(layer: int):
             def hook(_module, _args, output):
-                captured[layer] = (output[0] if isinstance(output, tuple) else output).detach()
+                captured[layer] = (
+                    output[0] if isinstance(output, tuple) else output
+                ).detach()
+
             return hook
 
         for layer in points:
-            handles.append(self.model.radio_model.model.blocks[layer - 1].register_forward_hook(capture(layer)))
+            handles.append(
+                self.model.radio_model.model.blocks[layer - 1].register_forward_hook(
+                    capture(layer)
+                )
+            )
         pixels = inputs["pixel_values"].to(self.device, torch.float32)
-        if pixels.shape[0] != len(image_ids) or tuple(pixels.shape[-2:]) != (self.resolution, self.resolution):
+        if pixels.shape[0] != len(image_ids) or tuple(pixels.shape[-2:]) != (
+            self.resolution,
+            self.resolution,
+        ):
             for handle in handles:
                 handle.remove()
             raise ValueError("image IDs or raster dimensions do not match the input")
@@ -240,12 +308,20 @@ class Nemotron35Adapter(NemotronOmniAdapter):
             yield make_batch(self, captured[layer][:, skip:], image_ids, "tower", layer)
         if set(self.selected_stages) & {"merged", "projected"}:
             side = self.resolution // PATCH_SIZE
-            tower = self.final_norm(output.features).reshape(len(image_ids), side, side, VIT_WIDTH)
+            tower = self.final_norm(output.features).reshape(
+                len(image_ids), side, side, VIT_WIDTH
+            )
             merged = pixel_shuffle(tower, DOWNSAMPLE).flatten(1, 2)
             if "merged" in self.selected_stages:
                 yield make_batch(self, merged, image_ids, "merged", self.num_layers)
             if "projected" in self.selected_stages:
-                yield make_batch(self, self.projector(merged), image_ids, "projected", self.num_layers)
+                yield make_batch(
+                    self,
+                    self.projector(merged),
+                    image_ids,
+                    "projected",
+                    self.num_layers,
+                )
 
 
 class Nemotron35SuperAdapter(Nemotron35Adapter):

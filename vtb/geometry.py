@@ -28,7 +28,10 @@ def make_conv(input_dim, hidden_dim, output_dim, num_layers, kernel_size=1):
         return nn.Conv2d(input_dim, output_dim, kernel_size)
     modules = [nn.Conv2d(input_dim, hidden_dim, kernel_size), nn.ReLU(inplace=True)]
     for _ in range(num_layers - 2):
-        modules += [nn.Conv2d(hidden_dim, hidden_dim, kernel_size), nn.ReLU(inplace=True)]
+        modules += [
+            nn.Conv2d(hidden_dim, hidden_dim, kernel_size),
+            nn.ReLU(inplace=True),
+        ]
     modules.append(nn.Conv2d(hidden_dim, output_dim, kernel_size))
     return nn.Sequential(*modules)
 
@@ -41,16 +44,26 @@ class Linear(nn.Module):
 
     def forward(self, feats: list[torch.Tensor]) -> torch.Tensor:
         joined = torch.cat(feats, dim=1) if isinstance(feats, list) else feats
-        return self.conv(interpolate(joined, scale_factor=4, mode="bilinear", align_corners=True))
+        return self.conv(
+            interpolate(joined, scale_factor=4, mode="bilinear", align_corners=True)
+        )
 
 
 class MultiscaleHead(nn.Module):
-    def __init__(self, input_dims: list[int], output_dim: int, hidden_dim: int = 512, kernel_size: int = 1):
+    def __init__(
+        self,
+        input_dims: list[int],
+        output_dim: int,
+        hidden_dim: int = 512,
+        kernel_size: int = 1,
+    ):
         super().__init__()
         self.convs = nn.ModuleList(
             [make_conv(dim, None, hidden_dim, 1, kernel_size) for dim in input_dims]
         )
-        self.conv_mid = make_conv(len(input_dims) * hidden_dim, hidden_dim, hidden_dim, 3, kernel_size)
+        self.conv_mid = make_conv(
+            len(input_dims) * hidden_dim, hidden_dim, hidden_dim, 3, kernel_size
+        )
         self.conv_out = make_conv(hidden_dim, hidden_dim, output_dim, 2, kernel_size)
 
     def forward(self, feats: list[torch.Tensor]) -> torch.Tensor:
@@ -61,19 +74,27 @@ class MultiscaleHead(nn.Module):
             for feat in projected
         ]
         joined = torch.cat(projected, dim=1).relu()
-        joined = interpolate(joined, scale_factor=2, mode="bilinear", align_corners=True)
+        joined = interpolate(
+            joined, scale_factor=2, mode="bilinear", align_corners=True
+        )
         joined = self.conv_mid(joined).relu()
-        joined = interpolate(joined, scale_factor=4, mode="bilinear", align_corners=True)
+        joined = interpolate(
+            joined, scale_factor=4, mode="bilinear", align_corners=True
+        )
         return self.conv_out(joined)
 
 
 class DepthBins(nn.Module):
-    def __init__(self, min_depth: float = 0.001, max_depth: float = 10.0, n_bins: int = 256):
+    def __init__(
+        self, min_depth: float = 0.001, max_depth: float = 10.0, n_bins: int = 256
+    ):
         super().__init__()
         self.min_depth, self.max_depth, self.n_bins = min_depth, max_depth, n_bins
 
     def forward(self, scores: torch.Tensor) -> torch.Tensor:
-        bins = torch.linspace(self.min_depth, self.max_depth, self.n_bins, device=scores.device)
+        bins = torch.linspace(
+            self.min_depth, self.max_depth, self.n_bins, device=scores.device
+        )
         weights = scores.relu() + 0.1
         weights = weights / weights.sum(dim=1, keepdim=True)
         return torch.einsum("ikhw,k->ihw", weights, bins).unsqueeze(1)
@@ -97,7 +118,9 @@ class DepthHead(nn.Module):
 
 
 class SurfaceNormalHead(nn.Module):
-    def __init__(self, input_dims: list[int], head: str = "multiscale", hidden_dim: int = 512):
+    def __init__(
+        self, input_dims: list[int], head: str = "multiscale", hidden_dim: int = 512
+    ):
         super().__init__()
         self.head = _build(head, input_dims, 3, hidden_dim)
 
@@ -105,10 +128,11 @@ class SurfaceNormalHead(nn.Module):
         return self.head(feats)
 
 
-def _build(head: str, input_dims: list[int], output_dim: int, hidden_dim: int) -> nn.Module:
+def _build(
+    head: str, input_dims: list[int], output_dim: int, hidden_dim: int
+) -> nn.Module:
     if head == "linear":
         return Linear(input_dims, output_dim)
     if head == "multiscale":
         return MultiscaleHead(input_dims, output_dim, hidden_dim)
     raise ValueError(f"unknown head {head!r}")
-

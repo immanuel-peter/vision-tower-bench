@@ -11,7 +11,11 @@ SHARD = re.compile(r"^(?P<stage>[a-z]+)_L(?P<layer>\d+)_(?P<shard>\d+)\.safetens
 
 
 def slices(run_dir: Path) -> list[tuple[str, int]]:
-    found = {(m["stage"], int(m["layer"])) for p in Path(run_dir).iterdir() if (m := SHARD.match(p.name))}
+    found = {
+        (m["stage"], int(m["layer"]))
+        for p in Path(run_dir).iterdir()
+        if (m := SHARD.match(p.name))
+    }
     return sorted(found, key=lambda s: (s[0], s[1]))
 
 
@@ -20,7 +24,9 @@ def shards(run_dir: Path, stage: str, layer: int) -> Iterator[Path]:
     return iter(sorted(Path(run_dir).glob(pattern)))
 
 
-def load(run_dir: Path, stage: str, layer: int) -> tuple[torch.Tensor, list[str], dict[str, str]]:
+def load(
+    run_dir: Path, stage: str, layer: int
+) -> tuple[torch.Tensor, list[str], dict[str, str]]:
     parts: list[torch.Tensor] = []
     image_ids: list[str] = []
     metadata: dict[str, str] = {}
@@ -50,7 +56,6 @@ def load_batch(run_dir: Path, stage: str, layer: int) -> FeatureBatch:
 
 
 class ShardWriter:
-
     def __init__(self, run_dir: Path, images: int = 512):
         self.run_dir = Path(run_dir)
         self.images = images
@@ -71,7 +76,9 @@ class ShardWriter:
             return
         stage, layer = key
         index = self.shard_counts.get(key, 0)
-        concat(batches).save(self.run_dir / f"{stage}_L{layer:02d}_{index:05d}.safetensors")
+        concat(batches).save(
+            self.run_dir / f"{stage}_L{layer:02d}_{index:05d}.safetensors"
+        )
         self.shard_counts[key] = index + 1
         self.counts[key] = 0
 

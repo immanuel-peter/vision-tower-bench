@@ -12,10 +12,28 @@ def test_geometry_bootstrap_runner_defaults_to_matched_protocol():
 
     args = parser().parse_args(
         [
-            "--first-run", "first", "--first-name", "a", "--first-stage", "projected",
-            "--first-layer", "50", "--second-run", "second", "--second-name", "b",
-            "--second-stage", "merged", "--second-layer", "50", "--targets", "targets.npz",
-            "--task", "depth", "--out", "out.json",
+            "--first-run",
+            "first",
+            "--first-name",
+            "a",
+            "--first-stage",
+            "projected",
+            "--first-layer",
+            "50",
+            "--second-run",
+            "second",
+            "--second-name",
+            "b",
+            "--second-stage",
+            "merged",
+            "--second-layer",
+            "50",
+            "--targets",
+            "targets.npz",
+            "--task",
+            "depth",
+            "--out",
+            "out.json",
         ]
     )
 
@@ -59,7 +77,9 @@ def test_geometry_bootstrap_rejects_unpaired_inputs():
         )
 
 
-def test_paired_cell_cache_reuses_exact_measurements_and_invalidates_changed_inputs(tmp_path, monkeypatch):
+def test_paired_cell_cache_reuses_exact_measurements_and_invalidates_changed_inputs(
+    tmp_path, monkeypatch
+):
     run = tmp_path / "features"
     run.mkdir()
     shard = run / "tower_L32_00000.safetensors"
@@ -67,14 +87,26 @@ def test_paired_cell_cache_reuses_exact_measurements_and_invalidates_changed_inp
     targets = tmp_path / "targets.npz"
     targets.write_bytes(b"first target identity")
     args = SimpleNamespace(
-        cell_cache=tmp_path / "paired", targets=targets, task="depth", arm="matched",
-        head="multiscale", width=512, epochs=10, batch_size=8, seeds=3,
-        scale_invariant=False, max_depth=300., learning_rates=[1e-4, 3e-4], device="cpu",
+        cell_cache=tmp_path / "paired",
+        targets=targets,
+        task="depth",
+        arm="matched",
+        head="multiscale",
+        width=512,
+        epochs=10,
+        batch_size=8,
+        seeds=3,
+        scale_invariant=False,
+        max_depth=300.0,
+        learning_rates=[1e-4, 3e-4],
+        device="cpu",
     )
     calls = []
+
     def train(*unused):
         calls.append(1)
-        return {"values": torch.tensor([[1.], [2.], [3.]]), "image_ids": ["test_0"]}
+        return {"values": torch.tensor([[1.0], [2.0], [3.0]]), "image_ids": ["test_0"]}
+
     monkeypatch.setattr(geometry_bootstrap_run, "train_cell", train)
     first = geometry_bootstrap_run.cached_train_cell(run, "tower", 32, args)
     second = geometry_bootstrap_run.cached_train_cell(run, "tower", 32, args)
@@ -90,7 +122,11 @@ def test_paired_cell_cache_reuses_exact_measurements_and_invalidates_changed_inp
     args.learning_rates = [1e-3]
     geometry_bootstrap_run.cached_train_cell(run, "tower", 32, args)
     assert len(calls) == 4
-    monkeypatch.setattr(geometry_bootstrap_run, "CELL_CACHE_VERSION", geometry_bootstrap_run.CELL_CACHE_VERSION + 1)
+    monkeypatch.setattr(
+        geometry_bootstrap_run,
+        "CELL_CACHE_VERSION",
+        geometry_bootstrap_run.CELL_CACHE_VERSION + 1,
+    )
     geometry_bootstrap_run.cached_train_cell(run, "tower", 32, args)
     assert len(calls) == 5
     args.cell_cache = None

@@ -9,9 +9,22 @@ def test_bootstrap_runner_defaults_to_the_headline_arm():
 
     args = parser().parse_args(
         [
-            "--first-run", "first", "--first-name", "a", "--first-layer", "1",
-            "--second-run", "second", "--second-name", "b", "--second-layer", "2",
-            "--labels", "labels.json", "--out", "out.json",
+            "--first-run",
+            "first",
+            "--first-name",
+            "a",
+            "--first-layer",
+            "1",
+            "--second-run",
+            "second",
+            "--second-name",
+            "b",
+            "--second-layer",
+            "2",
+            "--labels",
+            "labels.json",
+            "--out",
+            "out.json",
         ]
     )
 

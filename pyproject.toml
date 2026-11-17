@@ -36,6 +36,7 @@ bench = [
 [dependency-groups]
 dev = [
     "pytest>=9.1.1",
+    "ruff>=0.17.5",
     "vision-tower-bench[bench]",
 ]
 figures = [
@@ -54,6 +55,15 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["vtb"]
+
+[tool.ruff]
+extend-exclude = ["hf"]
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]
+
+[tool.ruff.format]
+exclude = ["vtb/models/*"]
 
 [[tool.uv.index]]
 name = "pytorch-cu129"

@@ -16,7 +16,9 @@ def exporter(tower: Tower):
     adapter = tower.adapter()
     module = import_module(adapter.__module__)
     if not hasattr(module, "export"):
-        raise SystemExit(f"{tower.slug} is loaded from its upstream release and has no export")
+        raise SystemExit(
+            f"{tower.slug} is loaded from its upstream release and has no export"
+        )
     checkpoint = getattr(adapter, "checkpoint", None)
     return (lambda out: module.export(out, checkpoint)) if checkpoint else module.export
 
@@ -31,7 +33,9 @@ def export(slug: str, out: Path | None = None) -> Path:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("tower", choices=sorted(BY_SLUG))
-    parser.add_argument("--out", type=Path, help="defaults to the tracked hf/ release directory")
+    parser.add_argument(
+        "--out", type=Path, help="defaults to the tracked hf/ release directory"
+    )
     args = parser.parse_args()
     out = export(args.tower, args.out)
     print_sizes(out)

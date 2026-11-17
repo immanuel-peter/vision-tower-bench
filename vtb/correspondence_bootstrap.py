@@ -16,8 +16,12 @@ PRIMARY = {"scannet": "recall_10px", "navi": "recall_2cm", "spair": "pck_0.1"}
 def parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser()
     ap.add_argument("--run", type=Path, required=True)
-    ap.add_argument("--first-stage", default="projected", choices=("tower", "merged", "projected"))
-    ap.add_argument("--second-stage", default="tower", choices=("tower", "merged", "projected"))
+    ap.add_argument(
+        "--first-stage", default="projected", choices=("tower", "merged", "projected")
+    )
+    ap.add_argument(
+        "--second-stage", default="tower", choices=("tower", "merged", "projected")
+    )
     ap.add_argument("--metric", default=None)
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--resamples", type=int, default=10_000)
@@ -27,7 +31,11 @@ def parser() -> argparse.ArgumentParser:
 
 
 def cell_key(payload: dict, stage: str) -> str:
-    matches = [f"{cell['stage']}:{cell['layer_index']}" for cell in payload["cells"] if cell["stage"] == stage]
+    matches = [
+        f"{cell['stage']}:{cell['layer_index']}"
+        for cell in payload["cells"]
+        if cell["stage"] == stage
+    ]
     if len(matches) != 1:
         raise ValueError(f"expected one {stage} cell, found {matches}")
     return matches[0]
@@ -38,7 +46,11 @@ def interval(rows, first_key, second_key, metric, args):
         (row["cells"][first_key][metric], row["cells"][second_key][metric])
         for row in rows
     ]
-    paired = [(first, second) for first, second in paired if math.isfinite(first) and math.isfinite(second)]
+    paired = [
+        (first, second)
+        for first, second in paired
+        if math.isfinite(first) and math.isfinite(second)
+    ]
     result = paired_bootstrap(
         torch.tensor([first for first, _ in paired]),
         torch.tensor([second for _, second in paired]),
@@ -62,21 +74,41 @@ def main() -> None:
         first = row["cells"][first_key][metric]
         second = row["cells"][second_key][metric]
         if math.isfinite(first) and math.isfinite(second):
-            paired_rows.append({"pair_id": row["pair_id"], "first": first, "second": second})
+            paired_rows.append(
+                {"pair_id": row["pair_id"], "first": first, "second": second}
+            )
         else:
             excluded.append(row["pair_id"])
-            zero_keypoints = all(row["cells"][key].get("keypoints") == 0 for key in (first_key, second_key))
+            zero_keypoints = all(
+                row["cells"][key].get("keypoints") == 0
+                for key in (first_key, second_key)
+            )
             if payload["dataset"] == "spair" and not zero_keypoints:
-                raise ValueError(f"nonfinite SPair metric on a nonempty pair: {row['pair_id']}")
-            exclusion_reasons.append({"pair_id": row["pair_id"],
-                                      "reason": "zero visible keypoints" if zero_keypoints else "nonfinite paired metric"})
+                raise ValueError(
+                    f"nonfinite SPair metric on a nonempty pair: {row['pair_id']}"
+                )
+            exclusion_reasons.append(
+                {
+                    "pair_id": row["pair_id"],
+                    "reason": "zero visible keypoints"
+                    if zero_keypoints
+                    else "nonfinite paired metric",
+                }
+            )
 
     by_difficulty = {}
     difficulty_key = "viewpoint" if payload["dataset"] == "spair" else "angle"
     if difficulty_key == "viewpoint":
-        groups = {str(value): [row for row in rows if row["viewpoint"] == value] for value in (0, 1, 2)}
+        groups = {
+            str(value): [row for row in rows if row["viewpoint"] == value]
+            for value in (0, 1, 2)
+        }
     else:
-        edges = [0, 15, 30, 60, 180] if payload["dataset"] == "scannet" else [0, 30, 60, 90, 120]
+        edges = (
+            [0, 15, 30, 60, 180]
+            if payload["dataset"] == "scannet"
+            else [0, 30, 60, 90, 120]
+        )
         groups = {
             f"[{low},{high})": [row for row in rows if low <= row["angle"] < high]
             for low, high in zip(edges, edges[1:])

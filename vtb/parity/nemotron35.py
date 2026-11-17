@@ -24,7 +24,12 @@ from transformers.integrations import use_kernel_forward_from_hub
 
 from vtb.parity import compare, weights_match
 from vtb.adapters.nemotron35 import (
-    BOLT, SUPER, Nemotron35BoltAdapter, Nemotron35SuperAdapter, Preprocess, source_weights,
+    BOLT,
+    SUPER,
+    Nemotron35BoltAdapter,
+    Nemotron35SuperAdapter,
+    Preprocess,
+    source_weights,
 )
 
 ADAPTERS = {SUPER.name: Nemotron35SuperAdapter, BOLT.name: Nemotron35BoltAdapter}
@@ -36,10 +41,19 @@ TOLERANCE = {torch.bfloat16: (1e-3, 0.999999), torch.float32: (1e-3, 0.99999)}
 def convert_tower(weights):
     result = {}
     replacements = (
-        ("radio_model.model.patch_generator.video_embedder", "embeddings.video_patch_projection"),
+        (
+            "radio_model.model.patch_generator.video_embedder",
+            "embeddings.video_patch_projection",
+        ),
         ("radio_model.model.patch_generator.embedder", "embeddings.patch_projection"),
-        ("radio_model.model.patch_generator.pos_embed", "embeddings.position_embedding"),
-        ("radio_model.model.patch_generator.cls_token.token", "embeddings.cls_register_token"),
+        (
+            "radio_model.model.patch_generator.pos_embed",
+            "embeddings.position_embedding",
+        ),
+        (
+            "radio_model.model.patch_generator.cls_token.token",
+            "embeddings.cls_register_token",
+        ),
         ("radio_model.model.blocks", "encoder.layer"),
         ("attn.proj", "attention.output.dense"),
         ("radio_model.input_conditioner", "input_conditioner"),
@@ -48,7 +62,9 @@ def convert_tower(weights):
         for old, new in replacements:
             key = key.replace(old, new)
         if ".attn.qkv." in key:
-            for kind, tensor in zip(("query", "key", "value"), value.chunk(3, dim=0), strict=True):
+            for kind, tensor in zip(
+                ("query", "key", "value"), value.chunk(3, dim=0), strict=True
+            ):
                 result[key.replace("attn.qkv", f"attention.attention.{kind}")] = tensor
         else:
             result[key] = value
@@ -59,48 +75,102 @@ def parent_projector_class(checkpoint):
     # Bolt's top-level module imports mamba_ssm for its unused LLM. Compile the
     # three unmodified vision class ASTs from the pinned file instead. This
     # isolates actual parent code without stubbing or implementing its math.
-    path = Path(hf_hub_download(checkpoint.repo, "modeling_nemotron_h_omni.py", revision=checkpoint.revision))
-    names = {"NemotronH_Omni_RMSNorm", "NemotronH_Omni_Reasoning_V3MLP", "NemotronH_Omni_Reasoning_V3VisionProjector"}
+    path = Path(
+        hf_hub_download(
+            checkpoint.repo, "modeling_nemotron_h_omni.py", revision=checkpoint.revision
+        )
+    )
+    names = {
+        "NemotronH_Omni_RMSNorm",
+        "NemotronH_Omni_Reasoning_V3MLP",
+        "NemotronH_Omni_Reasoning_V3VisionProjector",
+    }
     tree = ast.parse(path.read_text())
-    nodes = [node for node in tree.body if isinstance(node, ast.ClassDef) and node.name in names]
+    nodes = [
+        node
+        for node in tree.body
+        if isinstance(node, ast.ClassDef) and node.name in names
+    ]
     assert len(nodes) == 3
     import warnings
-    namespace = {"torch": torch, "nn": torch.nn, "warnings": warnings, "ACT2FN": ACT2FN,
-                 "use_kernel_forward_from_hub": use_kernel_forward_from_hub}
+
+    namespace = {
+        "torch": torch,
+        "nn": torch.nn,
+        "warnings": warnings,
+        "ACT2FN": ACT2FN,
+        "use_kernel_forward_from_hub": use_kernel_forward_from_hub,
+    }
     exec(compile(ast.Module(body=nodes, type_ignores=[]), str(path), "exec"), namespace)
     return namespace["NemotronH_Omni_Reasoning_V3VisionProjector"]
 
 
 def load_reference(checkpoint, dtype, device):
-    config = AutoConfig.from_pretrained(checkpoint.repo, revision=checkpoint.revision, trust_remote_code=True)
-    cls = get_class_from_dynamic_module("modeling_radio.RadioModel", checkpoint.repo, revision=checkpoint.revision)
+    config = AutoConfig.from_pretrained(
+        checkpoint.repo, revision=checkpoint.revision, trust_remote_code=True
+    )
+    cls = get_class_from_dynamic_module(
+        "modeling_radio.RadioModel", checkpoint.repo, revision=checkpoint.revision
+    )
     projector_cls = parent_projector_class(checkpoint)
     parts = source_weights(checkpoint)
     radio = cls(config.vision_config)
-    missing, unexpected = radio.load_state_dict(convert_tower(parts["tower"]), strict=False)
-    allowed = {f"encoder.layer.{i}.layer_scale{j}.lambda1" for i in range(32) for j in (1, 2)}
+    missing, unexpected = radio.load_state_dict(
+        convert_tower(parts["tower"]), strict=False
+    )
+    allowed = {
+        f"encoder.layer.{i}.layer_scale{j}.lambda1" for i in range(32) for j in (1, 2)
+    }
     assert set(missing) == allowed and not unexpected, (missing, unexpected)
-    assert all(torch.equal(radio.state_dict()[key], torch.ones_like(radio.state_dict()[key])) for key in allowed)
+    assert all(
+        torch.equal(radio.state_dict()[key], torch.ones_like(radio.state_dict()[key]))
+        for key in allowed
+    )
     # The parent's composition applies its FP32 processor externally.
     conditioner = radio.make_preprocessor_external()
     radio.to(device, dtype).eval()
     projector = projector_cls(config)
-    mapped = {f"mlp1.{new}.weight": parts["projector"][f"{old}.weight"] for old, new in (("0", "norm"), ("1", "linear1"), ("3", "linear2"))}
-    mapped.update({f"vision_final_layernorm.{key}": value for key, value in parts["final_norm"].items()})
+    mapped = {
+        f"mlp1.{new}.weight": parts["projector"][f"{old}.weight"]
+        for old, new in (("0", "norm"), ("1", "linear1"), ("3", "linear2"))
+    }
+    mapped.update(
+        {
+            f"vision_final_layernorm.{key}": value
+            for key, value in parts["final_norm"].items()
+        }
+    )
     projector.load_state_dict(mapped, strict=True)
     assert (projector.vision_final_layernorm is not None) == checkpoint.final_layernorm
     return radio, projector.to(device, dtype).eval(), conditioner.to(device).float()
 
 
-def validate(checkpoint, device="cpu", dtype=torch.float32, resolution=448, bundle=None, image_path=None):
+def validate(
+    checkpoint,
+    device="cpu",
+    dtype=torch.float32,
+    resolution=448,
+    bundle=None,
+    image_path=None,
+):
     name, bundle = checkpoint.name, bundle or checkpoint.bundle
     weights = source_weights(checkpoint)
     identity = {
-        part: weights_match(load_file(bundle / filename) if weights[part] else {}, weights[part])
-        for part, filename in (("tower", "model.safetensors"), ("projector", "projector.safetensors"), ("final_norm", "final_norm.safetensors"))
+        part: weights_match(
+            load_file(bundle / filename) if weights[part] else {}, weights[part]
+        )
+        for part, filename in (
+            ("tower", "model.safetensors"),
+            ("projector", "projector.safetensors"),
+            ("final_norm", "final_norm.safetensors"),
+        )
     }
     y, x = np.mgrid[:480, :640]
-    image = Image.fromarray(np.stack((x % 256, y % 256, ((x // 7 + y // 9) % 2) * 255), axis=-1).astype(np.uint8))
+    image = Image.fromarray(
+        np.stack((x % 256, y % 256, ((x // 7 + y // 9) % 2) * 255), axis=-1).astype(
+            np.uint8
+        )
+    )
     samples = [Preprocess(resolution)(image)]
     if image_path is not None:
         with Image.open(image_path) as raw:
@@ -108,43 +178,82 @@ def validate(checkpoint, device="cpu", dtype=torch.float32, resolution=448, bund
     pixels = torch.stack(samples).to(device)
     ref, projector, conditioner = load_reference(checkpoint, dtype, device)
     capture = {}
-    handles = [ref.encoder.layer[layer - 1].register_forward_hook(
-        lambda _m, _i, output, layer=layer: capture.update({layer: output.detach()})
-    ) for layer in range(4, 33, 4)]
+    handles = [
+        ref.encoder.layer[layer - 1].register_forward_hook(
+            lambda _m, _i, output, layer=layer: capture.update({layer: output.detach()})
+        )
+        for layer in range(4, 33, 4)
+    ]
     with torch.inference_mode():
         normalized = conditioner(pixels).to(dtype)
         ref_output = ref(normalized)
         expected_projected = projector(normalized, ref)
-        normed = ref_output.features if projector.vision_final_layernorm is None else projector.vision_final_layernorm(ref_output.features)
-        merged = projector.pixel_shuffle(normed.reshape(len(pixels), resolution // 16, resolution // 16, 1280), 0.5).flatten(1, 2)
-        expected = {("tower", layer): tensor[:, 10:].cpu() for layer, tensor in capture.items()}
+        normed = (
+            ref_output.features
+            if projector.vision_final_layernorm is None
+            else projector.vision_final_layernorm(ref_output.features)
+        )
+        merged = projector.pixel_shuffle(
+            normed.reshape(len(pixels), resolution // 16, resolution // 16, 1280), 0.5
+        ).flatten(1, 2)
+        expected = {
+            ("tower", layer): tensor[:, 10:].cpu() for layer, tensor in capture.items()
+        }
         expected[("merged", 32)] = merged.cpu()
         expected[("projected", 32)] = expected_projected.cpu()
     for handle in handles:
         handle.remove()
-    del ref, projector, conditioner, ref_output, capture
+    capture.clear()
+    del ref, projector, conditioner, ref_output
     gc.collect()
     torch.cuda.empty_cache()
     os.environ[f"VTB_{name.upper()}_BUNDLE"] = str(bundle)
-    adapter = ADAPTERS[name](resolution=resolution, device=device, dtype=dtype, stages=("tower", "merged", "projected"))
+    adapter = ADAPTERS[name](
+        resolution=resolution,
+        device=device,
+        dtype=dtype,
+        stages=("tower", "merged", "projected"),
+    )
     report = {
-        "model": name, "source": checkpoint.repo, "revision": checkpoint.revision,
-        "torch": torch.__version__, "device": str(device), "dtype": str(dtype), "resolution": resolution,
-        "images": ["nonuniform synthetic raster"] + ([str(image_path)] if image_path else []),
+        "model": name,
+        "source": checkpoint.repo,
+        "revision": checkpoint.revision,
+        "torch": torch.__version__,
+        "device": str(device),
+        "dtype": str(dtype),
+        "resolution": resolution,
+        "images": ["nonuniform synthetic raster"]
+        + ([str(image_path)] if image_path else []),
         "raster_sha256": hashlib.sha256(pixels.cpu().numpy().tobytes()).hexdigest(),
-        "weights": identity, "weights_bit_exact": all(cell["bit_exact"] for cell in identity.values()), "tensor_counts": {key: len(value) for key, value in weights.items()},
+        "weights": identity,
+        "weights_bit_exact": all(cell["bit_exact"] for cell in identity.values()),
+        "tensor_counts": {key: len(value) for key, value in weights.items()},
         "reference": "pinned parent RadioModel and unmodified VisionProjector class ASTs; explicit checkpoint conversion; no parent LLM",
         "reference_code_sha256": {
-            filename: hashlib.sha256(Path(hf_hub_download(checkpoint.repo, filename, revision=checkpoint.revision)).read_bytes()).hexdigest()
-            for filename in ("modeling_radio.py", "modeling_nemotron_h_omni.py", "configuration_radio.py")
+            filename: hashlib.sha256(
+                Path(
+                    hf_hub_download(
+                        checkpoint.repo, filename, revision=checkpoint.revision
+                    )
+                ).read_bytes()
+            ).hexdigest()
+            for filename in (
+                "modeling_radio.py",
+                "modeling_nemotron_h_omni.py",
+                "configuration_radio.py",
+            )
         },
         "cells": {},
     }
-    for batch in adapter.extract({"pixel_values": pixels}, [str(i) for i in range(len(pixels))]):
+    for batch in adapter.extract(
+        {"pixel_values": pixels}, [str(i) for i in range(len(pixels))]
+    ):
         key = (batch.stage, batch.layer_index)
         report["cells"][f"{key[0]}:{key[1]}"] = compare(batch.tokens, expected[key])
     # Test the delivered source as well, always against the independent parent.
-    spec = importlib.util.spec_from_file_location("release_vision", bundle / "vision.py")
+    spec = importlib.util.spec_from_file_location(
+        "release_vision", bundle / "vision.py"
+    )
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     del adapter
@@ -152,11 +261,16 @@ def validate(checkpoint, device="cpu", dtype=torch.float32, resolution=448, bund
     torch.cuda.empty_cache()
     released = module.load_vision(bundle, dtype=dtype).to(device)
     output = released(pixels)
-    report["release_cells"] = {stage: compare(value.cpu(), expected[(stage, 32)]) for stage, value in output.items()}
+    report["release_cells"] = {
+        stage: compare(value.cpu(), expected[(stage, 32)])
+        for stage, value in output.items()
+    }
     return {**report, "passed": passes(report, dtype)}
 
 
 def passes(report: dict, dtype: torch.dtype) -> bool:
     relative_l2, cosine = TOLERANCE[dtype]
     cells = [*report["cells"].values(), *report["release_cells"].values()]
-    return report["weights_bit_exact"] and all(cell["relative_l2"] < relative_l2 and cell["cosine"] > cosine for cell in cells)
+    return report["weights_bit_exact"] and all(
+        cell["relative_l2"] < relative_l2 and cell["cosine"] > cosine for cell in cells
+    )

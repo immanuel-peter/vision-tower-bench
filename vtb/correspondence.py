@@ -71,7 +71,7 @@ def ratio_matches(
     target = F.normalize(target.float(), dim=1)
     neighbours, ratios = [], []
     for start in range(0, len(source), chunk_size):
-        similarity = source[start:start + chunk_size] @ target.transpose(0, 1)
+        similarity = source[start : start + chunk_size] @ target.transpose(0, 1)
         top = similarity.topk(2, dim=1)
         distance = (1 - top.values).clamp_min(1e-9)
         neighbours.append(top.indices[:, 0])
@@ -96,7 +96,9 @@ def _valid_points(
     return features[valid], xy[valid], sampled_depth[valid]
 
 
-def unproject(xy: torch.Tensor, depth: torch.Tensor, intrinsics: torch.Tensor) -> torch.Tensor:
+def unproject(
+    xy: torch.Tensor, depth: torch.Tensor, intrinsics: torch.Tensor
+) -> torch.Tensor:
     homogeneous = torch.cat((xy, torch.ones_like(xy[:, :1])), dim=1)
     rays = homogeneous @ intrinsics.to(xy).inverse().transpose(0, 1)
     return rays * depth[:, None]

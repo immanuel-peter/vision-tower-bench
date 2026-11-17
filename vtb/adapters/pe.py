@@ -14,7 +14,14 @@ from huggingface_hub import hf_hub_download
 from safetensors.torch import load_file, save_file
 
 from vtb.adapters.base import Inputs
-from vtb.adapters.common import HALF, ImagePreprocess, default_device, depth_points, make_batch, stack_pixels
+from vtb.adapters.common import (
+    HALF,
+    ImagePreprocess,
+    default_device,
+    depth_points,
+    make_batch,
+    stack_pixels,
+)
 from vtb.bundle import ROOT, write_json
 from vtb.feature_batch import FeatureBatch
 from vtb.models import inkling2
@@ -27,7 +34,11 @@ VISUAL_PREFIX = "model.visual."
 TOWER_TENSORS, PROJECTOR_TENSORS = 420, 2
 MODELING_SOURCE = ROOT / "vtb/models/inkling2.py"
 # vLLM's open Inkling 2 PR at the head whose vision path the parity reference vendors.
-VLLM_REFERENCE = ("vllm-project/vllm", 67325, "d664cd1e96052857aea2aa844eeba571c24758b4")
+VLLM_REFERENCE = (
+    "vllm-project/vllm",
+    67325,
+    "d664cd1e96052857aea2aa844eeba571c24758b4",
+)
 
 
 @dataclass(frozen=True)
@@ -49,7 +60,12 @@ class Checkpoint:
 
     def open(self) -> Path:
         override = os.environ.get(f"VTB_{self.name.upper()}_BUNDLE")
-        return open_release(self.model_id, self.repo, self.revision, bundle=Path(override) if override else None)
+        return open_release(
+            self.model_id,
+            self.repo,
+            self.revision,
+            bundle=Path(override) if override else None,
+        )
 
 
 PE_LANG_L = Checkpoint(
@@ -82,11 +98,19 @@ class InklingPreprocess(ImagePreprocess):
 
 
 def timm_weights(checkpoint: Checkpoint) -> dict[str, torch.Tensor]:
-    return load_file(hf_hub_download(checkpoint.repo, "model.safetensors", revision=checkpoint.revision))
+    return load_file(
+        hf_hub_download(
+            checkpoint.repo, "model.safetensors", revision=checkpoint.revision
+        )
+    )
 
 
 def source_json(checkpoint: Checkpoint, filename: str) -> dict:
-    return json.loads(Path(hf_hub_download(checkpoint.repo, filename, revision=checkpoint.revision)).read_text())
+    return json.loads(
+        Path(
+            hf_hub_download(checkpoint.repo, filename, revision=checkpoint.revision)
+        ).read_text()
+    )
 
 
 def source_weights(checkpoint: Checkpoint) -> dict[str, torch.Tensor]:
@@ -94,17 +118,37 @@ def source_weights(checkpoint: Checkpoint) -> dict[str, torch.Tensor]:
     index = source_json(checkpoint, "model.safetensors.index.json")["weight_map"]
     selected = {name for name in index if name.startswith(VISUAL_PREFIX)}
     shards = sorted({index[name] for name in selected})
-    weights = load_prefixed(checkpoint.repo, shards, VISUAL_PREFIX, revision=checkpoint.revision)
-    if {VISUAL_PREFIX + name for name in weights} != selected or len(weights) != TOWER_TENSORS + PROJECTOR_TENSORS:
-        raise ValueError(f"incomplete {checkpoint.name} visual state: {len(weights)} of {len(selected)} tensors")
+    weights = load_prefixed(
+        checkpoint.repo, shards, VISUAL_PREFIX, revision=checkpoint.revision
+    )
+    if {VISUAL_PREFIX + name for name in weights} != selected or len(
+        weights
+    ) != TOWER_TENSORS + PROJECTOR_TENSORS:
+        raise ValueError(
+            f"incomplete {checkpoint.name} visual state: {len(weights)} of {len(selected)} tensors"
+        )
     return weights
 
 
-def split(weights: dict[str, torch.Tensor]) -> tuple[dict[str, torch.Tensor], dict[str, torch.Tensor]]:
-    tower = {name: tensor for name, tensor in weights.items() if name.startswith("backbone.")}
-    projector = {name: tensor for name, tensor in weights.items() if name in ("proj_in.weight", "proj_out.weight")}
-    if len(tower) != TOWER_TENSORS or len(projector) != PROJECTOR_TENSORS or len(tower) + len(projector) != len(weights):
-        raise ValueError(f"expected {TOWER_TENSORS} Tower and {PROJECTOR_TENSORS} Projector tensors, got {len(tower)} and {len(projector)} of {len(weights)}")
+def split(
+    weights: dict[str, torch.Tensor],
+) -> tuple[dict[str, torch.Tensor], dict[str, torch.Tensor]]:
+    tower = {
+        name: tensor for name, tensor in weights.items() if name.startswith("backbone.")
+    }
+    projector = {
+        name: tensor
+        for name, tensor in weights.items()
+        if name in ("proj_in.weight", "proj_out.weight")
+    }
+    if (
+        len(tower) != TOWER_TENSORS
+        or len(projector) != PROJECTOR_TENSORS
+        or len(tower) + len(projector) != len(weights)
+    ):
+        raise ValueError(
+            f"expected {TOWER_TENSORS} Tower and {PROJECTOR_TENSORS} Projector tensors, got {len(tower)} and {len(projector)} of {len(weights)}"
+        )
     return tower, projector
 
 
@@ -113,51 +157,100 @@ def remap_checks(weights: dict[str, torch.Tensor]) -> dict:
     tower, projector = split(weights)
     mapped = inkling2.to_timm(tower)
     shapes = {
-        "patch_embed.proj.weight": (list(mapped["patch_embed.proj.weight"].shape), [WIDTH, 3, inkling2.PATCH_SIZE, inkling2.PATCH_SIZE]),
-        "pos_embed": (list(mapped["pos_embed"].shape), [1, POSITION_GRID**2 + 1, WIDTH]),
+        "patch_embed.proj.weight": (
+            list(mapped["patch_embed.proj.weight"].shape),
+            [WIDTH, 3, inkling2.PATCH_SIZE, inkling2.PATCH_SIZE],
+        ),
+        "pos_embed": (
+            list(mapped["pos_embed"].shape),
+            [1, POSITION_GRID**2 + 1, WIDTH],
+        ),
         "proj_in.weight": (list(projector["proj_in.weight"].shape), [4096, 4096]),
         "proj_out.weight": (list(projector["proj_out.weight"].shape), [4608, 4096]),
     }
     pe_lang = timm_weights(PE_LANG_L)
-    compared = [name for name, tensor in mapped.items() if name in pe_lang and pe_lang[name].shape == tensor.shape]
-    equal = [name for name in compared if torch.equal(pe_lang[name].to(mapped[name].dtype), mapped[name])]
+    compared = [
+        name
+        for name, tensor in mapped.items()
+        if name in pe_lang and pe_lang[name].shape == tensor.shape
+    ]
+    equal = [
+        name
+        for name in compared
+        if torch.equal(pe_lang[name].to(mapped[name].dtype), mapped[name])
+    ]
     report = {
         "timm_names_match": set(mapped) == set(pe_lang),
-        "shapes": {name: {"actual": actual, "expected": expected} for name, (actual, expected) in shapes.items()},
+        "shapes": {
+            name: {"actual": actual, "expected": expected}
+            for name, (actual, expected) in shapes.items()
+        },
         "pe_lang_equal": equal,
     }
-    report["passed"] = (report["timm_names_match"] and not equal and set(mapped) - set(compared) == {"patch_embed.proj.weight"}
-                        and all(actual == expected for actual, expected in shapes.values()))
+    report["passed"] = (
+        report["timm_names_match"]
+        and not equal
+        and set(mapped) - set(compared) == {"patch_embed.proj.weight"}
+        and all(actual == expected for actual, expected in shapes.values())
+    )
     return report
 
 
 def export(out: Path, checkpoint: Checkpoint) -> None:
     if checkpoint is not INKLING2_SMALL:
-        raise SystemExit(f"{checkpoint.name} is loaded from its upstream release and has no export")
+        raise SystemExit(
+            f"{checkpoint.name} is loaded from its upstream release and has no export"
+        )
     weights = source_weights(checkpoint)
     tower, projector = split(weights)
     out.mkdir(parents=True, exist_ok=True)
     if out.resolve() != checkpoint.release_dir.resolve():
-        shutil.copytree(checkpoint.release_dir, out, ignore=shutil.ignore_patterns("*.safetensors"), dirs_exist_ok=True)
+        shutil.copytree(
+            checkpoint.release_dir,
+            out,
+            ignore=shutil.ignore_patterns("*.safetensors"),
+            dirs_exist_ok=True,
+        )
     save_file(tower, out / "model.safetensors", metadata={"format": "pt"})
     save_file(projector, out / "projector.safetensors", metadata={"format": "pt"})
     shutil.copyfile(MODELING_SOURCE, out / "inkling2_vision.py")
     config = source_json(checkpoint, "config.json")
-    write_json(out / "config.json", {
-        **config["vision_config"], "text_hidden_size": config["text_config"]["hidden_size"], "image_size": checkpoint.native_resolution,
-        "timm_architecture": ARCHITECTURE, "torch_dtype": "bfloat16",
-    })
+    write_json(
+        out / "config.json",
+        {
+            **config["vision_config"],
+            "text_hidden_size": config["text_config"]["hidden_size"],
+            "image_size": checkpoint.native_resolution,
+            "timm_architecture": ARCHITECTURE,
+            "torch_dtype": "bfloat16",
+        },
+    )
     repo, number, head = VLLM_REFERENCE
-    write_json(out / "export_manifest.json", {
-        "source_repo": checkpoint.repo, "source_revision": checkpoint.revision,
-        "tensors": len(weights), "tower_tensors": len(tower), "projector_tensors": len(projector),
-        "bytes": sum(tensor.nbytes for tensor in weights.values()),
-        "vision_reference": f"https://github.com/{repo}/pull/{number} at {head}",
-    })
+    write_json(
+        out / "export_manifest.json",
+        {
+            "source_repo": checkpoint.repo,
+            "source_revision": checkpoint.revision,
+            "tensors": len(weights),
+            "tower_tensors": len(tower),
+            "projector_tensors": len(projector),
+            "bytes": sum(tensor.nbytes for tensor in weights.values()),
+            "vision_reference": f"https://github.com/{repo}/pull/{number} at {head}",
+        },
+    )
 
 
-def load_tower(checkpoint: Checkpoint, weights: Callable[[], dict[str, torch.Tensor]], dtype: torch.dtype) -> torch.nn.Module:
-    model = timm.create_model(ARCHITECTURE, pretrained=False, patch_size=checkpoint.patch_size, img_size=checkpoint.native_resolution)
+def load_tower(
+    checkpoint: Checkpoint,
+    weights: Callable[[], dict[str, torch.Tensor]],
+    dtype: torch.dtype,
+) -> torch.nn.Module:
+    model = timm.create_model(
+        ARCHITECTURE,
+        pretrained=False,
+        patch_size=checkpoint.patch_size,
+        img_size=checkpoint.native_resolution,
+    )
     model.load_state_dict(weights(), strict=True)
     return model.to(dtype).eval()
 
@@ -169,14 +262,23 @@ class PEAdapter:
     collate = staticmethod(collate)
     Preprocess = staticmethod(Preprocess)
 
-    def __init__(self, resolution: int | None = None, dtype: torch.dtype = torch.bfloat16, device: str | None = None):
+    def __init__(
+        self,
+        resolution: int | None = None,
+        dtype: torch.dtype = torch.bfloat16,
+        device: str | None = None,
+    ):
         self.resolution = self.default_resolution if resolution is None else resolution
         if self.resolution != self.checkpoint.native_resolution:
-            raise ValueError(f"{self.checkpoint.name} runs on its native {POSITION_GRID}x{POSITION_GRID} grid at {self.checkpoint.native_resolution} px")
+            raise ValueError(
+                f"{self.checkpoint.name} runs on its native {POSITION_GRID}x{POSITION_GRID} grid at {self.checkpoint.native_resolution} px"
+            )
         self.device = default_device() if device is None else device
         self.dtype = dtype
         self.model_id = self.checkpoint.model_id
-        self.model = load_tower(self.checkpoint, self.trunk_weights, dtype).to(self.device)
+        self.model = load_tower(self.checkpoint, self.trunk_weights, dtype).to(
+            self.device
+        )
         self.num_layers = len(self.model.blocks)
 
     def trunk_weights(self) -> dict[str, torch.Tensor]:
@@ -184,21 +286,34 @@ class PEAdapter:
         return timm_weights(self.checkpoint)
 
     def preprocess(self) -> ImagePreprocess:
-        return self.Preprocess(self.resolution, multiple=self.checkpoint.patch_size * self.checkpoint.merge_size)
+        return self.Preprocess(
+            self.resolution,
+            multiple=self.checkpoint.patch_size * self.checkpoint.merge_size,
+        )
 
     def depth_points(self, n: int = 8) -> list[int]:
         return depth_points(self.num_layers, n)
 
     def tower(self, pixel_values: torch.Tensor) -> list[torch.Tensor]:
         """Patch tokens after each sampled block, class token dropped, in the trunk's row-major order."""
-        if pixel_values.ndim != 4 or tuple(pixel_values.shape[1:]) != (3, self.resolution, self.resolution):
-            raise ValueError(f"expected pixels [B, 3, {self.resolution}, {self.resolution}]")
+        if pixel_values.ndim != 4 or tuple(pixel_values.shape[1:]) != (
+            3,
+            self.resolution,
+            self.resolution,
+        ):
+            raise ValueError(
+                f"expected pixels [B, 3, {self.resolution}, {self.resolution}]"
+            )
         return self.model.forward_intermediates(
-            pixel_values.to(self.device, self.dtype), indices=[layer - 1 for layer in self.depth_points()],
-            output_fmt="NLC", intermediates_only=True,
+            pixel_values.to(self.device, self.dtype),
+            indices=[layer - 1 for layer in self.depth_points()],
+            output_fmt="NLC",
+            intermediates_only=True,
         )
 
-    def batches(self, sampled: list[torch.Tensor], image_ids: list[str]) -> Iterator[FeatureBatch]:
+    def batches(
+        self, sampled: list[torch.Tensor], image_ids: list[str]
+    ) -> Iterator[FeatureBatch]:
         for layer, tokens in zip(self.depth_points(), sampled, strict=True):
             yield make_batch(self, tokens, image_ids, "tower", layer)
 
@@ -220,16 +335,29 @@ class Inkling2SmallAdapter(PEAdapter):
     stages = ("tower", "merged", "projected")
     Preprocess = staticmethod(partial(InklingPreprocess, rgb=True))
 
-    def __init__(self, resolution: int | None = None, dtype: torch.dtype = torch.bfloat16, device: str | None = None):
+    def __init__(
+        self,
+        resolution: int | None = None,
+        dtype: torch.dtype = torch.bfloat16,
+        device: str | None = None,
+    ):
         super().__init__(resolution, dtype, device)
-        self.projector = inkling2.build_projector(load_file(self.bundle / "projector.safetensors")).to(self.device, dtype)
+        self.projector = inkling2.build_projector(
+            load_file(self.bundle / "projector.safetensors")
+        ).to(self.device, dtype)
 
     def trunk_weights(self) -> dict[str, torch.Tensor]:
         self.bundle = self.checkpoint.open()
         return inkling2.to_timm(load_file(self.bundle / "model.safetensors"))
 
-    def batches(self, sampled: list[torch.Tensor], image_ids: list[str]) -> Iterator[FeatureBatch]:
+    def batches(
+        self, sampled: list[torch.Tensor], image_ids: list[str]
+    ) -> Iterator[FeatureBatch]:
         yield from super().batches(sampled, image_ids)
-        merged = inkling2.merge(sampled[-1], self.resolution // self.checkpoint.patch_size)
+        merged = inkling2.merge(
+            sampled[-1], self.resolution // self.checkpoint.patch_size
+        )
         yield make_batch(self, merged, image_ids, "merged", self.num_layers)
-        yield make_batch(self, self.projector(merged), image_ids, "projected", self.num_layers)
+        yield make_batch(
+            self, self.projector(merged), image_ids, "projected", self.num_layers
+        )
