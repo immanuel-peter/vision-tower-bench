@@ -10,7 +10,7 @@ Adding vision to a text-only LLM means picking a Tower, a layer, and usually a P
 uv add git+https://github.com/immanuel-peter/vision-tower-bench
 ```
 
-The data-prep scripts need the `bench` extra (`vision-tower-bench[bench]`). This repo's `uv sync` pulls Linux `torch` and `torchvision` from the PyTorch cu129 index. That pin lives in `[tool.uv.sources]`, which does not carry over to installs from other projects, so a downstream project gets the default PyPI wheels unless it points `torch` at the index that matches its CUDA version.
+The data-prep scripts need the `bench` extra (`vision-tower-bench[bench]`).
 
 ```python
 import vtb
