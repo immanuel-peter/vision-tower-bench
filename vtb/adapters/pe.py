@@ -1,6 +1,6 @@
 """Perception Encoder Towers on timm's Eva trunk: Meta's PE-Lang L and Towers initialized from it."""
 
-from collections.abc import Callable, Iterator
+from collections.abc import Iterator
 from dataclasses import dataclass
 from functools import partial
 
@@ -15,7 +15,6 @@ from vtb.feature_batch import FeatureBatch
 from vtb.provenance import log_loaded
 
 ARCHITECTURE = "vit_pe_lang_large_patch14_448"
-DEPTH, WIDTH = 23, 1024
 POSITION_GRID = 32
 
 
@@ -49,15 +48,14 @@ def timm_weights(checkpoint: Checkpoint) -> dict[str, torch.Tensor]:
     return load_file(hf_hub_download(checkpoint.repo, "model.safetensors", revision=checkpoint.revision))
 
 
-def load_tower(checkpoint: Checkpoint, weights: Callable[[], dict[str, torch.Tensor]], dtype: torch.dtype) -> torch.nn.Module:
-    """PE-Lang L's Eva trunk at the checkpoint's patch size and native 32x32 grid."""
+def load_tower(checkpoint: Checkpoint, dtype: torch.dtype) -> torch.nn.Module:
     model = timm.create_model(ARCHITECTURE, pretrained=False, patch_size=checkpoint.patch_size, img_size=checkpoint.native_resolution)
-    model.load_state_dict(weights(), strict=True)
+    model.load_state_dict(timm_weights(checkpoint), strict=True)
     return model.to(dtype).eval()
 
 
 class PEAdapter:
-    checkpoint = PE_LANG_L
+    checkpoint: Checkpoint
     default_resolution = 448
     stages = ("tower",)
     collate = staticmethod(collate)
@@ -70,13 +68,8 @@ class PEAdapter:
         self.dtype = dtype
         self.model_id = self.checkpoint.model_id
         log_loaded(self.model_id, f"{self.checkpoint.repo}@{self.checkpoint.revision}")
-        self.model = load_tower(self.checkpoint, self.trunk_weights, dtype).to(self.device)
+        self.model = load_tower(self.checkpoint, dtype).to(self.device)
         self.num_layers = len(self.model.blocks)
-        if (self.num_layers, self.model.embed_dim, self.model.num_prefix_tokens) != (DEPTH, WIDTH, 1):
-            raise ValueError(f"expected {DEPTH} blocks of width {WIDTH} with one class token")
-
-    def trunk_weights(self) -> dict[str, torch.Tensor]:
-        return timm_weights(self.checkpoint)
 
     def preprocess(self) -> ImagePreprocess:
         return Preprocess(self.resolution, multiple=self.checkpoint.patch_size)

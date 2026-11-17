@@ -16,7 +16,7 @@ import torch
 from huggingface_hub import hf_hub_download
 from safetensors.torch import load_file
 
-from vtb.adapters.pe import DEPTH, PE_LANG_L, PELangLAdapter, timm_weights
+from vtb.adapters.pe import PE_LANG_L, PELangLAdapter, timm_weights
 from vtb.parity import compare, features, fixed_images, weights_match
 from vtb.shards import cache_root
 
@@ -34,7 +34,6 @@ TENSORS = 327
 # Relative L2 per cell. FP32 on CPU is bit-exact; BF16 on CUDA reaches 0.039 at L23, where each
 # implementation is already 0.057 from its own FP32 output.
 TOLERANCE = {torch.bfloat16: 0.05, torch.float32: 1e-5}
-ADAPTERS = {PE_LANG_L.name: PELangLAdapter}
 
 RENAMES = (
     ("class_embedding", "cls_token"),
@@ -100,8 +99,6 @@ def upstream_pe():
 def reference_tower(weights: dict[str, torch.Tensor], device: str, dtype: torch.dtype) -> torch.nn.Module:
     model = upstream_pe().VisionTransformer.from_config(REFERENCE_CONFIG)
     model.load_state_dict(weights, strict=True)
-    if model.layers != DEPTH or model.pool_type != "none" or not isinstance(model.ln_post, torch.nn.Identity):
-        raise ValueError(f"{REFERENCE_CONFIG} is not the {DEPTH}-block PE-Lang L without ln_post or pooling")
     return model.to(device, dtype).eval()
 
 
@@ -126,7 +123,7 @@ def validate(checkpoint=PE_LANG_L, device: str = "cpu", dtype: torch.dtype = tor
         "reference": f"{REFERENCE_REPO}@{REFERENCE_REVISION} through {UPSTREAM}@{UPSTREAM_COMMIT} VisionTransformer('{REFERENCE_CONFIG}')",
         "weights": {"tower": weights_match(timm_weights(checkpoint), to_timm(native), TENSORS)},
     }
-    adapter = ADAPTERS[checkpoint.name](device=device, dtype=dtype)
+    adapter = PELangLAdapter(device=device, dtype=dtype)
     images = fixed_images()
     actual = features(adapter, images)
     pixels = adapter.collate([adapter.preprocess()(image) for image in images])["pixel_values"]
