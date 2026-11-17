@@ -40,6 +40,7 @@ SOURCES = {
         "minimax_m31_flash": "geometry/minimax_m31_flash_geometry_depth_matched.json",
         "mistral_large4": "geometry/mistral_large4_geometry_depth_matched.json",
         "kimi_k31_pro": "geometry/kimi_k31_pro_geometry_depth_matched.json",
+        "inkling2_small": "geometry/inkling2_small_geometry_depth_matched.json",
     },
     "label_budget": "diagnostics/mimo26-tower-outlier-channel/label_budget_standardized.json",
     "label_budget_additional": [
