@@ -93,7 +93,7 @@ def test_default_device_prefers_cuda_then_mps(monkeypatch, cuda, mps, expected):
 def test_every_adapter_declares_the_contract_and_collates_to_a_dict(adapter_class):
     assert adapter_class.default_resolution == {DINOv3Adapter: 512, Inkling2SmallAdapter: 640}.get(adapter_class, 448)
     module = sys.modules[adapter_class.__module__]
-    sample = module.Preprocess(adapter_class.default_resolution)(Image.new("RGB", (600, 480), "gray"))
+    sample = getattr(adapter_class, "Preprocess", module.Preprocess)(adapter_class.default_resolution)(Image.new("RGB", (600, 480), "gray"))
     inputs = adapter_class.collate([sample, sample])
     assert isinstance(inputs, dict) and inputs and all(isinstance(v, torch.Tensor) for v in inputs.values())
 

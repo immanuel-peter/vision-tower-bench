@@ -259,8 +259,7 @@ def validate_inkling(device: str = "cuda", dtype: torch.dtype = torch.bfloat16) 
     report["preprocessing"] = compare(pixels, expected.pop("pixels"))
     report["forward"] = {key: compare(actual[key], expected[key]) for key in expected}
     grid = adapter.resolution // checkpoint.patch_size
-    report["tokens"] = {key: list(cell["shape"]) for key, cell in report["forward"].items()}
-    tokens_ok = all(shape[1] == (grid**2 if key.startswith("tower") else (grid // 2) ** 2) for key, shape in report["tokens"].items())
+    tokens_ok = all(cell["shape"][1] == (grid**2 if key.startswith("tower") else (grid // 2) ** 2) for key, cell in report["forward"].items())
     tolerance = TOLERANCE[checkpoint.name][dtype]
     passed = (all(cell["bit_exact"] for cell in report["weights"].values()) and report["remap"]["passed"] and tokens_ok
               and report["preprocessing"]["bit_exact"] and all(cell["relative_l2"] <= tolerance for cell in report["forward"].values()))

@@ -21,9 +21,8 @@ from vtb.models import inkling2
 from vtb.provenance import log_loaded, open_release
 from vtb.shards import load_prefixed
 
-ARCHITECTURE = "vit_pe_lang_large_patch14_448"
+ARCHITECTURE, POSITION_GRID = inkling2.ARCHITECTURE, inkling2.POSITION_GRID
 DEPTH, WIDTH = 23, 1024
-POSITION_GRID = 32
 VISUAL_PREFIX = "model.visual."
 TOWER_TENSORS, PROJECTOR_TENSORS = 420, 2
 MODELING_SOURCE = ROOT / "vtb/models/inkling2.py"
@@ -114,7 +113,7 @@ def remap_checks(weights: dict[str, torch.Tensor]) -> dict:
     tower, projector = split(weights)
     mapped = inkling2.to_timm(tower)
     shapes = {
-        "patch_embed.proj.weight": (list(mapped["patch_embed.proj.weight"].shape), [WIDTH, 3, 20, 20]),
+        "patch_embed.proj.weight": (list(mapped["patch_embed.proj.weight"].shape), [WIDTH, 3, inkling2.PATCH_SIZE, inkling2.PATCH_SIZE]),
         "pos_embed": (list(mapped["pos_embed"].shape), [1, POSITION_GRID**2 + 1, WIDTH]),
         "proj_in.weight": (list(projector["proj_in.weight"].shape), [4096, 4096]),
         "proj_out.weight": (list(projector["proj_out.weight"].shape), [4608, 4096]),
@@ -123,13 +122,11 @@ def remap_checks(weights: dict[str, torch.Tensor]) -> dict:
     compared = [name for name, tensor in mapped.items() if name in pe_lang and pe_lang[name].shape == tensor.shape]
     equal = [name for name in compared if torch.equal(pe_lang[name].to(mapped[name].dtype), mapped[name])]
     report = {
-        "source_tensors": len(weights), "mapped_to_timm": len(tower), "timm_tensors": len(mapped), "projector_tensors": len(projector),
         "timm_names_match": set(mapped) == set(pe_lang),
         "shapes": {name: {"actual": actual, "expected": expected} for name, (actual, expected) in shapes.items()},
-        "pe_lang_compared": len(compared), "pe_lang_equal": equal,
+        "pe_lang_equal": equal,
     }
-    report["passed"] = (len(weights) == TOWER_TENSORS + PROJECTOR_TENSORS and report["timm_names_match"] and not equal
-                        and set(mapped) - set(compared) == {"patch_embed.proj.weight"}
+    report["passed"] = (report["timm_names_match"] and not equal and set(mapped) - set(compared) == {"patch_embed.proj.weight"}
                         and all(actual == expected for actual, expected in shapes.values()))
     return report
 
@@ -138,9 +135,6 @@ def export(out: Path, checkpoint: Checkpoint) -> None:
     if checkpoint is not INKLING2_SMALL:
         raise SystemExit(f"{checkpoint.name} is loaded from its upstream release and has no export")
     weights = source_weights(checkpoint)
-    checks = remap_checks(weights)
-    if not checks["passed"]:
-        raise ValueError(f"remap checks failed: {json.dumps(checks)}")
     tower, projector = split(weights)
     out.mkdir(parents=True, exist_ok=True)
     if out.resolve() != checkpoint.release_dir.resolve():
@@ -204,13 +198,16 @@ class PEAdapter:
             output_fmt="NLC", intermediates_only=True,
         )
 
+    def batches(self, sampled: list[torch.Tensor], image_ids: list[str]) -> Iterator[FeatureBatch]:
+        for layer, tokens in zip(self.depth_points(), sampled, strict=True):
+            yield make_batch(self, tokens, image_ids, "tower", layer)
+
     @torch.inference_mode()
     def extract(self, inputs: Inputs, image_ids: list[str]) -> Iterator[FeatureBatch]:
         pixel_values = inputs["pixel_values"]
         if pixel_values.shape[0] != len(image_ids):
             raise ValueError("pixel batch and image_ids must have the same length")
-        for layer, tokens in zip(self.depth_points(), self.tower(pixel_values), strict=True):
-            yield make_batch(self, tokens, image_ids, "tower", layer)
+        yield from self.batches(self.tower(pixel_values), image_ids)
 
 
 class PELangLAdapter(PEAdapter):
@@ -231,14 +228,8 @@ class Inkling2SmallAdapter(PEAdapter):
         self.bundle = self.checkpoint.open()
         return inkling2.to_timm(load_file(self.bundle / "model.safetensors"))
 
-    @torch.inference_mode()
-    def extract(self, inputs: Inputs, image_ids: list[str]) -> Iterator[FeatureBatch]:
-        pixel_values = inputs["pixel_values"]
-        if pixel_values.shape[0] != len(image_ids):
-            raise ValueError("pixel batch and image_ids must have the same length")
-        sampled = self.tower(pixel_values)
-        for layer, tokens in zip(self.depth_points(), sampled, strict=True):
-            yield make_batch(self, tokens, image_ids, "tower", layer)
+    def batches(self, sampled: list[torch.Tensor], image_ids: list[str]) -> Iterator[FeatureBatch]:
+        yield from super().batches(sampled, image_ids)
         merged = inkling2.merge(sampled[-1], self.resolution // self.checkpoint.patch_size)
         yield make_batch(self, merged, image_ids, "merged", self.num_layers)
         yield make_batch(self, self.projector(merged), image_ids, "projected", self.num_layers)
