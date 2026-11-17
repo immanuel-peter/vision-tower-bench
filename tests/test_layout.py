@@ -10,6 +10,7 @@ from vtb.roster import SLUGS
 
 ROOT = Path(__file__).resolve().parents[1]
 TOP_LEVEL = {
+    ".git-blame-ignore-revs",
     ".github",
     ".gitignore",
     "AGENTS.md",
