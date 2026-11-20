@@ -55,7 +55,7 @@ Four capability axes:
 | Nemotron 3.5 Bolt | multimodal | [immanuelpeter/C-RADIOv4-H-3.5-Bolt](https://huggingface.co/immanuelpeter/C-RADIOv4-H-3.5-Bolt) |
 | MiMo V2.6 Pro | multimodal | [immanuelpeter/MiMoViT-2.6-Pro](https://huggingface.co/immanuelpeter/MiMoViT-2.6-Pro) |
 | MiMo V2.6 Flash | multimodal | [immanuelpeter/MiMoViT-2.6-Flash](https://huggingface.co/immanuelpeter/MiMoViT-2.6-Flash) |
-| DeepSeek V4.1 Flash | multimodal | [immanuelpeter/DeepSeek-ViT](https://huggingface.co/immanuelpeter/DeepSeek-ViT) |
+| DeepSeek V4.1 Flash (1017) | multimodal | [immanuelpeter/DeepSeek-ViT](https://huggingface.co/immanuelpeter/DeepSeek-ViT) |
 | Mistral Large 4 | multimodal | [immanuelpeter/PixtralViT-Large-4](https://huggingface.co/immanuelpeter/PixtralViT-Large-4) |
 | Inkling 2 Small | multimodal | [immanuelpeter/Inkling-2-Small-Vision](https://huggingface.co/immanuelpeter/Inkling-2-Small-Vision) |
 

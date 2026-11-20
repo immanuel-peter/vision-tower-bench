@@ -23,8 +23,8 @@ from vtb.shards import load_prefixed
 
 MODEL_ID = "immanuelpeter/DeepSeek-ViT"
 
-SOURCE_REPO = "deepseek-ai/DeepSeek-V4.1-Flash"
-SOURCE_REVISION = "dba1be0a40aa45a94ad051997016db3960a90277"
+SOURCE_REPO = "deepseek-ai/DeepSeek-V4.1-Flash-1017"
+SOURCE_REVISION = "08c8657f02291e11b6f6b63e0e16014f8e748518"
 VISION_SHARD = "model-00001-of-00048.safetensors"
 TOWER_PREFIX = "vision."
 ALIGNER_PREFIX = "aligner."
