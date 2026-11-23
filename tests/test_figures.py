@@ -5,8 +5,6 @@ from pathlib import Path
 
 import pytest
 
-from vtb.roster import SLUGS
-
 pytest.importorskip("matplotlib")
 
 ROOT = Path(__file__).parents[1]
@@ -29,7 +27,33 @@ def test_tower_name_distinguishes_minimax_siblings(model, suffix):
 
 
 def test_roster_covers_the_registered_tower_suite():
-    assert FIGURE_SCRIPT.TOWERS == SLUGS
+    assert FIGURE_SCRIPT.TOWERS == (
+        "dinov2",
+        "siglip2",
+        "muse_glimmer",
+        "glm5",
+        "nemotron_omni",
+        "kimi_k26",
+        "qwen3_5",
+        "deepseek_v41",
+        "gemma4",
+        "moonvit_v2",
+        "kimi_k31_pro",
+        "minimax_m3",
+        "minimax_m31_flash",
+        "nemotron35_super",
+        "nemotron35_bolt",
+        "dinov3",
+        "mimo26_pro",
+        "mimo26_flash",
+        "qwen38_flash_next",
+        "mistral_large4",
+        "pe_lang_l",
+        "inkling2_small",
+        "inkling2_mini",
+        "hy4_flash",
+        "hy4",
+    )
     assert set(FIGURE_SCRIPT.COLOUR) == set(FIGURE_SCRIPT.TOWERS)
     assert set(FIGURE_SCRIPT.DISPLAY) == set(FIGURE_SCRIPT.TOWERS)
     assert FIGURE_SCRIPT.DISPLAY["glm5"] == "GLM 5.3 Flash"
@@ -42,9 +66,9 @@ def test_roster_covers_the_registered_tower_suite():
         "dinov3" not in FIGURE_SCRIPT.PROJECTORS
         and "pe_lang_l" not in FIGURE_SCRIPT.PROJECTORS
     )
-    assert set(FIGURE_SCRIPT.SOURCES["geometry_stage_levels"]) <= (
-        set(FIGURE_SCRIPT.PROJECTORS) | {"dinov2", "siglip2"}
-    )
+    assert set(FIGURE_SCRIPT.PROJECTORS) == set(
+        FIGURE_SCRIPT.SOURCES["geometry_stage_levels"]
+    ) - {"dinov2", "siglip2"}
     assert "nemotron35_bolt" not in FIGURE_SCRIPT.TOWER_STAGE
     assert not FIGURE_SCRIPT.OUTLIER_CHANNEL & set(FIGURE_SCRIPT.OCCLUSION)
     assert "qwen38_flash_next" not in FIGURE_SCRIPT.OCCLUSION

@@ -43,6 +43,7 @@ SOURCES = {
         "inkling2_small": "geometry/inkling2_small_geometry_depth_matched.json",
         "inkling2_mini": "geometry/inkling2_mini_geometry_depth_matched.json",
         "hy4_flash": "geometry/hy4_flash_geometry_depth_matched.json",
+        "hy4": "geometry/hy4_geometry_depth_matched.json",
     },
     "label_budget": "diagnostics/mimo26-tower-outlier-channel/label_budget_standardized.json",
     "label_budget_additional": [
@@ -602,12 +603,7 @@ def stage_levels(out: Path) -> None:
 
     figure, axis = plt.subplots(figsize=(6.2, 4.8))
     for model in PROJECTORS:
-        override = SOURCES["geometry_stage_levels"].get(model)
-        path = (
-            RESULTS / override
-            if override is not None
-            else measurement_path("geometry_layer_sweep", model)
-        )
+        path = RESULTS / SOURCES["geometry_stage_levels"][model]
         cells = json.loads(path.read_text())["cells"]
         deepest = {}
         for cell in cells:
