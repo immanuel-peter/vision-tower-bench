@@ -21,7 +21,7 @@ from transformers import (
 )
 
 from scripts import render_hf_templates
-from vtb.adapters import hy4_flash, minimax_m3, nemotron_omni
+from vtb.adapters import hy4, hy4_flash, minimax_m3, nemotron_omni
 from vtb.adapters.kimi_k26 import BUNDLE_FILES as KIMI_BUNDLE_FILES
 from vtb.adapters.moonvit_v2 import load_projector_weights
 from vtb.adapters.muse_glimmer import Projector
@@ -36,8 +36,8 @@ SIBLING_EXAMPLES = {
     "C-RADIOv4-H-3.5-Bolt": ("load_vision",),
     "C-RADIOv4-H-3.5-Super": ("load_vision",),
     "DeepSeek-ViT": ("Aligner", "ViT"),
-    "Hy4-Flash-Vision": ("preprocess", "features"),
     "Gemma4-31B-Vision": ("load_projector",),
+    "Hy4-Flash-Vision": ("preprocess", "features"),
     "Hy4-Vision": ("preprocess", "main"),
     "MiniMax-M3-Vision": ("load_projector",),
     "MiniMax-M3.1-Flash-Vision": ("main",),
@@ -62,6 +62,7 @@ def load_example(path):
         ("MiMoViT-2.6-Flash", "modeling_mimo_vision.py", "mimo26.py"),
         ("PixtralViT-Large-4", "modeling_pixtral_large4.py", "pixtral_large4.py"),
         ("Inkling-2-Small-Vision", "inkling2_vision.py", "inkling2.py"),
+        ("Inkling-2-Mini-Vision", "inkling2_vision.py", "inkling2.py"),
         ("Hy4-Flash-Vision", "modeling_hy4_flash_vision.py", "hy4_flash.py"),
         ("Hy4-Vision", "modeling_hy4.py", "hy4.py"),
     ],
@@ -297,6 +298,8 @@ def test_maintained_bundle_manifests_record_counts_and_shards():
         "PixtralViT-Large-4": (272, 4),
         "MoonViT-K3.1-Pro": (165, 3),
         "Hy4-Flash-Vision": (435, 6),
+        "Hy4-Vision": (643, 6),
+        "DeepSeek-ViT": (259, 4),
     }
     checked = 0
     for name, counts in expected.items():
@@ -387,17 +390,31 @@ def test_hy4_flash_example_matches_the_benchmark_preprocess_and_stages():
         torch.testing.assert_close(actual[stage], expected[stage], rtol=0, atol=0)
 
 
-def test_hy4_flash_bundle_declares_its_remote_code_and_attribution():
-    config = json.loads((HY4_FLASH_BUNDLE / "config.json").read_text())
+@pytest.mark.parametrize(
+    "bundle,modeling,model,revision",
+    [
+        (
+            "Hy4-Flash-Vision",
+            "modeling_hy4_flash_vision",
+            "Hy4FlashVision",
+            hy4_flash.SOURCE_REVISION,
+        ),
+        ("Hy4-Vision", "modeling_hy4", "Hy4Vision", hy4.SOURCE_REVISION),
+    ],
+)
+def test_hy4_bundles_declare_their_remote_code_and_attribution(
+    bundle, modeling, model, revision
+):
+    config = json.loads((HF / bundle / "config.json").read_text())
     assert config["auto_map"] == {
-        "AutoConfig": "modeling_hy4_flash_vision.Hy4FlashVisionConfig",
-        "AutoModel": "modeling_hy4_flash_vision.Hy4FlashVisionModel",
+        "AutoConfig": f"{modeling}.{model}Config",
+        "AutoModel": f"{modeling}.{model}Model",
     }
     assert (
-        (HY4_FLASH_BUNDLE / "LICENSE")
+        (HF / bundle / "LICENSE")
         .read_text()
         .lstrip()
         .startswith("Tencent Hy License, Version 1.0")
     )
-    notice = (HY4_FLASH_BUNDLE / "NOTICE").read_text()
-    assert hy4_flash.SOURCE_REVISION in notice and "Section 10" in notice
+    notice = (HF / bundle / "NOTICE").read_text()
+    assert revision in notice and "Section 10" in notice
