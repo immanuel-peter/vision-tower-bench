@@ -164,12 +164,13 @@ class Hy4FlashVisionModel(PreTrainedModel):
         last_hidden_state is the last block's output and pooler_output the Projector's, with newlines."""
         grid = (pixel_values.shape[-2] // self.config.patch_size, pixel_values.shape[-1] // self.config.patch_size)
         hidden_states = self.embeddings(pixel_values)
-        states = [hidden_states]
+        states = [hidden_states] if output_hidden_states else None
         for layer in self.layers:
             hidden_states = layer(hidden_states)
-            states.append(hidden_states)
+            if states is not None:
+                states.append(hidden_states)
         return BaseModelOutputWithPooling(
             last_hidden_state=hidden_states,
             pooler_output=self.perceive(hidden_states, grid),
-            hidden_states=tuple(states) if output_hidden_states else None,
+            hidden_states=tuple(states) if states is not None else None,
         )
