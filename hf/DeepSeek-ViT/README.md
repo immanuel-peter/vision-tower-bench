@@ -13,9 +13,7 @@ base_model:
 This repository packages DeepSeek-ViT and the two-layer MLP projector from
 [DeepSeek-V4.1-Flash-1017](https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash-1017).
 
-Pin [revision `ddf337b`](https://huggingface.co/immanuelpeter/DeepSeek-ViT/tree/ddf337b9a2c324e747fae71ed8ea0112b733ab4c)
-to use the original DeepSeek-V4.1-Flash weights. The architecture is the same, and every
-Tower and Aligner tensor differs between the two checkpoints.
+Original Flash weights: [`ddf337b`](https://huggingface.co/immanuelpeter/DeepSeek-ViT/tree/ddf337b9a2c324e747fae71ed8ea0112b733ab4c).
 
 ## Contents
 
@@ -26,9 +24,6 @@ Tower and Aligner tensor differs between the two checkpoints.
 | `config.json` | | Vision-only `DeepSeekV41ViT` |
 | `vision.py` | | Standalone ViT and Aligner used by `examples/inference.py` |
 | `export_manifest.json` | | Source pin, source shard and tensor counts |
-
-This repository does not include Transformers modeling files or a preprocessor
-config. `AutoModel.from_pretrained` will not work.
 
 ## Architecture
 

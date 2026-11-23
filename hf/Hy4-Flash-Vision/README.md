@@ -44,11 +44,11 @@ See [`examples/inference.py`](examples/inference.py) for image feature extractio
 
 ## Validation
 
-The [parity check](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/parity/hy4_flash.py) compares every released tensor with the pinned parent using `torch.equal`. It then compares the Tower depths, the merge and the Projector with the `hy_v4_flash` vision classes in transformers [PR #50903](https://github.com/huggingface/transformers/pull/50903) at `c2ec850510a37978ea83df226589623d5f2be776`, run on the parent's tensors. In FP32 on CPU every cell is bit-exact. In BF16 on CUDA the largest relative L2 difference is 0.013, below the 0.017 each implementation is from its own FP32 output.
+The [parity check](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/parity/hy4_flash.py) compares every released tensor with the pinned parent using `torch.equal`. It then compares the Tower depths, the merge and the Projector with the `hy_v4_flash` vision classes in transformers [PR #50903](https://github.com/huggingface/transformers/pull/50903) at `c2ec850`, run on the parent's tensors. FP32 on CPU is bit-exact; BF16 on CUDA is within the parity tolerance.
 
 ## Reproduction
 
-The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/adapters/hy4_flash.py) range-reads the 441 `vit.*` tensors from 20 of the parent's 148 shards and writes the original BF16 tensors.
+The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/adapters/hy4_flash.py) range-reads the 441 `vit.*` tensors from 20 of the parent's 148 shards (revision `d88c9df`) and writes the original BF16 tensors.
 
 ## Credits
 
