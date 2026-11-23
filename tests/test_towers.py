@@ -82,6 +82,7 @@ PREPROCESSED = {
     "mistral_large4": (3, 448, 448),
     "pe_lang_l": (3, 448, 448),
     "inkling2_small": (3, 640, 640),
+    "inkling2_mini": (3, 640, 640),
     "kimi_k26": (1024, 3, 14, 14),
     "moonvit_v2": (1024, 3, 14, 14),
     "kimi_k31_pro": (1024, 3, 14, 14),
@@ -114,6 +115,7 @@ REJECTED_RESOLUTIONS = {
     "nemotron35_super": [0, 16, 33, 447],
     "pe_lang_l": [0, 224, 434, 462],
     "inkling2_small": [0, 448, 600, 680],
+    "inkling2_mini": [0, 448, 600, 680],
 }
 
 
@@ -449,6 +451,46 @@ def test_inkling_preprocess_rounds_like_the_parent_and_stays_near_half_normaliza
     assert torch.equal(pixels, pixels.bfloat16().float())
     half = (transforms.ToTensor()(bench_crop(image, 640)) - 0.5) / 0.5
     assert (pixels - half).abs().max() < 0.02
+
+
+@pytest.mark.parametrize("checkpoint", pe.INKLING2, ids=lambda c: c.name)
+def test_inkling_remap_flags_a_sibling_and_reads_the_projector_width_from_the_parent(
+    monkeypatch, checkpoint
+):
+    weights = {
+        **tiny_inkling_weights(),
+        "proj_in.weight": torch.randn(4096, 32),
+        "proj_out.weight": torch.randn(2304, 4096),
+    }
+    weights = {
+        **weights,
+        **{
+            f"backbone.extra.{index}": torch.zeros(1)
+            for index in range(pe.TOWER_TENSORS - len(weights) + 2)
+        },
+    }
+    sibling = {name: tensor.clone() for name, tensor in weights.items()}
+    sibling["backbone.ln_pre.weight"] += 1
+    monkeypatch.setattr(pe, "timm_weights", lambda _checkpoint: {})
+    monkeypatch.setattr(
+        pe, "source_json", lambda *_: {"text_config": {"hidden_size": 2304}}
+    )
+    monkeypatch.setattr(pe, "source_weights", lambda _checkpoint: sibling)
+    monkeypatch.setattr(
+        inkling2,
+        "to_timm",
+        lambda _tower: {
+            name: torch.zeros(1) for name in ("patch_embed.proj.weight", "pos_embed")
+        },
+    )
+    report = pe.remap_checks(checkpoint, weights)
+    (other,) = (c.name for c in pe.INKLING2 if c is not checkpoint)
+    assert report["shapes"]["proj_out.weight"]["expected"] == [2304, 4096]
+    assert "backbone.ln_pre.weight" not in report["sibling_equal"][other]
+    assert "proj_out.weight" in report["sibling_equal"][other]
+    assert not report["passed"]
+    with pytest.raises(ValueError, match="no remap"):
+        pe.remap_checks(pe.PE_LANG_L, weights)
 
 
 def test_inkling_projector_uses_exact_gelu():

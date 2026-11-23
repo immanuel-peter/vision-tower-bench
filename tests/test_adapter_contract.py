@@ -12,7 +12,7 @@ from vtb.adapters import common, mimo26, nemotron35
 from vtb.adapters.base import TowerAdapter
 from vtb.adapters.common import PatchPreprocess, depth_points, make_batch, raster
 from vtb.adapters.dinov3 import DINOv3Adapter
-from vtb.adapters.pe import Inkling2SmallAdapter
+from vtb.adapters.pe import Inkling2MiniAdapter, Inkling2SmallAdapter
 from vtb.feature_batch import STAGES, FeatureBatch
 
 ADAPTER_CLASSES = sorted(set(extract.ADAPTERS.values()), key=lambda c: c.__name__)
@@ -124,6 +124,7 @@ def test_every_adapter_declares_the_contract_and_collates_to_a_dict(adapter_clas
     assert adapter_class.default_resolution == {
         DINOv3Adapter: 512,
         Inkling2SmallAdapter: 640,
+        Inkling2MiniAdapter: 640,
     }.get(adapter_class, 448)
     module = sys.modules[adapter_class.__module__]
     sample = getattr(adapter_class, "Preprocess", module.Preprocess)(
