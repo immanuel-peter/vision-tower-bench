@@ -5,13 +5,17 @@ library_name: transformers
 tags:
 - vision
 base_model:
-- deepseek-ai/DeepSeek-V4.1-Flash
+- deepseek-ai/DeepSeek-V4.1-Flash-1017
 ---
 
 # DeepSeek-ViT
 
 This repository packages DeepSeek-ViT and the two-layer MLP projector from
-[DeepSeek-V4.1-Flash](https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash).
+[DeepSeek-V4.1-Flash-1017](https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash-1017).
+
+Pin [revision `ddf337b`](https://huggingface.co/immanuelpeter/DeepSeek-ViT/tree/ddf337b9a2c324e747fae71ed8ea0112b733ab4c)
+to use the original DeepSeek-V4.1-Flash weights. The architecture is the same, and every
+Tower and Aligner tensor differs between the two checkpoints.
 
 ## Contents
 
@@ -48,12 +52,12 @@ using `torch.equal`.
 ## Reproduction
 
 The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/adapters/deepseek_v41.py)
-reads `vision.*` and `aligner.*` from shard 1 of `deepseek-ai/DeepSeek-V4.1-Flash`, 
+reads `vision.*` and `aligner.*` from shard 1 of `deepseek-ai/DeepSeek-V4.1-Flash-1017`,
 removes the prefixes, and writes the original BF16 tensors.
 
 ## Credits
 
-DeepSeek released the DeepSeek-V4.1-Flash weights. DeepSeek-ViT is described in
+DeepSeek released the DeepSeek-V4.1-Flash-1017 weights. DeepSeek-ViT is described in
 [DeepSeek-V4.1-Flash: Pushing the Limits of KV Cache Compression](https://www.alphaxiv.org/abs/2609.deepseek-v4-1-flash).
 
 ## License
