@@ -77,20 +77,34 @@ def export(out: Path):
     write_bundle(
         out,
         weights={"model.safetensors": weights},
-        configs={"config.json": config.to_dict()},
         license=source_file("LICENSE"),
         files={
             "modeling_hy4.py": ROOT / "vtb/models/hy4.py",
         },
     )
+    config.save_pretrained(out)
     copy_assets(RELEASE, out)
+    index = json.loads(source_file("model.safetensors.index.json").read_text())
+    projector = sum(name.startswith("perceive.") for name in weights)
     write_json(
         out / "export_manifest.json",
         {
             "source_repo": SOURCE_REPO,
             "source_revision": SOURCE_REVISION,
-            "tensors": len(weights),
+            "source_prefix": "vit.",
+            "source_shards": sorted(
+                {
+                    shard
+                    for name, shard in index["weight_map"].items()
+                    if name.startswith("vit.")
+                }
+            ),
+            "tower_tensors": len(weights) - projector,
+            "projector_tensors": projector,
+            "dtype": "bfloat16",
+            "tensor_dtypes": {"bfloat16": len(weights)},
             "bytes": sum(t.nbytes for t in weights.values()),
+            "vision_reference": "https://github.com/huggingface/transformers/commit/1031277cef60200fda98628e9adc8fb15f0e1549",
         },
     )
 

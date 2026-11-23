@@ -23,7 +23,7 @@ This repository packages the 1.16B-parameter vision Tower and 75.5M-parameter Pr
 | `model.safetensors` | 649 | The parent's BF16 `vit.*` tensors with the `vit.` prefix removed. There are 643 Tower tensors and 6 Projector tensors. |
 | `modeling_hy4.py` | | Standalone Tower and Projector for Transformers |
 | `config.json` | | Vision configuration and `AutoModel` mapping |
-| `export_manifest.json` | | Source repo, revision, tensor count and weight bytes |
+| `export_manifest.json` | | Source pin, source shards, tensor counts and the vision reference |
 | [`examples/inference.py`](examples/inference.py) | | Image preprocessing and feature extraction |
 | `LICENSE`, `LICENSE-CODE`, `NOTICE` | | Weight license, code license and attribution |
 
