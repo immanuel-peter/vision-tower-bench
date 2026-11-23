@@ -78,11 +78,12 @@ VLLM_HELPERS = ("_linear", "_rope", "_normalize", "_reference_image")
 VLLM_CONSTANTS = ("_CLIP_MEAN", "_CLIP_STD", "_PROCESSOR_CLIP_STD")
 PE_TENSORS = 327
 # Relative L2 per cell. PE-Lang L in FP32 on CPU is bit-exact; in BF16 on CUDA it reaches 0.039 at L23,
-# where each implementation is already 0.057 from its own FP32 output. Inkling 2 Small against vLLM's
-# BF16 reference reaches 0.033 at L23. Inkling 2 Mini shares the Tower and the reference, so it shares the bar.
+# where each implementation is already 0.057 from its own FP32 output. The Inkling 2 Towers against vLLM's
+# BF16 reference reach 0.033 (Small, H100) to 0.054 (Small and Mini, RTX PRO 6000 Blackwell) at L23, where
+# vLLM's BF16 output is 0.052 (Small) and 0.056 (Mini) from the bench's FP32 output and the bench's is 0.050.
 TOLERANCE = {
     PE_LANG_L.name: {torch.bfloat16: 0.05, torch.float32: 1e-5},
-    **{checkpoint.name: {torch.bfloat16: 0.05} for checkpoint in INKLING2},
+    **{checkpoint.name: {torch.bfloat16: 0.06} for checkpoint in INKLING2},
 }
 DTYPE = {checkpoint.name: torch.bfloat16 for checkpoint in INKLING2}
 REQUIRES_CUDA = {checkpoint.name: True for checkpoint in INKLING2}
