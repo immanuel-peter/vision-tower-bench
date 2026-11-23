@@ -18,6 +18,7 @@ from vtb.adapters.common import (
     stack_pixels,
 )
 from vtb.bundle import ROOT, write_bundle, write_json
+from vtb.bundle_manifest import copy_assets
 from vtb.models.hy4 import Hy4VisionConfig, Hy4VisionModel
 from vtb.provenance import open_release
 from vtb.shards import load_prefixed
@@ -79,11 +80,10 @@ def export(out: Path):
         configs={"config.json": config.to_dict()},
         license=source_file("LICENSE"),
         files={
-            "README.md": RELEASE / "README.md",
-            "NOTICE": RELEASE / "NOTICE",
             "modeling_hy4.py": ROOT / "vtb/models/hy4.py",
         },
     )
+    copy_assets(RELEASE, out)
     write_json(
         out / "export_manifest.json",
         {
