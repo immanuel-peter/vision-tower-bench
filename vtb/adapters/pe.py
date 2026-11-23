@@ -1,4 +1,4 @@
-"""Perception Encoder Towers on timm's Eva trunk: Meta's PE-Lang L and Towers initialized from it."""
+"""Perception Encoder Towers on timm's Eva trunk: Meta's PE-Lang L and the Inkling 2 Towers initialized from it."""
 
 import json
 import os
@@ -83,7 +83,17 @@ INKLING2_SMALL = Checkpoint(
     inkling2.PATCH_SIZE,
     inkling2.MERGE_SIZE,
 )
-CHECKPOINTS = {item.name: item for item in (PE_LANG_L, INKLING2_SMALL)}
+INKLING2_MINI = Checkpoint(
+    "inkling2_mini",
+    "immanuelpeter/Inkling-2-Mini-Vision",
+    "thinkingmachines/Inkling-2-Mini",
+    "ed40e7da625f594fc9c4990f5f66be24873c22d7",
+    inkling2.PATCH_SIZE,
+    inkling2.MERGE_SIZE,
+)
+# Sibling Towers: same architecture and initialization, co-trained with different language models.
+INKLING2 = (INKLING2_SMALL, INKLING2_MINI)
+CHECKPOINTS = {item.name: item for item in (PE_LANG_L, *INKLING2)}
 
 Preprocess = partial(ImagePreprocess, mean=HALF, std=HALF, rgb=True)
 collate = stack_pixels
@@ -152,8 +162,23 @@ def split(
     return tower, projector
 
 
-def remap_checks(weights: dict[str, torch.Tensor]) -> dict:
-    """What parity cannot see: every tensor mapped once, the reshaped shapes, and weights that are not PE-Lang L's."""
+def equal_tensors(
+    weights: dict[str, torch.Tensor], other: dict[str, torch.Tensor]
+) -> list[str]:
+    return sorted(
+        name
+        for name, tensor in weights.items()
+        if name in other
+        and other[name].shape == tensor.shape
+        and torch.equal(other[name].to(tensor.dtype), tensor)
+    )
+
+
+def remap_checks(checkpoint: Checkpoint, weights: dict[str, torch.Tensor]) -> dict:
+    """What parity cannot see: every tensor mapped once, the reshaped shapes, and weights that are neither PE-Lang L's nor a sibling's."""
+    if checkpoint not in INKLING2:
+        raise ValueError(f"{checkpoint.name} has no remap")
+    text_hidden = source_json(checkpoint, "config.json")["text_config"]["hidden_size"]
     tower, projector = split(weights)
     mapped = inkling2.to_timm(tower)
     shapes = {
@@ -166,7 +191,10 @@ def remap_checks(weights: dict[str, torch.Tensor]) -> dict:
             [1, POSITION_GRID**2 + 1, WIDTH],
         ),
         "proj_in.weight": (list(projector["proj_in.weight"].shape), [4096, 4096]),
-        "proj_out.weight": (list(projector["proj_out.weight"].shape), [4608, 4096]),
+        "proj_out.weight": (
+            list(projector["proj_out.weight"].shape),
+            [text_hidden, 4096],
+        ),
     }
     pe_lang = timm_weights(PE_LANG_L)
     compared = [
@@ -174,22 +202,24 @@ def remap_checks(weights: dict[str, torch.Tensor]) -> dict:
         for name, tensor in mapped.items()
         if name in pe_lang and pe_lang[name].shape == tensor.shape
     ]
-    equal = [
-        name
-        for name in compared
-        if torch.equal(pe_lang[name].to(mapped[name].dtype), mapped[name])
-    ]
+    siblings = {
+        sibling.name: equal_tensors(weights, source_weights(sibling))
+        for sibling in INKLING2
+        if sibling is not checkpoint
+    }
     report = {
         "timm_names_match": set(mapped) == set(pe_lang),
         "shapes": {
             name: {"actual": actual, "expected": expected}
             for name, (actual, expected) in shapes.items()
         },
-        "pe_lang_equal": equal,
+        "pe_lang_equal": equal_tensors(mapped, pe_lang),
+        "sibling_equal": siblings,
     }
     report["passed"] = (
         report["timm_names_match"]
-        and not equal
+        and not report["pe_lang_equal"]
+        and not any(siblings.values())
         and set(mapped) - set(compared) == {"patch_embed.proj.weight"}
         and all(actual == expected for actual, expected in shapes.values())
     )
@@ -197,11 +227,14 @@ def remap_checks(weights: dict[str, torch.Tensor]) -> dict:
 
 
 def export(out: Path, checkpoint: Checkpoint) -> None:
-    if checkpoint is not INKLING2_SMALL:
+    if checkpoint not in INKLING2:
         raise SystemExit(
             f"{checkpoint.name} is loaded from its upstream release and has no export"
         )
     weights = source_weights(checkpoint)
+    remap = remap_checks(checkpoint, weights)
+    if not remap["passed"]:
+        raise SystemExit(f"{checkpoint.name} remap checks failed: {remap}")
     tower, projector = split(weights)
     out.mkdir(parents=True, exist_ok=True)
     if out.resolve() != checkpoint.release_dir.resolve():
@@ -329,9 +362,10 @@ class PELangLAdapter(PEAdapter):
     checkpoint = PE_LANG_L
 
 
-class Inkling2SmallAdapter(PEAdapter):
-    checkpoint = INKLING2_SMALL
-    default_resolution = INKLING2_SMALL.native_resolution
+class Inkling2Adapter(PEAdapter):
+    """An Inkling 2 Tower with its 2x2 merge and Projector; subclasses pick the checkpoint."""
+
+    default_resolution = inkling2.POSITION_GRID * inkling2.PATCH_SIZE
     stages = ("tower", "merged", "projected")
     Preprocess = staticmethod(partial(InklingPreprocess, rgb=True))
 
@@ -361,3 +395,11 @@ class Inkling2SmallAdapter(PEAdapter):
         yield make_batch(
             self, self.projector(merged), image_ids, "projected", self.num_layers
         )
+
+
+class Inkling2SmallAdapter(Inkling2Adapter):
+    checkpoint = INKLING2_SMALL
+
+
+class Inkling2MiniAdapter(Inkling2Adapter):
+    checkpoint = INKLING2_MINI

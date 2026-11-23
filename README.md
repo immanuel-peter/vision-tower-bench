@@ -58,6 +58,7 @@ Four capability axes:
 | DeepSeek V4.1 Flash (1017) | multimodal | [immanuelpeter/DeepSeek-ViT](https://huggingface.co/immanuelpeter/DeepSeek-ViT) |
 | Mistral Large 4 | multimodal | [immanuelpeter/PixtralViT-Large-4](https://huggingface.co/immanuelpeter/PixtralViT-Large-4) |
 | Inkling 2 Small | multimodal | [immanuelpeter/Inkling-2-Small-Vision](https://huggingface.co/immanuelpeter/Inkling-2-Small-Vision) |
+| Inkling 2 Mini | multimodal | [immanuelpeter/Inkling-2-Mini-Vision](https://huggingface.co/immanuelpeter/Inkling-2-Mini-Vision) |
 
 The multimodal Towers are standalone extracts of their parents. The model cards record counts and tolerances.
 
@@ -92,7 +93,7 @@ VTB_PARITY_DEVICE=cuda uv run pytest tests/test_parity.py   # every release agai
 
 MIT covers code here, not weights. Published Towers keep their parent's terms, and each release ships its license.
 
-- Qwen3.8-27B, Muse Glimmer, Gemma 4, Inkling 2 Small: Apache-2.0
+- Qwen3.8-27B, Muse Glimmer, Gemma 4, Inkling 2 Small, Inkling 2 Mini: Apache-2.0
 - Qwen3.8 Flash-Next: Qwen Community License 1.0
 - GLM-5.3 Flash, DeepSeek-ViT, MiMoViT-2.6 Pro and Flash: MIT
 - Kimi K2.6, Kimi K3: Kimi License
