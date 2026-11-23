@@ -1,6 +1,6 @@
 # Vision Tower Bench
 
-Adding vision to a text-only LLM means picking a Tower, a layer, and usually a Projector, which full-model VLM benchmarks never isolate. This bench probes twenty-two frozen Towers.
+Adding vision to a text-only LLM means picking a Tower, a layer, and usually a Projector, which full-model VLM benchmarks never isolate. This bench probes twenty-three frozen Towers.
 
 **[Report](https://ipeter.dev/blog/vision-tower-bench)** · **[Towers](https://huggingface.co/collections/immanuelpeter/vision-heads)** · **Paper (coming soon)**
 
@@ -59,6 +59,7 @@ Four capability axes:
 | Mistral Large 4 | multimodal | [immanuelpeter/PixtralViT-Large-4](https://huggingface.co/immanuelpeter/PixtralViT-Large-4) |
 | Inkling 2 Small | multimodal | [immanuelpeter/Inkling-2-Small-Vision](https://huggingface.co/immanuelpeter/Inkling-2-Small-Vision) |
 | Inkling 2 Mini | multimodal | [immanuelpeter/Inkling-2-Mini-Vision](https://huggingface.co/immanuelpeter/Inkling-2-Mini-Vision) |
+| Hy4 Flash | multimodal | [immanuelpeter/Hy4-Flash-Vision](https://huggingface.co/immanuelpeter/Hy4-Flash-Vision) |
 
 The multimodal Towers are standalone extracts of their parents. The model cards record counts and tolerances.
 
@@ -102,3 +103,4 @@ MIT covers code here, not weights. Published Towers keep their parent's terms, a
 - C-RADIOv4-H-3.5 Super and Bolt: OpenMDW-1.1
 - MiniMax M3, MiniMax M3.1 Flash: MiniMax Community License
 - Mistral Large 4: Mistral Ecosystem Open-Weight License
+- Hy4 Flash: Tencent Hy License 1.0

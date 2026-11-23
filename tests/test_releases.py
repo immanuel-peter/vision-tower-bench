@@ -21,7 +21,7 @@ from transformers import (
 )
 
 from scripts import render_hf_templates
-from vtb.adapters import minimax_m3, nemotron_omni
+from vtb.adapters import hy4_flash, minimax_m3, nemotron_omni
 from vtb.adapters.kimi_k26 import BUNDLE_FILES as KIMI_BUNDLE_FILES
 from vtb.adapters.moonvit_v2 import load_projector_weights
 from vtb.adapters.muse_glimmer import Projector
@@ -36,6 +36,7 @@ SIBLING_EXAMPLES = {
     "C-RADIOv4-H-3.5-Bolt": ("load_vision",),
     "C-RADIOv4-H-3.5-Super": ("load_vision",),
     "DeepSeek-ViT": ("Aligner", "ViT"),
+    "Hy4-Flash-Vision": ("preprocess", "features"),
     "Gemma4-31B-Vision": ("load_projector",),
     "MiniMax-M3-Vision": ("load_projector",),
     "MiniMax-M3.1-Flash-Vision": ("main",),
@@ -60,6 +61,7 @@ def load_example(path):
         ("MiMoViT-2.6-Flash", "modeling_mimo_vision.py", "mimo26.py"),
         ("PixtralViT-Large-4", "modeling_pixtral_large4.py", "pixtral_large4.py"),
         ("Inkling-2-Small-Vision", "inkling2_vision.py", "inkling2.py"),
+        ("Hy4-Flash-Vision", "modeling_hy4_flash_vision.py", "hy4_flash.py"),
     ],
 )
 def test_shipped_modeling_code_is_a_byte_copy_of_vtb(bundle, shipped, source):
@@ -292,6 +294,7 @@ def test_maintained_bundle_manifests_record_counts_and_shards():
         "Qwen3.8-Flash-Next-Vision": (327, 6),
         "PixtralViT-Large-4": (272, 4),
         "MoonViT-K3.1-Pro": (165, 3),
+        "Hy4-Flash-Vision": (435, 6),
     }
     checked = 0
     for name, counts in expected.items():
@@ -349,3 +352,50 @@ def test_kimi_projector_file_matches_adapter_and_exact_gelu(tmp_path, dtype):
     with torch.inference_mode():
         expected = adapter.post_norm(adapter.proj(tokens))
         torch.testing.assert_close(example(tokens), expected, atol=0, rtol=0)
+
+
+HY4_FLASH_BUNDLE = HF / "Hy4-Flash-Vision"
+
+
+def test_hy4_flash_example_matches_the_benchmark_preprocess_and_stages():
+    module = load_example(HY4_FLASH_BUNDLE / "examples/inference.py")
+    pixels = np.arange(43 * 57 * 3, dtype=np.uint8).reshape(43, 57, 3)
+    image = Image.fromarray(pixels)
+    assert torch.equal(module.preprocess(image), hy4_flash.Preprocess(512)(image))
+    config = hy4_flash.Hy4FlashVisionConfig(
+        hidden_size=8,
+        intermediate_size=12,
+        num_hidden_layers=8,
+        num_attention_heads=2,
+        max_image_size=64,
+        out_hidden_size=6,
+    )
+    adapter = hy4_flash.Hy4FlashAdapter.__new__(hy4_flash.Hy4FlashAdapter)
+    adapter.model = hy4_flash.Hy4FlashVisionModel(config).eval()
+    adapter.num_layers, adapter.resolution, adapter.device = 8, 64, "cpu"
+    adapter.dtype, adapter.model_id = torch.float32, hy4_flash.MODEL_ID
+    pixels = torch.randn(1, 3, 64, 64)
+    expected = {
+        batch.stage: batch.tokens
+        for batch in adapter.extract({"pixel_values": pixels}, ["a"])
+    }
+    with torch.inference_mode():
+        actual = module.features(adapter.model, pixels)
+    for stage in ("tower", "merged", "projected"):
+        torch.testing.assert_close(actual[stage], expected[stage], rtol=0, atol=0)
+
+
+def test_hy4_flash_bundle_declares_its_remote_code_and_attribution():
+    config = json.loads((HY4_FLASH_BUNDLE / "config.json").read_text())
+    assert config["auto_map"] == {
+        "AutoConfig": "modeling_hy4_flash_vision.Hy4FlashVisionConfig",
+        "AutoModel": "modeling_hy4_flash_vision.Hy4FlashVisionModel",
+    }
+    assert (
+        (HY4_FLASH_BUNDLE / "LICENSE")
+        .read_text()
+        .lstrip()
+        .startswith("Tencent Hy License, Version 1.0")
+    )
+    notice = (HY4_FLASH_BUNDLE / "NOTICE").read_text()
+    assert hy4_flash.SOURCE_REVISION in notice and "Section 10" in notice
