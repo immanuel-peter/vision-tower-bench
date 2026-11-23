@@ -99,6 +99,7 @@ PREPROCESSED = {
     "mimo26_pro": (784, 1536),
     "mimo26_flash": (784, 1536),
     "gemma4": (900, 768),
+    "hy4": (3, 512, 512),
 }
 
 
@@ -111,6 +112,7 @@ def test_preprocess_produces_the_expected_patch_grid(slug):
 
 
 REJECTED_RESOLUTIONS = {
+    "hy4": [0, 448, 544, 2048],
     "dinov3": [0, -16, 449, 511],
     "mimo26_pro": [0, -32, 240, 447],
     "qwen3_5": [0, -32, 447, 16],
@@ -756,3 +758,45 @@ def test_hy4_flash_rejects_mismatched_pixels_and_ids():
         list(adapter.extract({"pixel_values": torch.randn(1, 3, 96, 96)}, ["a"]))
     with pytest.raises(ValueError, match="count"):
         list(adapter.extract({"pixel_values": torch.randn(2, 3, 64, 64)}, ["a"]))
+
+
+def test_hy4_preprocess_normalizes_and_converts_grayscale():
+    pixels = preprocess_for("hy4")(Image.new("L", (640, 480), 64))
+    torch.testing.assert_close(pixels, torch.full_like(pixels, 2 * (64 / 255) - 1))
+
+
+def test_hy4_stage_layout_and_batch_isolation():
+    from vtb.models.hy4 import Hy4VisionConfig, Hy4VisionModel
+
+    config = Hy4VisionConfig(
+        hidden_size=8,
+        intermediate_size=16,
+        num_hidden_layers=2,
+        num_attention_heads=2,
+        out_hidden_size=12,
+        patch_size=4,
+        max_image_size=32,
+    )
+    model = Hy4VisionModel(config).eval()
+    pixels = torch.linspace(-1, 1, 2 * 3 * 16 * 16).reshape(2, 3, 16, 16)
+    with torch.inference_mode():
+        hidden, merged, projected = model(pixels, depths=(1, 2))
+        final = model.perceive.norm(hidden[2]).reshape(2, 4, 4, 8)
+        expected = torch.stack(
+            [
+                final[:, row : row + 2, col : col + 2].reshape(2, -1)
+                for row in (0, 2)
+                for col in (0, 2)
+            ],
+            dim=1,
+        )
+        torch.testing.assert_close(merged, expected)
+        assert projected.shape == (2, 4, 12)
+        for i in range(2):
+            single, single_merged, single_projected = model(
+                pixels[i : i + 1], depths=(1, 2)
+            )
+            for depth in hidden:
+                torch.testing.assert_close(hidden[depth][i : i + 1], single[depth])
+            torch.testing.assert_close(merged[i : i + 1], single_merged)
+            torch.testing.assert_close(projected[i : i + 1], single_projected)

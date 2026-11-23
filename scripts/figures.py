@@ -602,7 +602,12 @@ def stage_levels(out: Path) -> None:
 
     figure, axis = plt.subplots(figsize=(6.2, 4.8))
     for model in PROJECTORS:
-        path = RESULTS / SOURCES["geometry_stage_levels"][model]
+        override = SOURCES["geometry_stage_levels"].get(model)
+        path = (
+            RESULTS / override
+            if override is not None
+            else measurement_path("geometry_layer_sweep", model)
+        )
         cells = json.loads(path.read_text())["cells"]
         deepest = {}
         for cell in cells:

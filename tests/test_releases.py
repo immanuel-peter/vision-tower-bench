@@ -38,6 +38,7 @@ SIBLING_EXAMPLES = {
     "DeepSeek-ViT": ("Aligner", "ViT"),
     "Hy4-Flash-Vision": ("preprocess", "features"),
     "Gemma4-31B-Vision": ("load_projector",),
+    "Hy4-Vision": ("preprocess", "main"),
     "MiniMax-M3-Vision": ("load_projector",),
     "MiniMax-M3.1-Flash-Vision": ("main",),
     "MoonViT-K2.6": ("load_projector",),
@@ -62,6 +63,7 @@ def load_example(path):
         ("PixtralViT-Large-4", "modeling_pixtral_large4.py", "pixtral_large4.py"),
         ("Inkling-2-Small-Vision", "inkling2_vision.py", "inkling2.py"),
         ("Hy4-Flash-Vision", "modeling_hy4_flash_vision.py", "hy4_flash.py"),
+        ("Hy4-Vision", "modeling_hy4.py", "hy4.py"),
     ],
 )
 def test_shipped_modeling_code_is_a_byte_copy_of_vtb(bundle, shipped, source):
