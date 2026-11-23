@@ -48,7 +48,7 @@ The [parity check](https://github.com/immanuel-peter/vision-tower-bench/blob/mai
 
 ## Reproduction
 
-The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/adapters/hy4_flash.py) range-reads the 441 `vit.*` tensors from 20 of the parent's 148 shards (revision `d88c9df`) and writes the original BF16 tensors.
+The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/adapters/hy4_flash.py) range-reads the 441 `vit.*` tensors from 20 of the parent's 148 shards and writes the original BF16 tensors.
 
 ## Credits
 

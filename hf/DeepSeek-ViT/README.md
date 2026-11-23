@@ -48,8 +48,7 @@ using `torch.equal`.
 ## Reproduction
 
 The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/adapters/deepseek_v41.py)
-reads `vision.*` and `aligner.*` from shard 1 of `deepseek-ai/DeepSeek-V4.1-Flash-1017`
-(revision `08c8657`),
+reads `vision.*` and `aligner.*` from shard 1 of `deepseek-ai/DeepSeek-V4.1-Flash-1017`,
 removes the prefixes, and writes the original BF16 tensors.
 
 ## Credits
