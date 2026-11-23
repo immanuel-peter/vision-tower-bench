@@ -52,7 +52,8 @@ class RMSNorm(nn.Module):
 class PatchEmbed(nn.Module):
     def __init__(self, args):
         super().__init__()
-        self.proj = nn.Linear(3 * args.vision_patch_size**2, args.vision_dim)
+        self.patch_size = args.vision_patch_size
+        self.proj = nn.Linear(3 * self.patch_size**2, args.vision_dim)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.proj(x.flatten(1))

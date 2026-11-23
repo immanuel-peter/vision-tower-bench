@@ -13,10 +13,9 @@ base_model:
 This repository packages DeepSeek-ViT and the two-layer MLP projector from
 [DeepSeek-V4.1-Flash-1017](https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash-1017).
 
-Earlier revisions of this repository packaged the original
-[DeepSeek-V4.1-Flash](https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash) release. The
-architecture is unchanged, but every Tower and Aligner tensor differs, so pin a revision
-when you need the original weights.
+Pin [revision `ddf337b`](https://huggingface.co/immanuelpeter/DeepSeek-ViT/tree/ddf337b9a2c324e747fae71ed8ea0112b733ab4c)
+to use the original DeepSeek-V4.1-Flash weights. The architecture is the same, and every
+Tower and Aligner tensor differs between the two checkpoints.
 
 ## Contents
 
@@ -53,7 +52,7 @@ using `torch.equal`.
 ## Reproduction
 
 The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/adapters/deepseek_v41.py)
-reads `vision.*` and `aligner.*` from shard 1 of `deepseek-ai/DeepSeek-V4.1-Flash-1017`, 
+reads `vision.*` and `aligner.*` from shard 1 of `deepseek-ai/DeepSeek-V4.1-Flash-1017`,
 removes the prefixes, and writes the original BF16 tensors.
 
 ## Credits
