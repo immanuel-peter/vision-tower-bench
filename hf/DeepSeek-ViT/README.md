@@ -25,6 +25,7 @@ Tower and Aligner tensor differs between the two checkpoints.
 | `projector.safetensors` | 4 | Two-layer MLP Aligner |
 | `config.json` | | Vision-only `DeepSeekV41ViT` |
 | `vision.py` | | Standalone ViT and Aligner used by `examples/inference.py` |
+| `export_manifest.json` | | Source pin, source shard and tensor counts |
 
 This repository does not include Transformers modeling files or a preprocessor
 config. `AutoModel.from_pretrained` will not work.
@@ -52,7 +53,8 @@ using `torch.equal`.
 ## Reproduction
 
 The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/adapters/deepseek_v41.py)
-reads `vision.*` and `aligner.*` from shard 1 of `deepseek-ai/DeepSeek-V4.1-Flash-1017`,
+reads `vision.*` and `aligner.*` from shard 1 of `deepseek-ai/DeepSeek-V4.1-Flash-1017`
+(revision `08c8657`),
 removes the prefixes, and writes the original BF16 tensors.
 
 ## Credits

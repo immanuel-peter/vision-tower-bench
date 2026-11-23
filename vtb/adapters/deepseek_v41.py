@@ -16,6 +16,7 @@ from vtb.adapters.common import (
     make_batch,
 )
 from vtb.bundle import expect_tensors, write_bundle
+from vtb.bundle_manifest import write_manifest
 from vtb.feature_batch import FeatureBatch
 from vtb.models.deepseek_v41 import ARGS, PATCH_SIZE, Aligner, ViT
 from vtb.provenance import open_release
@@ -94,6 +95,7 @@ def export(out: Path) -> None:
         },
         license=Path(hf_hub_download(SOURCE_REPO, "LICENSE", revision=SOURCE_REVISION)),
     )
+    write_manifest(out, SOURCE_REPO, SOURCE_REVISION, [VISION_SHARD])
 
 
 def load_parts(dtype: torch.dtype) -> tuple[ViT, Aligner]:
