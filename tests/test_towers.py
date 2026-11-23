@@ -24,6 +24,7 @@ from transformers import (
 
 from vtb.adapters import (
     dinov3,
+    hy4_flash,
     mimo26,
     minimax_m3,
     mistral_large4,
@@ -32,6 +33,7 @@ from vtb.adapters import (
     pe,
 )
 from vtb.adapters.common import IMAGENET_MEAN, IMAGENET_STD
+from vtb.models import hy4_flash as hy4_flash_model
 from vtb.models import inkling2
 from vtb.parity import fixed_images
 from vtb.roster import BY_SLUG, SLUGS
@@ -82,6 +84,7 @@ PREPROCESSED = {
     "mistral_large4": (3, 448, 448),
     "pe_lang_l": (3, 448, 448),
     "inkling2_small": (3, 640, 640),
+    "hy4_flash": (3, 512, 512),
     "kimi_k26": (1024, 3, 14, 14),
     "moonvit_v2": (1024, 3, 14, 14),
     "kimi_k31_pro": (1024, 3, 14, 14),
@@ -114,6 +117,7 @@ REJECTED_RESOLUTIONS = {
     "nemotron35_super": [0, 16, 33, 447],
     "pe_lang_l": [0, 224, 434, 462],
     "inkling2_small": [0, 448, 600, 680],
+    "hy4_flash": [0, 448, 544, 1024],
 }
 
 
@@ -197,6 +201,12 @@ def pe_reference(image: Image.Image, resolution: int) -> torch.Tensor:
     return timm.data.create_transform(**config)(image)
 
 
+def hy4_flash_reference(image: Image.Image, resolution: int) -> torch.Tensor:
+    """The parent processor's rescale by 1/255, then mean and std 0.5, on the bench square."""
+    raw = torch.from_numpy(np.array(bench_crop(image, resolution))).permute(2, 0, 1)
+    return (raw.float() * (1 / 255) - 0.5) / 0.5
+
+
 def kimi_reference(checkpoint):
     def reference(image: Image.Image, resolution: int) -> torch.Tensor:
         processor = AutoImageProcessor.from_pretrained(
@@ -221,6 +231,7 @@ PARENT_PREPROCESSING = [
     pytest.param("mistral_large4", mistral_reference, 1e-5, id="mistral_large4"),
     pytest.param("nemotron35_super", nemotron_reference, 0, id="nemotron35"),
     pytest.param("pe_lang_l", pe_reference, 0, id="pe_lang_l"),
+    pytest.param("hy4_flash", hy4_flash_reference, 1e-6, id="hy4_flash"),
     *(
         pytest.param(
             slug, kimi_reference(checkpoint), 1e-6, id=slug, marks=needs_weights
@@ -586,3 +597,120 @@ def test_dinov3_every_depth_matches_independent_parent_block_hooks(
         assert batch.tokens.shape == (2, (resolution // 16) ** 2, 1024)
         assert torch.equal(batch.tokens, expected), batch.layer_index
     assert not torch.equal(streams[24], final)
+
+
+def tiny_hy4_flash_adapter(side: int = 64) -> hy4_flash.Hy4FlashAdapter:
+    """Eight blocks on a 4x4 position table, so the adapter's eight depth points are every block."""
+    torch.manual_seed(0)
+    config = hy4_flash_model.Hy4FlashVisionConfig(
+        hidden_size=16,
+        intermediate_size=24,
+        num_hidden_layers=8,
+        num_attention_heads=2,
+        patch_size=16,
+        max_image_size=64,
+        out_hidden_size=12,
+    )
+    adapter = hy4_flash.Hy4FlashAdapter.__new__(hy4_flash.Hy4FlashAdapter)
+    adapter.model = hy4_flash_model.Hy4FlashVisionModel(config).eval()
+    for parameter in adapter.model.parameters():
+        torch.nn.init.normal_(parameter, std=0.2)
+    adapter.num_layers, adapter.resolution = 8, side
+    adapter.device, adapter.dtype, adapter.model_id = (
+        "cpu",
+        torch.float32,
+        hy4_flash.MODEL_ID,
+    )
+    return adapter
+
+
+def test_hy4_flash_positions_use_the_parents_shifted_scale_factor():
+    """A linear ramp sampled at (out + 0.5) * 128 / (size + 0.1) - 0.5, not at size= coordinates."""
+    config = hy4_flash_model.Hy4FlashVisionConfig(hidden_size=2, max_image_size=2048)
+    embeddings = hy4_flash_model.Hy4FlashEmbeddings(config)
+    edge = embeddings.position_edge
+    rows, cols = torch.meshgrid(
+        torch.arange(edge, dtype=torch.float32),
+        torch.arange(edge, dtype=torch.float32),
+        indexing="ij",
+    )
+    with torch.no_grad():
+        embeddings.position_embedding.weight[0] = float("nan")
+        embeddings.position_embedding.weight[1:] = torch.stack(
+            [rows.flatten(), cols.flatten()], -1
+        )
+    table = embeddings.interpolate_pos_encoding(32, 24, torch.float32)
+    sample_rows = ((torch.arange(32) + 0.5) * edge / 32.1 - 0.5).clamp(0, edge - 1)
+    sample_cols = ((torch.arange(24) + 0.5) * edge / 24.1 - 0.5).clamp(0, edge - 1)
+    expected = torch.stack(torch.meshgrid(sample_rows, sample_cols, indexing="ij"), -1)
+    torch.testing.assert_close(table, expected.reshape(1, -1, 2), rtol=0, atol=1e-4)
+    plain = ((torch.arange(32) + 0.5) * edge / 32 - 0.5).clamp(0, edge - 1)
+    assert (table.reshape(32, 24, 2)[:, 0, 0] - plain).abs().max() > 0.1
+
+
+def test_hy4_flash_embeds_each_patch_in_raster_order():
+    adapter = tiny_hy4_flash_adapter()
+    pixels = torch.randn(2, 3, 64, 64)
+    tokens = adapter.model.embeddings(pixels)
+    conv = adapter.model.embeddings.patch_embedding(pixels).flatten(2).transpose(1, 2)
+    positions = adapter.model.embeddings.interpolate_pos_encoding(4, 4, torch.float32)
+    torch.testing.assert_close(tokens, conv + positions)
+
+
+def test_hy4_flash_merged_is_what_proj0_reads_and_projected_drops_the_newline():
+    adapter = tiny_hy4_flash_adapter()
+    pixels = torch.randn(2, 3, 64, 64)
+    batches = {
+        (b.stage, b.layer_index): b.tokens
+        for b in adapter.extract({"pixel_values": pixels}, ["a", "b"])
+    }
+    assert list(batches) == [("tower", n) for n in range(1, 9)] + [
+        ("merged", 8),
+        ("projected", 8),
+    ]
+    with torch.inference_mode():
+        out = adapter.model(pixels)
+    perceive = adapter.model.perceive
+    torch.testing.assert_close(batches[("tower", 8)], out.last_hidden_state)
+    merged = batches[("merged", 8)]
+    assert merged.shape == (2, 4, 64)
+    conv = perceive.proj[0]
+    with torch.inference_mode():
+        first = merged @ conv.weight.reshape(64, -1).T + conv.bias
+        normed = perceive.norm(out.last_hidden_state)
+        reference = conv(normed.reshape(2, 4, 4, 16).permute(0, 3, 1, 2))
+    torch.testing.assert_close(first, reference.flatten(2).transpose(1, 2))
+    pooled = out.pooler_output.reshape(2, 2, 3, 12)
+    torch.testing.assert_close(
+        batches[("projected", 8)], pooled[:, :, :2].reshape(2, 4, 12)
+    )
+    assert torch.equal(pooled[:, :, 2], perceive.image_newline.expand(2, 2, 12))
+
+
+def test_hy4_flash_projector_rmsnorm_and_gelu_match_the_parent_arithmetic():
+    perceive = tiny_hy4_flash_adapter().model.perceive
+    tokens = torch.randn(1, 16, 16)
+    expected = tokens * torch.rsqrt(tokens.pow(2).mean(-1, keepdim=True) + 1e-5)
+    torch.testing.assert_close(perceive.norm(tokens), perceive.norm.weight * expected)
+    assert perceive.norm.eps == 1e-5 and perceive.proj[1].approximate == "none"
+
+
+def test_hy4_flash_keeps_images_out_of_each_others_features():
+    adapter = tiny_hy4_flash_adapter()
+    first, second = torch.randn(1, 3, 64, 64), torch.randn(1, 3, 64, 64)
+    alone = list(adapter.extract({"pixel_values": first}, ["first"]))
+    paired = list(
+        adapter.extract(
+            {"pixel_values": torch.cat([second, first])}, ["second", "first"]
+        )
+    )
+    for single, batch in zip(alone, paired, strict=True):
+        torch.testing.assert_close(single.tokens[0], batch.tokens[1], rtol=0, atol=1e-5)
+
+
+def test_hy4_flash_rejects_mismatched_pixels_and_ids():
+    adapter = tiny_hy4_flash_adapter()
+    with pytest.raises(ValueError, match="shape"):
+        list(adapter.extract({"pixel_values": torch.randn(1, 3, 96, 96)}, ["a"]))
+    with pytest.raises(ValueError, match="count"):
+        list(adapter.extract({"pixel_values": torch.randn(2, 3, 64, 64)}, ["a"]))
