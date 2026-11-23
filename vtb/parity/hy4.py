@@ -130,8 +130,8 @@ def reference_features(parent, adapter, images):
     return expected
 
 
-def validate(device="cpu", dtype=torch.float32):
-    bundle = open_release(MODEL_ID, SOURCE_REPO, SOURCE_REVISION)
+def validate(device="cpu", dtype=torch.float32, *, bundle=None):
+    bundle = open_release(MODEL_ID, SOURCE_REPO, SOURCE_REVISION, bundle=bundle)
     weights = source_weights()
     exact = weights_match(
         load_file(bundle / "model.safetensors"), weights, VISUAL_TENSORS

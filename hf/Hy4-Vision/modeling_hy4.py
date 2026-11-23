@@ -46,9 +46,12 @@ class PatchEmbedding(nn.Module):
         rows, cols = height // patch, width // patch
         patches = F.unfold(pixels, patch, stride=patch).transpose(1, 2)
         embedded = self.patch_embedding(patches.reshape(-1, 3, patch, patch))
-        tokens = embedded.reshape(pixels.shape[0], rows * cols, -1)
-        positions = self.position_embedding.weight[1:].T.reshape(
-            1, -1, self.edge, self.edge
+        batch = pixels.shape[0]
+        tokens = embedded.flatten(1)
+        positions = (
+            self.position_embedding.weight[1:]
+            .reshape(1, self.edge, self.edge, tokens.shape[-1])
+            .permute(0, 3, 1, 2)
         )
         positions = F.interpolate(
             positions.float(),
@@ -56,7 +59,10 @@ class PatchEmbedding(nn.Module):
             mode="bilinear",
             align_corners=False,
         )
-        return tokens + positions.flatten(2).transpose(1, 2).to(tokens.dtype)
+        positions = positions.permute(0, 2, 3, 1).reshape(rows * cols, -1)
+        return (tokens + positions.to(tokens.dtype).repeat(batch, 1)).reshape(
+            batch, rows * cols, -1
+        )
 
 
 class Attention(nn.Module):
@@ -64,6 +70,7 @@ class Attention(nn.Module):
         super().__init__()
         width = config.hidden_size
         self.heads = config.num_attention_heads
+        self.scale = (width // self.heads) ** -0.5
         self.q_proj = nn.Linear(width, width)
         self.k_proj = nn.Linear(width, width)
         self.v_proj = nn.Linear(width, width)
@@ -71,12 +78,24 @@ class Attention(nn.Module):
 
     def forward(self, tokens):
         batch, length, width = tokens.shape
-        q, k, v = [
-            proj(tokens).view(batch, length, self.heads, -1).transpose(1, 2)
+        chunks = [
+            proj(tokens)
+            .view(1, batch * length, self.heads, -1)
+            .transpose(1, 2)
+            .split(length, dim=2)
             for proj in (self.q_proj, self.k_proj, self.v_proj)
         ]
-        attended = F.scaled_dot_product_attention(q, k, v)
-        return self.o_proj(attended.transpose(1, 2).reshape(batch, length, width))
+        # The upstream SDPA path dispatches a kernel per image.
+        attended = torch.cat(
+            [
+                F.scaled_dot_product_attention(q, k, v, scale=self.scale)
+                .transpose(1, 2)
+                .contiguous()
+                for q, k, v in zip(*chunks, strict=True)
+            ],
+            dim=1,
+        )
+        return self.o_proj(attended.reshape(batch, length, width))
 
 
 class MLP(nn.Module):
@@ -133,7 +152,11 @@ class Projector(nn.Module):
             .permute(0, 1, 3, 2, 4, 5)
             .reshape(batch, rows * cols // 4, 4 * width)
         )
-        projected = self.proj(grid.permute(0, 3, 1, 2)).flatten(2).transpose(1, 2)
+        projected = (
+            torch.cat([self.proj(image) for image in grid.permute(0, 3, 1, 2).split(1)])
+            .flatten(2)
+            .transpose(1, 2)
+        )
         return merged, projected
 
 
