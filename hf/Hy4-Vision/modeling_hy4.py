@@ -1,9 +1,20 @@
-"""Standalone Tencent Hy4 Tower and Projector with checkpoint-native names."""
+# Copyright (c) 2026 Immanuel Peter. MIT License; see LICENSE-CODE.
+#
+# Standalone vision Towers and Projectors of tencent/Hy4 (c10c0de5b6f850703fb0a90e65d1c32b558b9167)
+# and tencent/Hy4-flash (d88c9dfd96ba4f2e6b92adba0b8e8f1c8696f959), written for vision-tower-bench.
+# The arithmetic follows the vision classes of Transformers commit 1031277cef60200fda98628e9adc8fb15f0e1549
+# (Hy4) and of transformers PR #50903 at c2ec850510a37978ea83df226589623d5f2be776 (Hy4 flash).
+# Parameter names are the checkpoints' own `vit.*` names with the `vit.` prefix removed, so the released
+# tensors load without renaming. No language model code is imported.
 
 import torch
 from torch import nn
 from torch.nn import functional as F
 from transformers import PretrainedConfig, PreTrainedModel
+from transformers.modeling_outputs import BaseModelOutputWithPooling
+
+CHANNELS = 3
+MERGE = 2
 
 
 class Hy4VisionConfig(PretrainedConfig):
@@ -32,37 +43,67 @@ class Hy4VisionConfig(PretrainedConfig):
         self.rms_norm_eps = rms_norm_eps
 
 
+class Hy4FlashVisionConfig(Hy4VisionConfig):
+    model_type = "hy4_flash_vision"
+
+    def __init__(
+        self,
+        hidden_size=1152,
+        intermediate_size=4304,
+        num_hidden_layers=27,
+        out_hidden_size=3072,
+        **kwargs,
+    ):
+        kwargs.setdefault("num_channels", CHANNELS)
+        kwargs.setdefault("spatial_merge_size", MERGE)
+        kwargs.setdefault("hidden_act", "gelu")
+        kwargs.setdefault("layer_norm_eps", kwargs.get("rms_norm_eps", 1e-5))
+        super().__init__(
+            hidden_size=hidden_size,
+            intermediate_size=intermediate_size,
+            num_hidden_layers=num_hidden_layers,
+            out_hidden_size=out_hidden_size,
+            **kwargs,
+        )
+
+
 class PatchEmbedding(nn.Module):
     def __init__(self, config):
         super().__init__()
-        patch = config.patch_size
-        self.edge = config.max_image_size // patch
-        self.patch_embedding = nn.Conv2d(3, config.hidden_size, patch, stride=patch)
-        self.position_embedding = nn.Embedding(self.edge**2 + 1, config.hidden_size)
-
-    def forward(self, pixels):
-        height, width = pixels.shape[-2:]
-        patch = self.patch_embedding.kernel_size[0]
-        rows, cols = height // patch, width // patch
-        patches = F.unfold(pixels, patch, stride=patch).transpose(1, 2)
-        embedded = self.patch_embedding(patches.reshape(-1, 3, patch, patch))
-        batch = pixels.shape[0]
-        tokens = embedded.flatten(1)
-        positions = (
-            self.position_embedding.weight[1:]
-            .reshape(1, self.edge, self.edge, tokens.shape[-1])
-            .permute(0, 3, 1, 2)
+        self.patch_size = config.patch_size
+        self.position_edge = config.max_image_size // config.patch_size
+        self.patch_embedding = nn.Conv2d(
+            CHANNELS, config.hidden_size, config.patch_size, stride=config.patch_size
         )
-        positions = F.interpolate(
-            positions.float(),
-            scale_factor=((rows + 0.1) / self.edge, (cols + 0.1) / self.edge),
+        # Row 0 is an unused class-token slot; rows 1.. form the position grid.
+        self.position_embedding = nn.Embedding(
+            self.position_edge**2 + 1, config.hidden_size
+        )
+
+    def interpolate_pos_encoding(self, rows, cols, dtype):
+        edge, width = self.position_edge, self.position_embedding.embedding_dim
+        grid = self.position_embedding.weight[1:].reshape(1, edge, edge, width)
+        # The parent passes a scale factor of (size + 0.1) / edge, not a target size.
+        grid = F.interpolate(
+            grid.permute(0, 3, 1, 2).float(),
+            scale_factor=((rows + 0.1) / edge, (cols + 0.1) / edge),
             mode="bilinear",
             align_corners=False,
         )
-        positions = positions.permute(0, 2, 3, 1).reshape(rows * cols, -1)
-        return (tokens + positions.to(tokens.dtype).repeat(batch, 1)).reshape(
-            batch, rows * cols, -1
+        return grid.permute(0, 2, 3, 1).reshape(1, -1, width).to(dtype)
+
+    def forward(self, pixel_values):
+        batch, channels, height, width = pixel_values.shape
+        patch = self.patch_size
+        rows, cols = height // patch, width // patch
+        patches = pixel_values.reshape(batch, channels, rows, patch, cols, patch)
+        patches = patches.permute(0, 2, 4, 1, 3, 5).reshape(
+            batch * rows * cols, channels, patch, patch
         )
+        tokens = self.patch_embedding(
+            patches.to(self.patch_embedding.weight.dtype)
+        ).reshape(batch, rows * cols, -1)
+        return tokens + self.interpolate_pos_encoding(rows, cols, tokens.dtype)
 
 
 class Attention(nn.Module):
@@ -70,32 +111,22 @@ class Attention(nn.Module):
         super().__init__()
         width = config.hidden_size
         self.heads = config.num_attention_heads
-        self.scale = (width // self.heads) ** -0.5
         self.q_proj = nn.Linear(width, width)
         self.k_proj = nn.Linear(width, width)
         self.v_proj = nn.Linear(width, width)
         self.o_proj = nn.Linear(width, width)
 
     def forward(self, tokens):
-        batch, length, width = tokens.shape
-        chunks = [
-            proj(tokens)
-            .view(1, batch * length, self.heads, -1)
-            .transpose(1, 2)
-            .split(length, dim=2)
-            for proj in (self.q_proj, self.k_proj, self.v_proj)
-        ]
-        # The upstream SDPA path dispatches a kernel per image.
-        attended = torch.cat(
-            [
-                F.scaled_dot_product_attention(q, k, v, scale=self.scale)
-                .transpose(1, 2)
-                .contiguous()
-                for q, k, v in zip(*chunks, strict=True)
-            ],
-            dim=1,
-        )
-        return self.o_proj(attended.reshape(batch, length, width))
+        batch, length, _ = tokens.shape
+
+        def heads(projection):
+            return (
+                projection(tokens).view(batch, length, self.heads, -1).transpose(1, 2)
+            )
+
+        q, k, v = heads(self.q_proj), heads(self.k_proj), heads(self.v_proj)
+        attended = F.scaled_dot_product_attention(q, k, v, scale=q.shape[-1] ** -0.5)
+        return self.o_proj(attended.transpose(1, 2).reshape(batch, length, -1))
 
 
 class MLP(nn.Module):
@@ -123,7 +154,12 @@ class Block(nn.Module):
         return tokens + self.mlp(self.post_attention_layernorm(tokens))
 
 
-class RMSNorm(nn.RMSNorm):
+class RMSNorm(nn.Module):
+    def __init__(self, width, eps):
+        super().__init__()
+        self.weight = nn.Parameter(torch.ones(width))
+        self.eps = eps
+
     def forward(self, tokens):
         values = tokens.float()
         normalized = values * torch.rsqrt(
@@ -133,36 +169,51 @@ class RMSNorm(nn.RMSNorm):
 
 
 class Projector(nn.Module):
+    """RMSNorm, a learned 2x2 stride-2 merge conv, GELU, a 1x1 conv, then a newline per row."""
+
     def __init__(self, config):
         super().__init__()
         width = config.hidden_size
-        self.norm = RMSNorm(width, eps=config.rms_norm_eps)
+        self.norm = RMSNorm(width, config.rms_norm_eps)
         self.proj = nn.Sequential(
-            nn.Conv2d(width, 4 * width, 2, stride=2),
+            nn.Conv2d(width, width * MERGE**2, MERGE, stride=MERGE),
             nn.GELU(),
-            nn.Conv2d(4 * width, config.out_hidden_size, 1),
+            nn.Conv2d(width * MERGE**2, config.out_hidden_size, 1),
         )
         self.image_newline = nn.Parameter(torch.zeros(config.out_hidden_size))
 
-    def forward(self, tokens, rows, cols):
-        batch, _, width = tokens.shape
-        grid = self.norm(tokens).reshape(batch, rows, cols, width)
-        merged = (
-            grid.reshape(batch, rows // 2, 2, cols // 2, 2, width)
-            .permute(0, 1, 3, 2, 4, 5)
-            .reshape(batch, rows * cols // 4, 4 * width)
+    def merge(self, normed, grid, channels_last=False):
+        """Each 2x2 block as one vector, in raster block order. The vector is (channel, row, column) as proj.0 reads it, or (row, column, channel) when ``channels_last``."""
+        batch, (height, width), channels = normed.shape[0], grid, normed.shape[-1]
+        blocks = normed.reshape(
+            batch, height // MERGE, MERGE, width // MERGE, MERGE, channels
         )
-        projected = (
-            torch.cat([self.proj(image) for image in grid.permute(0, 3, 1, 2).split(1)])
-            .flatten(2)
-            .transpose(1, 2)
+        order = (0, 1, 3, 2, 4, 5) if channels_last else (0, 1, 3, 5, 2, 4)
+        return blocks.permute(*order).reshape(
+            batch, (height // MERGE) * (width // MERGE), channels * MERGE**2
         )
-        return merged, projected
+
+    def project(self, normed, grid):
+        """proj.2 output as (batch, channels, rows, columns), before the newline column."""
+        image = normed.reshape(normed.shape[0], *grid, normed.shape[-1]).permute(
+            0, 3, 1, 2
+        )
+        return self.proj(image)
+
+    def forward(self, hidden_states, grid):
+        projected = self.project(self.norm(hidden_states), grid)
+        batch, channels, rows, _ = projected.shape
+        newline = self.image_newline.reshape(1, channels, 1, 1).expand(
+            batch, channels, rows, 1
+        )
+        projected = torch.cat([projected, newline.to(projected.dtype)], dim=-1)
+        return projected.flatten(2).transpose(1, 2)
 
 
-class Hy4VisionModel(PreTrainedModel):
-    config_class = Hy4VisionConfig
+class Hy4VisionBase(PreTrainedModel):
     main_input_name = "pixel_values"
+    _no_split_modules = ["Block"]
+    merged_channels_last = False
 
     def __init__(self, config):
         super().__init__(config)
@@ -173,15 +224,45 @@ class Hy4VisionModel(PreTrainedModel):
         self.perceive = Projector(config)
         self.post_init()
 
-    def forward(self, pixel_values, depths=()):
+    def grid(self, pixel_values):
+        return tuple(side // self.config.patch_size for side in pixel_values.shape[-2:])
+
+    def stages(self, pixel_values, depths=()):
+        """The block outputs at ``depths``, the merged tokens, and the projected tokens without newlines. There is no final norm: the last block feeds the Projector."""
         tokens = self.embeddings(pixel_values)
         hidden = {}
         for depth, layer in enumerate(self.layers, 1):
             tokens = layer(tokens)
             if depth in depths:
                 hidden[depth] = tokens
-        rows, cols = (
-            side // self.config.patch_size for side in pixel_values.shape[-2:]
-        )
-        merged, projected = self.perceive(tokens, rows, cols)
+        grid = self.grid(pixel_values)
+        normed = self.perceive.norm(tokens)
+        merged = self.perceive.merge(normed, grid, self.merged_channels_last)
+        projected = self.perceive.project(normed, grid).flatten(2).transpose(1, 2)
         return hidden, merged, projected
+
+
+class Hy4VisionModel(Hy4VisionBase):
+    config_class = Hy4VisionConfig
+    merged_channels_last = True
+
+    def forward(self, pixel_values, depths=()):
+        return self.stages(pixel_values, depths)
+
+
+class Hy4FlashVisionModel(Hy4VisionBase):
+    config_class = Hy4FlashVisionConfig
+
+    def forward(self, pixel_values, output_hidden_states=False):
+        """pixel_values (batch, 3, H, W), normalized with mean and std 0.5. There is no final norm: last_hidden_state is the last block's output and pooler_output the Projector's, with newlines."""
+        hidden_states = self.embeddings(pixel_values)
+        states = [hidden_states] if output_hidden_states else None
+        for layer in self.layers:
+            hidden_states = layer(hidden_states)
+            if states is not None:
+                states.append(hidden_states)
+        return BaseModelOutputWithPooling(
+            last_hidden_state=hidden_states,
+            pooler_output=self.perceive(hidden_states, self.grid(pixel_values)),
+            hidden_states=tuple(states) if states is not None else None,
+        )

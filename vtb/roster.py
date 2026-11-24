@@ -214,7 +214,7 @@ ROSTER: tuple[Tower, ...] = (
         "hy4_flash",
         "Hy4 Flash",
         "immanuelpeter/Hy4-Flash-Vision",
-        "vtb.adapters.hy4_flash:Hy4FlashAdapter",
+        "vtb.adapters.hy4:Hy4FlashAdapter",
         "#5254a3",
         16,
     ),

@@ -11,17 +11,14 @@ the parent's tensors. Both are compiled from the pinned PR head. The reference o
 """
 
 import ast
-import hashlib
 import importlib
 import sys
 import types
 from collections import Counter
 from collections.abc import Iterable, Mapping
-from pathlib import Path
 from typing import Any, NamedTuple
 
 import numpy as np
-import requests
 import torch
 import torch.nn.functional as F
 from huggingface_hub import hf_hub_download
@@ -31,14 +28,11 @@ from torch import nn
 from vtb.adapters.pe import (
     DEPTH,
     INKLING2,
-    INKLING2_MINI,
     INKLING2_SMALL,
     PE_LANG_L,
     PROJECTOR_TENSORS,
     TOWER_TENSORS,
     VLLM_REFERENCE,
-    Inkling2MiniAdapter,
-    Inkling2SmallAdapter,
     PELangLAdapter,
     remap_checks,
     source_json,
@@ -47,8 +41,14 @@ from vtb.adapters.pe import (
     timm_weights,
 )
 from vtb.images import square_crop
-from vtb.parity import compare, features, fixed_images, weights_match
-from vtb.shards import cache_root
+from vtb.parity import (
+    compare,
+    features,
+    fixed_images,
+    pinned_sources,
+    weights_match,
+)
+from vtb.roster import BY_SLUG
 
 REFERENCE_REPO = "facebook/vit_pe_lang_large_patch14_448_timm"
 REFERENCE_REVISION = "7eb04e215d0e6e18a21f782a9abc605343dcb503"
@@ -77,20 +77,14 @@ VLLM_CLASSES = (
 VLLM_HELPERS = ("_linear", "_rope", "_normalize", "_reference_image")
 VLLM_CONSTANTS = ("_CLIP_MEAN", "_CLIP_STD", "_PROCESSOR_CLIP_STD")
 PE_TENSORS = 327
-# Relative L2 per cell. PE-Lang L in FP32 on CPU is bit-exact; in BF16 on CUDA it reaches 0.039 at L23,
-# where each implementation is already 0.057 from its own FP32 output. The Inkling 2 Towers against vLLM's
-# BF16 reference reach 0.033 (Small, H100) to 0.054 (Small and Mini, RTX PRO 6000 Blackwell) at L23, where
-# vLLM's BF16 output is 0.052 (Small) and 0.056 (Mini) from the bench's FP32 output and the bench's is 0.050.
+# Relative L2 per cell. PE-Lang L in FP32 on CPU is bit-exact. In BF16 on CUDA, each implementation is already
+# about 0.05 from its own FP32 output at L23, which bounds how closely two of them can agree.
 TOLERANCE = {
     PE_LANG_L.name: {torch.bfloat16: 0.05, torch.float32: 1e-5},
     **{checkpoint.name: {torch.bfloat16: 0.06} for checkpoint in INKLING2},
 }
 DTYPE = {checkpoint.name: torch.bfloat16 for checkpoint in INKLING2}
 REQUIRES_CUDA = {checkpoint.name: True for checkpoint in INKLING2}
-INKLING_ADAPTERS = {
-    INKLING2_SMALL.name: Inkling2SmallAdapter,
-    INKLING2_MINI.name: Inkling2MiniAdapter,
-}
 
 RENAMES = (
     ("class_embedding", "cls_token"),
@@ -127,23 +121,6 @@ def to_timm(weights: dict[str, torch.Tensor]) -> dict[str, torch.Tensor]:
             tensor.view(TIMM_SHAPES[name]) if name in TIMM_SHAPES else tensor
         )
     return renamed
-
-
-def pinned_sources(repo: str, commit: str, sources: dict[str, str]) -> Path:
-    """Fetch files from a GitHub commit into the shard cache, checked against their SHA-256."""
-    root = cache_root().parent / "vtb-upstream" / f"{repo.replace('/', '__')}@{commit}"
-    for name, digest in sources.items():
-        path = root / name
-        if not path.is_file():
-            response = requests.get(
-                f"https://raw.githubusercontent.com/{repo}/{commit}/{name}", timeout=60
-            )
-            response.raise_for_status()
-            path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_bytes(response.content)
-        if hashlib.sha256(path.read_bytes()).hexdigest() != digest:
-            raise ValueError(f"{path} does not match {repo}@{commit}")
-    return root
 
 
 def upstream_pe():
@@ -369,7 +346,7 @@ def validate_inkling(
         namespace, parent, config["vision_config"], config["text_config"]["hidden_size"]
     )
     del parent, tower, projector
-    adapter = INKLING_ADAPTERS[checkpoint.name](device=device, dtype=dtype)
+    adapter = BY_SLUG[checkpoint.name].adapter()(device=device, dtype=dtype)
     images = fixed_images()
     actual = features(adapter, images)
     references = [

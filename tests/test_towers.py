@@ -24,7 +24,7 @@ from transformers import (
 
 from vtb.adapters import (
     dinov3,
-    hy4_flash,
+    hy4,
     mimo26,
     minimax_m3,
     mistral_large4,
@@ -33,7 +33,7 @@ from vtb.adapters import (
     pe,
 )
 from vtb.adapters.common import IMAGENET_MEAN, IMAGENET_STD
-from vtb.models import hy4_flash as hy4_flash_model
+from vtb.models import hy4 as hy4_model
 from vtb.models import inkling2
 from vtb.parity import fixed_images
 from vtb.roster import BY_SLUG, SLUGS
@@ -502,8 +502,10 @@ def test_inkling_remap_flags_a_sibling_and_reads_the_projector_width_from_the_pa
     assert "backbone.ln_pre.weight" not in report["sibling_equal"][other]
     assert "proj_out.weight" in report["sibling_equal"][other]
     assert not report["passed"]
-    with pytest.raises(ValueError, match="no remap"):
-        pe.remap_checks(pe.PE_LANG_L, weights)
+    assert (
+        pe.remap_checks(checkpoint, weights, compare_siblings=False)["sibling_equal"]
+        == {}
+    )
 
 
 def test_inkling_projector_uses_exact_gelu():
@@ -643,35 +645,15 @@ def test_dinov3_every_depth_matches_independent_parent_block_hooks(
     assert not torch.equal(streams[24], final)
 
 
-def tiny_hy4_flash_adapter(side: int = 64) -> hy4_flash.Hy4FlashAdapter:
-    """Eight blocks on a 4x4 position table, so the adapter's eight depth points are every block."""
-    torch.manual_seed(0)
-    config = hy4_flash_model.Hy4FlashVisionConfig(
-        hidden_size=16,
-        intermediate_size=24,
-        num_hidden_layers=8,
-        num_attention_heads=2,
-        patch_size=16,
-        max_image_size=64,
-        out_hidden_size=12,
-    )
-    adapter = hy4_flash.Hy4FlashAdapter.__new__(hy4_flash.Hy4FlashAdapter)
-    adapter.model = hy4_flash_model.Hy4FlashVisionModel(config).eval()
-    for parameter in adapter.model.parameters():
-        torch.nn.init.normal_(parameter, std=0.2)
-    adapter.num_layers, adapter.resolution = 8, side
-    adapter.device, adapter.dtype, adapter.model_id = (
-        "cpu",
-        torch.float32,
-        hy4_flash.MODEL_ID,
-    )
-    return adapter
+HY4_CHECKPOINTS = pytest.mark.parametrize(
+    "checkpoint", hy4.CHECKPOINTS.values(), ids=lambda c: c.name
+)
 
 
-def test_hy4_flash_positions_use_the_parents_shifted_scale_factor():
+def test_hy4_positions_use_the_parents_shifted_scale_factor():
     """A linear ramp sampled at (out + 0.5) * 128 / (size + 0.1) - 0.5, not at size= coordinates."""
-    config = hy4_flash_model.Hy4FlashVisionConfig(hidden_size=2, max_image_size=2048)
-    embeddings = hy4_flash_model.Hy4FlashEmbeddings(config)
+    config = hy4_model.Hy4VisionConfig(hidden_size=2, max_image_size=2048)
+    embeddings = hy4_model.PatchEmbedding(config)
     edge = embeddings.position_edge
     rows, cols = torch.meshgrid(
         torch.arange(edge, dtype=torch.float32),
@@ -692,8 +674,9 @@ def test_hy4_flash_positions_use_the_parents_shifted_scale_factor():
     assert (table.reshape(32, 24, 2)[:, 0, 0] - plain).abs().max() > 0.1
 
 
-def test_hy4_flash_embeds_each_patch_in_raster_order():
-    adapter = tiny_hy4_flash_adapter()
+@HY4_CHECKPOINTS
+def test_hy4_embeds_each_patch_in_raster_order(tiny_hy4_adapter, checkpoint):
+    adapter = tiny_hy4_adapter(checkpoint)
     pixels = torch.randn(2, 3, 64, 64)
     tokens = adapter.model.embeddings(pixels)
     conv = adapter.model.embeddings.patch_embedding(pixels).flatten(2).transpose(1, 2)
@@ -701,8 +684,11 @@ def test_hy4_flash_embeds_each_patch_in_raster_order():
     torch.testing.assert_close(tokens, conv + positions)
 
 
-def test_hy4_flash_merged_is_what_proj0_reads_and_projected_drops_the_newline():
-    adapter = tiny_hy4_flash_adapter()
+@HY4_CHECKPOINTS
+def test_hy4_merged_is_what_proj0_reads_and_projected_drops_the_newline(
+    tiny_hy4_adapter, checkpoint
+):
+    adapter = tiny_hy4_adapter(checkpoint)
     pixels = torch.randn(2, 3, 64, 64)
     batches = {
         (b.stage, b.layer_index): b.tokens
@@ -712,35 +698,53 @@ def test_hy4_flash_merged_is_what_proj0_reads_and_projected_drops_the_newline():
         ("merged", 8),
         ("projected", 8),
     ]
-    with torch.inference_mode():
-        out = adapter.model(pixels)
     perceive = adapter.model.perceive
-    torch.testing.assert_close(batches[("tower", 8)], out.last_hidden_state)
+    conv = perceive.proj[0]
     merged = batches[("merged", 8)]
     assert merged.shape == (2, 4, 64)
-    conv = perceive.proj[0]
+    # Hy4 orders each block (row, column, channel); proj.0 reads (channel, row, column).
+    read = (
+        merged
+        if checkpoint is hy4.HY4_FLASH
+        else merged.reshape(2, 4, 2, 2, 16).permute(0, 1, 4, 2, 3).reshape(2, 4, 64)
+    )
     with torch.inference_mode():
-        first = merged @ conv.weight.reshape(64, -1).T + conv.bias
-        normed = perceive.norm(out.last_hidden_state)
-        reference = conv(normed.reshape(2, 4, 4, 16).permute(0, 3, 1, 2))
+        last = batches[("tower", 8)]
+        first = read @ conv.weight.reshape(64, -1).T + conv.bias
+        reference = conv(perceive.norm(last).reshape(2, 4, 4, 16).permute(0, 3, 1, 2))
+        pooled = perceive(last, (4, 4)).reshape(2, 2, 3, 12)
     torch.testing.assert_close(first, reference.flatten(2).transpose(1, 2))
-    pooled = out.pooler_output.reshape(2, 2, 3, 12)
     torch.testing.assert_close(
         batches[("projected", 8)], pooled[:, :, :2].reshape(2, 4, 12)
     )
     assert torch.equal(pooled[:, :, 2], perceive.image_newline.expand(2, 2, 12))
 
 
-def test_hy4_flash_projector_rmsnorm_and_gelu_match_the_parent_arithmetic():
-    perceive = tiny_hy4_flash_adapter().model.perceive
+def test_hy4_flash_forward_returns_the_projector_output_and_every_block(
+    tiny_hy4_adapter,
+):
+    adapter = tiny_hy4_adapter(hy4.HY4_FLASH)
+    pixels = torch.randn(2, 3, 64, 64)
+    with torch.inference_mode():
+        out = adapter.model(pixels, output_hidden_states=True)
+        hidden, _, projected = adapter.model.stages(pixels, (8,))
+    assert len(out.hidden_states) == 9
+    torch.testing.assert_close(out.last_hidden_state, hidden[8])
+    pooled = out.pooler_output.reshape(2, 2, 3, 12)
+    torch.testing.assert_close(projected, pooled[:, :, :2].reshape(2, 4, 12))
+
+
+def test_hy4_projector_rmsnorm_and_gelu_match_the_parent_arithmetic(tiny_hy4_adapter):
+    perceive = tiny_hy4_adapter(hy4.HY4).model.perceive
     tokens = torch.randn(1, 16, 16)
     expected = tokens * torch.rsqrt(tokens.pow(2).mean(-1, keepdim=True) + 1e-5)
     torch.testing.assert_close(perceive.norm(tokens), perceive.norm.weight * expected)
     assert perceive.norm.eps == 1e-5 and perceive.proj[1].approximate == "none"
 
 
-def test_hy4_flash_keeps_images_out_of_each_others_features():
-    adapter = tiny_hy4_flash_adapter()
+@HY4_CHECKPOINTS
+def test_hy4_keeps_images_out_of_each_others_features(tiny_hy4_adapter, checkpoint):
+    adapter = tiny_hy4_adapter(checkpoint)
     first, second = torch.randn(1, 3, 64, 64), torch.randn(1, 3, 64, 64)
     alone = list(adapter.extract({"pixel_values": first}, ["first"]))
     paired = list(
@@ -752,8 +756,9 @@ def test_hy4_flash_keeps_images_out_of_each_others_features():
         torch.testing.assert_close(single.tokens[0], batch.tokens[1], rtol=0, atol=1e-5)
 
 
-def test_hy4_flash_rejects_mismatched_pixels_and_ids():
-    adapter = tiny_hy4_flash_adapter()
+@HY4_CHECKPOINTS
+def test_hy4_rejects_mismatched_pixels_and_ids(tiny_hy4_adapter, checkpoint):
+    adapter = tiny_hy4_adapter(checkpoint)
     with pytest.raises(ValueError, match="shape"):
         list(adapter.extract({"pixel_values": torch.randn(1, 3, 96, 96)}, ["a"]))
     with pytest.raises(ValueError, match="count"):
@@ -765,10 +770,8 @@ def test_hy4_preprocess_normalizes_and_converts_grayscale():
     torch.testing.assert_close(pixels, torch.full_like(pixels, 2 * (64 / 255) - 1))
 
 
-def test_hy4_stage_layout_and_batch_isolation():
-    from vtb.models.hy4 import Hy4VisionConfig, Hy4VisionModel
-
-    config = Hy4VisionConfig(
+def test_hy4_forward_returns_stages_in_the_published_tuple():
+    config = hy4_model.Hy4VisionConfig(
         hidden_size=8,
         intermediate_size=16,
         num_hidden_layers=2,
@@ -777,7 +780,7 @@ def test_hy4_stage_layout_and_batch_isolation():
         patch_size=4,
         max_image_size=32,
     )
-    model = Hy4VisionModel(config).eval()
+    model = hy4_model.Hy4VisionModel(config).eval()
     pixels = torch.linspace(-1, 1, 2 * 3 * 16 * 16).reshape(2, 3, 16, 16)
     with torch.inference_mode():
         hidden, merged, projected = model(pixels, depths=(1, 2))

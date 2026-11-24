@@ -40,11 +40,11 @@ See [`examples/inference.py`](examples/inference.py) for image feature extractio
 
 ## Validation
 
-The [parity check](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/parity/hy4_flash.py) verifies all 441 tensors against the pinned parent with `torch.equal` and compares forward outputs against the `hy_v4_flash` reference in Transformers [PR #50903](https://github.com/huggingface/transformers/pull/50903).
+The [parity check](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/parity/hy4.py) verifies all 441 tensors against the pinned parent with `torch.equal` and compares forward outputs against the `hy_v4_flash` reference in Transformers [PR #50903](https://github.com/huggingface/transformers/pull/50903).
 
 ## Reproduction
 
-The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/adapters/hy4_flash.py) range-reads the 441 `vit.*` tensors from the pinned parent and writes the original BF16 tensors.
+The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/adapters/hy4.py) range-reads the 441 `vit.*` tensors from the pinned parent and writes the original BF16 tensors.
 
 ## Credits
 

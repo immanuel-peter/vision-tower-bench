@@ -21,7 +21,7 @@ from transformers import (
 )
 
 from scripts import render_hf_templates
-from vtb.adapters import hy4, hy4_flash, minimax_m3, nemotron_omni
+from vtb.adapters import hy4, minimax_m3, nemotron_omni
 from vtb.adapters.kimi_k26 import BUNDLE_FILES as KIMI_BUNDLE_FILES
 from vtb.adapters.moonvit_v2 import load_projector_weights
 from vtb.adapters.muse_glimmer import Projector
@@ -63,7 +63,7 @@ def load_example(path):
         ("PixtralViT-Large-4", "modeling_pixtral_large4.py", "pixtral_large4.py"),
         ("Inkling-2-Small-Vision", "inkling2_vision.py", "inkling2.py"),
         ("Inkling-2-Mini-Vision", "inkling2_vision.py", "inkling2.py"),
-        ("Hy4-Flash-Vision", "modeling_hy4_flash_vision.py", "hy4_flash.py"),
+        ("Hy4-Flash-Vision", "modeling_hy4_flash_vision.py", "hy4.py"),
         ("Hy4-Vision", "modeling_hy4.py", "hy4.py"),
     ],
 )
@@ -362,23 +362,14 @@ def test_kimi_projector_file_matches_adapter_and_exact_gelu(tmp_path, dtype):
 HY4_FLASH_BUNDLE = HF / "Hy4-Flash-Vision"
 
 
-def test_hy4_flash_example_matches_the_benchmark_preprocess_and_stages():
+def test_hy4_flash_example_matches_the_benchmark_preprocess_and_stages(
+    tiny_hy4_adapter,
+):
     module = load_example(HY4_FLASH_BUNDLE / "examples/inference.py")
     pixels = np.arange(43 * 57 * 3, dtype=np.uint8).reshape(43, 57, 3)
     image = Image.fromarray(pixels)
-    assert torch.equal(module.preprocess(image), hy4_flash.Preprocess(512)(image))
-    config = hy4_flash.Hy4FlashVisionConfig(
-        hidden_size=8,
-        intermediate_size=12,
-        num_hidden_layers=8,
-        num_attention_heads=2,
-        max_image_size=64,
-        out_hidden_size=6,
-    )
-    adapter = hy4_flash.Hy4FlashAdapter.__new__(hy4_flash.Hy4FlashAdapter)
-    adapter.model = hy4_flash.Hy4FlashVisionModel(config).eval()
-    adapter.num_layers, adapter.resolution, adapter.device = 8, 64, "cpu"
-    adapter.dtype, adapter.model_id = torch.float32, hy4_flash.MODEL_ID
+    assert torch.equal(module.preprocess(image), hy4.Preprocess(512)(image))
+    adapter = tiny_hy4_adapter(hy4.HY4_FLASH)
     pixels = torch.randn(1, 3, 64, 64)
     expected = {
         batch.stage: batch.tokens
@@ -397,9 +388,9 @@ def test_hy4_flash_example_matches_the_benchmark_preprocess_and_stages():
             "Hy4-Flash-Vision",
             "modeling_hy4_flash_vision",
             "Hy4FlashVision",
-            hy4_flash.SOURCE_REVISION,
+            hy4.HY4_FLASH.revision,
         ),
-        ("Hy4-Vision", "modeling_hy4", "Hy4Vision", hy4.SOURCE_REVISION),
+        ("Hy4-Vision", "modeling_hy4", "Hy4Vision", hy4.HY4.revision),
     ],
 )
 def test_hy4_bundles_declare_their_remote_code_and_attribution(
@@ -418,3 +409,15 @@ def test_hy4_bundles_declare_their_remote_code_and_attribution(
     )
     notice = (HF / bundle / "NOTICE").read_text()
     assert revision in notice and "Section 10" in notice
+
+
+@pytest.mark.parametrize("checkpoint", hy4.CHECKPOINTS.values(), ids=lambda c: c.name)
+def test_hy4_bundle_config_is_what_the_config_class_writes(tmp_path, checkpoint):
+    shipped = checkpoint.release_dir / "config.json"
+    config = checkpoint.config_class.from_pretrained(shipped.parent)
+    config.save_pretrained(tmp_path)
+    written = json.loads((tmp_path / "config.json").read_text())
+    published = json.loads(shipped.read_text())
+    assert written | {"transformers_version": None} == published | {
+        "transformers_version": None
+    }

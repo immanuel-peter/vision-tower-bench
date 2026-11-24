@@ -174,10 +174,12 @@ def equal_tensors(
     )
 
 
-def remap_checks(checkpoint: Checkpoint, weights: dict[str, torch.Tensor]) -> dict:
-    """What parity cannot see: every tensor mapped once, the reshaped shapes, and weights that are neither PE-Lang L's nor a sibling's."""
-    if checkpoint not in INKLING2:
-        raise ValueError(f"{checkpoint.name} has no remap")
+def remap_checks(
+    checkpoint: Checkpoint,
+    weights: dict[str, torch.Tensor],
+    compare_siblings: bool = True,
+) -> dict:
+    """What parity cannot see: every tensor mapped once, the reshaped shapes, and weights that are neither PE-Lang L's nor a sibling's. Comparing a sibling reads its tensors from the Hub."""
     text_hidden = source_json(checkpoint, "config.json")["text_config"]["hidden_size"]
     tower, projector = split(weights)
     mapped = inkling2.to_timm(tower)
@@ -205,7 +207,7 @@ def remap_checks(checkpoint: Checkpoint, weights: dict[str, torch.Tensor]) -> di
     siblings = {
         sibling.name: equal_tensors(weights, source_weights(sibling))
         for sibling in INKLING2
-        if sibling is not checkpoint
+        if compare_siblings and sibling is not checkpoint
     }
     report = {
         "timm_names_match": set(mapped) == set(pe_lang),
@@ -232,7 +234,7 @@ def export(out: Path, checkpoint: Checkpoint) -> None:
             f"{checkpoint.name} is loaded from its upstream release and has no export"
         )
     weights = source_weights(checkpoint)
-    remap = remap_checks(checkpoint, weights)
+    remap = remap_checks(checkpoint, weights, compare_siblings=False)
     if not remap["passed"]:
         raise SystemExit(f"{checkpoint.name} remap checks failed: {remap}")
     tower, projector = split(weights)
