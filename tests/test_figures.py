@@ -57,6 +57,43 @@ def test_projector_intervals_read_only_geometry_and_correspondence(
     assert set(FIGURE_SCRIPT.projector_intervals()) == {"depth-matched", "navi"}
 
 
+def test_label_budget_series_overlays_standardized_directory(tmp_path, monkeypatch):
+    bundle = tmp_path / "diagnostics/mimo26-tower-outlier-channel"
+    bundle.mkdir(parents=True)
+    (bundle / "label_budget_standardized.json").write_text(
+        json.dumps(
+            {
+                "runs": {
+                    "deepseek_v41_probe_attention_matched_f001": {
+                        "label_fraction": 0.01,
+                        "cells": [{"test_accuracy": 0.3687}],
+                    }
+                }
+            }
+        )
+    )
+    extra = tmp_path / "diagnostics/minimax-m31-flash"
+    extra.mkdir(parents=True)
+    (extra / "label_budget_standardized.json").write_text(json.dumps({"runs": {}}))
+    override = extra / "m3-image-isolation"
+    override.mkdir(parents=True)
+    (override / "label_budget_standardized.json").write_text(json.dumps({"runs": {}}))
+
+    std_dir = tmp_path / "diagnostics/standardized-label-budget"
+    std_dir.mkdir(parents=True)
+    (std_dir / "deepseek_v41_probe_attention_matched_f001.json").write_text(
+        json.dumps({"label_fraction": 0.01, "cells": [{"test_accuracy": 0.3786}]})
+    )
+    (std_dir / "hy4_probe_attention_matched_f001.json").write_text(
+        json.dumps({"label_fraction": 0.01, "cells": [{"test_accuracy": 0.4178}]})
+    )
+    monkeypatch.setattr(FIGURE_SCRIPT, "RESULTS", tmp_path)
+
+    series = FIGURE_SCRIPT.label_budget_series()
+    assert series["deepseek_v41"][0.01] == pytest.approx(0.3786)
+    assert series["hy4"][0.01] == pytest.approx(0.4178)
+
+
 def test_roster_covers_the_registered_tower_suite():
     assert FIGURE_SCRIPT.TOWERS == (
         "dinov2",
