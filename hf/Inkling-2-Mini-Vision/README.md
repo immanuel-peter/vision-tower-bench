@@ -12,28 +12,27 @@ base_model:
 
 # Inkling-2-Mini-Vision
 
-This repository packages the vision Tower and Projector from [Inkling 2 Mini](https://huggingface.co/thinkingmachines/Inkling-2-Mini). The Tower was initialized from Meta's [PE-Lang L](https://huggingface.co/facebook/vit_pe_lang_large_patch14_448_timm) and trained further with the language model. It has the same architecture and initialization as [Inkling-2-Small-Vision](https://huggingface.co/immanuelpeter/Inkling-2-Small-Vision), but its weights differ because each Tower was co-trained with a different language model.
+This repository packages the vision Tower and Projector from [Inkling 2 Mini](https://huggingface.co/thinkingmachines/Inkling-2-Mini). Initialized from Meta's [PE-Lang L](https://huggingface.co/facebook/vit_pe_lang_large_patch14_448_timm), its weights differ from both PE-Lang L and [Inkling-2-Small-Vision](https://huggingface.co/immanuelpeter/Inkling-2-Small-Vision) after co-training with the language model.
 
 ## Contents
 
 | File | Tensors | What it holds |
 |---|---|---|
-| `model.safetensors` | 420 | Tower, the parent's `model.visual.backbone.*` with the prefix `model.visual.` removed |
-| `projector.safetensors` | 2 | Projector, the parent's `model.visual.proj_in` and `proj_out` |
-| `inkling2_vision.py` | | Loads the Tower onto timm's `vit_pe_lang_large_patch14_448` at patch size 20, plus the 2x2 merge, Projector and pixel normalization |
-| `config.json` | | The parent's `vision_config`, the language model width and the native resolution |
-| `export_manifest.json` | | Source pin, tensor counts and the vision reference |
-| `LICENSE` | | Apache-2.0 |
+| `model.safetensors` | 420 | Tower tensors from `model.visual.backbone.*` |
+| `projector.safetensors` | 2 | Projector (`proj_in`, `proj_out`) |
+| `inkling2_vision.py` | | timm Tower loader, 2x2 merge and Projector |
+| `config.json` | | Vision configuration and native resolution |
+| `export_manifest.json` | | Source pin and tensor counts |
 
 ## Architecture
 
 | Component | Details |
 |---|---|
 | Tower | 23 blocks, 1024 hidden, 16 heads, patch size 20, 2D RoPE, exact GELU, LayerScale |
-| Token compression | 2x2 spatial grouping of 1024-wide patches to 4096, no learned parameters |
+| Token compression | 2x2 spatial grouping to 4096, no learned parameters |
 | Projector | `Linear(4096, 4096)`, exact GELU, `Linear(4096, 2304)`, no biases |
 
-The native resolution is 640 px, a 32 x 32 patch grid. There the Tower gives 1024 patch tokens of width 1024, the merge 256 tokens of width 4096, and the Projector 256 tokens of width 2304, the language model's hidden size.
+At 640 px this gives 1024 Tower tokens (1024-d), 256 merged tokens (4096-d), and 256 projected tokens (2304-d).
 
 ## Usage
 
@@ -41,16 +40,16 @@ See [`examples/inference.py`](examples/inference.py) for image feature extractio
 
 ## Validation
 
-The [parity check](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/parity/pe.py) compares every released tensor with the pinned parent using `torch.equal`, and checks that none equals the matching tensor in PE-Lang L or Inkling 2 Small. It then compares the Tower depths, the merge and the Projector with the eager per-image reference in vLLM's Inkling 2 vision [test](https://github.com/vllm-project/vllm/pull/67325), run on the parent's tensors.
+The [parity check](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/parity/pe.py) verifies all 422 tensors against the pinned parent with `torch.equal`, confirms they differ from PE-Lang L and Inkling 2 Small, and checks forward outputs against vLLM's [reference](https://github.com/vllm-project/vllm/pull/67325).
 
 ## Reproduction
 
-The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/adapters/pe.py) reads the `model.visual.*` tensors from the pinned parent and writes the original BF16 tensors.
+The [export script](https://github.com/immanuel-peter/vision-tower-bench/blob/main/vtb/adapters/pe.py) reads `model.visual.*` from the pinned parent and writes the original BF16 tensors.
 
 ## Credits
 
-Thinking Machines released the Inkling 2 Mini weights. Meta released PE-Lang L and the Perception Encoder code. The vision forward follows the vLLM implementation.
+Thinking Machines released the Inkling 2 Mini weights; Meta released PE-Lang L. The vision forward follows vLLM.
 
 ## License
 
-Apache-2.0, as declared on the source model card.
+[Apache-2.0](LICENSE), as declared on the source model card.
