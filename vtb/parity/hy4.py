@@ -24,14 +24,6 @@ import torch.nn.functional as F
 from safetensors.torch import load_file
 from torch import nn
 from transformers import AutoModel
-from transformers.activations import ACT2FN
-from transformers.modeling_layers import GradientCheckpointingLayer
-from transformers.modeling_utils import ALL_ATTENTION_FUNCTIONS
-from transformers.processing_utils import Unpack
-from transformers.utils import TransformersKwargs
-from transformers.utils.generic import get_max_seqlen, is_flash_attention_requested
-from transformers.utils.import_utils import torch_compilable_check
-from transformers.vision_utils import get_vision_attention_seqlens
 
 from vtb.adapters.hy4 import (
     HY4,
@@ -253,6 +245,15 @@ def identity(*args, **_kwargs):
 
 def flash_reference_code() -> dict:
     """The PR's vision classes and image-processor helpers, compiled without importing the PR."""
+    from transformers.activations import ACT2FN
+    from transformers.modeling_layers import GradientCheckpointingLayer
+    from transformers.modeling_utils import ALL_ATTENTION_FUNCTIONS
+    from transformers.processing_utils import Unpack
+    from transformers.utils import TransformersKwargs
+    from transformers.utils.generic import get_max_seqlen, is_flash_attention_requested
+    from transformers.utils.import_utils import torch_compilable_check
+    from transformers.vision_utils import get_vision_attention_seqlens
+
     repo, _, head = FLASH_REFERENCE
     root = pinned_sources(repo, head, FLASH_SOURCES)
     namespace = {
@@ -270,6 +271,7 @@ def flash_reference_code() -> dict:
         "get_max_seqlen": get_max_seqlen,
         "is_flash_attention_requested": is_flash_attention_requested,
         "torch_compilable_check": torch_compilable_check,
+        "get_vision_attention_seqlens": get_vision_attention_seqlens,
         "HYV4FlashVisionConfig": SimpleNamespace,
     }
     compile_nodes(root / FLASH_MODELING, FLASH_CLASSES, namespace)
@@ -309,6 +311,7 @@ class FlashReferenceTower(nn.Module):
     def __init__(self, code: dict, config: SimpleNamespace):
         super().__init__()
         self.config = config
+        self.seqlens = code["get_vision_attention_seqlens"]
         self.embeddings = code["HYV4FlashVisionPatchEmbed"](config)
         self.layers = nn.ModuleList(
             code["HYV4FlashVisionBlock"](config)
@@ -318,9 +321,7 @@ class FlashReferenceTower(nn.Module):
 
     def forward(self, pixel_values, grid_thw, depths):
         hidden = self.embeddings(pixel_values, grid_thw)
-        cu_seqlens, max_seqlen = get_vision_attention_seqlens(
-            grid_thw, self.config, kwargs={}
-        )
+        cu_seqlens, max_seqlen = self.seqlens(grid_thw, self.config, kwargs={})
         captured = {}
         for index, layer in enumerate(self.layers, start=1):
             hidden = layer(
