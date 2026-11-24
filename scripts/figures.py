@@ -52,6 +52,7 @@ SOURCES = {
     "label_budget_overrides": {
         "minimax_m3": "diagnostics/minimax-m31-flash/m3-image-isolation/label_budget_standardized.json",
     },
+    "label_budget_dir": "diagnostics/standardized-label-budget",
     "model_overrides": {
         "minimax_m3": {
             "recognition": "diagnostics/minimax-m31-flash/m3-image-isolation/recognition/{model}_probe_{readout}_{arm}.json",
@@ -254,6 +255,11 @@ def label_budget_series() -> dict[str, dict[float, float]]:
             if not name.startswith(model + "_probe_")
         }
         runs.update(additional)
+    if "label_budget_dir" in SOURCES:
+        directory = RESULTS / SOURCES["label_budget_dir"]
+        if directory.is_dir():
+            for path in sorted(directory.glob("*_probe_*.json")):
+                runs[path.stem] = json.loads(path.read_text())
     series = defaultdict(dict)
     for name, payload in runs.items():
         model, cell = name.split("_probe_")
@@ -284,14 +290,14 @@ def label_budget(out: Path) -> None:
     axis.set_ylabel("recognition top-1 (attention, matched)")
     axis.set_title("Channels standardized before PCA", fontsize=10)
     axis.grid(alpha=0.25)
-    axis.legend(fontsize=7, ncol=2)
+    axis.legend(fontsize=7, loc="upper left", bbox_to_anchor=(1.01, 1.0), frameon=False)
     figure.tight_layout()
     figure.savefig(out, bbox_inches="tight")
     plt.close(figure)
 
 
 def relative_depth(out: Path, readout: str = "attention", arm: str = "matched") -> None:
-    figure, axis = plt.subplots(figsize=(6, 4))
+    figure, axis = plt.subplots(figsize=(6.4, 4.8))
     for model in TOWER_STAGE:
         path = measurement_path("recognition", model, readout=readout, arm=arm)
         cells = [
@@ -310,7 +316,7 @@ def relative_depth(out: Path, readout: str = "attention", arm: str = "matched") 
     axis.set_ylabel(f"top-1 accuracy, {readout} readout, {arm}")
     axis.set_title("Recognition across Relative Depth", fontsize=10)
     axis.grid(alpha=0.25)
-    axis.legend(fontsize=7, ncol=2)
+    axis.legend(fontsize=7, loc="upper left", bbox_to_anchor=(1.01, 1.0), frameon=False)
     figure.tight_layout()
     figure.savefig(out, bbox_inches="tight")
     plt.close(figure)
@@ -323,7 +329,7 @@ OCCLUSION: tuple[str, ...] = tuple(
 
 
 def occlusion(out: Path) -> None:
-    figure, axis = plt.subplots(figsize=(6, 4))
+    figure, axis = plt.subplots(figsize=(6.4, 4.6))
     for model in OCCLUSION:
         path = measurement_path("perturbation", model)
         payload = json.loads(path.read_text())
@@ -346,7 +352,7 @@ def occlusion(out: Path) -> None:
         fontsize=10,
     )
     axis.grid(alpha=0.25)
-    axis.legend(fontsize=7, ncol=2)
+    axis.legend(fontsize=7, loc="upper left", bbox_to_anchor=(1.01, 1.0), frameon=False)
     figure.tight_layout()
     figure.savefig(out, bbox_inches="tight")
     plt.close(figure)
