@@ -8,7 +8,7 @@ from vtb import cache, probe, probe_run
 from vtb.probe_run import fit_reducer
 
 PATCH_SOURCE = (
-    "r2:vtb/backups/v3/2026-10-19/proposed/reducer-channel-standardization.patch"
+    "r2:vtb/patches/reducer-channel-standardization.patch"
 )
 PATCH_SHA256 = "f5a2bc1dcda0e6be9a2d6abea9c1bcc9cb5817282ff6406489b5022dc65e330a"
 
