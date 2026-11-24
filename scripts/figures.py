@@ -95,9 +95,9 @@ def tower_name(label: str) -> str:
     matches = [
         tower for tower in TOWERS if label == tower or label.startswith(tower + "_")
     ]
-    if len(matches) != 1:
-        raise ValueError(f"cannot map {label!r} to one Tower")
-    return matches[0]
+    if not matches:
+        raise ValueError(f"cannot map {label!r} to a Tower")
+    return max(matches, key=len)
 
 
 def measurement_path(kind: str, model: str, **fields) -> Path:
