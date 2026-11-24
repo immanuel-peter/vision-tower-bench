@@ -131,7 +131,11 @@ PANELS = {
 def projector_intervals() -> dict[str, list[tuple[str, float, float, float]]]:
     panels = defaultdict(list)
     overrides = SOURCES.get("model_overrides", {})
-    paths = list(RESULTS.glob("bootstrap/*-projected-vs-tower.json"))
+    paths = [
+        path
+        for axis in ("geometry", "correspondence")
+        for path in RESULTS.glob(f"bootstrap/{axis}-*-projected-vs-tower.json")
+    ]
     for settings in overrides.values():
         if "projector_intervals" in settings:
             paths.extend(RESULTS.glob(settings["projector_intervals"]))

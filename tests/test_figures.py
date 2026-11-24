@@ -1,6 +1,7 @@
 """Keep the report figures aligned with the result suite."""
 
 import importlib.util
+import json
 from pathlib import Path
 
 import pytest
@@ -29,6 +30,31 @@ def test_tower_name_maps_every_label_to_its_own_tower(suffix):
 def test_tower_name_rejects_unknown_labels():
     with pytest.raises(ValueError):
         FIGURE_SCRIPT.tower_name("not_a_registered_tower")
+
+
+def test_projector_intervals_read_only_geometry_and_correspondence(
+    tmp_path, monkeypatch
+):
+    overrides = FIGURE_SCRIPT.SOURCES.get("model_overrides", {})
+    tower = next(
+        name
+        for name in FIGURE_SCRIPT.PROJECTORS
+        if "projector_intervals" not in overrides.get(name, {})
+    )
+    bootstrap = tmp_path / "bootstrap"
+    bootstrap.mkdir()
+    advantage = {"first_advantage": {"point_estimate": 0.1, "lower": 0.0, "upper": 0.2}}
+    for axis in ("geometry-depth-matched", "correspondence-navi"):
+        (bootstrap / f"{axis}-{tower}-projected-vs-tower.json").write_text(
+            json.dumps(advantage)
+        )
+    for axis in ("recognition-mean-raw", "perturbation"):
+        (bootstrap / f"{axis}-{tower}-projected-vs-tower.json").write_text(
+            json.dumps({"clean": {}, "conditions": {}})
+        )
+    monkeypatch.setattr(FIGURE_SCRIPT, "RESULTS", tmp_path)
+
+    assert set(FIGURE_SCRIPT.projector_intervals()) == {"depth-matched", "navi"}
 
 
 def test_roster_covers_the_registered_tower_suite():
