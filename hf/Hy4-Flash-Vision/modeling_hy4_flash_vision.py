@@ -107,10 +107,11 @@ class PatchEmbedding(nn.Module):
 
 
 class Attention(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config, per_image=False):
         super().__init__()
         width = config.hidden_size
         self.heads = config.num_attention_heads
+        self.per_image = per_image
         self.q_proj = nn.Linear(width, width)
         self.k_proj = nn.Linear(width, width)
         self.v_proj = nn.Linear(width, width)
@@ -125,7 +126,19 @@ class Attention(nn.Module):
             )
 
         q, k, v = heads(self.q_proj), heads(self.k_proj), heads(self.v_proj)
-        attended = F.scaled_dot_product_attention(q, k, v, scale=q.shape[-1] ** -0.5)
+        scale = q.shape[-1] ** -0.5
+        if self.per_image:
+            # One kernel per image, as the Hy4 reference dispatches it; the batched BF16 FlashAttention kernel rounds differently.
+            attended = torch.cat(
+                [
+                    F.scaled_dot_product_attention(
+                        q[i : i + 1], k[i : i + 1], v[i : i + 1], scale=scale
+                    )
+                    for i in range(batch)
+                ]
+            )
+        else:
+            attended = F.scaled_dot_product_attention(q, k, v, scale=scale)
         return self.o_proj(attended.transpose(1, 2).reshape(batch, length, -1))
 
 
@@ -140,10 +153,10 @@ class MLP(nn.Module):
 
 
 class Block(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config, per_image=False):
         super().__init__()
         self.input_layernorm = nn.LayerNorm(config.hidden_size, eps=config.rms_norm_eps)
-        self.self_attn = Attention(config)
+        self.self_attn = Attention(config, per_image)
         self.post_attention_layernorm = nn.LayerNorm(
             config.hidden_size, eps=config.rms_norm_eps
         )
@@ -214,12 +227,14 @@ class Hy4VisionBase(PreTrainedModel):
     main_input_name = "pixel_values"
     _no_split_modules = ["Block"]
     merged_channels_last = False
+    per_image_attention = False
 
     def __init__(self, config):
         super().__init__(config)
         self.embeddings = PatchEmbedding(config)
         self.layers = nn.ModuleList(
-            Block(config) for _ in range(config.num_hidden_layers)
+            Block(config, self.per_image_attention)
+            for _ in range(config.num_hidden_layers)
         )
         self.perceive = Projector(config)
         self.post_init()
@@ -245,6 +260,7 @@ class Hy4VisionBase(PreTrainedModel):
 class Hy4VisionModel(Hy4VisionBase):
     config_class = Hy4VisionConfig
     merged_channels_last = True
+    per_image_attention = True
 
     def forward(self, pixel_values, depths=()):
         return self.stages(pixel_values, depths)

@@ -734,6 +734,22 @@ def test_hy4_flash_forward_returns_the_projector_output_and_every_block(
     torch.testing.assert_close(projected, pooled[:, :, :2].reshape(2, 4, 12))
 
 
+def test_hy4_attends_per_image_and_hy4_flash_in_one_batched_call(tiny_hy4_adapter):
+    """Each release keeps the attention its published features were extracted with."""
+    assert tiny_hy4_adapter(hy4.HY4).model.layers[0].self_attn.per_image
+    assert not tiny_hy4_adapter(hy4.HY4_FLASH).model.layers[0].self_attn.per_image
+
+
+def test_hy4_per_image_attention_matches_one_batched_call_in_fp32(tiny_hy4_adapter):
+    attention = tiny_hy4_adapter(hy4.HY4).model.layers[0].self_attn
+    tokens = torch.randn(3, 16, 16)
+    with torch.inference_mode():
+        per_image = attention(tokens)
+        attention.per_image = False
+        batched = attention(tokens)
+    torch.testing.assert_close(per_image, batched, rtol=0, atol=1e-6)
+
+
 def test_hy4_projector_rmsnorm_and_gelu_match_the_parent_arithmetic(tiny_hy4_adapter):
     perceive = tiny_hy4_adapter(hy4.HY4).model.perceive
     tokens = torch.randn(1, 16, 16)
