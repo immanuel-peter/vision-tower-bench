@@ -29,6 +29,7 @@ def write_manifest(
     source_shards,
     *,
     merger_in_model=False,
+    projector_prefix="merger.",
     extra=None,
     allow_mixed_source=False,
 ):
@@ -51,7 +52,7 @@ def write_manifest(
                     raise ValueError("expected original BF16 source tensors")
                 dtypes[dtype] = dtypes.get(dtype, 0) + 1
         if part == "tower" and merger_in_model:
-            counts["projector"] = sum(key.startswith("merger.") for key in keys)
+            counts["projector"] = sum(key.startswith(projector_prefix) for key in keys)
             counts["tower"] = len(keys) - counts["projector"]
         else:
             counts[part] = len(keys)

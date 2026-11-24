@@ -20,10 +20,15 @@ requires_payloads = pytest.mark.skipif(
 )
 
 
-@pytest.mark.parametrize("model", ["minimax_m3", "minimax_m31_flash"])
 @pytest.mark.parametrize("suffix", ["", "_448_pool4"])
-def test_tower_name_distinguishes_minimax_siblings(model, suffix):
-    assert FIGURE_SCRIPT.tower_name(model + suffix) == model
+def test_tower_name_maps_every_label_to_its_own_tower(suffix):
+    for tower in FIGURE_SCRIPT.TOWERS:
+        assert FIGURE_SCRIPT.tower_name(tower + suffix) == tower
+
+
+def test_tower_name_rejects_unknown_labels():
+    with pytest.raises(ValueError):
+        FIGURE_SCRIPT.tower_name("not_a_registered_tower")
 
 
 def test_roster_covers_the_registered_tower_suite():
@@ -50,6 +55,9 @@ def test_roster_covers_the_registered_tower_suite():
         "mistral_large4",
         "pe_lang_l",
         "inkling2_small",
+        "inkling2_mini",
+        "hy4_flash",
+        "hy4",
     )
     assert set(FIGURE_SCRIPT.COLOUR) == set(FIGURE_SCRIPT.TOWERS)
     assert set(FIGURE_SCRIPT.DISPLAY) == set(FIGURE_SCRIPT.TOWERS)

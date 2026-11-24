@@ -202,6 +202,30 @@ ROSTER: tuple[Tower, ...] = (
         "#fd8d3c",
         8,
     ),
+    Tower(
+        "inkling2_mini",
+        "Inkling 2 Mini",
+        "immanuelpeter/Inkling-2-Mini-Vision",
+        "vtb.adapters.pe:Inkling2MiniAdapter",
+        "#3182bd",
+        8,
+    ),
+    Tower(
+        "hy4_flash",
+        "Hy4 Flash",
+        "immanuelpeter/Hy4-Flash-Vision",
+        "vtb.adapters.hy4:Hy4FlashAdapter",
+        "#5254a3",
+        16,
+    ),
+    Tower(
+        "hy4",
+        "Hy4",
+        "immanuelpeter/Hy4-Vision",
+        "vtb.adapters.hy4:Hy4Adapter",
+        "#6b6ecf",
+        4,
+    ),
 )
 SLUGS: tuple[str, ...] = tuple(tower.slug for tower in ROSTER)
 BY_SLUG: dict[str, Tower] = {tower.slug: tower for tower in ROSTER}

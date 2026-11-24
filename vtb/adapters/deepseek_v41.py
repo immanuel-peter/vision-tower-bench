@@ -16,6 +16,7 @@ from vtb.adapters.common import (
     make_batch,
 )
 from vtb.bundle import expect_tensors, write_bundle
+from vtb.bundle_manifest import write_manifest
 from vtb.feature_batch import FeatureBatch
 from vtb.models.deepseek_v41 import ARGS, PATCH_SIZE, Aligner, ViT
 from vtb.provenance import open_release
@@ -23,8 +24,8 @@ from vtb.shards import load_prefixed
 
 MODEL_ID = "immanuelpeter/DeepSeek-ViT"
 
-SOURCE_REPO = "deepseek-ai/DeepSeek-V4.1-Flash"
-SOURCE_REVISION = "dba1be0a40aa45a94ad051997016db3960a90277"
+SOURCE_REPO = "deepseek-ai/DeepSeek-V4.1-Flash-1017"
+SOURCE_REVISION = "08c8657f02291e11b6f6b63e0e16014f8e748518"
 VISION_SHARD = "model-00001-of-00048.safetensors"
 TOWER_PREFIX = "vision."
 ALIGNER_PREFIX = "aligner."
@@ -94,6 +95,7 @@ def export(out: Path) -> None:
         },
         license=Path(hf_hub_download(SOURCE_REPO, "LICENSE", revision=SOURCE_REVISION)),
     )
+    write_manifest(out, SOURCE_REPO, SOURCE_REVISION, [VISION_SHARD])
 
 
 def load_parts(dtype: torch.dtype) -> tuple[ViT, Aligner]:

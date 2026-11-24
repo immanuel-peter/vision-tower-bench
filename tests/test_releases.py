@@ -21,7 +21,7 @@ from transformers import (
 )
 
 from scripts import render_hf_templates
-from vtb.adapters import minimax_m3, nemotron_omni
+from vtb.adapters import hy4, minimax_m3, nemotron_omni
 from vtb.adapters.kimi_k26 import BUNDLE_FILES as KIMI_BUNDLE_FILES
 from vtb.adapters.moonvit_v2 import load_projector_weights
 from vtb.adapters.muse_glimmer import Projector
@@ -37,6 +37,8 @@ SIBLING_EXAMPLES = {
     "C-RADIOv4-H-3.5-Super": ("load_vision",),
     "DeepSeek-ViT": ("Aligner", "ViT"),
     "Gemma4-31B-Vision": ("load_projector",),
+    "Hy4-Flash-Vision": ("preprocess", "features"),
+    "Hy4-Vision": ("preprocess", "main"),
     "MiniMax-M3-Vision": ("load_projector",),
     "MiniMax-M3.1-Flash-Vision": ("main",),
     "MoonViT-K2.6": ("load_projector",),
@@ -60,6 +62,9 @@ def load_example(path):
         ("MiMoViT-2.6-Flash", "modeling_mimo_vision.py", "mimo26.py"),
         ("PixtralViT-Large-4", "modeling_pixtral_large4.py", "pixtral_large4.py"),
         ("Inkling-2-Small-Vision", "inkling2_vision.py", "inkling2.py"),
+        ("Inkling-2-Mini-Vision", "inkling2_vision.py", "inkling2.py"),
+        ("Hy4-Flash-Vision", "modeling_hy4_flash_vision.py", "hy4.py"),
+        ("Hy4-Vision", "modeling_hy4.py", "hy4.py"),
     ],
 )
 def test_shipped_modeling_code_is_a_byte_copy_of_vtb(bundle, shipped, source):
@@ -292,6 +297,9 @@ def test_maintained_bundle_manifests_record_counts_and_shards():
         "Qwen3.8-Flash-Next-Vision": (327, 6),
         "PixtralViT-Large-4": (272, 4),
         "MoonViT-K3.1-Pro": (165, 3),
+        "Hy4-Flash-Vision": (435, 6),
+        "Hy4-Vision": (643, 6),
+        "DeepSeek-ViT": (259, 4),
     }
     checked = 0
     for name, counts in expected.items():
@@ -349,3 +357,67 @@ def test_kimi_projector_file_matches_adapter_and_exact_gelu(tmp_path, dtype):
     with torch.inference_mode():
         expected = adapter.post_norm(adapter.proj(tokens))
         torch.testing.assert_close(example(tokens), expected, atol=0, rtol=0)
+
+
+HY4_FLASH_BUNDLE = HF / "Hy4-Flash-Vision"
+
+
+def test_hy4_flash_example_matches_the_benchmark_preprocess_and_stages(
+    tiny_hy4_adapter,
+):
+    module = load_example(HY4_FLASH_BUNDLE / "examples/inference.py")
+    pixels = np.arange(43 * 57 * 3, dtype=np.uint8).reshape(43, 57, 3)
+    image = Image.fromarray(pixels)
+    assert torch.equal(module.preprocess(image), hy4.Preprocess(512)(image))
+    adapter = tiny_hy4_adapter(hy4.HY4_FLASH)
+    pixels = torch.randn(1, 3, 64, 64)
+    expected = {
+        batch.stage: batch.tokens
+        for batch in adapter.extract({"pixel_values": pixels}, ["a"])
+    }
+    with torch.inference_mode():
+        actual = module.features(adapter.model, pixels)
+    for stage in ("tower", "merged", "projected"):
+        torch.testing.assert_close(actual[stage], expected[stage], rtol=0, atol=0)
+
+
+@pytest.mark.parametrize(
+    "bundle,modeling,model,revision",
+    [
+        (
+            "Hy4-Flash-Vision",
+            "modeling_hy4_flash_vision",
+            "Hy4FlashVision",
+            hy4.HY4_FLASH.revision,
+        ),
+        ("Hy4-Vision", "modeling_hy4", "Hy4Vision", hy4.HY4.revision),
+    ],
+)
+def test_hy4_bundles_declare_their_remote_code_and_attribution(
+    bundle, modeling, model, revision
+):
+    config = json.loads((HF / bundle / "config.json").read_text())
+    assert config["auto_map"] == {
+        "AutoConfig": f"{modeling}.{model}Config",
+        "AutoModel": f"{modeling}.{model}Model",
+    }
+    assert (
+        (HF / bundle / "LICENSE")
+        .read_text()
+        .lstrip()
+        .startswith("Tencent Hy License, Version 1.0")
+    )
+    notice = (HF / bundle / "NOTICE").read_text()
+    assert revision in notice and "Section 10" in notice
+
+
+@pytest.mark.parametrize("checkpoint", hy4.CHECKPOINTS.values(), ids=lambda c: c.name)
+def test_hy4_bundle_config_is_what_the_config_class_writes(tmp_path, checkpoint):
+    shipped = checkpoint.release_dir / "config.json"
+    config = checkpoint.config_class.from_pretrained(shipped.parent)
+    config.save_pretrained(tmp_path)
+    written = json.loads((tmp_path / "config.json").read_text())
+    published = json.loads(shipped.read_text())
+    assert written | {"transformers_version": None} == published | {
+        "transformers_version": None
+    }

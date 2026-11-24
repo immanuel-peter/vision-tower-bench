@@ -7,6 +7,7 @@ Run one with ``python -m vtb.parity <slug>``.
 """
 
 import argparse
+import ast
 import hashlib
 import json
 import sys
@@ -15,9 +16,12 @@ from importlib.util import find_spec
 from pathlib import Path
 
 import numpy as np
+import requests
 import torch
 import torch.nn.functional as F
 from PIL import Image
+
+from vtb.shards import cache_root
 
 
 def file_sha256(path: Path) -> str:
@@ -29,6 +33,39 @@ def tensor_sha256(tensor: torch.Tensor) -> str:
     return hashlib.sha256(
         tensor.detach().cpu().contiguous().view(torch.uint8).numpy().tobytes()
     ).hexdigest()
+
+
+def pinned_sources(repo: str, commit: str, sources: dict[str, str]) -> Path:
+    """Fetch files from a GitHub commit into the shard cache, checked against their SHA-256."""
+    root = cache_root().parent / "vtb-upstream" / f"{repo.replace('/', '__')}@{commit}"
+    for name, digest in sources.items():
+        path = root / name
+        if not path.is_file():
+            response = requests.get(
+                f"https://raw.githubusercontent.com/{repo}/{commit}/{name}", timeout=60
+            )
+            response.raise_for_status()
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(response.content)
+        if hashlib.sha256(path.read_bytes()).hexdigest() != digest:
+            raise ValueError(f"{path} does not match {repo}@{commit}")
+    return root
+
+
+def compile_nodes(
+    path: Path, wanted: set[str], namespace: dict, within: str | None = None
+) -> None:
+    """Run the named top-level classes and functions of a source file in ``namespace``, without its imports or decorators. ``within`` reads them from that class instead."""
+    body = ast.parse(path.read_text()).body
+    if within is not None:
+        body = next(n for n in body if getattr(n, "name", None) == within).body
+    nodes = [node for node in body if getattr(node, "name", None) in wanted]
+    missing = wanted - {node.name for node in nodes}
+    if missing:
+        raise ValueError(f"{sorted(missing)} not found in {path}")
+    for node in nodes:
+        node.decorator_list = []
+    exec(compile(ast.Module(body=nodes, type_ignores=[]), str(path), "exec"), namespace)
 
 
 def compare(actual: torch.Tensor, expected: torch.Tensor) -> dict:

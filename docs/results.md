@@ -19,7 +19,7 @@ Payloads are grouped by axis: `recognition/`, `geometry/`, `correspondence/`, `l
 ## Writing
 
 - **Payloads** are the JSON the `vtb` runners write, kept exactly as written, since they record their own method. Each goes into its axis directory and follows the file naming already used there, with roster slugs.
-- **The index** changes in two ways only. A new Tower gets a new `cohorts` entry, and a new kind of measurement gets a new `experiments` entry.
+- **The index** changes in three ways only. A new Tower gets a new `cohorts` entry, a new kind of measurement gets a new `experiments` entry, and each manifest gets a `cell_manifests` entry.
 - **Manifests** are the run's expected-cell TSV, placed in `manifests/`.
 - **Everything else** (notes, logs, checklists, summaries) stays in `tmp/<task>/`.
 

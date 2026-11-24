@@ -41,6 +41,9 @@ SOURCES = {
         "mistral_large4": "geometry/mistral_large4_geometry_depth_matched.json",
         "kimi_k31_pro": "geometry/kimi_k31_pro_geometry_depth_matched.json",
         "inkling2_small": "geometry/inkling2_small_geometry_depth_matched.json",
+        "inkling2_mini": "geometry/inkling2_mini_geometry_depth_matched.json",
+        "hy4_flash": "geometry/hy4_flash_geometry_depth_matched.json",
+        "hy4": "geometry/hy4_geometry_depth_matched.json",
     },
     "label_budget": "diagnostics/mimo26-tower-outlier-channel/label_budget_standardized.json",
     "label_budget_additional": [
@@ -92,9 +95,9 @@ def tower_name(label: str) -> str:
     matches = [
         tower for tower in TOWERS if label == tower or label.startswith(tower + "_")
     ]
-    if len(matches) != 1:
-        raise ValueError(f"cannot map {label!r} to one Tower")
-    return matches[0]
+    if not matches:
+        raise ValueError(f"cannot map {label!r} to a Tower")
+    return max(matches, key=len)
 
 
 def measurement_path(kind: str, model: str, **fields) -> Path:

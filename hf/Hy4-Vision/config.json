@@ -1,0 +1,20 @@
+{
+  "architectures": [
+    "Hy4VisionModel"
+  ],
+  "auto_map": {
+    "AutoConfig": "modeling_hy4.Hy4VisionConfig",
+    "AutoModel": "modeling_hy4.Hy4VisionModel"
+  },
+  "dtype": "bfloat16",
+  "hidden_size": 1536,
+  "intermediate_size": 6144,
+  "max_image_size": 2048,
+  "model_type": "vtb_hy4",
+  "num_attention_heads": 16,
+  "num_hidden_layers": 40,
+  "out_hidden_size": 6144,
+  "patch_size": 16,
+  "rms_norm_eps": 1e-05,
+  "transformers_version": "5.17.0"
+}

@@ -1,0 +1,12 @@
+Hy4 Vision
+This release includes vision weights from Tencent Hy4.
+Source: https://huggingface.co/tencent/Hy4/tree/c10c0de5b6f850703fb0a90e65d1c32b558b9167
+The weights are redistributed under the Tencent Hy License, Version 1.0.
+
+Changes: extracted the Tower and Projector from the parent checkpoint,
+removed the vit. prefix from tensor names, and added standalone modeling
+code. The benchmark uses 512-pixel RGB crops and omits image_newline tokens
+from the projected features. The original tensor values are preserved.
+
+Section 10 (Additional Commercial Terms) of the Tencent Hy License continues to apply to every recipient.
+modeling_hy4.py and examples/inference.py are original vision-tower-bench code under the MIT license in LICENSE-CODE.

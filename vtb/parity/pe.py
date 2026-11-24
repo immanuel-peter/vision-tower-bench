@@ -1,27 +1,24 @@
-"""PE-Lang L and Inkling 2 Small against references that never run timm's Eva.
+"""PE-Lang L and the Inkling 2 Towers against references that never run timm's Eva.
 
 PE-Lang L: the weights cell renames Meta's PE-native tensors to timm's names and compares them with the
 timm checkpoint the adapter loads. The forward cells run the SHA-pinned perception_models
 ``core/vision_encoder`` sources on the PE-native tensors.
 
-Inkling 2 Small: the weights cells compare the release with the pinned parent's ``model.visual.*``
+Inkling 2 Small and Mini: the weights cells compare the release with the pinned parent's ``model.visual.*``
 tensors, and ``remap`` covers what parity cannot see. The forward cells run the eager per-image
 reference from vLLM's Inkling 2 vision test, with vLLM's own vision classes and weight loader, on
 the parent's tensors. Both are compiled from the pinned PR head. The reference only runs in BF16 on CUDA.
 """
 
 import ast
-import hashlib
 import importlib
 import sys
 import types
 from collections import Counter
 from collections.abc import Iterable, Mapping
-from pathlib import Path
 from typing import Any, NamedTuple
 
 import numpy as np
-import requests
 import torch
 import torch.nn.functional as F
 from huggingface_hub import hf_hub_download
@@ -30,12 +27,12 @@ from torch import nn
 
 from vtb.adapters.pe import (
     DEPTH,
+    INKLING2,
     INKLING2_SMALL,
     PE_LANG_L,
     PROJECTOR_TENSORS,
     TOWER_TENSORS,
     VLLM_REFERENCE,
-    Inkling2SmallAdapter,
     PELangLAdapter,
     remap_checks,
     source_json,
@@ -44,8 +41,14 @@ from vtb.adapters.pe import (
     timm_weights,
 )
 from vtb.images import square_crop
-from vtb.parity import compare, features, fixed_images, weights_match
-from vtb.shards import cache_root
+from vtb.parity import (
+    compare,
+    features,
+    fixed_images,
+    pinned_sources,
+    weights_match,
+)
+from vtb.roster import BY_SLUG
 
 REFERENCE_REPO = "facebook/vit_pe_lang_large_patch14_448_timm"
 REFERENCE_REVISION = "7eb04e215d0e6e18a21f782a9abc605343dcb503"
@@ -74,15 +77,14 @@ VLLM_CLASSES = (
 VLLM_HELPERS = ("_linear", "_rope", "_normalize", "_reference_image")
 VLLM_CONSTANTS = ("_CLIP_MEAN", "_CLIP_STD", "_PROCESSOR_CLIP_STD")
 PE_TENSORS = 327
-# Relative L2 per cell. PE-Lang L in FP32 on CPU is bit-exact; in BF16 on CUDA it reaches 0.039 at L23,
-# where each implementation is already 0.057 from its own FP32 output. Inkling 2 Small against vLLM's
-# BF16 reference reaches 0.033 at L23.
+# Relative L2 per cell. PE-Lang L in FP32 on CPU is bit-exact. In BF16 on CUDA, each implementation is already
+# about 0.05 from its own FP32 output at L23, which bounds how closely two of them can agree.
 TOLERANCE = {
     PE_LANG_L.name: {torch.bfloat16: 0.05, torch.float32: 1e-5},
-    INKLING2_SMALL.name: {torch.bfloat16: 0.05},
+    **{checkpoint.name: {torch.bfloat16: 0.06} for checkpoint in INKLING2},
 }
-DTYPE = {INKLING2_SMALL.name: torch.bfloat16}
-REQUIRES_CUDA = {INKLING2_SMALL.name: True}
+DTYPE = {checkpoint.name: torch.bfloat16 for checkpoint in INKLING2}
+REQUIRES_CUDA = {checkpoint.name: True for checkpoint in INKLING2}
 
 RENAMES = (
     ("class_embedding", "cls_token"),
@@ -119,23 +121,6 @@ def to_timm(weights: dict[str, torch.Tensor]) -> dict[str, torch.Tensor]:
             tensor.view(TIMM_SHAPES[name]) if name in TIMM_SHAPES else tensor
         )
     return renamed
-
-
-def pinned_sources(repo: str, commit: str, sources: dict[str, str]) -> Path:
-    """Fetch files from a GitHub commit into the shard cache, checked against their SHA-256."""
-    root = cache_root().parent / "vtb-upstream" / f"{repo.replace('/', '__')}@{commit}"
-    for name, digest in sources.items():
-        path = root / name
-        if not path.is_file():
-            response = requests.get(
-                f"https://raw.githubusercontent.com/{repo}/{commit}/{name}", timeout=60
-            )
-            response.raise_for_status()
-            path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_bytes(response.content)
-        if hashlib.sha256(path.read_bytes()).hexdigest() != digest:
-            raise ValueError(f"{path} does not match {repo}@{commit}")
-    return root
 
 
 def upstream_pe():
@@ -187,8 +172,8 @@ def reference_features(
 def validate(
     checkpoint=PE_LANG_L, device: str = "cpu", dtype: torch.dtype = torch.float32
 ) -> dict:
-    if checkpoint is INKLING2_SMALL:
-        return validate_inkling(device, dtype)
+    if checkpoint in INKLING2:
+        return validate_inkling(checkpoint, device, dtype)
     native = reference_weights()
     report = {
         "model": checkpoint.name,
@@ -330,8 +315,9 @@ def vllm_features(
     return {**captured, "pixels": pixels.float().cpu()}
 
 
-def validate_inkling(device: str = "cuda", dtype: torch.dtype = torch.bfloat16) -> dict:
-    checkpoint = INKLING2_SMALL
+def validate_inkling(
+    checkpoint=INKLING2_SMALL, device: str = "cuda", dtype: torch.dtype = torch.bfloat16
+) -> dict:
     if not str(device).startswith("cuda") or dtype != torch.bfloat16:
         raise ValueError("the vLLM reference runs in BF16 on CUDA")
     parent = source_weights(checkpoint)
@@ -352,7 +338,7 @@ def validate_inkling(device: str = "cuda", dtype: torch.dtype = torch.bfloat16) 
                 PROJECTOR_TENSORS,
             ),
         },
-        "remap": remap_checks(parent),
+        "remap": remap_checks(checkpoint, parent),
     }
     config = source_json(checkpoint, "config.json")
     namespace = vllm_reference()
@@ -360,7 +346,7 @@ def validate_inkling(device: str = "cuda", dtype: torch.dtype = torch.bfloat16) 
         namespace, parent, config["vision_config"], config["text_config"]["hidden_size"]
     )
     del parent, tower, projector
-    adapter = Inkling2SmallAdapter(device=device, dtype=dtype)
+    adapter = BY_SLUG[checkpoint.name].adapter()(device=device, dtype=dtype)
     images = fixed_images()
     actual = features(adapter, images)
     references = [

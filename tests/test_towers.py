@@ -24,6 +24,7 @@ from transformers import (
 
 from vtb.adapters import (
     dinov3,
+    hy4,
     mimo26,
     minimax_m3,
     mistral_large4,
@@ -32,6 +33,7 @@ from vtb.adapters import (
     pe,
 )
 from vtb.adapters.common import IMAGENET_MEAN, IMAGENET_STD
+from vtb.models import hy4 as hy4_model
 from vtb.models import inkling2
 from vtb.parity import fixed_images
 from vtb.roster import BY_SLUG, SLUGS
@@ -82,6 +84,8 @@ PREPROCESSED = {
     "mistral_large4": (3, 448, 448),
     "pe_lang_l": (3, 448, 448),
     "inkling2_small": (3, 640, 640),
+    "inkling2_mini": (3, 640, 640),
+    "hy4_flash": (3, 512, 512),
     "kimi_k26": (1024, 3, 14, 14),
     "moonvit_v2": (1024, 3, 14, 14),
     "kimi_k31_pro": (1024, 3, 14, 14),
@@ -95,6 +99,7 @@ PREPROCESSED = {
     "mimo26_pro": (784, 1536),
     "mimo26_flash": (784, 1536),
     "gemma4": (900, 768),
+    "hy4": (3, 512, 512),
 }
 
 
@@ -107,6 +112,7 @@ def test_preprocess_produces_the_expected_patch_grid(slug):
 
 
 REJECTED_RESOLUTIONS = {
+    "hy4": [0, 448, 544, 2048],
     "dinov3": [0, -16, 449, 511],
     "mimo26_pro": [0, -32, 240, 447],
     "qwen3_5": [0, -32, 447, 16],
@@ -114,6 +120,8 @@ REJECTED_RESOLUTIONS = {
     "nemotron35_super": [0, 16, 33, 447],
     "pe_lang_l": [0, 224, 434, 462],
     "inkling2_small": [0, 448, 600, 680],
+    "inkling2_mini": [0, 448, 600, 680],
+    "hy4_flash": [0, 448, 544, 1024],
 }
 
 
@@ -197,6 +205,12 @@ def pe_reference(image: Image.Image, resolution: int) -> torch.Tensor:
     return timm.data.create_transform(**config)(image)
 
 
+def hy4_flash_reference(image: Image.Image, resolution: int) -> torch.Tensor:
+    """The parent processor's rescale by 1/255, then mean and std 0.5, on the bench square."""
+    raw = torch.from_numpy(np.array(bench_crop(image, resolution))).permute(2, 0, 1)
+    return (raw.float() * (1 / 255) - 0.5) / 0.5
+
+
 def kimi_reference(checkpoint):
     def reference(image: Image.Image, resolution: int) -> torch.Tensor:
         processor = AutoImageProcessor.from_pretrained(
@@ -221,6 +235,7 @@ PARENT_PREPROCESSING = [
     pytest.param("mistral_large4", mistral_reference, 1e-5, id="mistral_large4"),
     pytest.param("nemotron35_super", nemotron_reference, 0, id="nemotron35"),
     pytest.param("pe_lang_l", pe_reference, 0, id="pe_lang_l"),
+    pytest.param("hy4_flash", hy4_flash_reference, 1e-6, id="hy4_flash"),
     *(
         pytest.param(
             slug, kimi_reference(checkpoint), 1e-6, id=slug, marks=needs_weights
@@ -451,6 +466,48 @@ def test_inkling_preprocess_rounds_like_the_parent_and_stays_near_half_normaliza
     assert (pixels - half).abs().max() < 0.02
 
 
+@pytest.mark.parametrize("checkpoint", pe.INKLING2, ids=lambda c: c.name)
+def test_inkling_remap_flags_a_sibling_and_reads_the_projector_width_from_the_parent(
+    monkeypatch, checkpoint
+):
+    weights = {
+        **tiny_inkling_weights(),
+        "proj_in.weight": torch.randn(4096, 32),
+        "proj_out.weight": torch.randn(2304, 4096),
+    }
+    weights = {
+        **weights,
+        **{
+            f"backbone.extra.{index}": torch.zeros(1)
+            for index in range(pe.TOWER_TENSORS - len(weights) + 2)
+        },
+    }
+    sibling = {name: tensor.clone() for name, tensor in weights.items()}
+    sibling["backbone.ln_pre.weight"] += 1
+    monkeypatch.setattr(pe, "timm_weights", lambda _checkpoint: {})
+    monkeypatch.setattr(
+        pe, "source_json", lambda *_: {"text_config": {"hidden_size": 2304}}
+    )
+    monkeypatch.setattr(pe, "source_weights", lambda _checkpoint: sibling)
+    monkeypatch.setattr(
+        inkling2,
+        "to_timm",
+        lambda _tower: {
+            name: torch.zeros(1) for name in ("patch_embed.proj.weight", "pos_embed")
+        },
+    )
+    report = pe.remap_checks(checkpoint, weights)
+    (other,) = (c.name for c in pe.INKLING2 if c is not checkpoint)
+    assert report["shapes"]["proj_out.weight"]["expected"] == [2304, 4096]
+    assert "backbone.ln_pre.weight" not in report["sibling_equal"][other]
+    assert "proj_out.weight" in report["sibling_equal"][other]
+    assert not report["passed"]
+    assert (
+        pe.remap_checks(checkpoint, weights, compare_siblings=False)["sibling_equal"]
+        == {}
+    )
+
+
 def test_inkling_projector_uses_exact_gelu():
     projector = inkling2.Projector(8, 6, 4)
     tokens = torch.randn(2, 3, 8)
@@ -586,3 +643,179 @@ def test_dinov3_every_depth_matches_independent_parent_block_hooks(
         assert batch.tokens.shape == (2, (resolution // 16) ** 2, 1024)
         assert torch.equal(batch.tokens, expected), batch.layer_index
     assert not torch.equal(streams[24], final)
+
+
+HY4_CHECKPOINTS = pytest.mark.parametrize(
+    "checkpoint", hy4.CHECKPOINTS.values(), ids=lambda c: c.name
+)
+
+
+def test_hy4_positions_use_the_parents_shifted_scale_factor():
+    """A linear ramp sampled at (out + 0.5) * 128 / (size + 0.1) - 0.5, not at size= coordinates."""
+    config = hy4_model.Hy4VisionConfig(hidden_size=2, max_image_size=2048)
+    embeddings = hy4_model.PatchEmbedding(config)
+    edge = embeddings.position_edge
+    rows, cols = torch.meshgrid(
+        torch.arange(edge, dtype=torch.float32),
+        torch.arange(edge, dtype=torch.float32),
+        indexing="ij",
+    )
+    with torch.no_grad():
+        embeddings.position_embedding.weight[0] = float("nan")
+        embeddings.position_embedding.weight[1:] = torch.stack(
+            [rows.flatten(), cols.flatten()], -1
+        )
+    table = embeddings.interpolate_pos_encoding(32, 24, torch.float32)
+    sample_rows = ((torch.arange(32) + 0.5) * edge / 32.1 - 0.5).clamp(0, edge - 1)
+    sample_cols = ((torch.arange(24) + 0.5) * edge / 24.1 - 0.5).clamp(0, edge - 1)
+    expected = torch.stack(torch.meshgrid(sample_rows, sample_cols, indexing="ij"), -1)
+    torch.testing.assert_close(table, expected.reshape(1, -1, 2), rtol=0, atol=1e-4)
+    plain = ((torch.arange(32) + 0.5) * edge / 32 - 0.5).clamp(0, edge - 1)
+    assert (table.reshape(32, 24, 2)[:, 0, 0] - plain).abs().max() > 0.1
+
+
+@HY4_CHECKPOINTS
+def test_hy4_embeds_each_patch_in_raster_order(tiny_hy4_adapter, checkpoint):
+    adapter = tiny_hy4_adapter(checkpoint)
+    pixels = torch.randn(2, 3, 64, 64)
+    tokens = adapter.model.embeddings(pixels)
+    conv = adapter.model.embeddings.patch_embedding(pixels).flatten(2).transpose(1, 2)
+    positions = adapter.model.embeddings.interpolate_pos_encoding(4, 4, torch.float32)
+    torch.testing.assert_close(tokens, conv + positions)
+
+
+@HY4_CHECKPOINTS
+def test_hy4_merged_is_what_proj0_reads_and_projected_drops_the_newline(
+    tiny_hy4_adapter, checkpoint
+):
+    adapter = tiny_hy4_adapter(checkpoint)
+    pixels = torch.randn(2, 3, 64, 64)
+    batches = {
+        (b.stage, b.layer_index): b.tokens
+        for b in adapter.extract({"pixel_values": pixels}, ["a", "b"])
+    }
+    assert list(batches) == [("tower", n) for n in range(1, 9)] + [
+        ("merged", 8),
+        ("projected", 8),
+    ]
+    perceive = adapter.model.perceive
+    conv = perceive.proj[0]
+    merged = batches[("merged", 8)]
+    assert merged.shape == (2, 4, 64)
+    # Hy4 orders each block (row, column, channel); proj.0 reads (channel, row, column).
+    read = (
+        merged
+        if checkpoint is hy4.HY4_FLASH
+        else merged.reshape(2, 4, 2, 2, 16).permute(0, 1, 4, 2, 3).reshape(2, 4, 64)
+    )
+    with torch.inference_mode():
+        last = batches[("tower", 8)]
+        first = read @ conv.weight.reshape(64, -1).T + conv.bias
+        reference = conv(perceive.norm(last).reshape(2, 4, 4, 16).permute(0, 3, 1, 2))
+        pooled = perceive(last, (4, 4)).reshape(2, 2, 3, 12)
+    torch.testing.assert_close(first, reference.flatten(2).transpose(1, 2))
+    torch.testing.assert_close(
+        batches[("projected", 8)], pooled[:, :, :2].reshape(2, 4, 12)
+    )
+    assert torch.equal(pooled[:, :, 2], perceive.image_newline.expand(2, 2, 12))
+
+
+def test_hy4_flash_forward_returns_the_projector_output_and_every_block(
+    tiny_hy4_adapter,
+):
+    adapter = tiny_hy4_adapter(hy4.HY4_FLASH)
+    pixels = torch.randn(2, 3, 64, 64)
+    with torch.inference_mode():
+        out = adapter.model(pixels, output_hidden_states=True)
+        hidden, _, projected = adapter.model.stages(pixels, (8,))
+    assert len(out.hidden_states) == 9
+    torch.testing.assert_close(out.last_hidden_state, hidden[8])
+    pooled = out.pooler_output.reshape(2, 2, 3, 12)
+    torch.testing.assert_close(projected, pooled[:, :, :2].reshape(2, 4, 12))
+
+
+def test_hy4_attends_per_image_and_hy4_flash_in_one_batched_call(tiny_hy4_adapter):
+    """Each release keeps the attention its published features were extracted with."""
+    assert tiny_hy4_adapter(hy4.HY4).model.layers[0].self_attn.per_image
+    assert not tiny_hy4_adapter(hy4.HY4_FLASH).model.layers[0].self_attn.per_image
+
+
+def test_hy4_per_image_attention_matches_one_batched_call_in_fp32(tiny_hy4_adapter):
+    attention = tiny_hy4_adapter(hy4.HY4).model.layers[0].self_attn
+    tokens = torch.randn(3, 16, 16)
+    with torch.inference_mode():
+        per_image = attention(tokens)
+        attention.per_image = False
+        batched = attention(tokens)
+    torch.testing.assert_close(per_image, batched, rtol=0, atol=1e-6)
+
+
+def test_hy4_projector_rmsnorm_and_gelu_match_the_parent_arithmetic(tiny_hy4_adapter):
+    perceive = tiny_hy4_adapter(hy4.HY4).model.perceive
+    tokens = torch.randn(1, 16, 16)
+    expected = tokens * torch.rsqrt(tokens.pow(2).mean(-1, keepdim=True) + 1e-5)
+    torch.testing.assert_close(perceive.norm(tokens), perceive.norm.weight * expected)
+    assert perceive.norm.eps == 1e-5 and perceive.proj[1].approximate == "none"
+
+
+@HY4_CHECKPOINTS
+def test_hy4_keeps_images_out_of_each_others_features(tiny_hy4_adapter, checkpoint):
+    adapter = tiny_hy4_adapter(checkpoint)
+    first, second = torch.randn(1, 3, 64, 64), torch.randn(1, 3, 64, 64)
+    alone = list(adapter.extract({"pixel_values": first}, ["first"]))
+    paired = list(
+        adapter.extract(
+            {"pixel_values": torch.cat([second, first])}, ["second", "first"]
+        )
+    )
+    for single, batch in zip(alone, paired, strict=True):
+        torch.testing.assert_close(single.tokens[0], batch.tokens[1], rtol=0, atol=1e-5)
+
+
+@HY4_CHECKPOINTS
+def test_hy4_rejects_mismatched_pixels_and_ids(tiny_hy4_adapter, checkpoint):
+    adapter = tiny_hy4_adapter(checkpoint)
+    with pytest.raises(ValueError, match="shape"):
+        list(adapter.extract({"pixel_values": torch.randn(1, 3, 96, 96)}, ["a"]))
+    with pytest.raises(ValueError, match="count"):
+        list(adapter.extract({"pixel_values": torch.randn(2, 3, 64, 64)}, ["a"]))
+
+
+def test_hy4_preprocess_normalizes_and_converts_grayscale():
+    pixels = preprocess_for("hy4")(Image.new("L", (640, 480), 64))
+    torch.testing.assert_close(pixels, torch.full_like(pixels, 2 * (64 / 255) - 1))
+
+
+def test_hy4_forward_returns_stages_in_the_published_tuple():
+    config = hy4_model.Hy4VisionConfig(
+        hidden_size=8,
+        intermediate_size=16,
+        num_hidden_layers=2,
+        num_attention_heads=2,
+        out_hidden_size=12,
+        patch_size=4,
+        max_image_size=32,
+    )
+    model = hy4_model.Hy4VisionModel(config).eval()
+    pixels = torch.linspace(-1, 1, 2 * 3 * 16 * 16).reshape(2, 3, 16, 16)
+    with torch.inference_mode():
+        hidden, merged, projected = model(pixels, depths=(1, 2))
+        final = model.perceive.norm(hidden[2]).reshape(2, 4, 4, 8)
+        expected = torch.stack(
+            [
+                final[:, row : row + 2, col : col + 2].reshape(2, -1)
+                for row in (0, 2)
+                for col in (0, 2)
+            ],
+            dim=1,
+        )
+        torch.testing.assert_close(merged, expected)
+        assert projected.shape == (2, 4, 12)
+        for i in range(2):
+            single, single_merged, single_projected = model(
+                pixels[i : i + 1], depths=(1, 2)
+            )
+            for depth in hidden:
+                torch.testing.assert_close(hidden[depth][i : i + 1], single[depth])
+            torch.testing.assert_close(merged[i : i + 1], single_merged)
+            torch.testing.assert_close(projected[i : i + 1], single_projected)
