@@ -123,6 +123,27 @@ def test_correspondence_runner_keeps_full_patch_grid_defaults():
     assert args.num_correspondences == 1_000
 
 
+def test_navi_pairs_need_only_wild_set(
+    tmp_path,
+):
+    from vtb.correspondence_run import NAVIPairs
+
+    for name in ("shoe_right_gray_s", "zebra"):
+        wild = tmp_path / name / "wild_set"
+        (wild / "images").mkdir(parents=True)
+        annotations = []
+        for image_id, q in (("0", [1, 0, 0, 0]), ("1", [0.7071, 0, 0, 0.7071])):
+            (wild / "images" / f"{image_id}.jpg").touch()
+            annotations.append(
+                {"filename": f"{image_id}.jpg", "camera": {"q": q, "t": [0, 0, 0]}}
+            )
+        (wild / "annotations.json").write_text(json.dumps(annotations))
+
+    rows = NAVIPairs(tmp_path, 224).rows
+
+    assert [row[0] for row in rows] == ["zebra"]
+
+
 def test_scannet_rgb_is_aligned_to_the_depth_and_intrinsics_frame():
     from vtb.correspondence_run import align_rgb_to_depth
 
