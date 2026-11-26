@@ -205,6 +205,10 @@ class ScanNetPairs:
         }
 
 
+# The one wild_set object without a multiview capture, which the original multiview_* filter dropped.
+NAVI_EXCLUDED = {"shoe_right_gray_s"}
+
+
 class NAVIPairs:
     name = "navi"
 
@@ -214,7 +218,7 @@ class NAVIPairs:
         generator = torch.Generator().manual_seed(8)
         for object_dir in sorted(path for path in root.iterdir() if path.is_dir()):
             wild = object_dir / "wild_set"
-            if not wild.exists() or not any(object_dir.glob("multiview_*")):
+            if not wild.exists() or object_dir.name in NAVI_EXCLUDED:
                 continue
             annotations = json.loads((wild / "annotations.json").read_text())
             annotations = {row["filename"].split(".")[0]: row for row in annotations}
